@@ -237,10 +237,8 @@ QUERY_SPECS_SPECIFIC_LEGACY = {
     "tomcat": [
         ("*:type=Manager,*", "activeSessions,maxActiveSessions", None, ["path", "context"], False),
         ("*:j2eeType=Servlet,name=default,*", "stateName", None, ["WebModule"], False),
-        # Check not yet working
-        ("*:j2eeType=Servlet,name=default,*", "requestCount", None, ["WebModule"], False),
-        # too wide location for addressing the right info
-        # ( "*:j2eeType=Servlet,*", "requestCount", None, [ "WebModule" ] , False),
+        # Query all servlets; fetch_metric sums requestCount per web application.
+        ("*:j2eeType=Servlet,*", "requestCount", None, ["WebModule"], False),
     ],
     "jboss": [
         ("*:type=Manager,*", "activeSessions,maxActiveSessions", None, ["path", "context"], False),
@@ -564,6 +562,13 @@ def extract_item(key, itemspec):
 def fetch_metric(inst, path, title, itemspec, inst_add=None):
     values = fetch_var(inst, "read", path, use_target=True)
     item_list = make_item_list((), values, itemspec)
+
+    # Tomcat reports requestCount per servlet; sum them per web application.
+    if path == "*:j2eeType=Servlet,*/requestCount":
+        totals: dict[tuple[Any, ...], int] = {}
+        for subinstance, request_count in item_list:
+            totals[subinstance] = totals.get(subinstance, 0) + request_count
+        item_list = list(totals.items())
 
     for subinstance, value in item_list:
         if not subinstance and not title:
