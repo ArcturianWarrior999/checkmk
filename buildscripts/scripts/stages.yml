@@ -122,7 +122,6 @@ STAGES:
           # lint-with-psscriptanalyzer tag (separate follow-up).
           ./scripts/in_bazel.sh ".ps1" "filegroup" \
               `# CMK-35750` \
-              --known-offender agents/modules/windows/make_cab.ps1 \
               --known-offender agents/windows/unit_tests_ps1/hyperv_host.Tests.ps1 \
               --known-offender agents/windows/unit_tests_ps1/kaspersky_av_client.Tests.ps1 \
               --known-offender agents/windows/unit_tests_ps1/mk_inventory.Tests.ps1 \
