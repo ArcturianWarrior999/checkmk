@@ -17,7 +17,7 @@ void build(Map args) {
         } else {
             dir(artifacts_dir) {
                 copyArtifacts(
-                    projectName: "${jenkins_base_folder}/winagt-build-modules",
+                    projectName: "${jenkins_base_folder}/winagt-build-modules-linux",
                 )
             }
         }
