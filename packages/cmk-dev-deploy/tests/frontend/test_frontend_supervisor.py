@@ -22,7 +22,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cmk.dev_deploy.errors import DeployError, FrontendError
-from cmk.dev_deploy.site.privilege import SSHState
 from cmk.dev_deploy.types import (
     ChangeCategory,
     ChangeSet,
@@ -30,12 +29,6 @@ from cmk.dev_deploy.types import (
     FrontendConfig,
     InstallSpec,
 )
-
-
-def _ssh_state() -> SSHState:
-    """Create a fresh SSHState for test use."""
-    return SSHState()
-
 
 # ---------------------------------------------------------------------------
 # TestFrontendError
@@ -1145,7 +1138,7 @@ class TestShutdownParity:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 0
         mock_supervisor.stop.assert_called()
 
@@ -1175,7 +1168,7 @@ class TestShutdownParity:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 1
         # supervisor.stop() MUST be called on crash path for descendant cleanup
         mock_supervisor.stop.assert_called()
@@ -1210,7 +1203,7 @@ class TestShutdownParity:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend_watch(mock_args, tmp_path, mock_site, _ssh_state())
+            result = _run_frontend_watch(mock_args, tmp_path, mock_site)
         assert result == 0
         mock_supervisor.stop.assert_called()
 
@@ -1620,7 +1613,7 @@ class TestRunFrontend:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 1
 
     def test_run_frontend_start_failure(self, tmp_path: Path) -> None:
@@ -1647,7 +1640,7 @@ class TestRunFrontend:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 1
 
     def test_run_frontend_keyboard_interrupt(self, tmp_path: Path) -> None:
@@ -1676,7 +1669,7 @@ class TestRunFrontend:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 0
         mock_supervisor.stop.assert_called()
         # Should print "Frontend supervisor stopped."
@@ -1707,7 +1700,7 @@ class TestRunFrontend:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
         assert result == 1
         mock_output.error.assert_any_call("iBazel frontend supervisor crashed")
 
@@ -1736,7 +1729,7 @@ class TestRunFrontend:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend(tmp_path, mock_site, _ssh_state())
+            result = _run_frontend(tmp_path, mock_site)
 
         assert result == 0
         # Verify startup banner
@@ -2210,7 +2203,7 @@ class TestRunFrontendWatch:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend_watch(mock_args, tmp_path, mock_site, _ssh_state())
+            result = _run_frontend_watch(mock_args, tmp_path, mock_site)
 
         assert result == 0
         mock_supervisor.start.assert_called_once()
@@ -2234,7 +2227,7 @@ class TestRunFrontendWatch:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend_watch(mock_args, tmp_path, mock_site, _ssh_state())
+            result = _run_frontend_watch(mock_args, tmp_path, mock_site)
 
         assert result == 1
 
@@ -2265,7 +2258,7 @@ class TestRunFrontendWatch:
             patch("cmk.dev_deploy.site.site_config.write_override", return_value=True),
             patch("cmk.dev_deploy.site.site_config.remove_override", return_value=True),
         ):
-            result = _run_frontend_watch(mock_args, tmp_path, mock_site, _ssh_state())
+            result = _run_frontend_watch(mock_args, tmp_path, mock_site)
 
         assert result == 1
 

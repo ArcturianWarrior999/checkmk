@@ -9,7 +9,6 @@ Deploy local changes to a running OMD site in under 5 seconds.
 - A local OMD site -- install one with `cmk-dev-install` / `cmk-dev-install-site` (from the `cmk-dev-site` pipx package)
 - `sudo` access (for the one-time installation of the per-site sudoers rule)
 - Bazel (the project's build system)
-- Optional: a dedicated SSH key for passwordless site-user commands (see [SSH key setup](#ssh-key-setup))
 
 ## Quick Start
 
@@ -312,27 +311,6 @@ The codebase supports five editions: `community`, `pro`, `ultimate`, `ultimatemt
 - Skips Bazel install specs that don't match the site edition (e.g. CMC binaries on a community site)
 - Builds edition-correct wheels (`--cmk_edition` resolves the wheel lists and the `select()`ed non-free contents of `//cmk:whl`)
 - Skips edition-gated service restarts (e.g. CMC and DCD only on pro+ editions)
-
-## SSH Key Setup
-
-SSH keys are used by the **overlay backend only** -- the clone backend runs all site-user commands through its sudoers rule instead.
-
-After the overlay is mounted, the tool injects your SSH public key into the site user's `authorized_keys` on the overlay. This lets subsequent `omd restart` commands run via SSH instead of sudo, which is faster and doesn't require a cached sudo timestamp.
-
-The tool looks for keys in this order:
-
-1. `~/.ssh/cmk-dev-deploy` (dedicated, passphrase-free -- recommended)
-2. `~/.ssh/id_ed25519`
-3. `~/.ssh/id_rsa`
-4. `~/.ssh/id_ecdsa`
-
-To create a dedicated deploy key (recommended, avoids Yubikey touch prompts):
-
-```bash
-ssh-keygen -t ed25519 -f ~/.ssh/cmk-dev-deploy -N ""
-```
-
-If SSH is unavailable, the tool falls back to `sudo --login -u <site>` for service commands.
 
 ## Troubleshooting
 

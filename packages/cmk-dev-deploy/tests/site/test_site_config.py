@@ -13,7 +13,6 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cmk.dev_deploy.site.privilege import SSHState
 from cmk.dev_deploy.site.site_config import (
     _MK_CONTENT,
     _mk_file_exists,
@@ -78,20 +77,20 @@ class TestCheckSiteRunning:
         mock_result = MagicMock()
         mock_result.returncode = 0
         with patch("cmk.dev_deploy.site.site_config.run_as_site_user", return_value=mock_result):
-            assert check_site_running("v260", SSHState()) is True
+            assert check_site_running("v260") is True
 
     def test_stopped_site_returns_false(self) -> None:
         mock_result = MagicMock()
         mock_result.returncode = 1
         with patch("cmk.dev_deploy.site.site_config.run_as_site_user", return_value=mock_result):
-            assert check_site_running("v260", SSHState()) is False
+            assert check_site_running("v260") is False
 
     def test_exception_returns_false(self) -> None:
         with patch(
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             side_effect=Exception("connection failed"),
         ):
-            assert check_site_running("v260", SSHState()) is False
+            assert check_site_running("v260") is False
 
     def test_calls_omd_status(self) -> None:
         mock_result = MagicMock()
@@ -99,9 +98,8 @@ class TestCheckSiteRunning:
         with patch(
             "cmk.dev_deploy.site.site_config.run_as_site_user", return_value=mock_result
         ) as mock_run:
-            state = SSHState()
-            check_site_running("v260", state)
-            mock_run.assert_called_once_with("v260", "omd status", state, timeout=10)
+            check_site_running("v260")
+            mock_run.assert_called_once_with("v260", "omd status", timeout=10)
 
 
 # ---------------------------------------------------------------------------
@@ -116,12 +114,12 @@ class TestMkFileExists:
         """Direct stat works when file exists and is accessible."""
         mk_path = tmp_path / "zzz_dev_inject.mk"
         mk_path.write_text("override")
-        assert _mk_file_exists(mk_path, "v260", SSHState()) is True
+        assert _mk_file_exists(mk_path, "v260") is True
 
     def test_direct_access_file_missing(self, tmp_path: Path) -> None:
         """Direct stat returns False when file does not exist."""
         mk_path = tmp_path / "zzz_dev_inject.mk"
-        assert _mk_file_exists(mk_path, "v260", SSHState()) is False
+        assert _mk_file_exists(mk_path, "v260") is False
 
     def test_permission_error_falls_back_to_site_user(self) -> None:
         """Falls back to run_as_site_user when direct stat raises PermissionError."""
@@ -134,7 +132,7 @@ class TestMkFileExists:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             return_value=mock_result,
         ) as mock_run:
-            assert _mk_file_exists(mk_path, "v260", SSHState()) is True
+            assert _mk_file_exists(mk_path, "v260") is True
             mock_run.assert_called_once()
 
     def test_permission_error_fallback_file_missing(self) -> None:
@@ -148,7 +146,7 @@ class TestMkFileExists:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             return_value=mock_result,
         ):
-            assert _mk_file_exists(mk_path, "v260", SSHState()) is False
+            assert _mk_file_exists(mk_path, "v260") is False
 
     def test_permission_error_fallback_exception(self) -> None:
         """Returns False when both direct stat and fallback fail."""
@@ -159,7 +157,7 @@ class TestMkFileExists:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             side_effect=Exception("ssh failed"),
         ):
-            assert _mk_file_exists(mk_path, "v260", SSHState()) is False
+            assert _mk_file_exists(mk_path, "v260") is False
 
 
 class TestIsStaleOverride:
@@ -170,7 +168,7 @@ class TestIsStaleOverride:
         mk_path = tmp_path / "zzz_dev_inject.mk"
         pid_file = tmp_path / "ibazel.pid"
         # Neither file exists
-        assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is False
+        assert is_stale_override(mk_path, pid_file, "v260") is False
 
     def test_mk_exists_no_pid_file_is_stale(self, tmp_path: Path) -> None:
         """Override exists but no PID file -> stale."""
@@ -178,7 +176,7 @@ class TestIsStaleOverride:
         mk_path.write_text("override")
         pid_file = tmp_path / "ibazel.pid"
         # pid_file does not exist
-        assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is True
+        assert is_stale_override(mk_path, pid_file, "v260") is True
 
     def test_mk_exists_dead_pid_is_stale(self, tmp_path: Path) -> None:
         """Override exists, PID file has valid PID, but process is dead."""
@@ -187,7 +185,7 @@ class TestIsStaleOverride:
         pid_file = tmp_path / "ibazel.pid"
         pid_file.write_text("12345")
         with patch("cmk.dev_deploy.site.site_config.os.kill", side_effect=ProcessLookupError):
-            assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is True
+            assert is_stale_override(mk_path, pid_file, "v260") is True
 
     def test_mk_exists_alive_pid_not_stale(self, tmp_path: Path) -> None:
         """Override exists, PID file has valid PID, process is alive."""
@@ -197,7 +195,7 @@ class TestIsStaleOverride:
         pid_file.write_text("12345")
         with patch("cmk.dev_deploy.site.site_config.os.kill"):
             # os.kill(12345, 0) succeeds (no exception) -> alive
-            assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is False
+            assert is_stale_override(mk_path, pid_file, "v260") is False
 
     def test_mk_exists_invalid_pid_is_stale(self, tmp_path: Path) -> None:
         """PID file contains non-numeric content -> stale (ValueError)."""
@@ -205,7 +203,7 @@ class TestIsStaleOverride:
         mk_path.write_text("override")
         pid_file = tmp_path / "ibazel.pid"
         pid_file.write_text("not-a-number")
-        assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is True
+        assert is_stale_override(mk_path, pid_file, "v260") is True
 
     def test_mk_exists_pid_read_error_is_stale(self, tmp_path: Path) -> None:
         """PID file read raises OSError -> stale."""
@@ -214,7 +212,7 @@ class TestIsStaleOverride:
         pid_file = MagicMock()
         pid_file.exists.return_value = True
         pid_file.read_text.side_effect = OSError("permission denied")
-        assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is True
+        assert is_stale_override(mk_path, pid_file, "v260") is True
 
     def test_permission_error_on_mk_path_falls_back(self) -> None:
         """PermissionError on mk_path.exists() falls back to site-user check."""
@@ -231,7 +229,7 @@ class TestIsStaleOverride:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             return_value=mock_result,
         ):
-            assert is_stale_override(mk_path, pid_file, "v260", SSHState()) is True
+            assert is_stale_override(mk_path, pid_file, "v260") is True
 
 
 # ---------------------------------------------------------------------------
@@ -244,14 +242,14 @@ class TestWriteOverride:
 
     def test_direct_write_success(self, tmp_path: Path) -> None:
         mk_path = tmp_path / "multisite.d" / "zzz_dev_inject.mk"
-        assert write_override("v260", mk_path, SSHState()) is True
+        assert write_override("v260", mk_path) is True
         assert mk_path.exists()
         assert "load_frontend_vue" in mk_path.read_text()
 
     def test_file_is_world_readable(self, tmp_path: Path) -> None:
         """File must be readable by site user's Apache process."""
         mk_path = tmp_path / "zzz_dev_inject.mk"
-        write_override("v260", mk_path, SSHState())
+        write_override("v260", mk_path)
         mode = mk_path.stat().st_mode & 0o777
         assert mode == 0o644
 
@@ -267,7 +265,7 @@ class TestWriteOverride:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             return_value=mock_result,
         ) as mock_run:
-            assert write_override("v260", mk_path, SSHState()) is True
+            assert write_override("v260", mk_path) is True
             mock_run.assert_called_once()
 
     def test_total_failure_returns_false(self) -> None:
@@ -280,7 +278,7 @@ class TestWriteOverride:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             side_effect=Exception("failed"),
         ):
-            assert write_override("v260", mk_path, SSHState()) is False
+            assert write_override("v260", mk_path) is False
 
 
 # ---------------------------------------------------------------------------
@@ -294,13 +292,13 @@ class TestRemoveOverride:
     def test_direct_remove_success(self, tmp_path: Path) -> None:
         mk_path = tmp_path / "zzz_dev_inject.mk"
         mk_path.write_text("override")
-        assert remove_override("v260", mk_path, SSHState()) is True
+        assert remove_override("v260", mk_path) is True
         assert not mk_path.exists()
 
     def test_remove_nonexistent_is_success(self, tmp_path: Path) -> None:
         """Removing a file that doesn't exist is idempotent success."""
         mk_path = tmp_path / "zzz_dev_inject.mk"
-        assert remove_override("v260", mk_path, SSHState()) is True
+        assert remove_override("v260", mk_path) is True
 
     def test_fallback_on_permission_error(self) -> None:
         """Falls back to run_as_site_user if direct unlink fails."""
@@ -313,7 +311,7 @@ class TestRemoveOverride:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             return_value=mock_result,
         ) as mock_run:
-            assert remove_override("v260", mk_path, SSHState()) is True
+            assert remove_override("v260", mk_path) is True
             mock_run.assert_called_once()
 
     def test_total_failure_returns_false(self) -> None:
@@ -325,4 +323,4 @@ class TestRemoveOverride:
             "cmk.dev_deploy.site.site_config.run_as_site_user",
             side_effect=Exception("failed"),
         ):
-            assert remove_override("v260", mk_path, SSHState()) is False
+            assert remove_override("v260", mk_path) is False

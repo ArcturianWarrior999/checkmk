@@ -26,7 +26,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from cmk.dev_deploy.site.privilege import run_as_site_user, SSHState
+from cmk.dev_deploy.site.sudoers import run_as_site_user
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -72,12 +72,12 @@ def override_mk_path(site_root: Path) -> Path:
     return site_root / "etc" / "check_mk" / "multisite.d" / _OVERRIDE_FILENAME
 
 
-def check_site_running(site_name: str, state: SSHState) -> bool:
+def check_site_running(site_name: str) -> bool:
     """Return True if the OMD site is running (all services up).
 
-    Uses :func:`~cmk.dev_deploy.privilege.run_as_site_user` which tries
-    SSH first and falls back to ``sudo --login -u``.  Returns True when
-    the exit code is 0 (all services healthy).
+    Uses :func:`~cmk.dev_deploy.site.sudoers.run_as_site_user` (the
+    per-site sudoers rule).  Returns True when the exit code is 0 (all
+    services healthy).
 
     Args:
         site_name: OMD site name, e.g. ``'v260'``.
@@ -86,13 +86,13 @@ def check_site_running(site_name: str, state: SSHState) -> bool:
         True if the site is running, False otherwise (including timeout).
     """
     try:
-        result = run_as_site_user(site_name, "omd status", state, timeout=10)
+        result = run_as_site_user(site_name, "omd status", timeout=10)
         return result.returncode == 0
     except Exception:
         return False
 
 
-def _mk_file_exists(mk_path: Path, site_name: str, state: SSHState) -> bool:
+def _mk_file_exists(mk_path: Path, site_name: str) -> bool:
     """Check if the ``.mk`` override file exists, with site-user fallback.
 
     Direct stat may fail with ``PermissionError`` when the site's
@@ -104,13 +104,13 @@ def _mk_file_exists(mk_path: Path, site_name: str, state: SSHState) -> bool:
     except PermissionError:
         pass
     try:
-        result = run_as_site_user(site_name, f"test -f {mk_path}", state, timeout=10)
+        result = run_as_site_user(site_name, f"test -f {mk_path}", timeout=10)
         return result.returncode == 0
     except Exception:
         return False
 
 
-def is_stale_override(mk_path: Path, pid_file: Path, site_name: str, state: SSHState) -> bool:
+def is_stale_override(mk_path: Path, pid_file: Path, site_name: str) -> bool:
     """Return True if the ``.mk`` override file exists but the frontend process is dead.
 
     Uses the PID file for liveness detection:
@@ -124,12 +124,11 @@ def is_stale_override(mk_path: Path, pid_file: Path, site_name: str, state: SSHS
         mk_path: Path to the override ``.mk`` file.
         pid_file: Path to the iBazel PID file.
         site_name: OMD site name, e.g. ``'v260'``.
-        state: SSH state for privilege escalation.
 
     Returns:
         True if the override file is stale and should be cleaned up.
     """
-    if not _mk_file_exists(mk_path, site_name, state):
+    if not _mk_file_exists(mk_path, site_name):
         return False  # No override file, nothing is stale
 
     if not pid_file.exists():
@@ -143,11 +142,11 @@ def is_stale_override(mk_path: Path, pid_file: Path, site_name: str, state: SSHS
         return True  # Process dead or PID invalid -> stale
 
 
-def write_override(site_name: str, mk_path: Path, state: SSHState) -> bool:
+def write_override(site_name: str, mk_path: Path) -> bool:
     """Write the ``.mk`` override file.
 
-    Writes directly via file I/O (the overlay ACLs grant write access).
-    Falls back to site-user execution if direct write fails.
+    Writes directly via file I/O when permitted.  Falls back to
+    site-user execution if direct write fails.
 
     The file must be readable by the site user's Apache process, so
     permissions are set to 0o644.
@@ -172,7 +171,6 @@ def write_override(site_name: str, mk_path: Path, state: SSHState) -> bool:
         result = run_as_site_user(
             site_name,
             f"cat > {mk_path}",
-            state,
             timeout=10,
             input_text=_MK_CONTENT,
         )
@@ -181,7 +179,7 @@ def write_override(site_name: str, mk_path: Path, state: SSHState) -> bool:
         return False
 
 
-def remove_override(site_name: str, mk_path: Path, state: SSHState) -> bool:
+def remove_override(site_name: str, mk_path: Path) -> bool:
     """Remove the ``.mk`` override file.
 
     Removes directly via file I/O.  Falls back to site-user execution
@@ -206,7 +204,6 @@ def remove_override(site_name: str, mk_path: Path, state: SSHState) -> bool:
         result = run_as_site_user(
             site_name,
             f"rm -f {mk_path}",
-            state,
             timeout=10,
         )
         return result.returncode == 0

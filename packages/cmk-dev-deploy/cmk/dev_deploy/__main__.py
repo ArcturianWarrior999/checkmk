@@ -50,7 +50,6 @@ from cmk.dev_deploy.site.preparation import (
     DEFAULT_BACKEND,
     resolve_backend_name,
 )
-from cmk.dev_deploy.site.privilege import SSHState
 from cmk.dev_deploy.site.site_resolver import find_repo_root, resolve_site
 from cmk.dev_deploy.site.warnings import check_branch_mismatch, check_edition_mismatch
 from cmk.dev_deploy.state.change_detector import (
@@ -190,7 +189,6 @@ def _run_deploy_cycle(
     args: argparse.Namespace,
     repo_root: Path,
     site: SiteInfo,
-    ssh_state: SSHState,
     manifest_elapsed: float = 0.0,
     prepare_elapsed: float = 0.0,
 ) -> DeployCycleResult:
@@ -545,7 +543,7 @@ def _run_deploy_cycle(
         if output.get_verbosity() >= output.Verbosity.VERBOSE:
             output.print_blank()
             output.print_service_preview(services, no_restart=False)
-        svc_result = restart_services(services, site, ssh_state)
+        svc_result = restart_services(services, site)
         svc_count = svc_result.services_restarted
         svc_elapsed = svc_result.elapsed
         if svc_result.services_failed > 0:
@@ -599,7 +597,6 @@ def _run_deploy_cycle(
 def _setup_frontend_supervisor(
     repo_root: Path,
     site: SiteInfo,
-    ssh_state: SSHState,
 ) -> tuple[FrontendSupervisor, FrontendConfig, Path] | int:
     """Shared frontend setup: site check, stale cleanup, supervisor start, .mk override."""
     from cmk.dev_deploy.errors import FrontendError, IBazelError
@@ -619,15 +616,15 @@ def _setup_frontend_supervisor(
 
     output.set_combined_mode(True)
 
-    if not check_site_running(site.name, ssh_state):
+    if not check_site_running(site.name):
         output.error("Site must be running to use --frontend")
         output.info(f"  Start it with: omd start {site.name}")
         return 1
 
     mk_path = override_mk_path(site.root)
-    if is_stale_override(mk_path, _pid_file(), site.name, ssh_state):
+    if is_stale_override(mk_path, _pid_file(), site.name):
         output.warn("Stale frontend config found, cleaning up")
-        remove_override(site.name, mk_path, ssh_state)
+        remove_override(site.name, mk_path)
 
     try:
         detect_frontend_project(repo_root)
@@ -648,7 +645,7 @@ def _setup_frontend_supervisor(
     output.info(f"  Target: {IBAZEL_TARGET}")
     output.info(f"  Vite: http://localhost:{config.port}/")
 
-    if not write_override(site.name, mk_path, ssh_state):
+    if not write_override(site.name, mk_path):
         output.error("Failed to enable frontend inject mode")
         output.info(f"  Could not write: {mk_path}")
         supervisor.stop()
@@ -659,14 +656,14 @@ def _setup_frontend_supervisor(
     return supervisor, config, mk_path
 
 
-def _run_frontend(repo_root: Path, site: SiteInfo, ssh_state: SSHState) -> int:
+def _run_frontend(repo_root: Path, site: SiteInfo) -> int:
     """Start iBazel frontend supervisor as foreground blocking process."""
     import time
 
     from cmk.dev_deploy.errors import FrontendError, IBazelError
     from cmk.dev_deploy.site.site_config import remove_override
 
-    result = _setup_frontend_supervisor(repo_root, site, ssh_state)
+    result = _setup_frontend_supervisor(repo_root, site)
     if isinstance(result, int):
         return result
     supervisor, _config, mk_path = result
@@ -692,25 +689,23 @@ def _run_frontend(repo_root: Path, site: SiteInfo, ssh_state: SSHState) -> int:
         return 1
     except KeyboardInterrupt:
         output.info("Stopping frontend supervisor...")
-        remove_override(site.name, mk_path, ssh_state)
+        remove_override(site.name, mk_path)
         output.info(f"  Inject mode disabled: removed {mk_path}")
         supervisor.stop()
         output.success("Frontend supervisor stopped.")
         return 0
     finally:
-        remove_override(site.name, mk_path, ssh_state)
+        remove_override(site.name, mk_path)
         if supervisor.is_running():
             supervisor.stop()
 
 
-def _run_frontend_watch(
-    args: argparse.Namespace, repo_root: Path, site: SiteInfo, ssh_state: SSHState
-) -> int:
+def _run_frontend_watch(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -> int:
     """Combined --frontend --watch: deploy first, start iBazel, enter watch loop."""
     from cmk.dev_deploy.errors import FrontendError, IBazelError
     from cmk.dev_deploy.site.site_config import remove_override
 
-    result = _setup_frontend_supervisor(repo_root, site, ssh_state)
+    result = _setup_frontend_supervisor(repo_root, site)
     if isinstance(result, int):
         return result
     supervisor, _config, mk_path = result
@@ -719,7 +714,7 @@ def _run_frontend_watch(
         return watch_loop(
             site,
             repo_root,
-            lambda: _run_deploy_cycle(args, repo_root, site, ssh_state),
+            lambda: _run_deploy_cycle(args, repo_root, site),
             supervisor=supervisor,
         )
     except (FrontendError, IBazelError) as e:
@@ -727,13 +722,13 @@ def _run_frontend_watch(
         return 1
     except KeyboardInterrupt:
         output.info("Stopping frontend supervisor and watch mode...")
-        remove_override(site.name, mk_path, ssh_state)
+        remove_override(site.name, mk_path)
         output.info(f"  Inject mode disabled: removed {mk_path}")
         supervisor.stop()
         output.success("Frontend supervisor stopped.")
         return 0
     finally:
-        remove_override(site.name, mk_path, ssh_state)
+        remove_override(site.name, mk_path)
         if supervisor.is_running():
             supervisor.stop()
 
@@ -921,10 +916,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
         t0 = _time.monotonic()
         ensure_manifest(repo_root, force_rebuild=args.rebuild_manifest)
         _manifest_elapsed = _time.monotonic() - t0
-        ssh_state = SSHState()
-        return _run_deploy_cycle(args, repo_root, site, ssh_state, _manifest_elapsed).exit_code
-
-    ssh_state = SSHState()
+        return _run_deploy_cycle(args, repo_root, site, _manifest_elapsed).exit_code
 
     # Backend selection: deploy-state record > detection > default.
     state = load_state(site.root)
@@ -949,12 +941,6 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
         output.error(str(e))
         return 1
 
-    # No SSH key is injected anymore. Pre-seed the SSH cache so
-    # run_as_site_user() (service restarts, frontend override writes)
-    # skips the SSH probe and goes straight to its sudo fallback, which
-    # the just-probed sudoers rule makes passwordless.
-    ssh_state.ssh_available[site.name] = False
-
     # Manifest must be ready before site preparation because capability
     # restoration during ensure() reads it.
     t0 = _time.monotonic()
@@ -974,33 +960,29 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
 
     # Combined --frontend --watch mode
     if args.frontend and args.watch:
-        result = _run_deploy_cycle(
-            args, repo_root, site, ssh_state, _manifest_elapsed, _prepare_elapsed
-        )
+        result = _run_deploy_cycle(args, repo_root, site, _manifest_elapsed, _prepare_elapsed)
         if result.exit_code != 0:
             output.error("Deploy failed. Not starting frontend dev server.")
             return result.exit_code
-        return _run_frontend_watch(args, repo_root, site, ssh_state)
+        return _run_frontend_watch(args, repo_root, site)
 
     # Watch mode: enter polling loop with deploy_fn wrapping _run_deploy_cycle
     if args.watch:
         return watch_loop(
             site,
             repo_root,
-            lambda: _run_deploy_cycle(args, repo_root, site, ssh_state),
+            lambda: _run_deploy_cycle(args, repo_root, site),
         )
 
     # One-shot deploy
-    result = _run_deploy_cycle(
-        args, repo_root, site, ssh_state, _manifest_elapsed, _prepare_elapsed
-    )
+    result = _run_deploy_cycle(args, repo_root, site, _manifest_elapsed, _prepare_elapsed)
 
     # Frontend supervisor: deploy first, then start Vite
     if args.frontend:
         if result.exit_code != 0:
             output.error("Deploy failed. Not starting frontend dev server.")
             return result.exit_code
-        return _run_frontend(repo_root, site, ssh_state)
+        return _run_frontend(repo_root, site)
 
     return result.exit_code
 

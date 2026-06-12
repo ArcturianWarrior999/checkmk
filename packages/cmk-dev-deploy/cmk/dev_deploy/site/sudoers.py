@@ -19,9 +19,8 @@ for a password again.
 Declining the rule still deploys: the run then authenticates sudo
 interactively once, and the cached timestamp carries the run's
 ``sudo -n`` calls.  Nothing persistent is installed, so the consent
-prompt returns on the next run.  There is deliberately no SSH path
-here — the overlay backend keeps using
-:mod:`cmk.dev_deploy.site.privilege` unchanged.
+prompt returns on the next run.  There is deliberately no SSH path —
+the sudoers rule is the single channel to the site user.
 """
 
 from __future__ import annotations

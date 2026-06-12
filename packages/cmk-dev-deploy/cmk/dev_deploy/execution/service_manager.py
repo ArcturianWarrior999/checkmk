@@ -12,7 +12,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from cmk.dev_deploy.core.timeouts import SERVICE_RELOAD, SERVICE_RESTART
-from cmk.dev_deploy.site.privilege import run_as_site_user, SSHState
+from cmk.dev_deploy.site.sudoers import run_as_site_user
 from cmk.dev_deploy.types import (
     ChangeCategory,
     PRO_PLUS_EDITIONS,
@@ -201,7 +201,6 @@ def resolve_services(
 def restart_services(
     services: list[tuple[Service, ServiceAction]],
     site: SiteInfo,
-    state: SSHState,
 ) -> ServiceResult:
     """Execute service restart/reload commands, collecting failures without aborting."""
     start = time.monotonic()
@@ -212,9 +211,7 @@ def restart_services(
     for service, action in services:
         timeout = SERVICE_RELOAD if action == ServiceAction.RELOAD else SERVICE_RESTART
         try:
-            result = _run_omd_command(
-                site.name, action.value, service.value, state, timeout=timeout
-            )
+            result = _run_omd_command(site.name, action.value, service.value, timeout=timeout)
         except subprocess.TimeoutExpired:
             from cmk.dev_deploy.core import output
 
@@ -248,13 +245,11 @@ def _run_omd_command(
     site_name: str,
     action: str,
     service: str,
-    state: SSHState,
     timeout: int = 30,
 ) -> subprocess.CompletedProcess[str]:
-    """Run an omd service command as the site user."""
+    """Run an omd service command as the site user (via the sudoers rule)."""
     return run_as_site_user(
         site_name,
         f"omd {action} {service}",
-        state,
         timeout=timeout,
     )
