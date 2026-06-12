@@ -142,10 +142,10 @@ def _diff_hashes(
     return added, removed, modified
 
 
-def save_manifest_hashes(repo_root: Path) -> None:
-    """Compute and save per-file hashes to .manifest_hash."""
+def save_manifest_hashes(repo_root: Path, hashes: dict[str, str] | None = None) -> None:
+    """Save per-file hashes to .manifest_hash, computing them if not given."""
     t0 = time.monotonic()
-    current = _compute_file_hashes(repo_root)
+    current = _compute_file_hashes(repo_root) if hashes is None else hashes
     hash_path().write_text(json.dumps({"files": current}, indent=2) + "\n")
     output.verbose(f"Manifest: saved {len(current)} file hashes in {time.monotonic() - t0:.2f}s")
 
@@ -161,13 +161,23 @@ def _manifest_version_matches() -> bool:
 
 def is_manifest_stale(repo_root: Path) -> bool:
     """Return True if build files have changed since manifest generation."""
+    return _staleness_check(repo_root)[0]
+
+
+def _staleness_check(repo_root: Path) -> tuple[bool, dict[str, str] | None]:
+    """Staleness verdict plus the computed file hashes (when computed).
+
+    The hashes are taken *before* any rebuild.  Saving exactly these after
+    the rebuild means a BUILD file edited mid-rebuild shows up as changed
+    on the next run instead of being masked by a post-rebuild snapshot.
+    """
     if not manifest_path().is_file():
         output.info("Manifest: not found, will generate")
-        return True
+        return True, None
 
     if not _manifest_version_matches():
         output.info("Manifest: format version changed, regenerating...")
-        return True
+        return True, None
 
     stored = _load_stored_hashes()
     if stored is None:
@@ -176,13 +186,13 @@ def is_manifest_stale(repo_root: Path) -> bool:
         # instead of triggering a full expensive rebuild.
         output.info("Manifest: rebuilding hash cache (manifest exists)")
         save_manifest_hashes(repo_root)
-        return False
+        return False, None
 
     current = _compute_file_hashes(repo_root)
     added, removed, modified = _diff_hashes(stored, current)
 
     if not added and not removed and not modified:
-        return False
+        return False, current
 
     total = len(added) + len(removed) + len(modified)
     output.info(f"Manifest: {total} build file(s) changed, regenerating...")
@@ -193,13 +203,13 @@ def is_manifest_stale(repo_root: Path) -> bool:
     for f in removed:
         output.verbose(f"  - {f}")
 
-    return True
+    return True, current
 
 
 # --- Rebuild orchestration ---
 
 
-def _rebuild_manifest(repo_root: Path) -> None:
+def _rebuild_manifest(repo_root: Path, hashes: dict[str, str] | None = None) -> None:
     """Invoke update_manifest.py and update the hash file."""
     t0 = time.monotonic()
     script = (
@@ -215,9 +225,10 @@ def _rebuild_manifest(repo_root: Path) -> None:
         "  1. bazel clean --expunge\n"
         "  2. cmk-dev-deploy --rebuild-manifest",
     )
-    # update.py already saves hashes via save_manifest_hashes(), but save
-    # again here to capture the state as seen by the parent process.
-    save_manifest_hashes(repo_root)
+    # update.py already saves hashes in the child process; save again so
+    # the parent records the snapshot its staleness verdict was based on
+    # (a BUILD file edited mid-rebuild then re-triggers on the next run).
+    save_manifest_hashes(repo_root, hashes)
     clear_cache()
     reset_categorization_cache()
     elapsed = time.monotonic() - t0
@@ -239,8 +250,9 @@ def ensure_manifest(
         output.info("Manifest: not found, generating...")
         _rebuild_manifest(repo_root)
         return
-    if is_manifest_stale(repo_root):
-        _rebuild_manifest(repo_root)
+    stale, hashes = _staleness_check(repo_root)
+    if stale:
+        _rebuild_manifest(repo_root, hashes)
         return
     elapsed = time.monotonic() - t0
     output.info(f"Manifest: reusing cached manifest (staleness check: {elapsed:.2f}s)")

@@ -189,7 +189,6 @@ def _run_deploy_cycle(
     args: argparse.Namespace,
     repo_root: Path,
     site: SiteInfo,
-    manifest_elapsed: float = 0.0,
     prepare_elapsed: float = 0.0,
 ) -> DeployCycleResult:
     """Execute one deploy cycle: change detection through parallel execution."""
@@ -199,9 +198,14 @@ def _run_deploy_cycle(
 
     _cycle_start = _time.monotonic()
 
-    # Check manifest freshness on every cycle so that BUILD file edits
-    # during watch sessions trigger a rebuild (not just at startup).
-    ensure_manifest(repo_root)
+    # Ensure the manifest is fresh (this is the only ensure per deploy --
+    # site preparation does not read the manifest).  --rebuild-manifest
+    # forces it once; subsequent watch cycles fall back to the staleness
+    # check so BUILD file edits still trigger rebuilds mid-session.
+    t0 = _time.monotonic()
+    ensure_manifest(repo_root, force_rebuild=args.rebuild_manifest)
+    args.rebuild_manifest = False
+    manifest_elapsed = _time.monotonic() - t0
 
     # Derive frontend_supervised from CLI args
     frontend_supervised = args.frontend
@@ -580,7 +584,7 @@ def _run_deploy_cycle(
 
     # Total deploy time and optional verbose timing table
     _cycle_elapsed = _time.monotonic() - _cycle_start
-    _total_elapsed = _cycle_elapsed + manifest_elapsed + prepare_elapsed
+    _total_elapsed = _cycle_elapsed + prepare_elapsed
     _print_timing_display(
         results,
         _total_elapsed,
@@ -894,8 +898,6 @@ def main(argv: list[str] | None = None) -> int:
 def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -> int:
     import time as _time
 
-    from cmk.dev_deploy.manifest.staleness import ensure_manifest
-
     if output.get_verbosity() >= output.Verbosity.VERBOSE:
         output.print_blank()
         output.info("Detected site:")
@@ -909,14 +911,10 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
     if args.commit:
         output.info(f"Deploying state at commit {args.commit}")
 
-    # --dry-run only needs the manifest (for change categorization) and
-    # deploy state (in /var/tmp/, not on the overlay).  Skip sudo and
-    # overlay setup entirely — dry-run never writes to the site.
+    # --dry-run skips privileges and site preparation entirely — the
+    # deploy cycle ensures the manifest itself and never writes to the site.
     if args.dry_run:
-        t0 = _time.monotonic()
-        ensure_manifest(repo_root, force_rebuild=args.rebuild_manifest)
-        _manifest_elapsed = _time.monotonic() - t0
-        return _run_deploy_cycle(args, repo_root, site, _manifest_elapsed).exit_code
+        return _run_deploy_cycle(args, repo_root, site).exit_code
 
     # Backend selection: deploy-state record > detection > default.
     state = load_state(site.root)
@@ -932,20 +930,14 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
         output.error(conflict)
         return 1
 
-    # Acquire privileges early — before the manifest rebuild which can
-    # take minutes (and would e.g. expire a sudo timestamp).
+    # Acquire privileges first so the consent prompt (if any) appears
+    # immediately at startup, before any slow work.
     try:
         backend.prepare_privileges(site.root, full=args.full)
     except SudoersError as e:
         # Missing consent is not a crash — no diagnostic bundle.
         output.error(str(e))
         return 1
-
-    # Manifest must be ready before site preparation because capability
-    # restoration during ensure() reads it.
-    t0 = _time.monotonic()
-    ensure_manifest(repo_root, force_rebuild=args.rebuild_manifest)
-    _manifest_elapsed = _time.monotonic() - t0
 
     t0 = _time.monotonic()
     if args.full:
@@ -960,7 +952,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
 
     # Combined --frontend --watch mode
     if args.frontend and args.watch:
-        result = _run_deploy_cycle(args, repo_root, site, _manifest_elapsed, _prepare_elapsed)
+        result = _run_deploy_cycle(args, repo_root, site, _prepare_elapsed)
         if result.exit_code != 0:
             output.error("Deploy failed. Not starting frontend dev server.")
             return result.exit_code
@@ -975,7 +967,7 @@ def _main_with_site(args: argparse.Namespace, repo_root: Path, site: SiteInfo) -
         )
 
     # One-shot deploy
-    result = _run_deploy_cycle(args, repo_root, site, _manifest_elapsed, _prepare_elapsed)
+    result = _run_deploy_cycle(args, repo_root, site, _prepare_elapsed)
 
     # Frontend supervisor: deploy first, then start Vite
     if args.frontend:

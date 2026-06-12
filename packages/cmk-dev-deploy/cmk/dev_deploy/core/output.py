@@ -777,15 +777,16 @@ def print_parallel_timeline(
     """Print an ASCII Gantt chart of parallel step execution."""
 
     # Build entries: (name, start, end)
-    # Manifest runs first, then site preparation (sequential).
+    # Site preparation runs first, then the in-cycle manifest check
+    # (sequential, before the parallel deployers).
     entries: list[tuple[str, float, float]] = []
     pre_offset = 0.0
-    if manifest_elapsed > 0:
-        entries.append(("manifest", 0.0, manifest_elapsed))
-        pre_offset = manifest_elapsed
     if prepare_elapsed > 0:
-        entries.append(("prepare", pre_offset, pre_offset + prepare_elapsed))
-        pre_offset += prepare_elapsed
+        entries.append(("prepare", 0.0, prepare_elapsed))
+        pre_offset = prepare_elapsed
+    if manifest_elapsed > 0:
+        entries.append(("manifest", pre_offset, pre_offset + manifest_elapsed))
+        pre_offset += manifest_elapsed
 
     # Deployers run in parallel after pre-steps.
     post_deployer_end = pre_offset
