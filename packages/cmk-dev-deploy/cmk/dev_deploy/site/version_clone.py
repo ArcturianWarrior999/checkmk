@@ -169,9 +169,11 @@ def teardown_clone(site_root: Path) -> None:
                 "the site will not start until it is reinstalled"
             )
         output.info(f"Stopping site {site_name} to revert to the pristine version...")
-        _run_omd(site_name, "stop")
+        stop_elapsed = _run_omd(site_name, "stop")
         _repoint(site_root, f"../../versions/{version}")
-        output.info(f"Site {site_name} reverted to version {version} (stopped)")
+        output.info(
+            f"Site {site_name} reverted to version {version} (stopped in {stop_elapsed:.1f}s)"
+        )
 
     base = _clone_base(site_name)
     if base.is_dir():
@@ -311,11 +313,14 @@ def _activate(site_root: Path, clone: Path) -> None:
     """Swap the ``version`` symlink to *clone* across a site restart."""
     site_name = site_root.name
     output.info(f"Stopping site {site_name} to activate the clone...")
-    _run_omd(site_name, "stop")
+    stop_elapsed = _run_omd(site_name, "stop")
     _repoint(site_root, str(clone))
     output.info(f"Starting site {site_name}...")
-    _run_omd(site_name, "start")
-    output.info(f"Clone activated on {site_root} (version -> {clone})")
+    start_elapsed = _run_omd(site_name, "start")
+    output.info(
+        f"Clone activated on {site_root} "
+        f"(omd stop {stop_elapsed:.1f}s, omd start {start_elapsed:.1f}s)"
+    )
 
 
 def _repoint(site_root: Path, target: str) -> None:
@@ -328,7 +333,11 @@ def _repoint(site_root: Path, target: str) -> None:
         raise CloneError(f"Failed to repoint {link} -> {target}: {result.stderr.strip()}")
 
 
-def _run_omd(site_name: str, command: str) -> None:
+def _run_omd(site_name: str, command: str) -> float:
+    """Run an omd command as the site user, returning the elapsed seconds."""
+    start = time.monotonic()
     result = sudoers.run_as_site_user(site_name, f"omd {command}", timeout=OMD_CMD)
+    elapsed = time.monotonic() - start
     if result.returncode != 0:
         output.warn(f"omd {command} for site {site_name} exited with {result.returncode}")
+    return elapsed
