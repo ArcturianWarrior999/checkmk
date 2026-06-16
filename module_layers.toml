@@ -1091,6 +1091,10 @@ allows = [
   "cmk.utils.unixsocket_http",
   "cmk.utils.visuals",
   "cmk.web.htmllib",
+  "cmk.web.context",
+  "cmk.web.exceptions",
+  "cmk.web.page_container",
+  "cmk.web.pages",
   "cmk.web.utils.html",
   "cmk.web.utils.escaping",
   "cmk.web.utils.speaklater",
@@ -1731,6 +1735,16 @@ allows = []
 
 [components."cmk.werks"]
 allows = ["@ccc", "cmk.utils.paths"]
+excludes = ["cmk.werks.web"]
+
+[components."cmk.werks.web"]
+allows = [
+  "@ccc",
+  "cmk.discover_plugins",
+  "cmk.utils.man_pages",
+  "cmk.web",
+  "cmk.werks",
+]
 
 [components."omdlib"]
 allows = ["@ccc", "@crypto", "cmk.crash", "cmk.utils"]

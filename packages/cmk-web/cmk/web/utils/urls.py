@@ -5,9 +5,25 @@
 
 import html
 import urllib.parse
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
 
 import cmk.ccc.regex
+
+HTTPVariable = tuple[str, str | int | None]
+
+
+def make_contextless_url(filename: str, variables: Sequence[HTTPVariable]) -> str:
+    """Build a ``filename?key=value&...`` URL independent of the current request.
+
+    >>> make_contextless_url("werk.py", [("werk", 1234)])
+    'werk.py?werk=1234'
+    >>> make_contextless_url("wato.py", [])
+    'wato.py'
+    """
+    encoded = [(key, str(value)) for key, value in variables if value is not None]
+    if not encoded:
+        return filename
+    return filename + "?" + urllib.parse.urlencode(encoded)
 
 
 def is_allowed_url(

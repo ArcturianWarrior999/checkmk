@@ -19,9 +19,6 @@ from cmk.ccc.version import Edition, edition
 from cmk.discover_plugins import discover_families, PluginGroup
 from cmk.gui.breadcrumb import (
     Breadcrumb,
-    BreadcrumbItem,
-    make_current_page_breadcrumb_item,
-    make_main_menu_breadcrumb,
     make_simple_page_breadcrumb,
 )
 from cmk.gui.exceptions import MKUserError
@@ -29,7 +26,6 @@ from cmk.gui.header import make_header
 from cmk.gui.hooks import request_memoize
 from cmk.gui.htmllib.generator import HTMLWriter
 from cmk.gui.htmllib.html import html
-from cmk.gui.htmllib.tag_rendering import HTMLContent
 from cmk.gui.http import Request
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
@@ -62,6 +58,7 @@ from cmk.gui.valuespec import (
     Tuple,
     ValueSpec,
 )
+from cmk.gui.web_pages import web_page_endpoint
 from cmk.utils import paths
 from cmk.utils.man_pages import make_man_page_path_map
 from cmk.werks.site import load_werk_entries
@@ -69,13 +66,14 @@ from cmk.werks.site.acknowledgement import is_acknowledged
 from cmk.werks.site.acknowledgement import load_acknowledgements as werks_load_acknowledgements
 from cmk.werks.site.acknowledgement import save_acknowledgements as werks_save_acknowledgements
 from cmk.werks.tool.models import Compatibility, WerkV3
+from cmk.werks.web import WerkDetailPage
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def register(page_registry: PageRegistry) -> None:
     page_registry.register(PageEndpoint("change_log", ChangeLogPage()))
-    page_registry.register(PageEndpoint("werk", page_werk))
+    page_registry.register(web_page_endpoint("werk", WerkDetailPage()))
 
 
 def get_werk_by_id(werk_id: int) -> WerkV3:
@@ -286,113 +284,6 @@ def _show_werk_options_controls(request: Request) -> None:
     html.close_div()
 
     html.close_div()
-
-
-def page_werk(ctx: PageContext) -> None:
-    werk = get_werk_by_id(ctx.request.get_integer_input_mandatory("werk"))
-
-    title = ("%s %s - %s") % (
-        _("Werk"),
-        render_werk_id(werk),
-        werk.title,
-    )
-
-    breadcrumb = make_main_menu_breadcrumb(main_menu_registry.menu_help())
-    breadcrumb.append(
-        BreadcrumbItem(
-            title=_("Change log (Werks)"),
-            url="change_log.py",
-            id="change_log",
-        )
-    )
-    breadcrumb.append(make_current_page_breadcrumb_item(title))
-    make_header(
-        html,
-        title=title,
-        breadcrumb=breadcrumb,
-        page_menu=_page_menu_werk(ctx.request, breadcrumb, werk),
-        debug=ctx.config.debug,
-        lang=user.language,
-        inject_js_profiling_code=ctx.config.inject_js_profiling_code,
-        load_frontend_vue=ctx.config.load_frontend_vue,
-        custom_style_sheet=ctx.config.custom_style_sheet,
-        screenshotmode=ctx.config.screenshotmode,
-        inline_help_as_text=user.inline_help_as_text,
-        hide_suggestions=not user.get_tree_state("suggestions", "all", True),
-        user_role_ids=user.role_ids,
-    )
-
-    html.open_table(class_=["data", "headerleft", "werks"])
-
-    def werk_table_row(caption: HTMLContent, content: HTMLContent, css: None | str = None) -> None:
-        html.open_tr()
-        html.th(caption)
-        html.td(content, class_=css)
-        html.close_tr()
-
-    translator = werks_utils.WerkTranslator()
-    werk_table_row(_("ID"), render_werk_id(werk))
-    werk_table_row(_("Title"), HTMLWriter.render_b(render_werk_title(ctx.request, werk)))
-    werk_table_row(_("Component"), translator.component_of(werk))
-    werk_table_row(_("Date"), get_date_formatted(werk))
-    werk_table_row(_("Checkmk version"), werk.version)
-    werk_table_row(
-        _("Level"),
-        translator.level_of(werk),
-        css="werklevel werklevel%d" % werk.level.value,
-    )
-    werk_table_row(
-        _("Class"),
-        translator.class_of(werk),
-        css="werkclass werkclass%s" % werk.level.value,
-    )
-    werk_table_row(
-        _("Compatibility"),
-        compatibility_of(werk.compatible, is_acknowledged(werk, load_acknowledgements())),
-        css="werkcomp werkcomp%s" % _to_ternary_compatibility(werk),
-    )
-    werk_table_row(
-        _("Description"), HTML.without_escaping(werk.description), css="nowiki"
-    )  # TODO: remove nowiki
-
-    html.close_table()
-
-    html.footer()
-
-
-def _page_menu_werk(request: Request, breadcrumb: Breadcrumb, werk: WerkV3) -> PageMenu:
-    return PageMenu(
-        dropdowns=[
-            PageMenuDropdown(
-                name="Werk",
-                title="Werk",
-                topics=[
-                    PageMenuTopic(
-                        title=_("Incompatible Werk"),
-                        entries=list(_page_menu_entries_ack_werk(request, werk)),
-                    ),
-                ],
-            ),
-        ],
-        breadcrumb=breadcrumb,
-    )
-
-
-def _page_menu_entries_ack_werk(request: Request, werk: WerkV3) -> Iterator[PageMenuEntry]:
-    if not may_acknowledge():
-        return
-
-    ack_url = makeactionuri(
-        request, transactions, [("_werk_ack", werk.id)], filename="change_log.py"
-    )
-    yield PageMenuEntry(
-        title=_("Acknowledge"),
-        icon_name=StaticIcon(IconNames.werk_ack),
-        item=make_simple_link(ack_url),
-        is_enabled=not is_acknowledged(werk, load_acknowledgements()),
-        is_shortcut=True,
-        is_suggested=True,
-    )
 
 
 def may_acknowledge() -> bool:

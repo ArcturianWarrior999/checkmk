@@ -101,6 +101,7 @@ py_wheel(
     deps = [
         ":site",
         ":tool",
+        ":web",
     ],
 )
 
@@ -120,6 +121,27 @@ py_library(
         ":tool",
         "//cmk/utils:paths",
         "//packages/cmk-ccc:store",
+    ],
+)
+
+py_library(
+    name = "web",
+    srcs = [
+        "cmk/werks/web/__init__.py",
+        "cmk/werks/web/_pages.py",
+    ],
+    imports = ["."],
+    visibility = [
+        "//cmk:__subpackages__",
+        "//omd:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        ":site",
+        ":tool",
+        "//cmk/utils:man_pages",
+        "//packages/cmk-plugin-apis:discover_plugins",
+        "//packages/cmk-web",
     ],
 )
 

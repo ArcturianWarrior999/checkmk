@@ -28,6 +28,26 @@ py_library(
 )
 
 py_library(
+    name = "man_pages",
+    srcs = ["man_pages.py"],
+    visibility = [
+        "//bin:__subpackages__",
+        "//cmk:__subpackages__",
+        "//non-free/packages:__subpackages__",
+        "//non-free/tests:__subpackages__",
+        "//omd/packages:__subpackages__",
+        "//packages:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//packages/cmk-ccc:debug",
+        "//packages/cmk-ccc:exceptions",
+        "//packages/cmk-ccc:i18n",
+        "//packages/cmk-ccc:tty",
+    ],
+)
+
+py_library(
     name = "encryption",
     srcs = ["encryption.py"],
     visibility = [
@@ -141,6 +161,7 @@ py_library(
             "**/nonfree/**",
             "caching_redis.py",
             "encryption.py",
+            "man_pages.py",
             "msi_engine.py",
             "msi_patch.py",
             "paths.py",
@@ -174,6 +195,7 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
+        ":man_pages",
         ":paths",
         "//packages/cmk-ccc:config-path",
         "//packages/cmk-ccc:debug",

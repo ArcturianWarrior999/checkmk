@@ -12,12 +12,24 @@ exports_files([
 ])
 
 py_library(
+    name = "pages",
+    srcs = [
+        "cmk/web/context.py",
+        "cmk/web/exceptions.py",
+        "cmk/web/page_container.py",
+        "cmk/web/pages.py",
+    ],
+    imports = ["."],
+)
+
+py_library(
     name = "cmk-web",
     srcs = ["cmk/web/__init__.py"],
     data = ["cmk/web/py.typed"],
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
+        ":pages",
         "//packages/cmk-web/cmk/web/htmllib",
         "//packages/cmk-web/cmk/web/utils",
     ],
@@ -27,6 +39,7 @@ py_doc_test(
     name = "doctest",
     size = "small",
     srcs = [
+        ":pages",
         "//packages/cmk-web/cmk/web/htmllib",
         "//packages/cmk-web/cmk/web/utils",
     ],
@@ -36,6 +49,7 @@ py_doc_test(
 py_requirements_test(
     name = "requirements-test",
     libs = [
+        ":pages",
         "//packages/cmk-web/cmk/web/htmllib",
         "//packages/cmk-web/cmk/web/utils",
     ],
@@ -51,6 +65,7 @@ py_wheel(
     visibility = ["//visibility:public"],
     deps = [
         ":cmk-web",
+        ":pages",
         "//packages/cmk-web/cmk/web/htmllib",
         "//packages/cmk-web/cmk/web/utils",
     ],

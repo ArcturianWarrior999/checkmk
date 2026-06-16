@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+# Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+# This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+# conditions defined in the file COPYING, which is part of this source code package.
+
+"""Exceptions a self-rendering feature page may raise.
+
+``cmk.gui`` translates these into its own HTTP-aware exceptions when composing
+the page, so a feature stays free of a ``cmk.gui`` dependency.
+"""
+
+
+class MKUserError(Exception):
+    """Raised to signal a user-facing input error.
+
+    ``cmk.gui`` renders this as a friendly error message bound to ``varname``.
+    """
+
+    def __init__(self, varname: str | None, message: str) -> None:
+        super().__init__(message)
+        self.varname = varname
+        self.message = message
+
+    def __str__(self) -> str:
+        return self.message

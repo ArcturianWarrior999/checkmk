@@ -340,7 +340,10 @@ py_library(
 
 py_library(
     name = "werks",
-    srcs = ["werks.py"],
+    srcs = [
+        "web_pages.py",
+        "werks.py",
+    ],
     imports = ["../.."],
     visibility = [
         "//cmk:__subpackages__",
@@ -361,8 +364,10 @@ py_library(
         "//cmk/utils",
         "//packages/cmk-ccc:version",
         "//packages/cmk-plugin-apis:discover_plugins",
+        "//packages/cmk-web",
         "//packages/cmk-werks:site",
         "//packages/cmk-werks:tool",
+        "//packages/cmk-werks:web",
     ],
 )
 
