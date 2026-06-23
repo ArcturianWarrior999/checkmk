@@ -31,7 +31,7 @@ void main() {
     def cmk_version = versioning.strip_rc_number_from_version(cmk_version_rc_aware);
 
     def disable_cache = params.DISABLE_CACHE;
-    def disable_signing = params.DISABLE_SIGNING;
+    def disable_signing = params.DISABLE_CMK_DISTRO_PACKAGE_SIGNING;
     def distro = params.DISTRO;
     def edition = params.EDITION;
     def fake_artifacts = params.FAKE_ARTIFACTS;
@@ -41,6 +41,7 @@ void main() {
 
     def bazel_log_prefix = "bazel_log_";
     def signing_build_instance = null;
+    def cmk_distro_package_build_instance = null;
     def triggerd_by = "";
 
     for (cause in causes) {
@@ -102,7 +103,7 @@ void main() {
             condition: currentBuild.result == "SUCCESS",
             raiseOnError: true,
         ) {
-            smart_build(
+            cmk_distro_package_build_instance = smart_build(
                 // see global-defaults.yml, needs to run in minimal container
                 use_upstream_build: true,
                 force_build: force_build,
@@ -113,6 +114,7 @@ void main() {
                     EDITION: edition,
                     DISTRO: distro,
                     DISABLE_CACHE: disable_cache,
+                    DISABLE_CMK_DISTRO_PACKAGE_SIGNING: disable_signing,
                     FAKE_ARTIFACTS: fake_artifacts,
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                     CIPARAM_OVERRIDE_DOCKER_TAG_BUILD: params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,
@@ -123,14 +125,14 @@ void main() {
                     CIPARAM_BISECT_COMMENT: params.CIPARAM_BISECT_COMMENT,
                 ],
                 no_remove_others: true, // do not delete other files in the dest dir
-                download: false,
+                download: disable_signing,  // if signing is disabled (true), download the artifacts at this point in time
                 dest: "${checkout_dir}",
             );
         }
 
         smart_stage(
             name: "Trigger Sign package",
-            condition: currentBuild.result == "SUCCESS",
+            condition: currentBuild.result == "SUCCESS" && disable_signing == false,
             raiseOnError: true,
         ) {
             signing_build_instance = smart_build(
@@ -159,9 +161,15 @@ void main() {
         }
     }
 
+    def archive_condition = signing_build_instance && signing_build_instance.result.toString() == "SUCCESS";
+    // if signing is disabled (true), the artifacts are downloaded from the Trigger CMK build job
+    if (disable_signing) {
+        archive_condition = cmk_distro_package_build_instance && cmk_distro_package_build_instance.result.toString() == "SUCCESS";
+    }
+
     smart_stage(
         name: "Archive stuff",
-        condition: signing_build_instance && signing_build_instance.result.toString() == "SUCCESS",
+        condition: archive_condition,
         raiseOnError: true,
     ) {
         dir("${checkout_dir}") {
