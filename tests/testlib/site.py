@@ -1444,7 +1444,7 @@ class Site:
         # to come back up.
         with suppress(requests.exceptions.ConnectionError):
             self.openapi.changes.activate(force_foreign_changes=force_foreign_changes)
-        self.wait_for_no_running_activations(timeout=timeout, interval=interval)
+        self.wait_for_site_restarting_changes_to_complete(timeout=timeout, interval=interval)
 
     def _get_activation_final_status(
         self, activation_id: str, timeout: int, interval: int = 2
@@ -1477,7 +1477,9 @@ class Site:
             time.sleep(interval)
         raise TimeoutError(f"Activation {activation_id!r} did not finalize within {timeout}s")
 
-    def wait_for_no_running_activations(self, timeout: int = 180, interval: int = 2) -> None:
+    def wait_for_site_restarting_changes_to_complete(
+        self, timeout: int = 180, interval: int = 2
+    ) -> None:
         seen_activation_ids: set[str] = set()
 
         def _no_running_activations() -> bool:
@@ -1486,18 +1488,20 @@ class Site:
                     "/domain-types/activation_run/collections/running"
                 )
             except requests.exceptions.ConnectionError:
-                logger.debug("wait_for_no_running_activations: connection error while polling")
+                logger.debug(
+                    "wait_for_site_restarting_changes_to_complete: connection error while polling"
+                )
                 # The site restart triggered by the activation may kill httpd while we poll.
                 return False
             if response.status_code != 200:
                 logger.info(
-                    "wait_for_no_running_activations: unexpected status %(status_code)d",
-                    {"status_code": response.status_code},
+                    "wait_for_site_restarting_changes_to_complete: unexpected status %d",
+                    response.status_code,
                 )
                 return False
             running = response.json()["value"]
             logger.debug(
-                "wait_for_no_running_activations: running entries: %(entries)s",
+                "wait_for_site_restarting_changes_to_complete: running entries: %(entries)s",
                 {
                     "entries": [
                         {"id": e["id"], "is_running": e["extensions"]["is_running"]}
@@ -1520,7 +1524,7 @@ class Site:
         )
 
         logger.debug(
-            "wait_for_no_running_activations: seen activation IDs: %(activation_ids)s",
+            "wait_for_site_restarting_changes_to_complete: seen activation IDs: %(activation_ids)s",
             {"activation_ids": seen_activation_ids},
         )
         assert len(seen_activation_ids) == 1, (
@@ -1531,7 +1535,7 @@ class Site:
         final_status = self._get_activation_final_status(activation_id, timeout, interval)
         if final_status is not None:
             logger.debug(
-                "wait_for_no_running_activations: final status for %(activation_id)r: %(final_status)s",
+                "wait_for_site_restarting_changes_to_complete: final status for %(activation_id)r: %(final_status)s",
                 {"activation_id": activation_id, "final_status": final_status},
             )
             not_succeeded_sites = [
