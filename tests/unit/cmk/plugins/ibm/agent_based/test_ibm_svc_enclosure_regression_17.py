@@ -14,6 +14,7 @@ from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.plugins.ibm.agent_based.ibm_svc_enclosure import (
     check_ibm_svc_enclosure,
     discover_ibm_svc_enclosure,
+    IbmSvcEnclosureParams,
     parse_ibm_svc_enclosure,
 )
 
@@ -147,13 +148,11 @@ def test_parse_ibm_svc_enclosure_normal(string_table_normal: StringTable) -> Non
     assert isinstance(result, dict)
     assert "6" in result
     enclosure = result["6"]
-    assert enclosure["status"] == "online"
-    assert enclosure["type"] == "expansion"
-    assert enclosure["managed"] == "yes"
-    assert enclosure["total_canisters"] == "2"
-    assert enclosure["online_canisters"] == "2"
-    assert enclosure["total_PSUs"] == "2"
-    assert enclosure["online_PSUs"] == "2"
+    assert enclosure.status == "online"
+    assert enclosure.total_canisters == 2
+    assert enclosure.online_canisters == 2
+    assert enclosure.total_psus == 2
+    assert enclosure.online_psus == 2
 
 
 def test_parse_ibm_svc_enclosure_control(string_table_control: StringTable) -> None:
@@ -162,11 +161,10 @@ def test_parse_ibm_svc_enclosure_control(string_table_control: StringTable) -> N
     assert isinstance(result, dict)
     assert "1" in result
     enclosure = result["1"]
-    assert enclosure["status"] == "online"
-    assert enclosure["type"] == "control"
-    assert enclosure["total_canisters"] == "2"
-    assert enclosure["online_canisters"] == "2"
-    assert enclosure["online_PSUs"] == "2"
+    assert enclosure.status == "online"
+    assert enclosure.total_canisters == 2
+    assert enclosure.online_canisters == 2
+    assert enclosure.online_psus == 2
 
 
 def test_parse_ibm_svc_enclosure_empty(string_table_empty: StringTable) -> None:
@@ -182,8 +180,8 @@ def test_parse_ibm_svc_enclosure_multiple(string_table_multiple: StringTable) ->
     assert len(result) == 2
     assert "1" in result
     assert "6" in result
-    assert result["1"]["status"] == "online"
-    assert result["6"]["status"] == "degraded"
+    assert result["1"].status == "online"
+    assert result["6"].status == "degraded"
 
 
 def test_discover_ibm_svc_enclosure(string_table_normal: StringTable) -> None:
@@ -215,7 +213,11 @@ def test_discover_ibm_svc_enclosure_empty(string_table_empty: StringTable) -> No
 def test_check_ibm_svc_enclosure_online(string_table_normal: StringTable) -> None:
     """Test check function with online enclosure."""
     parsed = parse_ibm_svc_enclosure(string_table_normal)
-    result = list(check_ibm_svc_enclosure("6", {}, parsed))
+    result = list(
+        check_ibm_svc_enclosure(
+            "6", {"levels_lower_online_canisters": ("all_online", None)}, parsed
+        )
+    )
 
     assert len(result) == 5
 
@@ -229,7 +231,11 @@ def test_check_ibm_svc_enclosure_online(string_table_normal: StringTable) -> Non
 def test_check_ibm_svc_enclosure_offline(string_table_offline: StringTable) -> None:
     """Test check function with offline enclosure."""
     parsed = parse_ibm_svc_enclosure(string_table_offline)
-    result = list(check_ibm_svc_enclosure("6", {}, parsed))
+    result = list(
+        check_ibm_svc_enclosure(
+            "6", {"levels_lower_online_canisters": ("all_online", None)}, parsed
+        )
+    )
 
     assert result[0] == Result(state=State.CRIT, summary="Status: offline")
 
@@ -249,7 +255,11 @@ def test_check_ibm_svc_enclosure_offline(string_table_offline: StringTable) -> N
 def test_check_ibm_svc_enclosure_control(string_table_control: StringTable) -> None:
     """Test check function with control enclosure."""
     parsed = parse_ibm_svc_enclosure(string_table_control)
-    result = list(check_ibm_svc_enclosure("1", {}, parsed))
+    result = list(
+        check_ibm_svc_enclosure(
+            "1", {"levels_lower_online_canisters": ("all_online", None)}, parsed
+        )
+    )
 
     assert len(result) >= 3
 
@@ -282,8 +292,8 @@ def test_check_ibm_svc_enclosure_with_thresholds() -> None:
     ]
 
     parsed = parse_ibm_svc_enclosure(string_table)
-    params: dict[str, tuple[int, int]] = {
-        "levels_lower_online_canisters": (2, 1),  # warn at 2, crit at 1
+    params: IbmSvcEnclosureParams = {
+        "levels_lower_online_canisters": ("levels", ("fixed", (2, 1))),  # warn at 2, crit at 1
     }
 
     result = list(check_ibm_svc_enclosure("6", params, parsed))
@@ -318,7 +328,11 @@ def test_check_ibm_svc_enclosure_missing_item() -> None:
     ]
 
     parsed = parse_ibm_svc_enclosure(string_table)
-    result = list(check_ibm_svc_enclosure("999", {}, parsed))
+    result = list(
+        check_ibm_svc_enclosure(
+            "999", {"levels_lower_online_canisters": ("all_online", None)}, parsed
+        )
+    )
     assert result == []
 
 
@@ -327,7 +341,11 @@ def test_check_ibm_svc_enclosure_degraded_status(
 ) -> None:
     """Test check function with degraded enclosure status."""
     parsed = parse_ibm_svc_enclosure(string_table_multiple)
-    result = list(check_ibm_svc_enclosure("6", {}, parsed))
+    result = list(
+        check_ibm_svc_enclosure(
+            "6", {"levels_lower_online_canisters": ("all_online", None)}, parsed
+        )
+    )
 
     assert result[0] == Result(state=State.CRIT, summary="Status: degraded")
 

@@ -4,7 +4,8 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from collections.abc import Mapping
-from typing import Literal
+from dataclasses import dataclass
+from typing import Literal, TypedDict
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -12,6 +13,7 @@ from cmk.agent_based.v2 import (
     CheckPlugin,
     CheckResult,
     DiscoveryResult,
+    LevelsT,
     Result,
     Service,
     State,
@@ -19,7 +21,30 @@ from cmk.agent_based.v2 import (
 )
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 
-Section = Mapping[str, Mapping[str, str]]
+
+@dataclass(frozen=True)
+class Enclosure:
+    status: str
+    online_canisters: int | None
+    total_canisters: int | None
+    online_psus: int | None
+    total_psus: int | None
+    online_fan_modules: int | None
+    total_fan_modules: int | None
+    online_sems: int | None
+    total_sems: int | None
+
+
+Section = Mapping[str, Enclosure]
+
+
+class IbmSvcEnclosureParams(TypedDict):
+    levels_lower_online_canisters: (
+        tuple[Literal["all_online"], None] | tuple[Literal["levels"], LevelsT[int]]
+    )
+
+
+_NO_LEVELS: LevelsT[int] = ("no_levels", None)
 
 # Example output from agent:
 # <<<ibm_svc_enclosure:sep(58)>>>
@@ -56,13 +81,26 @@ def parse_ibm_svc_enclosure(
     if dflt_header is None:
         return {}
 
-    parsed: dict[str, Mapping[str, str]] = {}
+    parsed: dict[str, Enclosure] = {}
     for id_, rows in parse_ibm_svc_with_header(string_table, dflt_header).items():
         try:
             data = rows[0]
         except IndexError:
             continue
-        parsed.setdefault(id_, data)
+        parsed.setdefault(
+            id_,
+            Enclosure(
+                status=data["status"],
+                online_canisters=_try_int(data.get("online_canisters")),
+                total_canisters=_try_int(data.get("total_canisters")),
+                online_psus=_try_int(data.get("online_PSUs")),
+                total_psus=_try_int(data.get("total_PSUs")),
+                online_fan_modules=_try_int(data.get("online_fan_modules")),
+                total_fan_modules=_try_int(data.get("total_fan_modules")),
+                online_sems=_try_int(data.get("online_sems")),
+                total_sems=_try_int(data.get("total_sems")),
+            ),
+        )
     return parsed
 
 
@@ -75,44 +113,49 @@ def _try_int(value: str | None) -> int | None:
 
 def check_ibm_svc_enclosure(
     item: str,
-    params: Mapping[str, tuple[int, int] | bool],
+    params: IbmSvcEnclosureParams,
     section: Section,
 ) -> CheckResult:
-    if not (data := section.get(item)):
+    if (enclosure := section.get(item)) is None:
         return
 
-    enclosure_status = data["status"]
     yield Result(
-        state=State.OK if enclosure_status == "online" else State.CRIT,
-        summary=f"Status: {enclosure_status}",
+        state=State.OK if enclosure.status == "online" else State.CRIT,
+        summary=f"Status: {enclosure.status}",
     )
 
-    for key, label in [
-        ("canisters", "canisters"),
-        ("PSUs", "PSUs"),
-        ("fan_modules", "fan modules"),
-        ("sems", "secondary expander modules"),
-    ]:
-        online = _try_int(data.get(f"online_{key}"))
-        total = _try_int(data.get(f"total_{key}"))
+    match params["levels_lower_online_canisters"]:
+        case ("levels", levels):
+            canister_levels = levels
+        case _:
+            canister_levels = _NO_LEVELS
+    for label, online, total, configured in (
+        ("canisters", enclosure.online_canisters, enclosure.total_canisters, canister_levels),
+        ("PSUs", enclosure.online_psus, enclosure.total_psus, _NO_LEVELS),
+        ("fan modules", enclosure.online_fan_modules, enclosure.total_fan_modules, _NO_LEVELS),
+        (
+            "secondary expander modules",
+            enclosure.online_sems,
+            enclosure.total_sems,
+            _NO_LEVELS,
+        ),
+    ):
         if online is None:
             continue
-        # Valid values for WATO rule value levels_lower_online_canisters are
-        # False, which shall be mapped to (total, total) or (warn, crit).
-        raw_param = params.get(f"levels_lower_online_{key}")
-        levels_lower_typed: (
-            tuple[Literal["fixed"], tuple[int, int]] | tuple[Literal["no_levels"], None]
-        )
-        if isinstance(raw_param, tuple):
-            levels_lower_typed = ("fixed", raw_param)
+
+        # No configured levels means "all must be online", i.e. (total, total).
+        levels_lower: tuple[Literal["fixed"], tuple[int, int]] | tuple[Literal["no_levels"], None]
+        if configured[0] == "fixed":
+            levels_lower = configured
         elif total is not None:
-            levels_lower_typed = ("fixed", (total, total))
+            levels_lower = ("fixed", (total, total))
         else:
-            levels_lower_typed = ("no_levels", None)
+            levels_lower = ("no_levels", None)
+
         for result in check_levels(
             online,
             label=f"Online {label}",
-            levels_lower=levels_lower_typed,
+            levels_lower=levels_lower,
             render_func=str,
         ):
             if isinstance(result, Result) and total is not None:
@@ -139,7 +182,7 @@ check_plugin_ibm_svc_enclosure = CheckPlugin(
     discovery_function=discover_ibm_svc_enclosure,
     check_function=check_ibm_svc_enclosure,
     check_ruleset_name="ibm_svc_enclosure",
-    check_default_parameters={},
+    check_default_parameters={"levels_lower_online_canisters": ("all_online", None)},
 )
 
 #   .--helper--------------------------------------------------------------.

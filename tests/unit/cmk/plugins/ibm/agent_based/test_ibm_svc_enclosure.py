@@ -3,7 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 
 import pytest
 
@@ -11,6 +11,7 @@ from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.plugins.ibm.agent_based.ibm_svc_enclosure import (
     check_ibm_svc_enclosure,
     discover_ibm_svc_enclosure,
+    IbmSvcEnclosureParams,
     parse_ibm_svc_enclosure,
 )
 
@@ -102,7 +103,7 @@ def test_discover_ibm_svc_enclosure(
     [
         (
             "1",
-            {"levels_lower_online_canisters": (2, 0)},
+            {"levels_lower_online_canisters": ("levels", ("fixed", (2, 0)))},
             STRING_TABLE_13COL,
             [
                 Result(state=State.OK, summary="Status: online"),
@@ -112,7 +113,7 @@ def test_discover_ibm_svc_enclosure(
         ),
         (
             "2",
-            {"levels_lower_online_canisters": (-1, -1)},
+            {"levels_lower_online_canisters": ("levels", ("fixed", (-1, -1)))},
             STRING_TABLE_13COL,
             [
                 Result(state=State.OK, summary="Status: online"),
@@ -122,7 +123,7 @@ def test_discover_ibm_svc_enclosure(
         ),
         (
             "3",
-            {},
+            {"levels_lower_online_canisters": ("all_online", None)},
             STRING_TABLE_13COL,
             [
                 Result(state=State.OK, summary="Status: online"),
@@ -132,7 +133,7 @@ def test_discover_ibm_svc_enclosure(
         ),
         (
             "4",
-            {},
+            {"levels_lower_online_canisters": ("all_online", None)},
             STRING_TABLE_13COL,
             [
                 Result(state=State.OK, summary="Status: online"),
@@ -144,7 +145,7 @@ def test_discover_ibm_svc_enclosure(
 )
 def test_check_ibm_svc_enclosure(
     item: str,
-    params: Mapping[str, tuple[int, int] | bool],
+    params: IbmSvcEnclosureParams,
     string_table: StringTable,
     expected_results: Sequence[Result],
 ) -> None:
