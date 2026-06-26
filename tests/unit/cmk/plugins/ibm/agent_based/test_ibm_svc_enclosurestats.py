@@ -56,21 +56,21 @@ def test_parse_ibm_svc_enclosurestats(parsed: Mapping[str, Any]) -> None:
     """Test parsing of IBM SVC enclosure stats data."""
     assert len(parsed) == 4
 
-    assert parsed["1"]["power_w"] == 207
-    assert parsed["1"]["temp_c"] == 22
-    assert parsed["1"]["temp_f"] == 71
+    assert parsed["1"].power_w == 207
+    assert parsed["1"].temp_c == 22
+    assert parsed["1"].temp_f == 71
 
-    assert parsed["2"]["power_w"] == 126
-    assert parsed["2"]["temp_c"] == 21
-    assert parsed["2"]["temp_f"] == 69
+    assert parsed["2"].power_w == 126
+    assert parsed["2"].temp_c == 21
+    assert parsed["2"].temp_f == 69
 
-    assert parsed["3"]["power_w"] == 123
-    assert parsed["3"]["temp_c"] == 22
-    assert parsed["3"]["temp_f"] == 71
+    assert parsed["3"].power_w == 123
+    assert parsed["3"].temp_c == 22
+    assert parsed["3"].temp_f == 71
 
-    assert parsed["4"]["power_w"] == 133
-    assert parsed["4"]["temp_c"] == 22
-    assert parsed["4"]["temp_f"] == 71
+    assert parsed["4"].power_w == 133
+    assert parsed["4"].temp_c == 22
+    assert parsed["4"].temp_f == 71
 
 
 def test_discover_ibm_svc_enclosurestats_power(parsed: Mapping[str, Any]) -> None:
@@ -198,9 +198,9 @@ def test_parse_ibm_svc_enclosurestats_invalid_data() -> None:
         ["2", "power_w", "126", "128", "140410113056"],
     ]
     parsed = parse_ibm_svc_enclosurestats(string_table)
-    assert "power_w" not in parsed.get("1", {})
-    assert parsed["1"]["temp_c"] == 22
-    assert parsed["2"]["power_w"] == 126
+    assert parsed["1"].power_w is None
+    assert parsed["1"].temp_c == 22
+    assert parsed["2"].power_w == 126
 
 
 def test_discover_ibm_svc_enclosurestats_missing_stats() -> None:
