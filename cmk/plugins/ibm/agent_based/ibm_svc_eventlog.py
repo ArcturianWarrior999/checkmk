@@ -14,6 +14,9 @@
 # 1690:130801070656:drive:59:::alert:no:981020::Managed Disk error count warning threshold met
 # 2058:131030112416:drive:42:::alert:no:981020::Managed Disk error count warning threshold met
 
+from collections.abc import Sequence
+from dataclasses import dataclass
+
 from cmk.agent_based.v2 import (
     AgentSection,
     CheckPlugin,
@@ -26,35 +29,26 @@ from cmk.agent_based.v2 import (
 )
 
 
-def discover_ibm_svc_eventlog(section: StringTable) -> DiscoveryResult:
+@dataclass(frozen=True)
+class EventLogEntry:
+    description: str
+
+
+Section = Sequence[EventLogEntry]
+
+
+def discover_ibm_svc_eventlog(section: Section) -> DiscoveryResult:
     yield Service()
 
 
-def check_ibm_svc_eventlog(section: StringTable) -> CheckResult:
-    messagecount = 0
-    last_err = ""
-
-    for (
-        _sequence_number,
-        _last_timestamp,
-        _object_type,
-        _object_id,
-        _object_name,
-        _copy_id,
-        _status,
-        _fixed,
-        _event_id,
-        _error_code,
-        description,
-        *_,
-    ) in section:
-        messagecount += 1
-        last_err = description
-
-    if messagecount > 0:
+def check_ibm_svc_eventlog(section: Section) -> CheckResult:
+    if section:
         yield Result(
             state=State.WARN,
-            summary=f"{messagecount} messages not expired and not yet fixed found in event log, last was: {last_err}",
+            summary=(
+                f"{len(section)} messages not expired and not yet fixed found in event log, "
+                f"last was: {section[-1].description}"
+            ),
         )
         return
 
@@ -63,8 +57,10 @@ def check_ibm_svc_eventlog(section: StringTable) -> CheckResult:
     )
 
 
-def parse_ibm_svc_eventlog(string_table: StringTable) -> StringTable:
-    return string_table
+def parse_ibm_svc_eventlog(string_table: StringTable) -> Section:
+    # Column layout: sequence_number, last_timestamp, object_type, object_id,
+    # object_name, copy_id, status, fixed, event_id, error_code, description, ...
+    return [EventLogEntry(description=line[10]) for line in string_table if len(line) > 10]
 
 
 agent_section_ibm_svc_eventlog = AgentSection(
