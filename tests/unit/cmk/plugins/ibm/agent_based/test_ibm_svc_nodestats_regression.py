@@ -89,36 +89,36 @@ def _parsed() -> Mapping[str, Any]:
 def test_parse_ibm_svc_nodestats(parsed: Mapping[str, Any]) -> None:
     """Test parsing of IBM SVC node statistics."""
     assert "BLUBBSVC01" in parsed
-    assert parsed["BLUBBSVC01"]["cpu_pc"] == 1.0
-    assert parsed["BLUBBSVC01"]["write_cache_pc"] == 0.0
-    assert parsed["BLUBBSVC01"]["total_cache_pc"] == 70.0
+    assert parsed["BLUBBSVC01"].cpu_pc == 1.0
+    assert parsed["BLUBBSVC01"].write_cache_pc == 0.0
+    assert parsed["BLUBBSVC01"].total_cache_pc == 70.0
 
     # VDisks
-    assert parsed["VDisks BLUBBSVC01"]["r_mb"] == 0.0
-    assert parsed["VDisks BLUBBSVC01"]["w_mb"] == 0.0
-    assert parsed["VDisks BLUBBSVC01"]["r_io"] == 19.0
-    assert parsed["VDisks BLUBBSVC01"]["w_io"] == 110.0
-    assert parsed["VDisks BLUBBSVC01"]["r_ms"] == 2.0
-    assert parsed["VDisks BLUBBSVC01"]["w_ms"] == 0.0
+    assert parsed["VDisks BLUBBSVC01"].r_mb == 0.0
+    assert parsed["VDisks BLUBBSVC01"].w_mb == 0.0
+    assert parsed["VDisks BLUBBSVC01"].r_io == 19.0
+    assert parsed["VDisks BLUBBSVC01"].w_io == 110.0
+    assert parsed["VDisks BLUBBSVC01"].r_ms == 2.0
+    assert parsed["VDisks BLUBBSVC01"].w_ms == 0.0
 
     # MDisks
-    assert parsed["MDisks BLUBBSVC01"]["r_mb"] == 1.0
-    assert parsed["MDisks BLUBBSVC01"]["w_mb"] == 16.0
-    assert parsed["MDisks BLUBBSVC01"]["r_io"] == 15.0
-    assert parsed["MDisks BLUBBSVC01"]["w_io"] == 865.0
-    assert parsed["MDisks BLUBBSVC01"]["r_ms"] == 5.0
-    assert parsed["MDisks BLUBBSVC01"]["w_ms"] == 1.0
+    assert parsed["MDisks BLUBBSVC01"].r_mb == 1.0
+    assert parsed["MDisks BLUBBSVC01"].w_mb == 16.0
+    assert parsed["MDisks BLUBBSVC01"].r_io == 15.0
+    assert parsed["MDisks BLUBBSVC01"].w_io == 865.0
+    assert parsed["MDisks BLUBBSVC01"].r_ms == 5.0
+    assert parsed["MDisks BLUBBSVC01"].w_ms == 1.0
 
     # Drives
-    assert parsed["Drives BLUBBSVC01"]["r_mb"] == 0.0
-    assert parsed["Drives BLUBBSVC01"]["w_mb"] == 0.0
-    assert parsed["Drives BLUBBSVC01"]["r_io"] == 0.0
-    assert parsed["Drives BLUBBSVC01"]["w_io"] == 0.0
-    assert parsed["Drives BLUBBSVC01"]["r_ms"] == 0.0
-    assert parsed["Drives BLUBBSVC01"]["w_ms"] == 0.0
+    assert parsed["Drives BLUBBSVC01"].r_mb == 0.0
+    assert parsed["Drives BLUBBSVC01"].w_mb == 0.0
+    assert parsed["Drives BLUBBSVC01"].r_io == 0.0
+    assert parsed["Drives BLUBBSVC01"].w_io == 0.0
+    assert parsed["Drives BLUBBSVC01"].r_ms == 0.0
+    assert parsed["Drives BLUBBSVC01"].w_ms == 0.0
 
     # Second node
-    assert parsed["BLUBBSVC02"]["cpu_pc"] == 1.0
+    assert parsed["BLUBBSVC02"].cpu_pc == 1.0
 
 
 def test_discover_ibm_svc_nodestats_cache(parsed: Mapping[str, Any]) -> None:
@@ -193,7 +193,7 @@ def test_check_ibm_svc_nodestats_cache(parsed: Mapping[str, Any]) -> None:
 @pytest.mark.usefixtures("patched_value_store")
 def test_check_ibm_svc_nodestats_cpu(parsed: Mapping[str, Any]) -> None:
     """Test CPU utilization monitoring."""
-    params = {"levels": (90.0, 95.0)}
+    params: ibm_svc_nodestats.IbmSvcNodeStatsCpuParams = {"levels": (90.0, 95.0)}
     result = list(check_ibm_svc_nodestats_cpu("BLUBBSVC01", params, parsed))
 
     assert result == [
@@ -324,7 +324,7 @@ def test_check_ibm_svc_nodestats_cpu_high_usage() -> None:
         ["1", "HIGHCPU", "total_cache_pc", "85", "90", "140325134716"],
     ]
     parsed = parse_ibm_svc_nodestats(string_table)
-    params = {"levels": (90.0, 95.0)}
+    params: ibm_svc_nodestats.IbmSvcNodeStatsCpuParams = {"levels": (90.0, 95.0)}
 
     result = list(check_ibm_svc_nodestats_cpu("HIGHCPU", params, parsed))
     assert result == [
@@ -345,7 +345,7 @@ def test_check_ibm_svc_nodestats_cpu_critical_usage() -> None:
         ["1", "CRITCPU", "total_cache_pc", "95", "98", "140325134716"],
     ]
     parsed = parse_ibm_svc_nodestats(string_table)
-    params = {"levels": (90.0, 95.0)}
+    params: ibm_svc_nodestats.IbmSvcNodeStatsCpuParams = {"levels": (90.0, 95.0)}
 
     result = list(check_ibm_svc_nodestats_cpu("CRITCPU", params, parsed))
     assert result == [
@@ -366,9 +366,9 @@ def test_parse_ibm_svc_nodestats_invalid_data() -> None:
     ]
     parsed = parse_ibm_svc_nodestats(string_table)
 
-    assert "cpu_pc" not in parsed.get("NODE1", {})
-    assert parsed["NODE1"]["write_cache_pc"] == 50.0
-    assert parsed["NODE1"]["total_cache_pc"] == 75.0
+    assert parsed["NODE1"].cpu_pc is None
+    assert parsed["NODE1"].write_cache_pc == 50.0
+    assert parsed["NODE1"].total_cache_pc == 75.0
 
 
 def test_parse_ibm_svc_nodestats_decimal_values() -> None:
@@ -382,11 +382,11 @@ def test_parse_ibm_svc_nodestats_decimal_values() -> None:
     ]
     parsed = parse_ibm_svc_nodestats(string_table)
 
-    assert parsed["NODE1"]["cpu_pc"] == 15.5
-    assert parsed["VDisks NODE1"]["r_ms"] == 0.216
-    assert parsed["VDisks NODE1"]["w_ms"] == 0.191
-    assert parsed["MDisks NODE1"]["r_ms"] == 0.324
-    assert parsed["MDisks NODE1"]["w_ms"] == 0.393
+    assert parsed["NODE1"].cpu_pc == 15.5
+    assert parsed["VDisks NODE1"].r_ms == 0.216
+    assert parsed["VDisks NODE1"].w_ms == 0.191
+    assert parsed["MDisks NODE1"].r_ms == 0.324
+    assert parsed["MDisks NODE1"].w_ms == 0.393
 
 
 def test_parse_ibm_svc_nodestats_empty_data() -> None:

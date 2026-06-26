@@ -6,7 +6,8 @@
 
 import time
 from collections.abc import Mapping
-from typing import Any
+from dataclasses import dataclass
+from typing import TypedDict
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -24,7 +25,27 @@ from cmk.agent_based.v2 import (
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 from cmk.plugins.lib.cpu_util import check_cpu_util
 
-Section = Mapping[str, Mapping[str, float]]
+
+@dataclass(frozen=True)
+class NodeStats:
+    r_mb: float | None = None
+    w_mb: float | None = None
+    r_io: float | None = None
+    w_io: float | None = None
+    r_ms: float | None = None
+    w_ms: float | None = None
+    cpu_pc: float | None = None
+    write_cache_pc: float | None = None
+    total_cache_pc: float | None = None
+
+
+Section = Mapping[str, NodeStats]
+
+
+class IbmSvcNodeStatsCpuParams(TypedDict, total=False):
+    levels: tuple[float, float]
+    average: int
+
 
 # newer Firmware versions may return decimal values, not just integer
 # <<<ibm_svc_nodestats:sep(58)>>>
@@ -77,7 +98,7 @@ def parse_ibm_svc_nodestats(string_table: StringTable) -> Section:
         "stat_peak",
         "stat_peak_time",
     ]
-    parsed: dict[str, dict[str, float]] = {}
+    accumulated: dict[str, dict[str, float]] = {}
     for rows in parse_ibm_svc_with_header(string_table, dflt_header).values():
         for data in rows:
             node_name = data["node_name"]
@@ -120,8 +141,8 @@ def parse_ibm_svc_nodestats(string_table: StringTable) -> Section:
                 stat_current = float(data["stat_current"])
             except ValueError:
                 continue
-            parsed.setdefault(item_name, {}).setdefault(stat_name, stat_current)
-    return parsed
+            accumulated.setdefault(item_name, {}).setdefault(stat_name, stat_current)
+    return {item_name: NodeStats(**stats) for item_name, stats in accumulated.items()}
 
 
 agent_section_ibm_svc_nodestats = AgentSection(
@@ -144,16 +165,16 @@ def discover_ibm_svc_nodestats_diskio(section: Section) -> DiscoveryResult:
     yield from (
         Service(item=node_name)
         for node_name, data in section.items()
-        if "r_mb" in data and "w_mb" in data
+        if data.r_mb is not None and data.w_mb is not None
     )
 
 
 def check_ibm_svc_nodestats_diskio(item: str, section: Section) -> CheckResult:
-    if (data := section.get(item)) is None:
+    if (data := section.get(item)) is None or data.r_mb is None or data.w_mb is None:
         return
 
-    read_bytes = data["r_mb"] * 1024 * 1024
-    write_bytes = data["w_mb"] * 1024 * 1024
+    read_bytes = data.r_mb * 1024 * 1024
+    write_bytes = data.w_mb * 1024 * 1024
 
     yield Result(
         state=State.OK,
@@ -186,16 +207,16 @@ def discover_ibm_svc_nodestats_iops(section: Section) -> DiscoveryResult:
     yield from (
         Service(item=node_name)
         for node_name, data in section.items()
-        if "r_io" in data and "w_io" in data
+        if data.r_io is not None and data.w_io is not None
     )
 
 
 def check_ibm_svc_nodestats_iops(item: str, section: Section) -> CheckResult:
-    if (data := section.get(item)) is None:
+    if (data := section.get(item)) is None or data.r_io is None or data.w_io is None:
         return
 
-    read_iops = data["r_io"]
-    write_iops = data["w_io"]
+    read_iops = data.r_io
+    write_iops = data.w_io
 
     yield Result(state=State.OK, summary=f"{read_iops} IO/s read, {write_iops} IO/s write")
     yield Metric("read", read_iops)
@@ -225,16 +246,16 @@ def discover_ibm_svc_nodestats_disk_latency(section: Section) -> DiscoveryResult
     yield from (
         Service(item=node_name)
         for node_name, data in section.items()
-        if "r_ms" in data and "w_ms" in data
+        if data.r_ms is not None and data.w_ms is not None
     )
 
 
 def check_ibm_svc_nodestats_disk_latency(item: str, section: Section) -> CheckResult:
-    if (data := section.get(item)) is None:
+    if (data := section.get(item)) is None or data.r_ms is None or data.w_ms is None:
         return
 
-    read_latency = data["r_ms"]
-    write_latency = data["w_ms"]
+    read_latency = data.r_ms
+    write_latency = data.w_ms
 
     yield Result(
         state=State.OK,
@@ -265,16 +286,18 @@ check_plugin_ibm_svc_nodestats_disk_latency = CheckPlugin(
 
 
 def discover_ibm_svc_nodestats_cpu(section: Section) -> DiscoveryResult:
-    yield from (Service(item=node_name) for node_name, data in section.items() if "cpu_pc" in data)
+    yield from (
+        Service(item=node_name) for node_name, data in section.items() if data.cpu_pc is not None
+    )
 
 
 def check_ibm_svc_nodestats_cpu(
-    item: str, params: Mapping[str, Any], section: Section
+    item: str, params: IbmSvcNodeStatsCpuParams, section: Section
 ) -> CheckResult:
-    if (data := section.get(item)) is None:
+    if (data := section.get(item)) is None or data.cpu_pc is None:
         return
     yield from check_cpu_util(
-        util=data["cpu_pc"],
+        util=data.cpu_pc,
         params=params,
         value_store=get_value_store(),
         this_time=time.time(),
@@ -306,16 +329,20 @@ def discover_ibm_svc_nodestats_cache(section: Section) -> DiscoveryResult:
     yield from (
         Service(item=node_name)
         for node_name, data in section.items()
-        if "write_cache_pc" in data and "total_cache_pc" in data
+        if data.write_cache_pc is not None and data.total_cache_pc is not None
     )
 
 
 def check_ibm_svc_nodestats_cache(item: str, section: Section) -> CheckResult:
-    if (data := section.get(item)) is None:
+    if (
+        (data := section.get(item)) is None
+        or data.write_cache_pc is None
+        or data.total_cache_pc is None
+    ):
         return
 
-    write_cache_pc = data["write_cache_pc"]
-    total_cache_pc = data["total_cache_pc"]
+    write_cache_pc = data.write_cache_pc
+    total_cache_pc = data.total_cache_pc
 
     yield Result(
         state=State.OK,
