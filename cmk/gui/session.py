@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import cast, override
+from typing import Any, cast, overload, override
 
 import flask
 from flask import Flask
@@ -44,10 +44,91 @@ from cmk.gui.userdb.store import convert_idle_timeout, load_custom_attr
 from cmk.gui.utils.flashed_messages import MsgType
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.security_log_events import AuthenticationSuccessEvent
-from cmk.gui.wsgi.utils import dict_property
 from cmk.utils.security_event import log_security_event
 
 tracer = trace.get_tracer()
+
+
+class _undefined:
+    pass
+
+
+_Inst = dict[str, Any]
+
+
+class dict_property[T]:
+    """A typed property (descriptor) which can be used on dict subclasses to type individual keys.
+
+    NOTE:
+        This construct is only there to type some aspects of Flask's SessionMixin classes! Don't
+        rely on it. Also, it's lacking in some areas (no TypedDict), but this is a necessary
+        tradeoff for this use-case.
+
+    Examples:
+
+        >>> class Foo(dict):
+        ...     int_key = dict_property[int]()
+
+        It's a real dict:
+
+            >>> foo = Foo()
+            >>> foo["bar"] = "is still allowed"  # not type-checked
+
+        But this is typed:
+
+            >>> foo.int_key = 5   # type-checked
+            >>> foo.int_key  # also type-checked
+            5
+
+        It's in the dict.
+
+            >>> foo["int_key"]  # not type-checked
+            5
+
+        A default can also be set:
+
+            >>> class Bar(dict):
+            ...     int_key = dict_property[int](default=0)
+
+            >>> bar = Bar()
+            >>> assert bar.int_key == 0
+
+
+    """
+
+    def __init__(self, default: T | _undefined = _undefined()) -> None:
+        self.default = default
+
+    def __set_name__(self, owner: _Inst, name: str) -> None:
+        self.name: str = name
+
+    def __set__(self, instance: _Inst, value: T) -> None:
+        instance[self.name] = value
+
+    @overload
+    def __get__(self, instance: None, owner: None = None) -> dict_property[T]: ...
+
+    @overload
+    def __get__(self, instance: _Inst, owner: type[dict] = ...) -> T: ...
+
+    def __get__(
+        self, instance: _Inst | None, owner: type[dict] | None = None
+    ) -> dict_property[T] | T:
+        if instance is None:
+            return self
+        try:
+            if not isinstance(self.default, _undefined):
+                return cast(T, instance.setdefault(self.name, self.default))
+
+            return cast(T, instance[self.name])
+        except KeyError as exc:
+            raise AttributeError(exc) from exc
+
+    def __delete__(self, instance: _Inst) -> None:
+        try:
+            del instance[self.name]
+        except KeyError as exc:
+            raise AttributeError(exc) from exc
 
 
 class CheckmkFileBasedSession(dict, SessionMixin):
