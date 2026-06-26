@@ -5,6 +5,7 @@
 
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -18,6 +19,13 @@ from cmk.agent_based.v2 import (
 )
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 
+
+@dataclass(frozen=True)
+class Node:
+    name: str
+    status: str
+
+
 # Example output from agent:
 # Put here the example output from your TCP-Based agent. If the
 # check is SNMP-Based, then remove this section
@@ -29,7 +37,7 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 # 6:N4_164312:100025E315:500507680100D880:online:1:io_grp1:yes:2040000085543045:CG8:iqn.1986-03.com.ibm:2145.svc-cl.n4164312::164312:::::
 
 
-Section = Mapping[str, Sequence[Mapping[str, str]]]
+Section = Mapping[str, Sequence[Node]]
 
 
 def parse_ibm_svc_node(string_table: StringTable) -> Section:
@@ -53,10 +61,12 @@ def parse_ibm_svc_node(string_table: StringTable) -> Section:
         "site_id",
         "site_name",
     ]
-    parsed: dict[str, list[Mapping[str, str]]] = {}
+    parsed: dict[str, list[Node]] = {}
     for rows in parse_ibm_svc_with_header(string_table, dflt_header).values():
         for data in rows:
-            parsed.setdefault(data["IO_group_name"], []).append(data)
+            parsed.setdefault(data["IO_group_name"], []).append(
+                Node(name=data["name"], status=data["status"])
+            )
     return parsed
 
 
@@ -65,17 +75,16 @@ def discover_ibm_svc_node(section: Section) -> DiscoveryResult:
 
 
 def check_ibm_svc_node(item: str, section: Section) -> CheckResult:
-    if not (data := section.get(item)):
+    if not (nodes := section.get(item)):
         return
     messages = []
     online_nodes = 0
     nodes_of_iogroup = 0
 
-    for row in data:
-        node_status = row["status"]
-        messages.append(f"Node {row['name']} is {node_status}")
+    for node in nodes:
+        messages.append(f"Node {node.name} is {node.status}")
         nodes_of_iogroup += 1
-        if node_status == "online":
+        if node.status == "online":
             online_nodes += 1
 
     if nodes_of_iogroup == 0:
