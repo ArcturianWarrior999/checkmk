@@ -5,6 +5,7 @@
 
 
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -17,6 +18,16 @@ from cmk.agent_based.v2 import (
 )
 from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 
+
+@dataclass(frozen=True)
+class RaidArray:
+    raid_status: str
+    raid_level: str
+    tier: str
+
+
+Section = Mapping[str, RaidArray]
+
 # Example output from agent:
 # <<<ibm_svc_array:sep(58)>>>
 # 27:SSD_mdisk27:online:1:POOL_0_V7000_RZ:372.1GB:online:raid1:1:256:generic_ssd
@@ -27,7 +38,7 @@ from cmk.plugins.ibm.lib_svc import parse_ibm_svc_with_header
 
 def parse_ibm_svc_array(
     string_table: Sequence[Sequence[str]],
-) -> Mapping[str, Mapping[str, str]]:
+) -> Section:
     dflt_header = [
         "mdisk_id",
         "mdisk_name",
@@ -42,38 +53,42 @@ def parse_ibm_svc_array(
         "tier",
         "encrypt",
     ]
-    parsed: dict[str, Mapping[str, str]] = {}
+    parsed: dict[str, RaidArray] = {}
     for id_, rows in parse_ibm_svc_with_header(string_table, dflt_header).items():
         try:
             data = rows[0]
         except IndexError:
             continue
-        parsed.setdefault(id_, data)
+        parsed.setdefault(
+            id_,
+            RaidArray(
+                raid_status=data["raid_status"],
+                raid_level=data["raid_level"],
+                tier=data["tier"],
+            ),
+        )
     return parsed
 
 
-def check_ibm_svc_array(item: str, section: Mapping[str, Mapping[str, str]]) -> CheckResult:
-    if not (data := section.get(item)):
+def check_ibm_svc_array(item: str, section: Section) -> CheckResult:
+    if (array := section.get(item)) is None:
         return
-    raid_status = data["raid_status"]
-    raid_level = data["raid_level"]
-    tier = data["tier"]
 
-    if raid_status == "online":
+    if array.raid_status == "online":
         state = State.OK
-    elif raid_status in ("offline", "degraded"):
+    elif array.raid_status in ("offline", "degraded"):
         state = State.CRIT
     else:
         state = State.WARN
 
     yield Result(
         state=state,
-        summary=f"Status: {raid_status}, RAID Level: {raid_level}, Tier: {tier}",
+        summary=f"Status: {array.raid_status}, RAID Level: {array.raid_level}, Tier: {array.tier}",
     )
 
 
 def discover_ibm_svc_array(
-    section: Mapping[str, Mapping[str, str]],
+    section: Section,
 ) -> DiscoveryResult:
     yield from (Service(item=item) for item in section)
 
