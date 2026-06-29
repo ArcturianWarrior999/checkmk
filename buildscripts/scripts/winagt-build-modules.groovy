@@ -22,17 +22,14 @@ void main() {
         }
 
         stage("Run cached build") {
-            withCredentials([usernamePassword(
-                    credentialsId: 'nexus',
-                    passwordVariable: 'NEXUS_PASSWORD',
-                    usernameVariable: 'NEXUS_USERNAME')]) {
+            withNexusCredentials {
                 windows.build(
                     TARGET: 'cached',
                     CREDS: NEXUS_USERNAME + ':' + NEXUS_PASSWORD,
                     CACHE_URL: 'https://artifacts.lan.tribe29.com/repository/omd-build-cache/',
                     DISABLE_CACHE: params.DISABLE_CACHE
                 );
-                    }
+            }
         }
     }
 }

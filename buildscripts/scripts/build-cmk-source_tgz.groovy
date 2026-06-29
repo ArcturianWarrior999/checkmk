@@ -84,12 +84,7 @@ void main() {
         def source_package_name = {
             dir("${checkout_dir}") {
                 stage("Create source package") {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'nexus',
-                            passwordVariable: 'NEXUS_PASSWORD',
-                            usernameVariable: 'NEXUS_USERNAME')
-                    ]) {
+                    withNexusCredentials {
                         // TODO CMK-28961: as soon as make dist is ported to bazel - use "use_faked_artifacts" here
                         sh("make dist");
                     }

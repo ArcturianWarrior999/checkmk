@@ -116,12 +116,7 @@ void main() {
                 name: "Push image to Nexus",
                 condition: push_to_registry,
             ) {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: "nexus",
-                        passwordVariable: 'NEXUS_PASSWORD',
-                        usernameVariable: 'NEXUS_USERNAME'),
-                ]) {
+                withNexusCredentials {
                     withEnv(["DOCKER_CONFIG=${checkout_dir}/.docker"]) {
                         sh('''
                             mkdir -p ${DOCKER_CONFIG}

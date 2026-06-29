@@ -52,12 +52,7 @@ void main() {
         }
 
         stage("Build agent updater binary for Linux") {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'nexus',
-                    passwordVariable: 'NEXUS_PASSWORD',
-                    usernameVariable: 'NEXUS_USERNAME')
-            ]) {
+            withNexusCredentials {
                 dir("${checkout_dir}/non-free/packages/cmk-update-agent") {
                     sh("""
                         BRANCH_VERSION=${branch_version} \

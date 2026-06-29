@@ -70,12 +70,7 @@ void main() {
         }
     }
 
-    withCredentials([
-        usernamePassword(
-            credentialsId: 'nexus',
-            usernameVariable: 'NEXUS_USERNAME',
-            passwordVariable: 'NEXUS_PASSWORD')
-    ]) {
+    withNexusCredentials {
         def distro_base_image_id = [:];
         def real_distro_name = [:];
 

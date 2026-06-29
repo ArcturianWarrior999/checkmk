@@ -28,17 +28,12 @@ void main() {
         |===================================================
         """.stripMargin());
 
-    withCredentials([
-        usernamePassword(
-            credentialsId: 'nexus',
-            usernameVariable: 'USERNAME',
-            passwordVariable: 'PASSWORD')
-    ]) {
+    withNexusCredentials {
         def DOCKER_ARGS = (
             " --no-cache" +
             " --build-arg NEXUS_ARCHIVES_URL='$NEXUS_ARCHIVES_URL'" +
-            " --build-arg NEXUS_USERNAME='$USERNAME'" +
-            " --build-arg NEXUS_PASSWORD='$PASSWORD'" +
+            " --build-arg NEXUS_USERNAME='$NEXUS_USERNAME'" +
+            " --build-arg NEXUS_PASSWORD='$NEXUS_PASSWORD'" +
             " --build-arg CI=1"
         );
         def ubuntu_versions = ["24.04"];

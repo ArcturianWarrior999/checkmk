@@ -163,3 +163,13 @@ withGerritSshKey = { Closure body ->
         body();
     }
 }
+
+withNexusCredentials = { Closure body ->
+    withCredentials([usernamePassword(
+        credentialsId: "nexus",
+        usernameVariable: "NEXUS_USERNAME",
+        passwordVariable: "NEXUS_PASSWORD",
+    )]) {
+        body();
+    }
+}

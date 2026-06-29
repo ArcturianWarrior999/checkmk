@@ -154,12 +154,7 @@ void main() {
             ) {
                 versioning.print_image_tag();
 
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'nexus',
-                        passwordVariable: 'NEXUS_PASSWORD',
-                        usernameVariable: 'NEXUS_USERNAME'),
-                ]) {
+                withNexusCredentials {
                     /// Don't use withEnv, see
                     /// https://issues.jenkins.io/browse/JENKINS-43632
                     artifacts_helper.withHotCache([
