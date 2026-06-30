@@ -2,6 +2,36 @@
 
 /// file: trigger-pre-submit-test-cascade-medium.groovy
 
+List getRelatedChanges(Map args) {
+    def allChanges = [];
+
+    allChanges = sh(returnStdout: true, script: """
+        git log --format=%H "${env.GERRIT_PATCHSET_REVISION}" ^origin/"${args.safe_branch_name}"
+    """).trim().split("\n");
+
+    return allChanges;
+}
+
+void voteGerrit(Map args) {
+    def defaultDict = [
+        label  : "medium-chain-verified",
+        vote   : -1,
+        submit : false,
+    ] << args;
+    def submit_flag = defaultDict.submit ? "--submit" : "";
+    withGerritSshKey {
+        sh("""
+            ssh -i "\${GERRIT_SSH_KEY}" -o StrictHostKeyChecking=no \
+                -p 29418 jenkins@review.lan.tribe29.com \
+                gerrit review \
+                --${defaultDict.label}=${defaultDict.vote} \
+                ${submit_flag} \
+                ${defaultDict.identifier}
+        """);
+    }
+}
+
+// groovylint-disable-next-line MethodSize
 void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
@@ -24,6 +54,8 @@ void main() {
 
     // rebase_onto: tip of target branch, computed below if CIPARAM_GATED_TRIGGER_REBASE is set.
     def rebase_onto = "";
+    def all_commits_in_chain = [];
+    def all_change_info = [:];
 
     print(
         """
@@ -51,6 +83,20 @@ void main() {
                         --message "'Build started: ${env.BUILD_URL}'" \
                         ${env.GERRIT_PATCHSET_REVISION}
                 """);
+
+                // pull changes, but do not yet rebase. Required to get all commits in the chain compared to base branch
+                dir("${checkout_dir}") {
+                    withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${GERRIT_SSH_KEY} -l jenkins"]) {
+                        sh("""
+                            git config --add user.name ${GERRIT_USER};
+                            git config --add user.email ${JENKINS_MAIL};
+                            time git fetch --no-tags --shallow-since=\$(date --date='2 weeks ago' --iso=seconds) origin \
+                                refs/heads/${safe_branch_name}:refs/remotes/origin/${safe_branch_name}
+                        """);
+                    }
+                    all_commits_in_chain = getRelatedChanges([safe_branch_name: safe_branch_name]);
+                    println("Commits in chain: ${all_commits_in_chain}");
+                }
             }
         }
 
@@ -135,19 +181,50 @@ void main() {
 
     smart_stage(
         name: "Vote Medium-Chain-Verified and submit",
-        condition: do_automerge,
-        raiseOnError: false,
+        condition: do_automerge, raiseOnError: false,
     ) {
-        def vote = "${currentBuild.result}" == "SUCCESS" ? "+1" : "-1";
-        withGerritSshKey {
-            sh("""
-                ssh -i "${GERRIT_SSH_KEY}" -o StrictHostKeyChecking=no \
-                    -p 29418 jenkins@review.lan.tribe29.com \
-                    gerrit review \
-                    --medium-chain-verified=${vote} \
-                    ${currentBuild.result == "SUCCESS" ? "--submit" : ""} \
-                    ${env.GERRIT_PATCHSET_REVISION}
-            """);
+        def success = currentBuild.result == "SUCCESS";
+        if (success) {
+            // On success, cast +1 on all (open) ancestor changes in the chain first.
+            inside_container_minimal(safe_branch_name: safe_branch_name) {
+                withGerritSshKey {
+                    for (commit in all_commits_in_chain) {
+                        def commit_info = sh(returnStdout: true, script: """
+                            ssh -i "\${GERRIT_SSH_KEY}" -o StrictHostKeyChecking=no \
+                                -p 29418 jenkins@review.lan.tribe29.com \
+                                gerrit query \
+                                --format=JSON --current-patch-set "commit:${commit}" \
+                                | head -n1 | jq -c '{id, number, subject, status, commit: .currentPatchSet.revision}'
+                        """);
+                        def changeInfo = new groovy.json.JsonSlurper().parseText(commit_info);
+                        // [
+                        //      commit:95d63af890e4ebddd596d56e1cbc910553a856c6,
+                        //      id:Idfa88cd13d66c03c4bf87b04b9de46c0538e64a8,
+                        //      number:143794,
+                        //      status:NEW,
+                        //      subject:Medium Chain: Granular Votes
+                        // ]
+                        println("changeInfo: ${changeInfo}");
+                        all_change_info[commit] = changeInfo;
+
+                        if ("${changeInfo.commit}" == "${env.GERRIT_PATCHSET_REVISION}") {
+                            println("Vote yourself +2");
+                            voteGerrit(vote: 2, identifier: "${changeInfo.commit}");
+                        } else {
+                            // status can be: NEW, MERGED, ABANDONED. We want only new changes.
+                            if ("${changeInfo.status}" == "NEW") {
+                                println("Vote ancestor ${changeInfo.number} aka ${changeInfo.id} +1");
+                                voteGerrit(vote: 1, identifier: "${changeInfo.commit}");
+                            } else {
+                                println("No vote for ancestor ${changeInfo.number} aka ${changeInfo.id} as it is not 'NEW'");
+                            }
+                        }
+                    }
+                    println("all_change_info: ${all_change_info}");
+                }
+            }
+        } else {
+            voteGerrit(identifier: env.GERRIT_PATCHSET_REVISION);
         }
     }
 }
