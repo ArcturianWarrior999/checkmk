@@ -33,8 +33,9 @@ fi
 
 # Every tool is invoked through `bazel run` so Bazel provides it hermetically --
 # no venv activation, no PATH manipulation. The edition flag is passed to every
-# bazel command (not just `bazel coverage`) so they all share one build
-# configuration and don't thrash the analysis cache.
+# bazel command that builds something (`bazel coverage` and `bazel run`) so they
+# all share one build configuration and don't thrash the analysis cache. It is
+# omitted where it has no effect: `bazel query` stops after the loading phase.
 EDITION_FLAG="--cmk_edition=ultimate"
 PKG="//tests/qa_metrics/unit_test_coverage"
 
@@ -130,15 +131,55 @@ COVERAGE_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report.dat"
 COVERAGE_FILTERED_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report_filtered.dat"
 COVERAGE_HTML_DIR="$REPO_PATH/results/coverage"
 RESULT_CSV="$COVERAGE_HTML_DIR/coverage.csv"
+PY_TEST_TARGETS="/tmp/py_test_targets.txt"
 
 if [[ "$RUN" == true ]]; then
     filter=$(
         IFS='|'
         echo "${SOURCE_DIRS[*]}"
     )
-    bazel coverage //... \
+
+    # Restrict coverage to Python tests. Selecting by rule kind (py_test) drops
+    # rust_test/cc_test/js_test/shell tests and the deploy drift test, so their
+    # non-Python dependencies -- e.g. the Rust agent controller, which fails to
+    # link under coverage instrumentation -- are never built. On top of that:
+    #   * doc tests are dropped; the py_doc_test macro expands to a plain
+    #     py_test, so they are recognized by their generated runner script
+    #   * tests/unit/qa_metrics is dropped: it tests the QA tooling under
+    #     tests/qa_metrics, which is not part of the source code whose coverage
+    #     we measure, so running it under coverage contributes nothing. For
+    #     change_quality it would even fail the run: its instrumented
+    #     dependencies (cmk-ccc, cmk-werks, pulled in transitively via the
+    #     untested push.py) are never imported by its tests, so coverage.py
+    #     collects no data and the aspect_rules_py test runner crashes with
+    #     NoDataError, failing a target whose tests all pass.
+    #   * From tests/, only keep openapi, agent-plugin-unit, unit. In particular,
+    #     we don't want integration or system tests. They are currently anyway not
+    #     bazelized, but even if they were, we wouldn't want to include them in
+    #     our coverage measurements. We only want include what we classify as
+    #     "Package tests" in our test classification. All other tests cross
+    #     package / component boundaries and shouldn't be included when measuring
+    #     the coverage. The same holds for eg. tests/plugins_consistency.
+    # The list is passed via --target_pattern_file since it is too long for
+    # the command line.
+    # shellcheck disable=SC2016  # $t is bazel query let-syntax, not a shell variable
+    bazel query '
+        let t = kind("py_test", tests(//...)) in
+        $t
+        except attr("srcs", "-doctest-runner\.py", $t)
+        except //tests/unit/qa_metrics/...
+        except (//tests/... except (//tests/openapi/... + //tests/agent-plugin-unit/... + //tests/unit/...))
+    ' >"$PY_TEST_TARGETS"
+
+    # --skip_incompatible_explicit_targets: the query is configuration-less, so
+    # it also lists edition-gated tests (e.g. //cmk:requirements-test-community)
+    # that are platform-incompatible under the edition set above. Without the
+    # flag their mere presence on the command line fails the build ("not all
+    # targets were analyzed") even when every executed test passes.
+    bazel coverage --target_pattern_file="$PY_TEST_TARGETS" \
         "$EDITION_FLAG" \
-        --test_tag_filters=-component,-cpp,-requires-git \
+        --skip_incompatible_explicit_targets \
+        --test_tag_filters=-cpp,-requires-git \
         --keep_going \
         --build_tests_only \
         --combined_report=lcov \
