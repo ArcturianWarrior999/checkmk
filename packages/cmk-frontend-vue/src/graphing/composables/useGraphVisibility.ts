@@ -3,25 +3,19 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { ConsolidationFn, HorizontalLine, Metric } from '../components/TimeSeriesGraph'
 
 export function useGraphVisibility(
   getMetrics: () => Metric[],
   getHorizontalLines: () => HorizontalLine[],
-  getConsolidationFunction: () => ConsolidationFn | undefined
+  defaultConsolidationFunction: ConsolidationFn = 'max'
 ) {
   const hiddenMetricNames = ref<string[]>([])
   const hiddenLineNames = ref<string[]>([])
   const highlightedMetricName = ref<string | null>(null)
-  const activeConsolidationFunction = ref<ConsolidationFn>(getConsolidationFunction() ?? 'max')
-
-  watch(getConsolidationFunction, (val) => {
-    if (val) {
-      activeConsolidationFunction.value = val
-    }
-  })
+  const activeConsolidationFunction = ref<ConsolidationFn>(defaultConsolidationFunction)
 
   const visibleMetrics = computed(() =>
     getMetrics().filter((m) => !hiddenMetricNames.value.includes(m.metadata.name))

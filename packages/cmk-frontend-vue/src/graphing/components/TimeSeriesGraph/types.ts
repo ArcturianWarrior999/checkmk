@@ -51,11 +51,11 @@ export interface TimeSeriesGraphProps extends Pick<CmkTimeSeriesGraph, 'size' | 
   horizontal_lines: HorizontalLine[]
   consolidationFunction?: ConsolidationFn
   curveInterpolator?: LineInterpolator
-  // --- interaction (emit-and-wait) ---
   valueRange: ValueRange | null
   zoomMode: ZoomMode
   minTimeRange: number | null
   minValueRange: number | null
   inspecting: boolean
   panEnabled: boolean
+  highlightedMetricName: string | null
 }

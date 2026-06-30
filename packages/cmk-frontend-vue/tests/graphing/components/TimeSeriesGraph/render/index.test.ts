@@ -55,7 +55,7 @@ describe('drawData', () => {
     const metrics = [makeMetric('area', '#area00'), makeMetric('line', '#line00')]
     const stacks = [makeSeries('area-stacked'), makeSeries('line')]
 
-    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options)
+    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options, null)
 
     expect(drawStackedBandSpy).toHaveBeenCalledTimes(1)
     expect(drawStackedBandSpy.mock.calls[0]![4]).toBe('#area00')
@@ -68,7 +68,7 @@ describe('drawData', () => {
     const metrics = [makeMetric('line', '#line00'), makeMetric('area', '#area00')]
     const stacks = [makeSeries('line'), makeSeries('area-stacked')]
 
-    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options)
+    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options, null)
 
     const areaDrawnAt = drawStackedBandSpy.mock.invocationCallOrder[0]!
     const lineDrawnAt = drawLineSpy.mock.invocationCallOrder[0]!
@@ -99,7 +99,7 @@ describe('drawData', () => {
       alphas.push(context.globalAlpha)
     })
 
-    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options)
+    drawData(ctx, metrics, noBuckets, stacks, xScale, yScale, options, null)
 
     expect(alphas).toEqual([1, 1])
   })

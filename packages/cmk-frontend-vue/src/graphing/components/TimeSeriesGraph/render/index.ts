@@ -22,19 +22,23 @@ export function drawData(
   xScale: ScaleTime<number, number>,
   yScale: ScaleLinear<number, number>,
   options: DrawOptions,
-  highlightedMetricName?: string | null
+  highlightedMetricName: string | null
 ): void {
-  const highlighted = highlightedMetricName ?? null
-
   for (let i = 0; i < metrics.length; i++) {
     if (stacks[i]!.kind === 'area-stacked') {
-      ctx.globalAlpha = highlighted !== null && metrics[i]!.metadata.name !== highlighted ? 0.4 : 1
+      ctx.globalAlpha =
+        highlightedMetricName !== null && metrics[i]!.metadata.name !== highlightedMetricName
+          ? 0.4
+          : 1
       drawStackedBand(ctx, stacks[i]!, xScale, yScale, metrics[i]!.metadata.color)
     }
   }
   for (let i = 0; i < metrics.length; i++) {
     if (stacks[i]!.kind === 'line') {
-      ctx.globalAlpha = highlighted !== null && metrics[i]!.metadata.name !== highlighted ? 0.4 : 1
+      ctx.globalAlpha =
+        highlightedMetricName !== null && metrics[i]!.metadata.name !== highlightedMetricName
+          ? 0.4
+          : 1
       drawLine(
         ctx,
         invertedBuckets[i]!,

@@ -178,9 +178,18 @@ function draw(): void {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, plotWidth.value, plotHeight.value)
 
-  drawData(ctx, props.metrics, inverted, stacks, xScale, yScale, {
-    interpolator: props.curveInterpolator ?? 'linear'
-  })
+  drawData(
+    ctx,
+    props.metrics,
+    inverted,
+    stacks,
+    xScale,
+    yScale,
+    {
+      interpolator: props.curveInterpolator ?? 'linear'
+    },
+    props.highlightedMetricName
+  )
 
   drawValueGrid()
   drawTimeAxis(xTicks)
@@ -245,7 +254,8 @@ watch(
     props.size,
     props.consolidationFunction,
     props.curveInterpolator,
-    props.horizontal_lines
+    props.horizontal_lines,
+    props.highlightedMetricName
   ],
   draw,
   { deep: true }

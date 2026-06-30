@@ -99,6 +99,7 @@ watch(
       :curve-interpolator="curveInterpolator ?? 'linear'"
       :size="size"
       :options="graphOptions"
+      :highlighted-metric-name="null"
       @zoom="(payload) => handleIntent({ kind: 'zoomTransient', ...payload })"
       @pan="(payload) => handleIntent({ kind: 'pan', ...payload })"
       @reset="() => handleIntent({ kind: 'reset' })"
