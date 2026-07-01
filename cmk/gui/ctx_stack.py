@@ -66,7 +66,7 @@ If you're operating in the GUI and try to run a thread:
 
 If you're in a script without a request context:
 
-    Create your request context with the `script_helpers:gui_context` context manager.
+    Create your request context with the `cmk.gui.wsgi.app:gui_context` context manager.
 
 """
 

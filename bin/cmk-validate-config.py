@@ -9,7 +9,7 @@ from cmk.base import config
 from cmk.base.app import make_app
 from cmk.ccc.version import edition as get_edition
 from cmk.gui import main_modules
-from cmk.gui.script_helpers import gui_context
+from cmk.gui.wsgi.app import gui_context
 from cmk.utils import paths
 from cmk.utils.redis import disable_redis
 from cmk.validate_config import validate_mk_files

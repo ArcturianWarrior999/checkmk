@@ -23,6 +23,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-crash:crash",
         "//packages/cmk-trace",
+        "//packages/cmk-wsgi",
         requirement("fastapi"),
         requirement("opentelemetry-instrumentation-fastapi"),
         requirement("setproctitle"),

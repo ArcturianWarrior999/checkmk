@@ -32,6 +32,7 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-wsgi",
     ],
 )
 

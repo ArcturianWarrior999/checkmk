@@ -18,6 +18,7 @@ py_cmk_test(
         "//packages/cmk-ccc:site",
         "//packages/cmk-livestatus-client:livestatus-api",
         "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
         requirement("python-dateutil"),

@@ -21,6 +21,7 @@ py_cmk_test(
         "//cmk/gui/watolib:config_infra",
         "//cmk/utils:redis",
         "//omd/packages/omd:omdlib",
+        "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
         requirement("flask"),

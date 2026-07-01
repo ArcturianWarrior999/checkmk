@@ -73,6 +73,7 @@ py_library(
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
+        "//packages/cmk-wsgi",
     ],
 )
 

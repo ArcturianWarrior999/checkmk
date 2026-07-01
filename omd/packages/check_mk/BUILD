@@ -243,5 +243,6 @@ py_library(
         "//cmk/gui:session_context",
         "//cmk/gui/watolib",
         "//cmk/utils",
+        "//packages/cmk-wsgi",
     ],
 )

@@ -5,25 +5,36 @@
 from __future__ import annotations
 
 import logging
+import typing
 import warnings
+from collections.abc import Iterator
+from contextlib import contextmanager
+from functools import cache
+from wsgiref.types import WSGIEnvironment
 
 import werkzeug
 from flask import Flask, redirect
+from flask.ctx import RequestContext
 from werkzeug.debug import DebuggedApplication
 from werkzeug.exceptions import BadRequest
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
+from werkzeug.test import create_environ
 
-from cmk.ccc.version import Edition
+from cmk.ccc.version import Edition, edition
 from cmk.gui.features import features_registry
 from cmk.gui.flask_app import CheckmkFlaskApp
+from cmk.gui.http import Response
 from cmk.gui.session import FileBasedSession
 from cmk.gui.wsgi.blueprints.checkmk import checkmk
 from cmk.gui.wsgi.blueprints.rest_api import rest_api
+from cmk.utils import paths
 
 from .trace import instrument_app_dependencies
 
 logger = logging.getLogger(__name__)
+
+Environments = typing.Literal["production", "testing", "development"]
 
 
 def make_wsgi_app(edition: Edition, debug: bool = False, testing: bool = False) -> Flask:
@@ -95,4 +106,44 @@ def make_wsgi_app(edition: Edition, debug: bool = False, testing: bool = False) 
     return app
 
 
-__all__ = ["make_wsgi_app"]
+@cache
+def session_wsgi_app(debug: bool = False, testing: bool = False) -> Flask:
+    # For now always use the detected edition. At some point make this parameterized
+    return make_wsgi_app(edition(paths.omd_root), debug=debug, testing=testing)
+
+
+def _make_request_context(app: Flask, environ: WSGIEnvironment | None = None) -> RequestContext:
+    if environ is None:
+        environ = create_environ()
+    return app.request_context(environ)
+
+
+@contextmanager
+def request_context(app: Flask, environ: WSGIEnvironment | None = None) -> Iterator[None]:
+    with _make_request_context(app, environ):
+        app.preprocess_request()
+        yield
+        app.process_response(Response())
+
+
+@contextmanager
+def application_and_request_context(environ: WSGIEnvironment | None = None) -> Iterator[None]:
+    app = session_wsgi_app(testing=True)
+    with app.app_context(), request_context(app, environ):
+        yield
+
+
+@contextmanager
+def gui_context(environ: WSGIEnvironment | None = None) -> Iterator[None]:
+    app = session_wsgi_app(testing=True)
+    with app.app_context(), _make_request_context(app, environ):
+        yield
+
+
+__all__ = [
+    "application_and_request_context",
+    "gui_context",
+    "make_wsgi_app",
+    "request_context",
+    "session_wsgi_app",
+]

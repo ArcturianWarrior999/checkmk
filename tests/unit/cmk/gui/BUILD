@@ -100,6 +100,7 @@ py_cmk_test(
         "//packages/cmk-plugin-apis:graphing",
         "//packages/cmk-plugin-apis:inventory_ui",
         "//packages/cmk-trace",
+        "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         requirement("beautifulsoup4"),
         requirement("fido2"),

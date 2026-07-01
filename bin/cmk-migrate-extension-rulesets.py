@@ -23,7 +23,6 @@ from cmk.gui.rule_specs.loader import (
 )
 from cmk.gui.rule_specs.types import RuleSpec
 from cmk.gui.rulespec import register_plugins
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib.notification_parameter import (
     notification_parameter_registry,
@@ -35,6 +34,7 @@ from cmk.gui.watolib.rulesets import (
 from cmk.gui.watolib.rulespecs import (
     rulespec_registry,
 )
+from cmk.gui.wsgi.app import gui_context
 from cmk.mkp_tool import (
     Installer,
     Manifest,

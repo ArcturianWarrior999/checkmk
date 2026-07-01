@@ -19,11 +19,11 @@ from cmk.gui.exceptions import MKUserError
 from cmk.gui.form_specs import get_visitor, RawDiskData, VisitorOptions
 from cmk.gui.groups import GroupSpec
 from cmk.gui.pages import set_global_vars
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib.groups_io import load_contact_group_information
 from cmk.gui.watolib.rulesets import AllRulesets, Ruleset, RulesetCollection
 from cmk.gui.watolib.rulespecs import FormSpecNotImplementedError
+from cmk.gui.wsgi.app import gui_context
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.plugins.lib.rulesets import SKIP_PREACTION
 from cmk.update_config.plugins.pre_actions.utils import (

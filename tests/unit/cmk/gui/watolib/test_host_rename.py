@@ -18,12 +18,12 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.background_job.job._interface import BackgroundProcessInterface
 from cmk.gui.logged_in import user
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.watolib import check_mk_automations
 from cmk.gui.watolib.host_attributes import HostAttributes
 from cmk.gui.watolib.host_rename import perform_rename_hosts
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.gui.wsgi.app import gui_context
 from cmk.livestatus_client import (
     SiteConfiguration,
 )

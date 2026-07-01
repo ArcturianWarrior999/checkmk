@@ -30,7 +30,9 @@ py_library(
     ) + ["cmk/gui/wsgi/applications/index.wsgi"],
     imports = ["."],
     visibility = [
+        "//bin:__pkg__",
         "//cmk:__subpackages__",
+        "//omd/packages/check_mk:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [

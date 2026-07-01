@@ -17,13 +17,13 @@ from cmk.automations.results import DeleteHostsResult
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.gui.logged_in import user
-from cmk.gui.script_helpers import session_wsgi_app
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib import groups
 from cmk.gui.watolib.groups import HostAttributeContactGroups
 from cmk.gui.watolib.host_attributes import HostAttributes
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import PendingChanges, PendingChangesStore
+from cmk.gui.wsgi.app import session_wsgi_app
 from cmk.gui.wsgi.blueprints import checkmk, rest_api
 from tests.testlib.rest_api_client import RestApiClient
 

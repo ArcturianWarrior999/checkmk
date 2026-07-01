@@ -250,6 +250,7 @@ py_library(
         "//packages/cmk-mkp-tool",
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
+        "//packages/cmk-wsgi",
     ],
 )
 

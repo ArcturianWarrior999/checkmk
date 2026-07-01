@@ -724,7 +724,6 @@ py_library(
         "main_modules.py",
         "plugin_registration.py",
         "rulespec.py",
-        "script_helpers.py",
     ],
     imports = ["../.."],
     visibility = [
@@ -809,7 +808,6 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-trace",
-        "//packages/cmk-wsgi",
         requirement("flask"),
         requirement("werkzeug"),
     ],

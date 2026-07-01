@@ -55,6 +55,7 @@ py_cmk_test(
         "//cmk/gui/watolib",
         "//packages/cmk-ccc:resulttype",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-wsgi",
         "//tests/testlib",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",

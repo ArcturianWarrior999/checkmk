@@ -49,12 +49,12 @@ from cmk.gui.form_specs import (  # astrein: disable=cmk-module-layer-violation
 from cmk.gui.rule_specs.types import (  # astrein: disable=cmk-module-layer-violation
     RuleSpec,
 )
-from cmk.gui.script_helpers import (  # astrein: disable=cmk-module-layer-violation
-    gui_context,
-)
 from cmk.gui.watolib.rulespecs import (  # astrein: disable=cmk-module-layer-violation
     FormSpecNotImplementedError,
     rulespec_registry,
+)
+from cmk.gui.wsgi.app import (  # astrein: disable=cmk-module-layer-violation
+    gui_context,
 )
 from cmk.rulesets.v1 import entry_point_prefixes
 from cmk.rulesets.v1.rule_specs import (

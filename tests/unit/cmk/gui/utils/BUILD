@@ -42,6 +42,7 @@ py_cmk_test(
         "//packages/cmk-crypto",
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client:livestatus-api",
+        "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
         requirement("flask"),

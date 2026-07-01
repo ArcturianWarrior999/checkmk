@@ -18,7 +18,7 @@ from werkzeug.test import create_environ
 from cmk.gui import http
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.http import ContentDispositionType, request, response
-from cmk.gui.script_helpers import application_and_request_context
+from cmk.gui.wsgi.app import application_and_request_context
 from tests.testlib.gui.web_test_app import WebTestAppForCMK
 
 global_request = request

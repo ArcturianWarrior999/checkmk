@@ -8,7 +8,6 @@ import pytest
 from pytest_mock import MockerFixture
 
 from cmk.gui.exceptions import MKUserError
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import (
     AllRulesets,
@@ -17,6 +16,7 @@ from cmk.gui.watolib.rulesets import (
     RuleOptions,
     Ruleset,
 )
+from cmk.gui.wsgi.app import gui_context
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.plugins.pre_actions.rulesets import PreUpdateRulesets
 from cmk.update_config.plugins.pre_actions.utils import ConflictMode

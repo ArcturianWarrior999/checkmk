@@ -10,7 +10,6 @@ from livestatus import SiteConfiguration, SiteConfigurations
 
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.watolib.audit_log import AuditLogStore, make_audit_log_change_hook
 from cmk.gui.watolib.objref import ObjectRef, ObjectRefType
 from cmk.gui.watolib.pending_changes import (
@@ -26,6 +25,7 @@ from cmk.gui.watolib.sidebar_reload import (
     is_sidebar_reload_needed,
     sidebar_reload_change_hook,
 )
+from cmk.gui.wsgi.app import gui_context
 
 
 def _site_config() -> SiteConfiguration:

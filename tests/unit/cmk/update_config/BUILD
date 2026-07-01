@@ -35,6 +35,7 @@ py_cmk_test(
         "//packages/cmk-backup:gui",
         "//packages/cmk-backup:utils",
         "//packages/cmk-ccc:store",
+        "//packages/cmk-wsgi",
         "//tests/unit:conftest",
         requirement("flask"),
         requirement("pytest-asyncio"),

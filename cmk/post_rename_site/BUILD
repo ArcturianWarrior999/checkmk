@@ -59,5 +59,6 @@ py_library(
         "//packages/cmk-ccc:site",
         "//packages/cmk-ccc:tty",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-wsgi",
     ],
 )

@@ -26,12 +26,12 @@ from cmk.config_anonymizer.step import AnonymizeStep
 from cmk.gui import main_modules as main_modules
 from cmk.gui.config import active_config
 from cmk.gui.log import init_logging, logger
-from cmk.gui.script_helpers import gui_context
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib.rulesets import (
     RulesetCollection,
 )
 from cmk.gui.watolib.utils import ALL_HOSTS, ALL_SERVICES, NEGATE
+from cmk.gui.wsgi.app import gui_context
 from cmk.utils import paths
 from cmk.utils.redis import disable_redis
 

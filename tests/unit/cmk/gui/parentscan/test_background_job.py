@@ -22,9 +22,9 @@ from cmk.gui.parentscan.background_job import (
     ParentScanSettings,
     start_parent_scan,
 )
-from cmk.gui.script_helpers import application_and_request_context
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.gui.wsgi.app import application_and_request_context
 
 
 def _noop_pending_changes() -> PendingChanges:

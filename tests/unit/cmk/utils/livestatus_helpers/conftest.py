@@ -14,7 +14,7 @@ from flask import Flask
 from flask.ctx import RequestContext
 from werkzeug.test import create_environ
 
-from cmk.gui.script_helpers import session_wsgi_app
+from cmk.gui.wsgi.app import session_wsgi_app
 
 
 @contextmanager
