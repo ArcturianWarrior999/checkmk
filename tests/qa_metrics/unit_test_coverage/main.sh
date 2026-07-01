@@ -229,7 +229,23 @@ if [[ "$GENERATE_HTML" == true ]]; then
         echo "Error: Coverage data file not found at $COVERAGE_FILTERED_DAT" >&2
         exit 1
     fi
-    bazel run @lcov//:genhtml "$EDITION_FLAG" -- \
+    # The coverage data stores source paths workspace-relative, but `bazel run`
+    # executes genhtml in an (empty) runfiles dir, so it cannot find the sources.
+    # --run_under changes into the repo root so the relative paths resolve.
+    #
+    # --ignore-errors downgrades two benign genhtml strictness checks:
+    #   inconsistent: a closure defined in mutually exclusive if/else branches
+    #     yields one qualified function name with two start lines, e.g. both
+    #     inner defs below are f.<locals>.g but start on different lines:
+    #         def f(cond):
+    #             if cond:
+    #                 def g(): ...
+    #             else:
+    #                 def g(): ...
+    #   category: genhtml fails to classify a few lines (reports category 'UNK').
+    # Both are real properties of the source, not corrupt data.
+    bazel run @lcov//:genhtml "$EDITION_FLAG" --run_under="cd $REPO_PATH &&" -- \
+        --ignore-errors inconsistent,category \
         --title "Checkmk Unit Test Coverage" \
         --quiet \
         --output "$COVERAGE_HTML_DIR" \
