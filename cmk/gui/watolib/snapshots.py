@@ -234,7 +234,14 @@ class CRESnapshotDataCollector(ABCSnapshotDataCollector):
             copy_pool.starmap(_clone_site_config_directory, clone_args)
 
     def get_generic_components(self) -> list[ReplicationPath]:
-        return list(replication_path_registry.values())
+        # Replication paths whose ident matches a registered `SnapshotFileCreator` are
+        # assembled per site (see `prepare_snapshot_files`), not copied 1:1 from the central
+        # site. Collecting them here would hard link the whole central tree into every site's
+        # snapshot (e.g. the certs of *all* SAML connections) and defeat the per-site
+        # selection the creator performs. They still take part in the sync delta via each
+        # site's `snapshot_components`.
+        creator_idents = set(snapshot_file_creator_registry)
+        return [p for p in replication_path_registry.values() if p.ident not in creator_idents]
 
     def get_site_components(
         self, snapshot_settings: SnapshotSettings
