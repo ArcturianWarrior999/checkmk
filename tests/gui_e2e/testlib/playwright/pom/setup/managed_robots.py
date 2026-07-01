@@ -108,12 +108,37 @@ class EditManagedRobot(CmkPage):
     def file_upload_input(self) -> Locator:
         return self.main_area.locator("input[type='file']")
 
-    def replace_file_and_save(self, archive_path: Path) -> None:
+    @property
+    def error_message(self) -> Locator:
+        """Error message shown e.g. when the updated plan config is incompatible with a rule."""
+        return self.main_area.locator("div.error")
+
+    @property
+    def limit_per_attempt_hours_input(self) -> Locator:
+        # The "Limit per attempt" time span renders one spinbutton per magnitude (hours, minutes,
+        # seconds); we scope to its group to avoid matching other time spans on the page.
+        return (
+            self.main_area.locator()
+            .get_by_role("group", name="Limit per attempt")
+            .get_by_role("spinbutton", name="Hours")
+        )
+
+    def replace_file(self, archive_path: Path) -> None:
         logger.info("Replacing robot archive with '%s'", archive_path.name)
         self.replace_file_button.click()
         self.file_upload_input.set_input_files(archive_path)
+
+    def set_limit_per_attempt_hours(self, hours: int) -> None:
+        logger.info("Setting limit per attempt to %d hours", hours)
+        self.limit_per_attempt_hours_input.fill(str(hours))
+
+    def save(self) -> None:
         self.main_area.get_suggestion("Save").click()
         self.page.wait_for_load_state("load")
+
+    def replace_file_and_save(self, archive_path: Path) -> None:
+        self.replace_file(archive_path)
+        self.save()
 
 
 class CreateManagedRobot(CmkPage):
