@@ -11,7 +11,8 @@
       "type": "array",
       "items": { "$ref": "#/$defs/monitoring_action" },
       "default": []
-    }
+    },
+    "legacy_url": { "type": "string" }
   },
   "$defs": {
     "monitoring_action": {

@@ -16,7 +16,10 @@ import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 import { getKeyShortcutServiceInstance } from '@/lib/keyShortcuts'
 
+import CmkButton from '@/components/CmkButton/CmkButton.vue'
+import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 import type { SimpleIcons } from '@/components/CmkIcon/types'
+import CmkLink from '@/components/CmkLink.vue'
 import CmkSearchInput from '@/components/CmkSearchInput.vue'
 import CmkSlideInTabbed, { type SlideInTab } from '@/components/CmkSlideInTabbed'
 import CmkSplitPane from '@/components/CmkSplitPane.vue'
@@ -347,9 +350,31 @@ function onRightPaneCollapse(collapsed: boolean): void {
     closeAction()
   }
 }
+
+function navigateToLegacy() {
+  if (props.legacy_url) {
+    window.location.href = props.legacy_url
+  }
+}
 </script>
 
 <template>
+  <Teleport defer to=".titlebar">
+    <CmkLink
+      href="https://survey.checkmk.com/index.php/815511?lang=en"
+      target="_blank"
+      class="monitoring-all-hosts-app__survey-link"
+    >
+      <CmkIcon name="comment" class="monitoring-all-hosts-app__legacy-view-button-icon" />
+      {{ _t('Give feedback') }}
+    </CmkLink>
+  </Teleport>
+  <Teleport v-if="legacy_url" defer to=".titlebar">
+    <CmkButton class="monitoring-all-hosts-app__legacy-view-button" @click="navigateToLegacy">
+      <CmkIcon name="back" class="monitoring-all-hosts-app__legacy-view-button-icon" />
+      {{ _t('Back to classic view') }}
+    </CmkButton>
+  </Teleport>
   <div class="monitoring-all-hosts-app">
     <div class="monitoring-all-hosts-app__header">
       <div class="monitoring-all-hosts-app__toolbar">
@@ -469,6 +494,22 @@ function onRightPaneCollapse(collapsed: boolean): void {
   min-height: 0;
   padding-bottom: var(--spacing);
   padding-right: var(--spacing);
+}
+
+.monitoring-all-hosts-app__survey-link {
+  margin-right: var(--dimension-6);
+  place-content: center flex-end;
+  align-items: center;
+}
+
+.monitoring-all-hosts-app__legacy-view-button {
+  right: var(--dimension-4);
+  white-space: nowrap;
+  align-self: center;
+}
+
+.monitoring-all-hosts-app__legacy-view-button-icon {
+  margin-right: var(--dimension-3);
 }
 
 .monitoring-all-hosts-app__header {

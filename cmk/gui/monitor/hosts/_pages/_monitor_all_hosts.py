@@ -95,6 +95,9 @@ class MonitorAllHostsPage(Page):
                     actions=PermittedHostActions(
                         self._commands, user, _SUPPORTED_ACTIONS
                     ).as_models(),
+                    legacy_url=makeuri_contextless(
+                        ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"
+                    ),
                 )
             ),
         )
