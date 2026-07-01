@@ -187,13 +187,34 @@ if [[ "$RUN" == true ]]; then
         --instrumentation_filter="//(${filter})[/:@]"
     # Strip the repo root prefix so paths are workspace-relative
     sed -i "s|^SF:${REPO_PATH}/|SF:|g" "$COVERAGE_DAT"
+    # Filter the report down to our own source code. This is needed because the
+    # instrumentation filter above does not fully constrain what gets recorded:
+    # for a test whose dependencies all lie outside the instrumented dirs (e.g.
+    # //scripts:requirements-test), Bazel hands the test an empty
+    # COVERAGE_MANIFEST, aspect_rules_py passes the manifest to coverage.py as
+    # its `include` list, and an empty include list means "no filter" --
+    # coverage.py then records everything the test executes: its own sources,
+    # pip packages from the bazel cache, the pytest runner itself.
     bazel run @lcov//:lcov "$EDITION_FLAG" -- \
         --extract "$COVERAGE_DAT" \
         "${SOURCE_DIRS[@]/%//*.py}" \
         --output-file "$COVERAGE_FILTERED_DAT"
+    # lcov matches patterns as unanchored substrings, so the --extract above
+    # also keeps leaked pip files ('packages/*.py' matches their
+    # site-packages/... paths). Remove what slipped through:
+    #   '*/.cache/bazel/*': leaked pip packages that survived --extract
+    #   '*/tests/*':        test helpers nested inside source dirs
+    #                       (e.g. non-free/tests/testlib)
+    #   'tests/*':          defensive, matches nothing in normal runs: a leaked
+    #                       top-level test source whose path contains a source
+    #                       dir as substring (e.g. tests/unit/cmk/...) would
+    #                       survive --extract yet dodge '*/tests/*'
+    # --ignore-errors unused: lcov 2.x aborts when a pattern matches nothing,
+    # but 'tests/*' being unused is the expected steady state.
     bazel run @lcov//:lcov "$EDITION_FLAG" -- \
         --remove "$COVERAGE_FILTERED_DAT" \
         '*/.cache/bazel/*' '*/tests/*' 'tests/*' \
+        --ignore-errors unused \
         --output-file "$COVERAGE_FILTERED_DAT"
     # Source dirs are relative to the repo root, passed explicitly because
     # `bazel run` executes in the runfiles tree, not the workspace.
