@@ -16,6 +16,7 @@ from cmk.ccc import version
 from cmk.ccc.user import UserId
 from cmk.gui.fields import FOLDER_PATTERN, FolderField
 from cmk.gui.fields.utils import BaseSchema
+from cmk.gui.openapi.framework import APIVersion
 from cmk.gui.watolib.predefined_conditions import PredefinedConditionStore
 from cmk.utils import paths
 from tests.testlib.gui.web_test_app import WebTestAppForCMK
@@ -945,6 +946,29 @@ def test_move_root_folder(clients: ClientRegistry) -> None:
     resp = clients.Folder.move(folder_name="~", destination="/", expect_ok=False)
     resp.assert_status_code(400)
     assert resp.json["detail"] == "You can't move the root folder."
+
+
+def test_openapi_folder_move_etag_verification(clients: ClientRegistry) -> None:
+    clients.Folder.create(parent="/", folder_name="src", title="src")
+    clients.Folder.create(parent="/", folder_name="dst", title="dst")
+
+    # Missing If-Match header -> 428 Precondition Required
+    clients.Folder.move(
+        folder_name="~src",
+        destination="~dst",
+        etag=None,
+        expect_ok=False,
+        api_version=APIVersion.V1,
+    ).assert_status_code(428)
+
+    # Wrong If-Match header -> 412 Precondition Failed
+    clients.Folder.move(
+        folder_name="~src",
+        destination="~dst",
+        etag="invalid_etag",
+        expect_ok=False,
+        api_version=APIVersion.V1,
+    ).assert_status_code(412)
 
 
 def test_openapi_delete_folder_with_hosts(clients: ClientRegistry) -> None:

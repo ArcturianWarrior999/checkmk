@@ -1092,6 +1092,7 @@ class FolderClient(RestApiClient):
         destination: str,
         expect_ok: bool = True,
         etag: IF_MATCH_HEADER_OPTIONS = "star",
+        api_version: APIVersion | None = None,
     ) -> Response:
         return self.request(
             "post",
@@ -1099,6 +1100,7 @@ class FolderClient(RestApiClient):
             body={"destination": destination},
             expect_ok=expect_ok,
             headers=self._set_etag_header(folder_name, etag),
+            api_version=api_version,
         )
 
     def delete(
