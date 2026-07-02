@@ -55,7 +55,7 @@ def test_discover_temperature_scsi() -> None:
 
 
 def test_parse_smart_scsi_7_3_regression() -> None:
-    """model_name accidently replaced with scsi_model_name
+    """model_name accidentally replaced with scsi_model_name
 
     From the `smartmontools` change log:
         > scsiprint.cpp: Re-add JSON value 'model_name'.
