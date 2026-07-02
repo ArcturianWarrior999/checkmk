@@ -85,7 +85,7 @@ class ContainerizedMarker(StrEnum):
 
 
 def get_test_type(test_path: Path) -> str:
-    testdir_path = Path(__file__).parent.resolve()
+    testdir_path = Path(__file__).resolve().parent
     test_path_relative = test_path.resolve().relative_to(testdir_path)
     return test_path_relative.parts[0]
 

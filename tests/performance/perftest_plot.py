@@ -39,6 +39,8 @@ Options:
     --log-level              Set the log level for the application.
     --branch-version         Set the default branch-version.
     --edition                Set the default edition.
+    --scenario-prefix        Process only scenarios with this name prefix (repeatable).
+    --skip-scenario-prefix   Ignore scenarios with this name prefix (repeatable).
     job_names                List of job names to process.
 
 Example:
@@ -743,6 +745,8 @@ class PerftestPlotArgs(argparse.Namespace):
         jira_token_path (Path): The path of file that holds the Jira token.
         branch_version (str): The default branch version.
         edition (str): The default edition.
+        scenario_prefixes (list[str] | None): Process only scenarios with these name prefixes.
+        skip_scenario_prefixes (list[str] | None): Ignore scenarios with these name prefixes.
         update_db (bool): If True, update existing job data in the database.
         purge_db (bool): If True, delete existing job data from the database.
         baseline_offset (int): The offset for the baseline validation.
@@ -777,6 +781,8 @@ class PerftestPlotArgs(argparse.Namespace):
     jira_token_path: Path
     branch_version: str
     edition: str
+    scenario_prefixes: list[str] | None
+    skip_scenario_prefixes: list[str] | None
     update_db: bool
     purge_db: bool
     baseline_offset: int
@@ -1404,7 +1410,8 @@ class PerftestPlot:
         Scenarios are identified by files matching the pattern '*.resources.json' in the job
         directories. The scenario name is derived from the file stem, with the '.resources' suffix
         removed. If enabled, scenario names are also retrieved from the database and combined with
-        those from the filesystem.
+        those from the filesystem. The combined names are then reduced to the scenarios of the
+        current suite via the --scenario-prefix / --skip-scenario-prefix options.
 
         Returns:
             list[str]: A sorted list of scenario names.
@@ -1423,6 +1430,10 @@ class PerftestPlot:
         )
         if self.read_from_database:
             scenario_names += self.database.get_scenario_names()
+        if include_prefixes := self.args.scenario_prefixes:
+            scenario_names = [_ for _ in scenario_names if _.startswith(tuple(include_prefixes))]
+        if skip_prefixes := self.args.skip_scenario_prefixes:
+            scenario_names = [_ for _ in scenario_names if not _.startswith(tuple(skip_prefixes))]
         scenario_names.sort()
         return scenario_names
 
@@ -1981,6 +1992,20 @@ def parse_args() -> PerftestPlotArgs:
         type=str,
         default="pro",
         help="The default edition for jobs (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--scenario-prefix",
+        dest="scenario_prefixes",
+        action="append",
+        type=str,
+        help="Process only scenarios whose names start with this prefix (repeatable).",
+    )
+    parser.add_argument(
+        "--skip-scenario-prefix",
+        dest="skip_scenario_prefixes",
+        action="append",
+        type=str,
+        help="Ignore scenarios whose names start with this prefix (repeatable).",
     )
     parser.add_argument(
         "--update-db",
