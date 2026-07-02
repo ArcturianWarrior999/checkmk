@@ -1179,10 +1179,10 @@ def _execute_autodiscovery(
     for host_name in autodiscovery_queue:
         if host_name in hosts_config.clusters:
             console.verbose(f"  Removing mark '{host_name}' (host is a cluster)")
-            (autodiscovery_queue.path / str(host_name)).unlink(missing_ok=True)
+            autodiscovery_queue.remove(host_name)
         elif host_name not in all_hosts:
             console.verbose(f"  Removing mark '{host_name}' (host not configured)")
-            (autodiscovery_queue.path / str(host_name)).unlink(missing_ok=True)
+            autodiscovery_queue.remove(host_name)
 
     if (oldest_queued := autodiscovery_queue.oldest()) is None:
         console.verbose("Autodiscovery: No hosts marked by discovery check")
@@ -1262,9 +1262,7 @@ def _execute_autodiscovery(
                         discovered_host_labels_dir=base_discovered_host_labels_dir,
                     )
                     if not autodiscovery_result.skipped:
-                        (autodiscovery_queue.path / str(host_name)).unlink(
-                            missing_ok=True
-                        )  # TODO: should be a method of autodiscovery_queue
+                        autodiscovery_queue.remove(host_name)
 
                     if autodiscovery_result.discovery_result:
                         discovery_results[host_name] = autodiscovery_result.discovery_result

@@ -11,8 +11,8 @@ from cmk.ccc.hostaddress import HostName
 
 
 class AutoQueue(Iterable[HostName]):
-    def __init__(self, directory: Path | str) -> None:
-        self.path: Final = Path(directory)
+    def __init__(self, directory: Path) -> None:
+        self.path: Final = directory
 
     def _ls(self) -> Sequence[Path]:
         try:
@@ -28,11 +28,17 @@ class AutoQueue(Iterable[HostName]):
     def __iter__(self) -> Iterator[HostName]:
         return (HostName(f.name) for f in self._ls()).__iter__()
 
+    def _host_path(self, host_name: HostName) -> Path:
+        return self.path / host_name
+
     def add(self, host_name: HostName) -> None:
         self.path.mkdir(parents=True, exist_ok=True)
-        file_path = self.path / host_name
+        file_path = self._host_path(host_name)
         if not file_path.exists():
             file_path.touch()
+
+    def remove(self, host_name: HostName) -> None:
+        self._host_path(host_name).unlink(missing_ok=True)
 
     def oldest(self) -> float | None:
         return min((f.stat().st_mtime for f in self._ls()), default=None)

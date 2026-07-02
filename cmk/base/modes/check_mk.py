@@ -3387,7 +3387,7 @@ def execute_active_check_inventory(
     if result.no_data_or_files:
         AutoQueue(inv_paths.auto_dir).add(host_name)
     else:
-        (AutoQueue(inv_paths.auto_dir).path / str(host_name)).unlink(missing_ok=True)
+        AutoQueue(inv_paths.auto_dir).remove(host_name)
 
     if not (result.processing_failed or result.no_data_or_files):
         save_tree_actions = _get_save_tree_actions(
@@ -3575,7 +3575,7 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
     for host_name in queue:
         if host_name not in all_hosts:
             console.verbose(f"  Removing mark '{host_name}' (host not configured")
-            (queue.path / str(host_name)).unlink(missing_ok=True)
+            queue.remove(host_name)
 
     if queue.oldest() is None:
         console.verbose("Autoinventory: No hosts marked by inventory check")
