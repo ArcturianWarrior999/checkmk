@@ -4,14 +4,15 @@ py_library(
     name = "internal",
     srcs = ["feature_registration.py"],
     imports = ["../../.."],
+    tags = [
+        "deballast-keep=//packages/cmk-licensing:cmk-licensing",  # transitively provides the imported cmk.licensing.basics.options (basics/ is a separate, non-visible package)
+    ],
     visibility = [
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//cmk/gui:general_pages",
-        "//cmk/gui/graphing",
         "//cmk/gui/openapi/framework",
         "//cmk/gui/openapi/restful_objects",
         "//cmk/gui/pagetypes",

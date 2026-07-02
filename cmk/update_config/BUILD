@@ -34,6 +34,9 @@ py_library(
         ],
     ),
     imports = ["../.."],
+    tags = [
+        "deballast-keep=//cmk:message_broker_certs",  # exercised by the config-update at runtime, not a static import
+    ],
     visibility = [
         "//bin:__subpackages__",
         "//cmk:__subpackages__",

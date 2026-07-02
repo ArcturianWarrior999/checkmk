@@ -37,6 +37,11 @@ py_library(
     name = "validate_config",
     srcs = ["validate_config.py"],
     imports = [".."],
+    tags = [
+        "deballast-keep=//cmk/gui:app",  # GUI plugin tree loaded at runtime to populate the config/ruleset registries
+        "deballast-keep=//cmk/gui/form_specs:form_specs",  # form specs registered at runtime with the GUI plugin tree
+        "deballast-keep=//cmk/gui/watolib:registries",  # registries populated at runtime with the GUI plugin tree
+    ],
     visibility = ["//:__subpackages__"],
     deps = [
         "//cmk/gui:app",
