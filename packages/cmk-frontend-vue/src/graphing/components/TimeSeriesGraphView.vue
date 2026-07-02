@@ -14,12 +14,14 @@ import usei18n from '@/lib/i18n'
 import CmkLabeledSwitch from '@/components/CmkLabeledSwitch.vue'
 
 import { useGraphView } from '../composables/useGraphView'
+import GraphBrush from './GraphBrush/GraphBrush.vue'
 import TimeSeriesGraph, {
   type ConsolidationFn,
   type GraphOptions,
   type HorizontalLine,
   type LineInterpolator,
   type Metric,
+  type RequestedTimeRange,
   type Size,
   type TimeRange,
   type ZoomMode
@@ -42,7 +44,13 @@ const props = defineProps<{
   consolidationFunction?: ConsolidationFn
   horizontalLines?: HorizontalLine[]
   curveInterpolator?: LineInterpolator
+  // Optional overview series for the navigator brush (coarse, wider, end-anchored context)
+  // and its domain. When omitted, the brush is not rendered.
+  overview?: { metrics: Metric[]; timeRange: TimeRange }
+  showBrush?: boolean
 }>()
+
+const emit = defineEmits<{ 'update:requestedTimeRange': [RequestedTimeRange] }>()
 
 const {
   timeRange: viewTimeRange,
@@ -95,6 +103,24 @@ watch(
       @pan="(payload) => handleIntent({ kind: 'pan', ...payload })"
       @reset="() => handleIntent({ kind: 'reset' })"
     />
+
+    <!--
+      plot-left=50 / width=size.width+60 mirror the renderer's private figure MARGIN
+      (left=50, left+right=60) so the brush track aligns under the plot. Exporting MARGIN
+      from TimeSeriesGraph.vue (or deriving these) is a follow-up.
+    -->
+    <GraphBrush
+      v-if="showBrush && overview"
+      class="graphing-time-series-graph-view__brush"
+      :metrics="overview.metrics"
+      :domain="overview.timeRange"
+      :window="{ start: viewTimeRange.start, end: viewTimeRange.end }"
+      :min-span="minTimeRange"
+      :width="size.width + 60"
+      :plot-left="50"
+      :plot-width="size.width"
+      @update:requested-time-range="(value) => emit('update:requestedTimeRange', value)"
+    />
   </div>
 </template>
 
@@ -109,5 +135,10 @@ watch(
   top: var(--dimension-4);
   left: var(--dimension-4);
   z-index: 3;
+}
+
+.graphing-time-series-graph-view__brush {
+  display: block;
+  margin-top: var(--dimension-6);
 }
 </style>
