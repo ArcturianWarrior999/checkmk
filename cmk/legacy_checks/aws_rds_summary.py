@@ -3,27 +3,29 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-# mypy: disable-error-code="type-arg"
 
-
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.aws import inventory_aws_generic
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
 from cmk.plugins.aws.constants import AWS_REGIONS
-from cmk.plugins.aws.lib import aws_rds_service_item, parse_aws
-
-check_info = {}
+from cmk.plugins.aws.lib import aws_rds_service_item, discover_aws_generic, parse_aws
 
 Section = Mapping[str, Any]
-
 
 _REGIONS: Mapping[str, str] = dict(AWS_REGIONS)
 
 
-def parse_aws_rds_summary(string_table):
+def parse_aws_rds_summary(string_table: StringTable) -> Section:
     try:
         return {
             aws_rds_service_item(instance["DBInstanceIdentifier"], instance["Region"]): instance
@@ -33,81 +35,61 @@ def parse_aws_rds_summary(string_table):
         return {}
 
 
-#   .--summary-------------------------------------------------------------.
-#   |                                                                      |
-#   |           ___ _   _ _ __ ___  _ __ ___   __ _ _ __ _   _             |
-#   |          / __| | | | '_ ` _ \| '_ ` _ \ / _` | '__| | | |            |
-#   |          \__ \ |_| | | | | | | | | | | | (_| | |  | |_| |            |
-#   |          |___/\__,_|_| |_| |_|_| |_| |_|\__,_|_|   \__, |            |
-#   |                                                    |___/             |
-#   '----------------------------------------------------------------------'
-
-
-def discover_aws_rds_summary(section: Section) -> Iterable[tuple[None, dict]]:
+def discover_aws_rds_summary(section: Section) -> DiscoveryResult:
     if section:
-        yield None, {}
+        yield Service()
 
 
-def check_aws_rds_summary(item, params, parsed):
-    instances_by_classes: dict = {}
-    for instance in parsed.values():
+def check_aws_rds_summary(section: Section) -> CheckResult:
+    instances_by_classes: dict[str, list[Any]] = {}
+    for instance in section.values():
         instance_class = instance["DBInstanceClass"]
         instances_by_classes.setdefault(instance_class, []).append(instance)
 
-    class_infos = []
-    for instance_class, instances in instances_by_classes.items():
-        class_infos.append(f"{instance_class}: {len(instances)}")
-    yield 0, ", ".join(class_infos)
+    class_infos = [
+        f"{instance_class}: {len(instances)}"
+        for instance_class, instances in instances_by_classes.items()
+    ]
+    yield Result(state=State.OK, summary=", ".join(class_infos))
 
 
-check_info["aws_rds_summary"] = LegacyCheckDefinition(
+agent_section_aws_rds_summary = AgentSection(
     name="aws_rds_summary",
     parse_function=parse_aws_rds_summary,
+)
+
+
+check_plugin_aws_rds_summary = CheckPlugin(
+    name="aws_rds_summary",
     service_name="AWS/RDS Summary",
     discovery_function=discover_aws_rds_summary,
     check_function=check_aws_rds_summary,
 )
 
-# .
-#   .--DB status-----------------------------------------------------------.
-#   |              ____  ____        _        _                            |
-#   |             |  _ \| __ )   ___| |_ __ _| |_ _   _ ___                |
-#   |             | | | |  _ \  / __| __/ _` | __| | | / __|               |
-#   |             | |_| | |_) | \__ \ || (_| | |_| |_| \__ \               |
-#   |             |____/|____/  |___/\__\__,_|\__|\__,_|___/               |
-#   |                                                                      |
-#   '----------------------------------------------------------------------'
 
-
-def check_aws_rds_summary_db(item, params, parsed):
-    if not (data := parsed.get(item)):
+def check_aws_rds_summary_db(item: str, section: Section) -> CheckResult:
+    if not (data := section.get(item)):
         return
-    db_name = data.get("DBName")
     pre_info = ""
-    if db_name is not None:
-        pre_info = "[%s] " % db_name
-    yield 0, "{}Status: {}".format(pre_info, data["DBInstanceStatus"])
+    if (db_name := data.get("DBName")) is not None:
+        pre_info = f"[{db_name}] "
+    yield Result(state=State.OK, summary=f"{pre_info}Status: {data['DBInstanceStatus']}")
 
-    multi_az = data.get("MultiAZ")
-    if multi_az is not None:
-        if multi_az:
-            multi_az_readable = "yes"
-        else:
-            multi_az_readable = "no"
-        yield 0, "Multi AZ: %s" % multi_az_readable
+    if (multi_az := data.get("MultiAZ")) is not None:
+        multi_az_readable = "yes" if multi_az else "no"
+        yield Result(state=State.OK, summary=f"Multi AZ: {multi_az_readable}")
 
-    zone = data.get("AvailabilityZone")
-    if zone is not None:
+    if (zone := data.get("AvailabilityZone")) is not None:
         region = zone[:-1]
         zone_info = zone[-1]
-        yield 0, f"Availability zone: {_REGIONS[region]} ({zone_info})"
+        yield Result(state=State.OK, summary=f"Availability zone: {_REGIONS[region]} ({zone_info})")
 
 
-def discover_aws_rds_summary_db_status(p):
-    return inventory_aws_generic(p, ["DBInstanceStatus"])
+def discover_aws_rds_summary_db_status(section: Section) -> DiscoveryResult:
+    yield from discover_aws_generic(section, ["DBInstanceStatus"])
 
 
-check_info["aws_rds_summary.db_status"] = LegacyCheckDefinition(
+check_plugin_aws_rds_summary_db_status = CheckPlugin(
     name="aws_rds_summary_db_status",
     service_name="AWS/RDS %s Info",
     sections=["aws_rds_summary"],
