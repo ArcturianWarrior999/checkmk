@@ -3,24 +3,30 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
 
 from collections.abc import Mapping
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import SNMPTree, StringTable
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
 from cmk.plugins.perle.lib import DETECT_PERLE
-
-check_info = {}
 
 
 def parse_perle_modules(string_table: StringTable) -> StringTable:
     return string_table
 
 
-def discover_perle_cm_modules(info):
-    yield from ((index, {}) for _name, _led, index, *_rest in info)
+def discover_perle_cm_modules(section: StringTable) -> DiscoveryResult:
+    for _name, _led, index, *_rest in section:
+        yield Service(item=index)
 
 
 MAP_SPEED: Mapping[str, str] = {
@@ -29,23 +35,23 @@ MAP_SPEED: Mapping[str, str] = {
     "2": "1000 Mbps",
 }
 
-MAP_POWER_LED: Mapping[str, tuple[int, str]] = {
-    "0": (2, "no power"),
-    "1": (0, "power to the module"),
-    "2": (0, "loopback enabled"),
+MAP_POWER_LED: Mapping[str, tuple[State, str]] = {
+    "0": (State.CRIT, "no power"),
+    "1": (State.OK, "power to the module"),
+    "2": (State.OK, "loopback enabled"),
 }
 
-MAP_FIBER_LPRF: Mapping[str, tuple[int, str]] = {
-    "0": (0, "ok"),
-    "1": (2, "offline"),
-    "2": (2, "link fault"),
-    "3": (2, "auto neg error"),
+MAP_FIBER_LPRF: Mapping[str, tuple[State, str]] = {
+    "0": (State.OK, "ok"),
+    "1": (State.CRIT, "offline"),
+    "2": (State.CRIT, "link fault"),
+    "3": (State.CRIT, "auto neg error"),
     # available for cm1110 modules
-    "99": (2, "not applicable"),
+    "99": (State.CRIT, "not applicable"),
 }
-MAP_FIBER_LINK: Mapping[str, tuple[int, str]] = {
-    "0": (1, "down"),
-    "1": (0, "up"),
+MAP_FIBER_LINK: Mapping[str, tuple[State, str]] = {
+    "0": (State.WARN, "down"),
+    "1": (State.OK, "up"),
 }
 
 MAP_FIBER_CONNECTOR: Mapping[str, str] = {
@@ -56,14 +62,14 @@ MAP_FIBER_CONNECTOR: Mapping[str, str] = {
     "5": "fc",
     "6": "mtrj",
 }
-MAP_COPPER_LPRF: Mapping[str, tuple[int, str]] = {
-    "0": (0, "ok"),
-    "1": (2, "remote fault"),
+MAP_COPPER_LPRF: Mapping[str, tuple[State, str]] = {
+    "0": (State.OK, "ok"),
+    "1": (State.CRIT, "remote fault"),
 }
 
-MAP_COPPER_LINK: Mapping[str, tuple[int, str]] = {
-    "0": (1, "down"),
-    "1": (0, "ok"),
+MAP_COPPER_LINK: Mapping[str, tuple[State, str]] = {
+    "0": (State.WARN, "down"),
+    "1": (State.OK, "ok"),
 }
 
 MAP_COPPER_CONNECTOR: Mapping[str, str] = {
@@ -71,7 +77,7 @@ MAP_COPPER_CONNECTOR: Mapping[str, str] = {
 }
 
 
-def check_perle_cm_modules(item, _no_params, info):
+def check_perle_cm_modules(item: str, section: StringTable) -> CheckResult:
     for (
         _name,
         power_led,
@@ -80,33 +86,33 @@ def check_perle_cm_modules(item, _no_params, info):
         fiber_link,
         fiber_connector,
         fiber_speed,
-        cooper_lprf,
+        copper_lprf,
         copper_link,
         copper_connector,
         copper_speed,
-    ) in info:
+    ) in section:
         if item != index:
             continue
 
         state, state_readable = MAP_POWER_LED[power_led]
-        yield state, "Power status: %s" % state_readable
+        yield Result(state=state, summary=f"Power status: {state_readable}")
 
-        yield 0, f"Fiber speed: {MAP_SPEED[fiber_speed]}"
+        yield Result(state=State.OK, summary=f"Fiber speed: {MAP_SPEED[fiber_speed]}")
         state, state_readable = MAP_FIBER_LPRF[fiber_lprf]
-        yield state, f"LPRF: {state_readable}"
+        yield Result(state=state, summary=f"LPRF: {state_readable}")
         state, state_readable = MAP_FIBER_LINK[fiber_link]
-        yield state, f"Link: {state_readable}"
-        yield 0, f"Connector: {MAP_FIBER_CONNECTOR[fiber_connector]}"
+        yield Result(state=state, summary=f"Link: {state_readable}")
+        yield Result(state=State.OK, summary=f"Connector: {MAP_FIBER_CONNECTOR[fiber_connector]}")
 
-        yield 0, f"Copper speed: {MAP_SPEED[copper_speed]}"
-        state, state_readable = MAP_COPPER_LPRF[cooper_lprf]
-        yield state, f"LPRF: {state_readable}"
+        yield Result(state=State.OK, summary=f"Copper speed: {MAP_SPEED[copper_speed]}")
+        state, state_readable = MAP_COPPER_LPRF[copper_lprf]
+        yield Result(state=state, summary=f"LPRF: {state_readable}")
         state, state_readable = MAP_COPPER_LINK[copper_link]
-        yield state, f"Link: {state_readable}"
-        yield 0, f"Connector: {MAP_COPPER_CONNECTOR[copper_connector]}"
+        yield Result(state=state, summary=f"Link: {state_readable}")
+        yield Result(state=State.OK, summary=f"Connector: {MAP_COPPER_CONNECTOR[copper_connector]}")
 
 
-check_info["perle_modules_cm1110"] = LegacyCheckDefinition(
+snmp_section_perle_modules_cm1110 = SimpleSNMPSection(
     name="perle_modules_cm1110",
     parse_function=parse_perle_modules,
     detect=DETECT_PERLE,
@@ -126,13 +132,18 @@ check_info["perle_modules_cm1110"] = LegacyCheckDefinition(
             "1.1.28",
         ],
     ),
+)
+
+
+check_plugin_perle_modules_cm1110 = CheckPlugin(
+    name="perle_modules_cm1110",
     service_name="Chassis slot %s CM1110",
     discovery_function=discover_perle_cm_modules,
     check_function=check_perle_cm_modules,
 )
 
 
-check_info["perle_modules_cm1000"] = LegacyCheckDefinition(
+snmp_section_perle_modules_cm1000 = SimpleSNMPSection(
     name="perle_modules_cm1000",
     parse_function=parse_perle_modules,
     detect=DETECT_PERLE,
@@ -152,6 +163,11 @@ check_info["perle_modules_cm1000"] = LegacyCheckDefinition(
             "1.1.24",
         ],
     ),
+)
+
+
+check_plugin_perle_modules_cm1000 = CheckPlugin(
+    name="perle_modules_cm1000",
     service_name="Chassis slot %s CM1000",
     discovery_function=discover_perle_cm_modules,
     check_function=check_perle_cm_modules,
