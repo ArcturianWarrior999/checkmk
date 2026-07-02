@@ -1535,17 +1535,11 @@ allows = [
   "cmk.ccc.store",
   "cmk.events.notification_result",
   "cmk.utils.labels",
-  "cmk.utils.servicename",
   "cmk.utils.tags",
 ]
 
 [components."cmk.utils.notify_types"]
-allows = [
-  "cmk.events",
-  "cmk.utils.rulesets",
-  "cmk.utils.tags",
-  "cmk.utils.timeperiod",
-]
+allows = ["cmk.events", "cmk.utils.rulesets", "cmk.utils.tags"]
 
 [components."cmk.utils.oauth2_connection"]
 allows = ["cmk.ccc.site"]

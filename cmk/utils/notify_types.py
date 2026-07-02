@@ -25,7 +25,14 @@ from pydantic import (
 
 from cmk.utils.rulesets.ruleset_matcher import TagCondition
 from cmk.utils.tags import TagGroupID
-from cmk.utils.timeperiod import TimeperiodName
+
+# These type aliases are introduced to decouple this from what at the time of writing
+# is cmk.utils. Since the a) original types are only aliases as well b) this is wishfull
+# typing anyway and c) we never parse anything we can get away with that for now.
+# Once the configuration monolith is broken into parts, we can hopefully start actually
+# parsing proper types, and see where the true (semantic) dependencies are.
+type TimeperiodName = str
+type ServiceName = str
 
 ContactName = str
 

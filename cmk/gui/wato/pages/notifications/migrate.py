@@ -332,7 +332,7 @@ def _get_recipients(event_rule: EventRule) -> Recipient:
 def _get_sending_conditions(event_rule: EventRule) -> SendingConditions:
     frequency_and_timing = FrequencyAndTiming()
     if "match_timeperiod" in event_rule:
-        frequency_and_timing["restrict_timeperiod"] = event_rule["match_timeperiod"]
+        frequency_and_timing["restrict_timeperiod"] = TimeperiodName(event_rule["match_timeperiod"])
 
     if "match_escalation" in event_rule:
         frequency_and_timing["limit_by_count"] = event_rule["match_escalation"]

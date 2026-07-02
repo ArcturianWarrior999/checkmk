@@ -1645,7 +1645,7 @@ def rbn_match_timeperiod(
 
     if not is_timeperiod_active(
         timestamp=timestamp,
-        timeperiod_name=timeperiod_name,
+        timeperiod_name=TimeperiodName(timeperiod_name),
         all_timeperiods=all_timeperiods,
     ):
         return f"The notification does not match the timeperiod '{timeperiod_name}'"
