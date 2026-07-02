@@ -8,6 +8,16 @@ py_cmk_test(
         "tests/unit/cmk/gui/parentscan",
     ],
     env = {"EDITION": "community"},
+    tags = [
+        "deballast-keep=//cmk/gui:auth",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/gui:config",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/gui:core_toolkit",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/gui/background_job/job:job",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/gui/background_job/process:process",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/gui/wato:wato",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//cmk/utils:redis",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+        "deballast-keep=//omd/packages/omd:omdlib",  # loaded at runtime by test fixtures (inline_background_jobs / parent-scan jobs)
+    ],
     use_project_pytest_config = True,
     deps = [
         "//cmk/gui:auth",

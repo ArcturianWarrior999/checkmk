@@ -66,6 +66,7 @@ py_library(
         include = ["bandit-nosec-markers/**/*.py"],
     ),
     imports = [".."],
+    tags = ["deballast-keep=//tests/testlib:testlib"],  # repo-walking test helpers loaded at runtime
     deps = ["//tests/testlib"],
 )
 

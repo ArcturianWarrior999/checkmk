@@ -6,6 +6,17 @@ py_library(
     testonly = True,
     srcs = glob(["**/*.py"]),
     imports = ["../../.."],
+    tags = [
+        "deballast-keep=//cmk/gui:app",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/graphing:graphing",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/openapi/endpoints:endpoints",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/openapi/framework:framework",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/openapi/restful_objects:type_defs",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/rest_api_types:notifications",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//cmk/gui/userdb:userdb",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//packages/cmk-crash:crash",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//tests/testlib/gui:gui",  # unit-test fixture bundle, loaded at runtime / provided to consumers
+    ],
     visibility = [
         "//non-free/packages/cmk-robotmk:__pkg__",
         "//tests:__subpackages__",

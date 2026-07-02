@@ -6,6 +6,11 @@ py_library(
     testonly = True,
     srcs = glob(["**/*.py"]),
     imports = ["../../.."],
+    tags = [
+        "deballast-keep=//tests/testlib/common:empty_config",  # GUI-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//tests/testlib/common:repo",  # GUI-test fixture bundle, loaded at runtime / provided to consumers
+        "deballast-keep=//tests/testlib/common:utils",  # GUI-test fixture bundle, loaded at runtime / provided to consumers
+    ],
     visibility = [
         "//non-free/packages/cmk-robotmk:__pkg__",
         "//tests:__pkg__",

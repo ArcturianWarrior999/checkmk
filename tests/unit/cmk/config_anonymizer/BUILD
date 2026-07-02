@@ -25,6 +25,10 @@ py_cmk_test(
     ),
     args = ["--random-order-bucket=global"],
     env = {"EDITION": "community"},
+    tags = [
+        "deballast-keep=//cmk/update_config:update_config",  # config-update migrations exercised at runtime
+        "deballast-keep=//tests/testlib/unit:unit",  # provides tests.testlib.gui.common_fixtures transitively (fixture bundle)
+    ],
     use_project_pytest_config = True,
     visibility = ["//visibility:private"],
     deps = [
