@@ -4278,7 +4278,9 @@ pytest-base-url==2.1.0 \
 pytest-benchmark==5.2.3 \
     --hash=sha256:bc839726ad20e99aaa0d11a127445457b4219bdb9e80a1afc4b51da7f96b0803 \
     --hash=sha256:deb7317998a23c650fd4ff76e1230066a76cb45dcece0aca5607143c619e7779
-    # via -r tests/dev-requirements.in
+    # via
+    #   -r non-free/packages/cmk-metric-backend/dev-requirements.in
+    #   -r tests/dev-requirements.in
 pytest-check==2.6.2 \
     --hash=sha256:5e2128405b14978ad74f21f3225fcc52bbb1cc7c41a55d5eaad9f1e3cd27e42e \
     --hash=sha256:71762eb58f6b8a2d75afb9e6c8b800af7f634f67359d899a65ee48aaee087215
