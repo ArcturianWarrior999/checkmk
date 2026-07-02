@@ -10,7 +10,6 @@ py_cmk_test(
         "//.werks:werks_config",
     ],
     deps = [
-        "//cmk/utils",
         "//cmk/utils:werks",
         "//packages/cmk-werks",
         "//tests/code_quality:bazel_utils",
@@ -40,7 +39,6 @@ py_cmk_test(
     deps = [
         requirement("gitpython"),
         "//:pyproject-toml",
-        "//cmk/utils",
         "//cmk/utils:werks",
         "//packages/cmk-ccc:version",
         "//packages/cmk-werks",

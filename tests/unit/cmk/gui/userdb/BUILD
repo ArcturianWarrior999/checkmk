@@ -17,7 +17,7 @@ py_cmk_test(
         "//cmk/gui/utils:htpasswd",
         "//cmk/gui/utils:roles",
         "//cmk/gui/valuespec",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
         "//packages/cmk-crypto",

@@ -16,7 +16,7 @@ py_library(
         requirement("docker"),
         requirement("requests"),
         "//packages/cmk-ccc:version",
-        "//tests/testlib",
+        "//tests/testlib/common:utils",
     ],
 )
 

@@ -14,7 +14,7 @@ py_cmk_test(
         "//cmk/gui/inventory",
         "//cmk/gui/watolib:groups_io",
         "//cmk/inventory",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:store",

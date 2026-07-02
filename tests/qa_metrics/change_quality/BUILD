@@ -16,7 +16,6 @@ py_library(
     data = ["schema.sql"],
     imports = ["../../.."],
     deps = [
-        "//packages/cmk-werks",
         "//tests/qa_metrics/db",
     ],
 )
