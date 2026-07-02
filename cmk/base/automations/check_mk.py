@@ -122,7 +122,7 @@ from cmk.base.core.interface import do_reload, do_restart, MonitoringCore
 from cmk.base.core.shared import autodetect_plugin, get_service_attributes
 from cmk.base.errorhandling import create_section_crash_dump
 from cmk.base.parent_scan import ScanConfig
-from cmk.ccc import tty, version
+from cmk.ccc import version
 from cmk.ccc.exceptions import (
     MKBailOut,
     MKGeneralException,
@@ -340,7 +340,7 @@ def _automation_service_discovery(
     ip_address_of = env.ip_address_of(on_failure=IPLookupFailureMode.HANDLE)
 
     results: dict[HostName, DiscoveryReport] = {}
-
+    logger = logging.getLogger("cmk.automation.discovery")
     parser = CMKParser(
         config.make_parser_config(
             env.loaded_config,
@@ -350,7 +350,7 @@ def _automation_service_discovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.discovery"),
+        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -461,6 +461,7 @@ def _automation_service_discovery(
             on_error=on_error,
             autochecks_dir=autochecks_dir,
             discovered_host_labels_dir=discovered_host_labels_dir,
+            logger=logger,
         )
 
         if results[hostname].error_text is None:
@@ -692,9 +693,8 @@ def _get_discovery_preview(
 ) -> ServiceDiscoveryPreviewResult:
     buf = io.StringIO()
 
+    # TODO: Do we still need the redirects?
     with redirect_stdout(buf), redirect_stderr(buf):
-        log.setup_console_logging()
-
         check_preview = _execute_discovery(
             loaded_config,
             config_cache.ruleset_matcher,
@@ -859,7 +859,7 @@ def _execute_discovery(
     secrets_config: SecretsConfig,
     for_relay: bool,
 ) -> CheckPreview:
-    logger = logging.getLogger("cmk.base.discovery")
+    logger = logging.getLogger("cmk.automation.discovery")
     hosts_config = config.make_hosts_config(loaded_config)
     discovery_config = DiscoveryConfig(
         ruleset_matcher,
@@ -1037,6 +1037,7 @@ def _automation_autodiscovery(
     plugins: AgentBasedPlugins | None,
     loading_result: config.LoadingResult | None,
 ) -> AutodiscoveryResult:
+    # TODO: Is this redirect still needed?
     with redirect_stdout(open(os.devnull, "w")):
         result = _execute_autodiscovery(app, plugins, loading_result)
 
@@ -1075,9 +1076,10 @@ def _execute_autodiscovery(
     loading_result: config.LoadingResult | None,
 ) -> tuple[Mapping[HostName, DiscoveryReport], bool]:
     file_cache_options = FileCacheOptions(use_outdated=True)
+    logger = logging.getLogger("cmk.automation.autodiscovery")
 
     if not (autodiscovery_queue := AutoQueue(autodiscovery_dir)):
-        console.verbose("No hosts to discover, returning.")
+        logger.debug("No hosts to discover, returning.")
         return {}, False
 
     env = AutomationEnvironment.create(app, ab_plugins, loading_result)
@@ -1098,7 +1100,7 @@ def _execute_autodiscovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logging.getLogger("cmk.base.discovery"),
+        logger=logger,
     )
     fetcher = CMKFetcher(
         env.config_cache,
@@ -1185,10 +1187,10 @@ def _execute_autodiscovery(
             autodiscovery_queue.remove(host_name)
 
     if (oldest_queued := autodiscovery_queue.oldest()) is None:
-        console.verbose("Autodiscovery: No hosts marked by discovery check")
+        logger.debug("No hosts marked by discovery check for autodiscovery")
         return {}, False
 
-    console.verbose("Autodiscovery: Discovering all hosts marked by discovery check:")
+    logger.debug("Autodiscovery: Discovering all hosts marked by discovery check:")
 
     activation_required = False
     rediscovery_reference_time = time.time()
@@ -1198,7 +1200,7 @@ def _execute_autodiscovery(
 
     start = time.monotonic()
     limit = 120
-    message = f"  Timeout of {limit} seconds reached. Let's do the remaining hosts next time."
+    message = f"Timeout of {limit} seconds reached. Let's do the remaining hosts next time."
 
     try:
         with Timeout(limit + 10, message=message):
@@ -1219,11 +1221,12 @@ def _execute_autodiscovery(
                         rtc_package=None,
                     )
 
+                # TODO: Add host to hosts_processed AFTER it was processed!
                 hosts_processed.add(host_name)
-                console.verbose(f"{tty.bold}{host_name}{tty.normal}:")
+                logger.debug("Performing autodiscovery on host: %s", host_name)
                 params = env.config_cache.discovery_check_parameters(host_name)
                 if params.commandline_only:
-                    console.verbose("  failed: discovery check disabled")
+                    logger.warning("Autodiscovery failed: discovery check is disabled")
                 else:
                     autodiscovery_result = autodiscovery(
                         host_name,
@@ -1260,6 +1263,7 @@ def _execute_autodiscovery(
                         on_error=on_error,
                         autochecks_dir=autochecks_dir,
                         discovered_host_labels_dir=base_discovered_host_labels_dir,
+                        logger=logger,
                     )
                     if not autodiscovery_result.skipped:
                         autodiscovery_queue.remove(host_name)
@@ -1269,7 +1273,7 @@ def _execute_autodiscovery(
                         activation_required |= autodiscovery_result.activate
 
     except (MKTimeout, TimeoutError) as exc:
-        console.verbose_no_lf(str(exc))
+        logger.warning(str(exc))
 
     if not activation_required:
         return discovery_results, False

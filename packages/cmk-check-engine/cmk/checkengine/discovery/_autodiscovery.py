@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
+import logging
 import time
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
 from pathlib import Path
@@ -34,7 +35,6 @@ from cmk.checkengine.sectionparser import (
 from cmk.checkengine.summarize import SummarizerFunction
 from cmk.utils.everythingtype import EVERYTHING
 from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel, merge_cluster_labels
-from cmk.utils.log import console, section
 from cmk.utils.servicename import ServiceName
 
 from ._autochecks import (
@@ -150,8 +150,9 @@ def automation_discovery(
     section_error_handling: Callable[[SectionName, Sequence[object]], str],
     autochecks_dir: Path,
     discovered_host_labels_dir: Path,
+    logger: logging.Logger,
 ) -> DiscoveryReport:
-    console.verbose(f"  Doing discovery with '{settings!r}'...")
+    logger.debug("Doing discovery with '%(settings)s'", {"settings": settings})
     results = {
         host_name: DiscoveryReport(),
         **{node: DiscoveryReport() for node in cluster_nodes},
@@ -175,7 +176,7 @@ def automation_discovery(
 
         host_sections_by_host = group_by_host(
             ((HostKey(s.hostname, s.source_type), r.ok) for s, r in host_sections if r.is_ok()),
-            console.debug,
+            logger.debug,
         )
         store_piggybacked_sections(host_sections_by_host, omd_root)
         providers = make_providers(
@@ -303,6 +304,7 @@ def automation_discovery(
         raise  # let general timeout through
 
     except Exception as e:
+        logger.exception("Discovery failed")
         if cmk.ccc.debug.enabled():
             raise
         results[host_name].error_text = str(e)
@@ -492,14 +494,15 @@ def autodiscovery(
     on_error: OnError,
     autochecks_dir: Path,
     discovered_host_labels_dir: Path,
+    logger: logging.Logger,
 ) -> AutodiscoveryResult:
-    reason = _may_rediscover(
+    if not _may_rediscover(
+        host_name=host_name,
         rediscovery_parameters=rediscovery_parameters,
         reference_time=reference_time,
         oldest_queued=oldest_queued,
-    )
-    if reason:
-        console.verbose(f"  skipped: {reason}")
+        logger=logger,
+    ):
         return AutodiscoveryResult(discovery_result=None, activate=False, skipped=True, error=False)
 
     result = automation_discovery(
@@ -526,11 +529,15 @@ def autodiscovery(
         on_error=on_error,
         autochecks_dir=autochecks_dir,
         discovered_host_labels_dir=discovered_host_labels_dir,
+        logger=logger,
     )
     if result.error_text is not None:
         # for offline hosts the error message is empty. This is to remain
         # compatible with the automation code
-        console.verbose(f"  failed: {result.error_text or 'host is offline'}")
+        logger.warning(
+            "Autodiscovery on host %(host_name)s failed: %(reason)s",
+            {"host_name": host_name, "reason": result.error_text or "host is offline"},
+        )
         return AutodiscoveryResult(discovery_result=None, activate=False, skipped=False, error=True)
 
     something_changed = (
@@ -541,15 +548,29 @@ def autodiscovery(
     )
 
     if not something_changed:
-        console.verbose("  nothing changed.")
+        logger.debug("Nothing changed for host %(host_name)s", {"host_name": host_name})
         activation_required = False
     else:
-        console.verbose_no_lf(
-            f"{result.services.total} services ({result.services.new} added, {result.services.changed} changed, "
-            f"{result.services.removed} removed, {result.services.kept} kept, {result.clustered_new} clustered new, "
-            f"{result.clustered_vanished}  clustered vanished) "
-            f"and {result.host_labels.total} host labels ({result.host_labels.new} added, {result.host_labels.changed} changed, "
-            f"{result.host_labels.removed} removed, {result.host_labels.kept} kept). "
+        logger.info(
+            "%(services_total)s services (%(services_added)s added, %(services_changed)s changed, "
+            "%(services_removed)s removed, %(services_kept)s kept, %(services_clustered_new)s clustered new, "
+            "%(services_clustered_vanished)s  clustered vanished) "
+            "and %(host_labels_total)s host labels (%(host_labels_added)s added, %(host_labels_changed)s changed, "
+            "%(host_labels_removed)s removed, %(host_labels_kept)s kept). ",
+            {
+                "services_total": result.services.total,
+                "services_added": result.services.new,
+                "services_changed": result.services.changed,
+                "services_removed": result.services.removed,
+                "services_kept": result.services.kept,
+                "services_clustered_new": result.clustered_new,
+                "services_clustered_vanished": result.clustered_vanished,
+                "host_labels_total": result.host_labels.total,
+                "host_labels_added": result.host_labels.new,
+                "host_labels_changed": result.host_labels.changed,
+                "host_labels_removed": result.host_labels.removed,
+                "host_labels_kept": result.host_labels.kept,
+            },
         )
 
         # Note: Even if the actual mark-for-discovery flag may have been created by a cluster host,
@@ -573,12 +594,17 @@ def autodiscovery(
 
 
 def _may_rediscover(
+    host_name: HostName,
     rediscovery_parameters: RediscoveryParameters,
     reference_time: float,
     oldest_queued: float,
-) -> str:
+    logger: logging.Logger,
+) -> bool:
     if not set(rediscovery_parameters) >= {"excluded_time", "group_time"}:
-        return "automatic discovery disabled for this host"
+        logger.debug(
+            "Automatic discovery disabled for host '%(host_name)s'", {"host_name": host_name}
+        )
+        return False
 
     now = time.localtime(reference_time)
     for start_hours_mins, end_hours_mins in rediscovery_parameters["excluded_time"]:
@@ -611,12 +637,17 @@ def _may_rediscover(
         )
 
         if start_time <= now <= end_time:
-            return "we are currently in a disallowed time of day"
+            logger.debug(
+                "Automatic discovery disallowed at this time of day for host '%(host_name)s'",
+                {"host_name": host_name},
+            )
+            return False
 
     if reference_time - oldest_queued < rediscovery_parameters["group_time"]:
-        return "last activation is too recent"
+        logger.debug("Automatic discovery disallowed as last activation is too recent")
+        return False
 
-    return ""
+    return True
 
 
 # Creates a table of all services that a host has or could have according
@@ -687,9 +718,12 @@ def discovery_by_host(  # should go to a different file, I think.
         providers,
         [(plugin_name, plugin.sections) for plugin_name, plugin in plugins.items()],
     )
-
-    section.section_step("Executing discovery plugins (%d)" % len(candidates))
-    console.debug(f"  Trying discovery with: {', '.join(str(n) for n in candidates)}")
+    # TODO: Pass in logger object.
+    logger = logging.getLogger("cmk.checkengine.discovery")
+    logger.debug(
+        "Executing discovery plugins: %(plugins)s (total: %(total)d)",
+        {"plugins": candidates, "total": len(candidates)},
+    )
 
     try:
         discovered_services = {

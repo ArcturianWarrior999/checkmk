@@ -6,6 +6,7 @@
 # ruff: noqa: ARG002
 
 import datetime
+import logging
 import time
 from collections.abc import Mapping
 from zoneinfo import ZoneInfo
@@ -454,6 +455,14 @@ def test_get_host_services_by_host_name_move_mutiple_nodes_and_autochecks() -> N
     }
 
 
+class MockLogger(logging.Logger):
+    def __init__(self) -> None:
+        self.records: list[str] = []
+
+    def debug(self, msg: object, *args: object, **kwargs: object) -> None:
+        self.records.append(str(msg))
+
+
 def test_may_rediscover_relies_on_time_zone_when_disallowing() -> None:
 
     rediscovery_parameters = RediscoveryParameters(
@@ -464,14 +473,20 @@ def test_may_rediscover_relies_on_time_zone_when_disallowing() -> None:
         datetime.datetime(2026, 1, 6, 9, 30, tzinfo=ZoneInfo("Europe/Berlin")),
         tick=False,
     ):
+        mock_logger = MockLogger()
         assert (
             _may_rediscover(
+                host_name=NODE_1,
                 rediscovery_parameters=rediscovery_parameters,
                 reference_time=time.mktime(time.localtime()),
                 oldest_queued=0.0,
+                logger=mock_logger,
             )
-            == "we are currently in a disallowed time of day"
+            is False
         )
+
+        assert len(mock_logger.records) == 1
+        assert "disallowed at this time of day" in mock_logger.records[0]
 
 
 def test_may_rediscover_relies_on_time_zone_when_allowing() -> None:
@@ -484,11 +499,15 @@ def test_may_rediscover_relies_on_time_zone_when_allowing() -> None:
         datetime.datetime(2026, 1, 6, 10, 30, tzinfo=ZoneInfo("Europe/Berlin")),
         tick=False,
     ):
+        mock_logger = MockLogger()
         assert (
             _may_rediscover(
+                host_name=NODE_1,
                 rediscovery_parameters=rediscovery_parameters,
                 reference_time=time.mktime(time.localtime()),
                 oldest_queued=0.0,
+                logger=mock_logger,
             )
-            == ""
+            is True
         )
+        assert len(mock_logger.records) == 0
