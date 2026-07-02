@@ -1659,7 +1659,15 @@ fn test_detection_registry() {
     eprintln!("Instances = {:?}", instances);
     assert!(!instances.is_empty());
     for i in instances {
-        assert!(i.name == InstanceName::from("XE") || i.name == InstanceName::from("FREE"));
+        // Instance names are deployment-specific: XE / FREE on the reference
+        // hosts, ORCL* on the ORACLE-WIN-CI VM (e.g. ORCL19 alongside 23ai Free).
+        let name = i.name.to_string();
+        assert!(
+            i.name == InstanceName::from("XE")
+                || i.name == InstanceName::from("FREE")
+                || name.starts_with("ORCL"),
+            "unexpected instance name: {name}"
+        );
         assert!(std::path::PathBuf::from(&i.home).is_dir());
         assert!(std::path::PathBuf::from(&i.home).exists());
         let base = i.base.unwrap();
