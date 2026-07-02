@@ -7,7 +7,7 @@
 import pytest
 
 from cmk.agent_based.v2 import InventoryResult, TableRow
-from cmk.plugins.ibm.agent_based.ibm_mq_managers import (
+from cmk.plugins.ibm_mq.agent_based.ibm_mq_managers import (
     inventorize_ibm_mq_managers,
     ManagerInfo,
     Section,

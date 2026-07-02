@@ -8,10 +8,11 @@ from typing import Any
 import pytest
 
 from cmk.agent_based.v2 import Result, Service, State
-from cmk.plugins.ibm.agent_based.ibm_mq_managers import ManagerInfo, parse_ibm_mq_managers
 from cmk.plugins.ibm_mq.agent_based.ibm_mq_managers import (
     check_ibm_mq_managers,
     discover_ibm_mq_managers,
+    ManagerInfo,
+    parse_ibm_mq_managers,
 )
 
 pytestmark = pytest.mark.checks

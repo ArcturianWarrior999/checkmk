@@ -8,14 +8,19 @@ from collections.abc import Mapping
 from typing import Any
 
 from cmk.agent_based.v2 import (
+    AgentSection,
     CheckPlugin,
     CheckResult,
     DiscoveryResult,
+    InventoryPlugin,
+    InventoryResult,
     Result,
     Service,
     State,
+    StringTable,
+    TableRow,
 )
-from cmk.plugins.ibm_mq.lib import is_ibm_mq_service_vanished
+from cmk.plugins.ibm_mq.lib import is_ibm_mq_service_vanished, parse_ibm_mq
 
 # <<<ibm_mq_channels:sep(10)>>>
 # QMNAME(MY.TEST)                                           STATUS(RUNNING)
@@ -34,6 +39,18 @@ from cmk.plugins.ibm_mq.lib import is_ibm_mq_service_vanished
 # 3 MQSC commands read.
 # No commands have a syntax error.
 # One valid MQSC command could not be processed.
+
+Section = Mapping[str, Mapping[str, str]]
+
+
+def parse_ibm_mq_channels(string_table: StringTable) -> Section:
+    return parse_ibm_mq(string_table, "CHANNEL")
+
+
+agent_section_ibm_mq_channels = AgentSection(
+    name="ibm_mq_channels",
+    parse_function=parse_ibm_mq_channels,
+)
 
 _DEFAULT_STATUS_MAP = {
     "INACTIVE": ("inactive", 0),
@@ -91,4 +108,33 @@ check_plugin_ibm_mq_channels = CheckPlugin(
     check_function=check_ibm_mq_channels,
     check_ruleset_name="ibm_mq_channels",
     check_default_parameters={},
+)
+
+
+def inventorize_ibm_mq_channels(section: Section) -> InventoryResult:
+    for item, attrs in section.items():
+        if ":" not in item:
+            # Do not show queue manager in inventory
+            continue
+
+        qmname, cname = item.split(":")
+        yield TableRow(
+            path=["software", "applications", "ibm_mq", "channels"],
+            key_columns={
+                "qmgr": qmname,
+                "name": cname,
+            },
+            inventory_columns={
+                "type": attrs.get("CHLTYPE", "Unknown"),
+                "monchl": attrs.get("MONCHL", "n/a"),
+            },
+            status_columns={
+                "status": attrs.get("STATUS", "Unknown"),
+            },
+        )
+
+
+inventory_plugin_ibm_mq_channels = InventoryPlugin(
+    name="ibm_mq_channels",
+    inventory_function=inventorize_ibm_mq_channels,
 )

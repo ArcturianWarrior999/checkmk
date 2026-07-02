@@ -8,10 +8,10 @@ from typing import Any
 import pytest
 
 from cmk.agent_based.v2 import IgnoreResultsError, Result, Service, State
-from cmk.plugins.ibm.agent_based.ibm_mq_channels import parse_ibm_mq_channels
 from cmk.plugins.ibm_mq.agent_based.ibm_mq_channels import (
     check_ibm_mq_channels,
     discover_ibm_mq_channels,
+    parse_ibm_mq_channels,
 )
 
 pytestmark = pytest.mark.checks

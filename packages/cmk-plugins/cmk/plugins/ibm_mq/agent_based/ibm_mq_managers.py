@@ -3,19 +3,23 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-
+import re
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, NamedTuple
 
 from cmk.agent_based.v2 import (
+    AgentSection,
     CheckPlugin,
     CheckResult,
     DiscoveryResult,
+    InventoryPlugin,
+    InventoryResult,
     Result,
     Service,
     State,
+    StringTable,
+    TableRow,
 )
-from cmk.plugins.ibm.agent_based.ibm_mq_managers import Section
 from cmk.plugins.ibm_mq.lib import ibm_mq_check_version
 
 # <<<ibm_mq_managers:sep(10)>>>
@@ -32,6 +36,42 @@ from cmk.plugins.ibm_mq.lib import ibm_mq_check_version
 # QMNAME(QMTEMQS02A) STATUS(ENDED IMMEDIATELY) DEFAULT(NO) STANDBY(NOT APPLICABLE) INSTNAME(Installation1) INSTPATH(/usr/mqm) INSTVER(8.0.0.4)
 # QMNAME(QMTEMQS02)  STATUS(RUNNING) DEFAULT(YES) STANDBY(NOT PERMITTED) INSTNAME(Installation1) INSTPATH(/usr/mqm) INSTVER(8.0.0.4)
 #     INSTANCE(tasv0065) MODE(Active)
+
+RE_ATTRIBUTES = re.compile(r"[()]")
+
+
+class ManagerInfo(NamedTuple):
+    attributes: Mapping[str, str]
+    instances: list[tuple[str, str]]
+
+
+Section = Mapping[str, ManagerInfo]
+
+
+def parse_ibm_mq_managers(string_table: StringTable) -> Section:
+    def get_data_of_line(line: str) -> dict[str, str]:
+        splits = RE_ATTRIBUTES.split(line)
+        data: dict[str, str] = {}
+        for key, value in zip(splits[::2], splits[1::2]):
+            data[key.strip()] = value.strip()
+        return data
+
+    parsed: dict[str, ManagerInfo] = {}
+    qmname: str | None = None
+    for line in string_table:
+        data = get_data_of_line(line[0])
+        if "QMNAME" in data:
+            qmname = data["QMNAME"]
+            parsed[qmname] = ManagerInfo(attributes=data, instances=[])
+        elif "INSTANCE" in data and qmname is not None:
+            parsed[qmname].instances.append((data["INSTANCE"], data["MODE"]))
+    return parsed
+
+
+agent_section_ibm_mq_managers = AgentSection(
+    name="ibm_mq_managers",
+    parse_function=parse_ibm_mq_managers,
+)
 
 _DEFAULT_STATUS_MAP = {
     "STARTING": ("starting", 0),
@@ -139,4 +179,30 @@ check_plugin_ibm_mq_managers = CheckPlugin(
     check_function=check_ibm_mq_managers,
     check_ruleset_name="ibm_mq_managers",
     check_default_parameters={},
+)
+
+
+def inventorize_ibm_mq_managers(section: Section) -> InventoryResult:
+    for item, manager in section.items():
+        attrs = manager.attributes
+        yield TableRow(
+            path=["software", "applications", "ibm_mq", "managers"],
+            key_columns={
+                "name": item,
+            },
+            inventory_columns={
+                "instver": attrs["INSTVER"],
+                "instname": attrs["INSTNAME"],
+                "ha": attrs.get("HA", "n/a"),
+            },
+            status_columns={
+                "standby": attrs["STANDBY"],
+                "status": attrs["STATUS"],
+            },
+        )
+
+
+inventory_plugin_ibm_mq_managers = InventoryPlugin(
+    name="ibm_mq_managers",
+    inventory_function=inventorize_ibm_mq_managers,
 )
