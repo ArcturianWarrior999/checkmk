@@ -82,7 +82,7 @@ def _form_spec() -> Dictionary:
                         " For some reasons, you might want to adapt this path."
                         ' Namely, the agent updater won\'t work with a "/tmp" dir that'
                         ' is mounted with a "noexec"-flag. Please note that the'
-                        " Checkmk Agent does no automatic cleaning on this custom path."
+                        " Checkmk agent does no automatic cleaning on this custom path."
                     ),
                     custom_validate=(_ABSOLUTE_PATH_VALIDATOR,),
                 ),

@@ -231,7 +231,7 @@ def _forward_to_ec_form() -> Dictionary:
                     title=Title("Clean up messages"),
                     help_text=Help(
                         "The handled messages (see <i>subject matching</i>) can be cleaned up by either "
-                        "deleting them or moving them to a subfolder. By default nothing is cleaned up."
+                        "deleting them or moving them to a subfolder. By default, nothing is cleaned up."
                     ),
                     elements=(
                         CascadingSingleChoiceElement(

@@ -125,7 +125,7 @@ def _user_form(user_title: Title, help_text: Help) -> Dictionary:
                         SingleChoiceElement(
                             name="auto",
                             title=Title(
-                                "Automatic: Use existing user, if available. Otherwise create"
+                                "Automatic: use existing user, if available. Otherwise create"
                                 " new user."
                             ),
                         ),
@@ -190,7 +190,7 @@ def _agent_controller_arch_form() -> SingleChoice:
     return SingleChoice(
         title=Title("Architecture of the systems where the agent will be deployed"),
         help_text=Help(
-            "The Linux agent controller is available as x86 64-bit (x86-64)"
+            "The Linux Agent Controller is available as x86 64-bit (x86-64)"
             " and ARM 64-bit (aarch64) executables.\n"
             "By default, only the x86-64 version will be included in Linux agent packages.\n"
             "Here you can choose to alternatively or additionally include the ARM executable.\n"

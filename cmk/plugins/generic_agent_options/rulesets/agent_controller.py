@@ -59,9 +59,9 @@ def _agent_ctl_enabled_form() -> CascadingSingleChoice:
                                     "Agent Receiver port from the Checkmk REST API"
                                 ),
                                 help_text=Help(
-                                    "By default, certificate validation is disabled because it is not "
+                                    "By default, certificate validation is disabled, because it is not "
                                     "security-relevant at this stage, see "
-                                    '<a href="https://checkmk.com/werk/14715" target="_blank">werk #14715</a>.'
+                                    '<a href="https://checkmk.com/werk/14715" target="_blank">Werk #14715</a>.'
                                 ),
                                 label=Label("Validate server certificate during port query"),
                                 prefill=DefaultValue(False),
