@@ -17,8 +17,11 @@ from cmk.checkengine.plugins import (
     CheckPluginName,
     ServiceID,
 )
-from cmk.checkengine.specs.parameters import TimespecificParameters, TimespecificParameterSet
-from cmk.utils.parameters import merge_parameters
+from cmk.checkengine.specs.parameters import (
+    merge_parameters,
+    TimespecificParameters,
+    TimespecificParameterSet,
+)
 from cmk.utils.rulesets import RuleSetName
 from cmk.utils.servicename import Item, ServiceName
 

@@ -7,11 +7,10 @@ from __future__ import annotations
 
 import pprint
 import time
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Reversible, Sequence
 from typing import Any, Final, TypedDict
 
 import cmk.ccc.debug
-from cmk.utils.parameters import merge_parameters
 from cmk.utils.timeperiod import TimeperiodName, TIMESPECIFIC_DEFAULT_KEY, TIMESPECIFIC_VALUES_KEY
 
 __all__ = [
@@ -141,3 +140,26 @@ class TimespecificParameterSet:
 
     def evaluate(self, is_active: IsTimeperiodActiveCallback) -> Mapping[str, object]:
         return merge_parameters(list(self._active_subsets(is_active)), self.default)
+
+
+def merge_parameters[T](
+    parameters: Reversible[Mapping[str, T]], default: Mapping[str, T]
+) -> Mapping[str, T]:
+    """
+    Merge dictionary based parameters.
+
+    The keys in the result are the union of the keys of the elements of `parameters`.
+    First occurrance wins:
+
+        >>> merge_parameters([{'a': 1},{'a': 2, 'b': 3}], {})
+        {'a': 1, 'b': 3}
+
+    The check engine uses this logic to merge discovered parameters and
+    (sets of) time specific parameters.
+    It is consistent with the merge behavior of the ruleset matcher
+    and other places in Checkmk.
+    """
+    merged = {**default}
+    for par in reversed(parameters):
+        merged.update(par)
+    return merged

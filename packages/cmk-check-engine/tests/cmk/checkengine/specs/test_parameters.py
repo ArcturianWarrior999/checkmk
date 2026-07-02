@@ -8,6 +8,7 @@ from collections.abc import Mapping
 import pytest
 
 from cmk.checkengine.specs.parameters import (
+    merge_parameters,
     Parameters,
     TimespecificParameters,
     TimespecificParameterSet,
@@ -130,3 +131,21 @@ def test_parameters_features() -> None:
     assert list(par1) == list(par1.keys()) == ["olaf"]
     assert list(par1.values()) == ["schneemann"]
     assert list(par1.items()) == [("olaf", "schneemann")]
+
+
+def test_merge_parameters_merges() -> None:
+    assert merge_parameters(
+        (
+            {"first": "first_value"},
+            {"second": "second_value"},
+        ),
+        {"default": "default_value"},
+    ) == {
+        "first": "first_value",
+        "second": "second_value",
+        "default": "default_value",
+    }
+
+
+def test_merge_parameters_first_wins() -> None:
+    assert merge_parameters(({"a": "first"}, {"a": "second"}), {"a": "default"}) == {"a": "first"}

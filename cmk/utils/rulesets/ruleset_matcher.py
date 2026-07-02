@@ -8,7 +8,7 @@
 # mypy: disable-error-code="redundant-expr"
 
 import contextlib
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Reversible, Sequence
 from dataclasses import dataclass
 from re import Pattern
 from typing import Any, cast, NotRequired, TypedDict, TypeGuard
@@ -23,7 +23,6 @@ from cmk.utils.labels import (
     LabelGroups,
     Labels,
 )
-from cmk.utils.parameters import merge_parameters
 from cmk.utils.servicename import Item, ServiceName
 from cmk.utils.tags import HostTagsMap, TagGroupID, TagID
 
@@ -789,6 +788,25 @@ class RulesetOptimizer:
             group_ref = tuple(sorted(self._host_tags[hostname]))
             self._hosts_grouped_by_tags.setdefault(group_ref, set()).add(hostname)
             self._host_grouped_ref[hostname] = group_ref
+
+
+def merge_parameters[T](
+    parameters: Reversible[Mapping[str, T]], default: Mapping[str, T]
+) -> Mapping[str, T]:
+    """
+    Merge dictionary based parameters.
+
+    The keys in the result are the union of the keys of the elements of `parameters`.
+    First occurrance wins:
+
+        >>> merge_parameters([{'a': 1},{'a': 2, 'b': 3}], {})
+        {'a': 1, 'b': 3}
+
+    """
+    merged = {**default}
+    for par in reversed(parameters):
+        merged.update(par)
+    return merged
 
 
 def _tags_cache_id(tag_or_label_spec: object) -> object:

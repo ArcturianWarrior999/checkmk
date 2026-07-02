@@ -16,6 +16,7 @@ from pytest import MonkeyPatch
 from cmk.ccc.hostaddress import HostName
 from cmk.utils.rulesets.ruleset_matcher import (
     matches_tag_condition,
+    merge_parameters,
     RuleConditionsSpec,
     RulesetMatcher,
     RuleSpec,
@@ -925,3 +926,21 @@ class TestSingleRulesetMatcher:
             host_ruleset=self._ruleset(),
             labels_of_host=lambda x: {},
         )(HostName("testhost2")) == ["lala", "lulu"]
+
+
+def test_merge_parameters_merges() -> None:
+    assert merge_parameters(
+        (
+            {"first": "first_value"},
+            {"second": "second_value"},
+        ),
+        {"default": "default_value"},
+    ) == {
+        "first": "first_value",
+        "second": "second_value",
+        "default": "default_value",
+    }
+
+
+def test_merge_parameters_first_wins() -> None:
+    assert merge_parameters(({"a": "first"}, {"a": "second"}), {"a": "default"}) == {"a": "first"}
