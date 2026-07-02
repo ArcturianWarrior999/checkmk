@@ -19,10 +19,10 @@ _VALID_VALUES = frozenset(("auto", "xinetd", "systemd", "no_service"))
 
 
 def migrate(value: object) -> Mapping[str, object]:
-    if isinstance(value, dict) and "type" in value:
+    if isinstance(value, dict):
         return value
     if isinstance(value, str) and value in _VALID_VALUES:
-        return {"type": value}
+        return {"deployment_mode": value}
     raise ValueError(f"Unexpected value: {value!r}")
 
 
@@ -42,7 +42,7 @@ def _parameter_form_super_server() -> Dictionary:
             ' rule set. See rule set "Allowed agent access via IP address".'
         ),
         elements={
-            "type": DictElement(
+            "deployment": DictElement(
                 required=True,
                 parameter_form=SingleChoice(
                     elements=[

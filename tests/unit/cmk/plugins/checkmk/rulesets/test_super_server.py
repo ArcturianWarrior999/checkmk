@@ -10,12 +10,12 @@ from cmk.plugins.checkmk.rulesets.super_server import migrate
 
 @pytest.mark.parametrize("value", ["auto", "xinetd", "systemd", "no_service"])
 def test_migrate_old_string_to_dict(value: str) -> None:
-    assert migrate(value) == {"type": value}
+    assert migrate(value) == {"deployment_mode": value}
 
 
 @pytest.mark.parametrize("value", ["auto", "xinetd", "systemd", "no_service"])
 def test_migrate_new_dict_passes_through(value: str) -> None:
-    assert migrate({"type": value}) == {"type": value}
+    assert migrate({"deployment_mode": value}) == {"deployment_mode": value}
 
 
 def test_migrate_unexpected_raises() -> None:
