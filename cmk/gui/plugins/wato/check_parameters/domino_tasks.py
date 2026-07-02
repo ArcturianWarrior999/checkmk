@@ -25,7 +25,7 @@ from cmk.gui.valuespec import (
     Transform,
     Tuple,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _vs_levels(help_txt: str) -> Tuple:

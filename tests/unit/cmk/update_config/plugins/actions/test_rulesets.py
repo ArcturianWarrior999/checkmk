@@ -14,9 +14,9 @@ from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import Rule, Ruleset, RulesetCollection
 from cmk.gui.watolib.rulespec_groups import RulespecGroupMonitoringConfigurationVarious
 from cmk.gui.watolib.rulespecs import HostRulespec, Rulespec
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RulesetName
 from cmk.update_config.plugins.actions import rulesets as rulesets_updater
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RulesetName
 
 _ARTIFICIAL_RULESPECS: Mapping[RulesetName, Rulespec] = {
     RuleGroup.CheckgroupParameters("ntp_time"): HostRulespec(

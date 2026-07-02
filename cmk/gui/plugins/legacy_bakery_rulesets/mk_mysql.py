@@ -18,7 +18,7 @@ from cmk.gui.valuespec import (
     Tuple,
 )
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_agent_config_mk_mysql() -> Alternative:

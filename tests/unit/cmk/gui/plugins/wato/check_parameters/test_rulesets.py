@@ -44,9 +44,9 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.rulesets import Rule, RuleOptions, Ruleset
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RuleOptionsSpec, RulesetName, RuleSpec
 from cmk.utils.global_ident_type import PROGRAM_ID_QUICK_SETUP
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RuleOptionsSpec, RulesetName, RuleSpec
 
 
 def _noop_pending_changes() -> PendingChanges:

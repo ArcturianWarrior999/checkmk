@@ -43,7 +43,7 @@ from cmk.gui.valuespec import (
     Tuple,
     ValueSpec,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 # This object indicates that the setting 'CPU rescale maximum load' has not been set, which can only
 # be the case for legacy rules from before version 1.6.0, see werk #6646. Note that we cannot use

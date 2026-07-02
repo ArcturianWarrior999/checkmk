@@ -6,9 +6,9 @@ import dataclasses
 from collections.abc import Mapping
 from typing import Any, Literal, NotRequired, TypedDict
 
-from cmk.utils.labels import LabelGroups
-from cmk.utils.rulesets.ruleset_matcher import TagCondition
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.labels import LabelGroups
+from cmk.ruleset_matcher.matcher import TagCondition
+from cmk.ruleset_matcher.tags import TagGroupID
 
 # action
 ActionArgument = tuple[str, ...]

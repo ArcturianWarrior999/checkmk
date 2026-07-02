@@ -110,6 +110,8 @@ from cmk.checkengine.specs.checkresults import (
 from cmk.checkengine.specs.parameters import Parameters
 from cmk.checkengine.summarize import summarize, SummaryConfig
 from cmk.checkengine.value_store import ValueStoreManager
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
+from cmk.ruleset_matcher.tags import HostTags
 from cmk.server_side_calls_backend import ExecutableFinder, SpecialAgentCommandLine
 from cmk.utils.ip_lookup import (
     IPLookup,
@@ -118,9 +120,7 @@ from cmk.utils.ip_lookup import (
 )
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.prediction import make_updated_predictions, MetricRecord, PredictionStore
-from cmk.utils.rulesets import RuleSetName
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import HostTags
 
 __all__ = [
     "CheckerPluginMapper",

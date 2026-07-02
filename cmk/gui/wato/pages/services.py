@@ -121,6 +121,8 @@ from cmk.gui.watolib.services import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import mk_repr
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.labels import HostLabelValueDict, Labels
 from cmk.shared_typing.setup import (
     AgentDownload,
     AgentDownloadServerPerSite,
@@ -134,9 +136,7 @@ from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationC
 from cmk.utils.check_utils import worst_service_state
 from cmk.utils.everythingtype import EVERYTHING
 from cmk.utils.html import get_html_state_marker
-from cmk.utils.labels import HostLabelValueDict, Labels
 from cmk.utils.paths import omd_root
-from cmk.utils.rulesets.definition import RuleGroup
 from cmk.utils.servicename import Item
 from cmk.utils.statename import short_service_state_name
 

@@ -28,8 +28,8 @@ import time_machine
 from pytest import MonkeyPatch
 from redis import Redis
 
+import cmk.ruleset_matcher.tags
 import cmk.utils.paths
-import cmk.utils.tags
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
@@ -94,7 +94,7 @@ def tree() -> Iterator[FolderTree]:
     # the load_config fixture).
     cmk.utils.paths.profile_dir.mkdir(parents=True, exist_ok=True)
     raw_config = get_default_config()
-    raw_config["tags"] = cmk.utils.tags.get_effective_tag_config(raw_config["wato_tags"])
+    raw_config["tags"] = cmk.ruleset_matcher.tags.get_effective_tag_config(raw_config["wato_tags"])
     # Tests may allow_redis, but our bookkeeping shall not use it: building
     # the tree with redis disabled makes it pick the null folder cache. Tests
     # exercising the redis cache inject their own (see

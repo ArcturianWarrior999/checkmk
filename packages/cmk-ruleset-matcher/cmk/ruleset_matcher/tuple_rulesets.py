@@ -11,7 +11,7 @@ from typing import Any
 import cmk.ccc.debug
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.regex import combine_patterns, regex
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 # Conveniance macros for legacy tuple based host and service rules
 PHYSICAL_HOSTS = ["@physical"]  # all hosts but not clusters

@@ -20,7 +20,7 @@ from cmk.gui.valuespec import (
     ValueSpec,
 )
 from cmk.gui.wato import RulespecGroupActiveChecks
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _validate_ip_index(value: int, varprefix: str) -> None:

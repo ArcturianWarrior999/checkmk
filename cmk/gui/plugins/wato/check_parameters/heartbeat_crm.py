@@ -12,7 +12,7 @@ from cmk.gui.plugins.wato.utils import (
     RulespecGroupCheckParametersStorage,
 )
 from cmk.gui.valuespec import Checkbox, Dictionary, DropdownChoice, Integer, TextInput
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_inventory_heartbeat_crm_rules() -> Dictionary:

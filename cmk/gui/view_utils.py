@@ -27,9 +27,9 @@ from cmk.gui.utils.html import HTML
 from cmk.gui.utils.labels import filter_http_vars_for_simple_label_group, Label
 from cmk.gui.utils.loading_transition import with_loading_transition
 from cmk.gui.utils.urls import makeuri, makeuri_contextless
+from cmk.ruleset_matcher.labels import LabelGroups, Labels, LabelSource, LabelSources
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.html import replace_state_markers
-from cmk.utils.labels import LabelGroups, Labels, LabelSource, LabelSources
-from cmk.utils.tags import TagGroupID, TagID
 
 
 def cmp_service_name_equiv(r: str) -> int:

@@ -12,9 +12,9 @@ from typing import Any, Literal, Self
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.crypto.password_hashing import PasswordHash
+from cmk.events.notify_types import DisabledNotificationsOptions, EventRule
 from cmk.gui.type_defs import LastLoginInfo, SessionId, SessionInfo, TwoFactorCredentials, UserSpec
 from cmk.gui.user_connection_config_types import UserConnectionConfig
-from cmk.utils.notify_types import DisabledNotificationsOptions, EventRule
 from cmk.utils.object_diff import make_diff_text
 
 from ._user_attribute import UserAttribute

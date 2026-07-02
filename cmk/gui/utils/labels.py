@@ -19,7 +19,12 @@ from cmk.ccc.site import SiteId
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.i18n import _
 from cmk.gui.type_defs import FilterHTTPVariables
-from cmk.utils.labels import AndOrNotLiteral, BaseLabel, LabelGroups, single_label_group_from_labels
+from cmk.ruleset_matcher.labels import (
+    AndOrNotLiteral,
+    BaseLabel,
+    LabelGroups,
+    single_label_group_from_labels,
+)
 
 # Callback that executes a livestatus query with proper site filtering and auth domain
 _QueryLivestatus = Callable[[str], LivestatusResponse]

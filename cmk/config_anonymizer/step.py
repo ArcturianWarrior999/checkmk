@@ -9,7 +9,7 @@ from cmk.base.config import LoadingResult
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.config_anonymizer.interface import AnonInterface
 from cmk.gui.config import Config
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 
 
 class AnonymizeStep(abc.ABC):

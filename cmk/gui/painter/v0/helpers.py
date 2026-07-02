@@ -23,9 +23,9 @@ from cmk.gui.utils.html import HTML
 from cmk.gui.utils.mobile import is_mobile
 from cmk.gui.utils.urls import makeuri_contextless, urlencode
 from cmk.gui.view_utils import CellSpec, get_host_list_links
-from cmk.utils.labels import Labels, LabelSources
+from cmk.ruleset_matcher.labels import Labels, LabelSources
+from cmk.ruleset_matcher.tags import TagGroup, TagGroupID, TagID
 from cmk.utils.macros import replace_macros_in_str
-from cmk.utils.tags import TagGroup, TagGroupID, TagID
 
 
 def transform_action_url(url_spec: tuple[str, str] | str) -> tuple[str, str | None]:

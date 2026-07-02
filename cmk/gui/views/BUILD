@@ -155,7 +155,6 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/utils:speaklater",
         "//cmk/gui/valuespec",
-        "//cmk/utils",
         "//packages/cmk-ccc:plugin-registry",
     ],
 )

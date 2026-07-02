@@ -27,7 +27,7 @@ from cmk.ccc import version as cmk_version
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.discovery import CheckPreviewEntry, DiscoveryReport, TransitionCounter
 from cmk.checkengine.plugins import AutocheckEntry
-from cmk.utils.labels import HostLabel
+from cmk.ruleset_matcher.labels import HostLabel
 from cmk.utils.servicename import ServiceName
 
 from ..types import AutomationID

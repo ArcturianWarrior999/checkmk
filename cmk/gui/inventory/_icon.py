@@ -16,7 +16,7 @@ from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.views.icon import Icon, IconConfig
 from cmk.gui.visual_link import url_to_visual
 from cmk.inventory.paths import Paths as InventoryPaths
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 
 def _has_inventory(host_name: HostName) -> bool:

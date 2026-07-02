@@ -20,7 +20,7 @@ from cmk.gui.watolib.tags import (
     tag_group_exists,
 )
 from cmk.gui.watolib.timeperiods import verify_timeperiod_name_exists
-from cmk.utils.tags import BuiltinTagConfig, TagGroupID, TagID
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroupID, TagID
 
 
 class RelativeUrl(fields.String):

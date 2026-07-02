@@ -78,6 +78,25 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
 )
 from cmk.gui.watolib.predefined_conditions import PredefinedConditionStore
+from cmk.ruleset_matcher import matcher as ruleset_matcher
+from cmk.ruleset_matcher.conditions import (
+    allow_host_label_conditions,
+    allow_service_label_conditions,
+    HostOrServiceConditionRegex,
+    HostOrServiceConditions,
+    HostOrServiceConditionsSimple,
+)
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.labels import LabelGroups, Labels
+from cmk.ruleset_matcher.matcher import (
+    RuleConditionsSpec,
+    RuleOptionsSpec,
+    RulesetName,
+    RuleSpec,
+    TagCondition,
+    TagConditionNE,
+)
+from cmk.ruleset_matcher.tags import AuxTag, TagGroup, TagGroupID, TagID
 from cmk.rulesets.internal.form_specs import (
     ListOfStrings as ListOfStringsAPI,
 )
@@ -113,26 +132,7 @@ from cmk.server_side_calls_backend.config_processing import (
 from cmk.utils import paths
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.global_ident_type import GlobalIdent
-from cmk.utils.labels import LabelGroups, Labels
 from cmk.utils.object_diff import make_diff, make_diff_text
-from cmk.utils.rulesets import ruleset_matcher
-from cmk.utils.rulesets.conditions import (
-    allow_host_label_conditions,
-    allow_service_label_conditions,
-    HostOrServiceConditionRegex,
-    HostOrServiceConditions,
-    HostOrServiceConditionsSimple,
-)
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import (
-    RuleConditionsSpec,
-    RuleOptionsSpec,
-    RulesetName,
-    RuleSpec,
-    TagCondition,
-    TagConditionNE,
-)
-from cmk.utils.tags import AuxTag, TagGroup, TagGroupID, TagID
 from cmk.utils.timeperiod import TIMESPECIFIC_DEFAULT_KEY, TIMESPECIFIC_VALUES_KEY
 
 from .check_mk_automations import get_services_labels, update_merged_password_file
@@ -1656,7 +1656,7 @@ class Rule:
         return self.ruleset.get_folder_rules(self.folder).index(self)
 
     def is_disabled(self) -> bool:
-        # TODO consolidate with cmk.utils.rulesets.ruleset_matcher.py::_is_disabled
+        # TODO consolidate with cmk.ruleset_matcher.matcher.py::_is_disabled
         return bool(self.rule_options.disabled)
 
     def description(self) -> str:

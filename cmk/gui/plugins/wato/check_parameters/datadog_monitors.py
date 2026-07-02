@@ -19,7 +19,7 @@ from cmk.gui.valuespec import (
     RegExp,
     TextInput,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 _DEFAULT_DATADOG_AND_CHECKMK_STATES = (
     ("Alert", 2),

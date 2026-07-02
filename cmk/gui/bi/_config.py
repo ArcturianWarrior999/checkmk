@@ -119,8 +119,8 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.utils import paths
-from cmk.utils.rulesets.definition import RuleGroup
 
 from ._packs import get_cached_bi_packs
 from ._valuespecs import (

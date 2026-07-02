@@ -7,6 +7,11 @@ from collections.abc import Generator
 import pytest
 
 from cmk.ccc.user import UserId
+from cmk.events.notify_types import (
+    NotificationParameterGeneralInfos,
+    NotificationParameterID,
+    NotificationParameterItem,
+)
 from cmk.gui.form_specs import FormSpecValidationError, RawFrontendData
 from cmk.gui.form_specs.unstable import not_empty
 from cmk.gui.form_specs.visitors.single_choice import SingleChoiceVisitor
@@ -30,11 +35,6 @@ from cmk.rulesets.v1.form_specs import (
     SingleChoice,
     SingleChoiceElement,
     String,
-)
-from cmk.utils.notify_types import (
-    NotificationParameterGeneralInfos,
-    NotificationParameterID,
-    NotificationParameterItem,
 )
 from tests.testlib.common.utils import reset_registries
 

@@ -29,8 +29,8 @@ from cmk.gui.utils.labels import (
     parse_labels_value,
 )
 from cmk.gui.utils.user_errors import user_errors
-from cmk.utils.labels import LabelGroups
-from cmk.utils.tags import TagConfig, TagGroupID
+from cmk.ruleset_matcher.labels import LabelGroups
+from cmk.ruleset_matcher.tags import TagConfig, TagGroupID
 
 SitesOptions = list[tuple[str, str]]
 

@@ -47,13 +47,13 @@ from cmk.ccc.hostaddress import HostName, Hosts
 from cmk.checkengine.checking import ServiceConfigurer
 from cmk.checkengine.fetcher_utils.trigger import FetcherTrigger
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.utils import ip_lookup
-from cmk.utils.labels import LabelManager
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.labels import LabelManager
+from cmk.ruleset_matcher.matcher import (
     BundledHostRulesetMatcher,
     RulesetMatcher,
 )
-from cmk.utils.tags import HostTags
+from cmk.ruleset_matcher.tags import HostTags
+from cmk.utils import ip_lookup
 
 
 class ConfigSource(enum.Enum):

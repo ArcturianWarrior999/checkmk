@@ -43,21 +43,21 @@ from cmk.base.events import (
 )
 from cmk.ccc.hostaddress import HostAddress
 from cmk.events.event_context import EnrichedEventContext, EventContext, HostName
+from cmk.events.notify import NotificationHostConfig
+from cmk.events.notify_types import (
+    EventRule,
+    NotificationParameterID,
+    NotificationRuleID,
+    NotifyPluginParamsDict,
+)
+from cmk.ruleset_matcher.matcher import TagConditionNE
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.http_proxy_config import (
     EnvironmentProxyConfig,
     HTTPProxySpec,
     make_http_proxy_getter,
     ProxyConfigSpec,
 )
-from cmk.utils.notify import NotificationHostConfig
-from cmk.utils.notify_types import (
-    EventRule,
-    NotificationParameterID,
-    NotificationRuleID,
-    NotifyPluginParamsDict,
-)
-from cmk.utils.rulesets.ruleset_matcher import TagConditionNE
-from cmk.utils.tags import TagGroupID, TagID
 from cmk.utils.timeperiod import builtin_timeperiods
 
 HTTP_PROXY: Final = EnvironmentProxyConfig()

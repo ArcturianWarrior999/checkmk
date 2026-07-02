@@ -15,7 +15,7 @@ from cmk.gui.plugins.wato.utils import (
     RulespecGroupCheckParametersOperatingSystem,
 )
 from cmk.gui.valuespec import Age, Dictionary, DropdownChoice, Float, Integer, TextInput, Tuple
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_ntp_rules() -> Dictionary:

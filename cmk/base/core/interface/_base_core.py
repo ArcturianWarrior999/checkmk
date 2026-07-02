@@ -20,10 +20,10 @@ from cmk.core_client import CoreClient
 from cmk.licensing.basics.paths import get_licensed_state_file_path
 from cmk.licensing.handler import LicensingHandler
 from cmk.password_store.v1_unstable import Secret
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import HostTags
 from cmk.utils import ip_lookup, paths
-from cmk.utils.labels import Labels
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import HostTags
 
 tracer = trace.get_tracer()
 

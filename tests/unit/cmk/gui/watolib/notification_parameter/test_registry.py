@@ -13,7 +13,7 @@ from cmk.gui.watolib.notification_parameter import (
     NotificationParameter,
     register_notification_parameters,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def test_registered_notification_parameters() -> None:

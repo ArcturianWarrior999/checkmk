@@ -13,6 +13,7 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition, edition
 from cmk.crypto.password import Password, PasswordPolicy
+from cmk.events.notify_types import EventRule
 from cmk.gui import site_config, userdb
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.hooks import request_memoize
@@ -39,7 +40,6 @@ from cmk.gui.watolib.user_scripts import (
 from cmk.gui.watolib.utils import multisite_dir, wato_root_dir
 from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import paths
-from cmk.utils.notify_types import EventRule
 from cmk.utils.object_diff import make_diff_text
 from cmk.utils.security_event import log_security_event
 

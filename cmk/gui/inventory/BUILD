@@ -31,10 +31,11 @@ py_library(
         "//cmk/gui/watolib:config_infra",
         "//cmk/gui/watolib:groups_io",
         "//cmk/inventory",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:site",
         "//packages/cmk-plugin-apis:inventory_ui",
+        "//packages/cmk-ruleset-matcher",
     ],
 )

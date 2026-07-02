@@ -53,9 +53,9 @@ from cmk.gui.watolib.main_menu import MenuItem
 from cmk.gui.watolib.mode import ModeRegistry, WatoMode
 from cmk.gui.watolib.rulespecs import rulespec_registry
 from cmk.licensing.basics.finder import blocked_feature_files
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1.form_specs import FormSpec
 from cmk.utils import man_pages, paths
-from cmk.utils.rulesets.definition import RuleGroup
 
 from ._tile_menu import TileMenuRenderer
 

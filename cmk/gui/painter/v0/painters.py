@@ -83,11 +83,11 @@ from cmk.gui.view_utils import (
     render_tag_groups,
 )
 from cmk.gui.visual_link import render_link_to_view
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagConfig
 from cmk.utils import man_pages
-from cmk.utils.labels import Labels
 from cmk.utils.render import approx_age
 from cmk.utils.statename import short_host_state_name, short_service_state_name
-from cmk.utils.tags import TagConfig
 
 from ..v1.helpers import get_perfdata_nth_value, is_stale, paint_stalified
 from .base import Cell, Painter

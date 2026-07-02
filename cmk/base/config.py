@@ -110,6 +110,19 @@ from cmk.checkengine.summarize import SummaryConfig
 from cmk.inventory.structured_data import RawIntervalFromConfig
 from cmk.password_store.v1_unstable import Secret
 from cmk.piggyback import backend as piggyback_backend
+from cmk.ruleset_matcher import matcher as ruleset_matcher
+from cmk.ruleset_matcher import tuple_rulesets
+from cmk.ruleset_matcher.labels import LabelManager, Labels, LabelSources
+from cmk.ruleset_matcher.matcher import (
+    RulesetMatcher,
+    RulesetName,
+    RuleSpec,
+    SingleHostRulesetMatcher,
+    SingleHostRulesetMatcherMerge,
+    SingleServiceRulesetMatcher,
+    SingleServiceRulesetMatcherFirstParsed,
+)
+from cmk.ruleset_matcher.tags import ComputedDataSources, HostTags, TagGroupID, TagID
 from cmk.server_side_calls import v1 as server_side_calls_api
 from cmk.server_side_calls_backend import (
     ActiveCheck,
@@ -137,23 +150,11 @@ from cmk.utils.host_storage import (
     StorageFormat,
 )
 from cmk.utils.ip_lookup import IPLookup, IPLookupOptional, IPStackConfig
-from cmk.utils.labels import LabelManager, Labels, LabelSources
 from cmk.utils.log import console
 from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.misc import key_config_paths
 from cmk.utils.password_store import make_configured_passwords_lookup
-from cmk.utils.rulesets import ruleset_matcher, tuple_rulesets
-from cmk.utils.rulesets.ruleset_matcher import (
-    RulesetMatcher,
-    RulesetName,
-    RuleSpec,
-    SingleHostRulesetMatcher,
-    SingleHostRulesetMatcherMerge,
-    SingleServiceRulesetMatcher,
-    SingleServiceRulesetMatcherFirstParsed,
-)
 from cmk.utils.servicename import Item, ServiceName
-from cmk.utils.tags import ComputedDataSources, HostTags, TagGroupID, TagID
 
 tracer = trace.get_tracer()
 
@@ -2096,7 +2097,7 @@ class ConfigCache:
             return self.__computed_datasources[host_name]
 
         return self.__computed_datasources.setdefault(
-            host_name, cmk.utils.tags.compute_datasources(self._host_tags.tags(host_name))
+            host_name, cmk.ruleset_matcher.tags.compute_datasources(self._host_tags.tags(host_name))
         )
 
     def is_piggyback_host(self, host_name: HostName) -> bool:

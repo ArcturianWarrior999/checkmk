@@ -60,6 +60,7 @@ from cmk.gui.watolib.config_domains import ConfigDomainOMD
 from cmk.gui.watolib.hosts_and_folders import Folder
 from cmk.gui.watolib.rulesets import AllRulesets, Rule, SingleRulesetRecursively
 from cmk.gui.watolib.sites import site_management_registry
+from cmk.ruleset_matcher.definition import RuleGroup, RuleGroupType
 from cmk.utils.paths import (
     local_agent_based_plugins_dir,
     local_checks_dir,
@@ -69,7 +70,6 @@ from cmk.utils.paths import (
     local_pnp_templates_dir,
     local_web_dir,
 )
-from cmk.utils.rulesets.definition import RuleGroup, RuleGroupType
 
 # Disable python warnings in background job output or logs like "Unverified
 # HTTPS request is being made". We warn the user using analyze configuration.

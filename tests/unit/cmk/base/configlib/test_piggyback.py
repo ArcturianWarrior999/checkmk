@@ -12,8 +12,8 @@ from cmk.base.configlib.loaded_config import BaseConfig
 from cmk.base.configlib.piggyback import guess_piggybacked_hosts_time_settings
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.piggyback import backend as piggyback_backend
+from cmk.ruleset_matcher.matcher import RulesetMatcher, RuleSpec
 from cmk.utils.paths import omd_root
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher, RuleSpec
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 
 _SOURCE_MAX_CACHE_AGE = 300

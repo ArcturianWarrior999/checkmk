@@ -27,9 +27,9 @@ from cmk.gui.watolib.automations import (
     MKAutomationException,
 )
 from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
+from cmk.ruleset_matcher.labels import HostLabel, Labels
+from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
-from cmk.utils.labels import HostLabel, Labels
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from cmk.utils.servicename import Item, ServiceName
 
 

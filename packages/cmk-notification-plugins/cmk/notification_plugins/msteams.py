@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from collections.abc import Iterable
 
+from cmk.events.notify_types import PluginNotificationContext
 from cmk.notification_plugins.utils import (
     host_url_from_context,
     post_request,
@@ -19,7 +20,6 @@ from cmk.utils.ms_teams_constants import (
     ms_teams_tmpl_svc_summary,
     ms_teams_tmpl_svc_title,
 )
-from cmk.utils.notify_types import PluginNotificationContext
 
 MAP_TYPES: dict[str, str] = {
     "PROBLEM": "Problem notification",

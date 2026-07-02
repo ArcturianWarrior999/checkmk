@@ -18,7 +18,7 @@ from typing import TypeVar
 
 from cmk.ccc import version as cmk_version
 from cmk.ccc.plugin_registry import Registry
-from cmk.utils.labels import HostLabelValueDict
+from cmk.ruleset_matcher.labels import HostLabelValueDict
 
 from ..types import AutomationID
 

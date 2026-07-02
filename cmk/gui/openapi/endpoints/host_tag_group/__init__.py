@@ -59,7 +59,7 @@ from cmk.gui.watolib.tags import (
     TagCleanupMode,
     update_tag_config,
 )
-from cmk.utils.tags import BuiltinTagConfig, TagGroup, TagGroupID, TagGroupSpec
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroup, TagGroupID, TagGroupSpec
 
 PERMISSIONS = permissions.AllPerm(
     [

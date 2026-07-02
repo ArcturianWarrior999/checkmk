@@ -25,7 +25,7 @@ from cmk.gui.fields.base import BaseSchema
 from cmk.gui.fields.definitions import GroupField, Timestamp
 from cmk.gui.fields.mixins import CheckmkTuple, Converter
 from cmk.gui.watolib.tags import load_tag_group
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.tags import TagGroupID
 
 from .definitions import CmkOneOfSchema
 

@@ -11,7 +11,7 @@ from cmk.gui.hooks import request_memoize
 from cmk.gui.i18n import _
 from cmk.gui.type_defs import Row
 from cmk.gui.view_utils import CellSpec
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 from .base import Painter
 from .helpers import get_tag_groups, tag_choices_for_group

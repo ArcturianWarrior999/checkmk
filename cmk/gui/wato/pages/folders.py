@@ -125,8 +125,8 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables.hosts import Hosts
-from cmk.utils.labels import Labels
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 from ._bulk_actions import get_hostnames_from_checkboxes
 from ._host_attributes import configure_attributes

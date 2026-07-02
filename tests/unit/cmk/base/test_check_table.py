@@ -25,9 +25,9 @@ from cmk.checkengine.plugins import (
     ServiceID,
 )
 from cmk.checkengine.specs.parameters import TimespecificParameters, TimespecificParameterSet
-from cmk.utils.rulesets.ruleset_matcher import BundledHostRulesetMatcher
+from cmk.ruleset_matcher.matcher import BundledHostRulesetMatcher
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import TagGroupID, TagID
 
 # No stub file
 from tests.testlib.unit.base_configuration_scenario import Scenario

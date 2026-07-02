@@ -25,9 +25,9 @@ from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.sources.api import Source, SourceBuilder
+from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
-from cmk.utils.tags import TagGroupID, TagID
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 

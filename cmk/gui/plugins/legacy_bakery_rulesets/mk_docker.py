@@ -17,7 +17,7 @@ from cmk.gui.valuespec import (
     TextInput,
     Transform,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _agent_config_mk_docker_invert_choices_node(selected: list[str]) -> list[str]:

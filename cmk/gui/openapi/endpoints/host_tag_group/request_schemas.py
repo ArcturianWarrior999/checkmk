@@ -14,7 +14,7 @@ from cmk.ccc.regex import REGEX_ID
 from cmk.gui.fields import AuxTagIDField
 from cmk.gui.fields.utils import BaseSchema
 from cmk.gui.watolib.tags import load_all_tag_config_read_only, tag_group_exists
-from cmk.utils.tags import TAG_GROUP_NAME_PATTERN, TagID
+from cmk.ruleset_matcher.tags import TAG_GROUP_NAME_PATTERN, TagID
 
 
 class Tags(fields.List):

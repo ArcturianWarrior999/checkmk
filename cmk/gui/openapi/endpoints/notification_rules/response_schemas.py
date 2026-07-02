@@ -17,6 +17,21 @@ from marshmallow import post_dump
 from marshmallow_oneofschema.one_of_schema import OneOfSchema
 
 from cmk import fields
+from cmk.events.notify_types import (
+    BuiltInPluginNames,
+    EmailBodyElementsType,
+    get_builtin_plugin_names,
+    GroupbyType,
+    IlertPriorityType,
+    OpsgenieElement,
+    OpsGeniePriorityStrType,
+    PluginOptions,
+    PushOverPriorityStringType,
+    RegexModes,
+    SoundType,
+    SysLogFacilityStrType,
+    SysLogPriorityStrType,
+)
 from cmk.gui.fields import (
     AuxTagIDField,
     FolderIDField,
@@ -32,21 +47,6 @@ from cmk.gui.openapi.endpoints.notification_rules.request_example import (
 )
 from cmk.gui.openapi.restful_objects.response_schemas import DomainObject, DomainObjectCollection
 from cmk.gui.rest_api_types.notifications_rule_types import PluginType
-from cmk.utils.notify_types import (
-    BuiltInPluginNames,
-    EmailBodyElementsType,
-    get_builtin_plugin_names,
-    GroupbyType,
-    IlertPriorityType,
-    OpsgenieElement,
-    OpsGeniePriorityStrType,
-    PluginOptions,
-    PushOverPriorityStringType,
-    RegexModes,
-    SoundType,
-    SysLogFacilityStrType,
-    SysLogPriorityStrType,
-)
 
 
 class CheckboxOutput(BaseSchema):

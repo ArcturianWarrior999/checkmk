@@ -11,8 +11,8 @@ from cmk.base.community_app import make_app
 from cmk.base.config import LoadingResult
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.utils.labels import LabelSource
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
+from cmk.ruleset_matcher.labels import LabelSource
+from cmk.ruleset_matcher.matcher import RuleSpec
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.unit.base_configuration_scenario import Scenario
 

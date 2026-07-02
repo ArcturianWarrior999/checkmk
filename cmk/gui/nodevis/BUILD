@@ -49,13 +49,14 @@ py_library(
         "//cmk/gui/views:page_ajax_filters",
         "//cmk/gui/views:store",
         "//cmk/gui/visuals",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:site",
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:user",
+        "//packages/cmk-ruleset-matcher",
     ],
 )
 

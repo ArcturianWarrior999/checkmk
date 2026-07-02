@@ -12,9 +12,9 @@ from typing import Final
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.translations import parse_translation_options, translate, TranslationOptions
 from cmk.checkengine.plugins import CheckPluginName, ServiceID
+from cmk.ruleset_matcher.labels import LabelManager, Labels
+from cmk.ruleset_matcher.matcher import RulesetMatcher, RuleSpec
 from cmk.utils.caching import cache_manager
-from cmk.utils.labels import LabelManager, Labels
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher, RuleSpec
 from cmk.utils.servicename import Item, ServiceName
 
 from .loaded_config import BaseConfig

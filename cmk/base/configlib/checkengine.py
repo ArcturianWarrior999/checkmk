@@ -21,13 +21,13 @@ from cmk.checkengine.discovery import (
 from cmk.checkengine.plugins import (
     RuleSetTypeName,
 )
-from cmk.utils.labels import Labels
-from cmk.utils.rulesets import RuleSetName
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import (
     RulesetMatcher,
     RulesetName,
     RuleSpec,
 )
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.servicename import Item
 
 

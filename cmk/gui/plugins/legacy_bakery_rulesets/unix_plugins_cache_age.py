@@ -11,7 +11,7 @@ from cmk.gui.plugins.wato.utils import (
     rulespec_registry,
 )
 from cmk.gui.valuespec import Dictionary, DropdownChoice, Integer, TextInput
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_agent_config_unix_plugins_cache_age() -> Dictionary:

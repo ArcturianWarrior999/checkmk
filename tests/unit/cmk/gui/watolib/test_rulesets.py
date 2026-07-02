@@ -26,9 +26,9 @@ from cmk.gui.watolib.hosts_and_folders import Folder, FolderTree, HostsAndFolder
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import FolderRulesets, Rule, RuleConditions, RuleOptions, Ruleset
 from cmk.livestatus_client import SiteConfigurations
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.utils.paths import default_config_dir
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 

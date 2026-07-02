@@ -58,23 +58,23 @@ from cmk.checkengine.plugins import (
     ServiceID,
 )
 from cmk.core_client import NagiosClient
-from cmk.licensing.handler import LicensingHandler
-from cmk.password_store.v1_unstable import Secret
-from cmk.server_side_calls_backend import ActiveServiceData
-from cmk.utils import config_warnings, ip_lookup, password_store
-from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.labels import LabelManager, Labels
-from cmk.utils.macros import replace_macros_in_str
-from cmk.utils.notify import (
+from cmk.events.notify import (
     build_descendants_map,
     create_notify_host_files,
     make_notify_host_file_path,
     NotificationHostConfig,
     NotifyHostFiles,
 )
-from cmk.utils.notify_types import Contact
+from cmk.events.notify_types import Contact
+from cmk.licensing.handler import LicensingHandler
+from cmk.password_store.v1_unstable import Secret
+from cmk.ruleset_matcher.labels import LabelManager, Labels
+from cmk.ruleset_matcher.tags import HostTags
+from cmk.server_side_calls_backend import ActiveServiceData
+from cmk.utils import config_warnings, ip_lookup, password_store
+from cmk.utils.ip_lookup import IPStackConfig
+from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.servicename import MAX_SERVICE_NAME_LEN, ServiceName
-from cmk.utils.tags import HostTags
 from cmk.utils.timeperiod import TimeperiodSpecs
 
 from ._precompile_host_checks import precompile_hostchecks, PrecompileMode

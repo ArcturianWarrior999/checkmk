@@ -6,8 +6,8 @@
 import cmk.utils.paths
 from cmk.base.configlib.loaded_config import BaseConfig
 from cmk.base.core.nagios._create_config import NagiosCoreConfig
-from cmk.utils.labels import ABCLabelConfig, LabelManager, Labels
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
+from cmk.ruleset_matcher.labels import ABCLabelConfig, LabelManager, Labels
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 
 EMPTY_CONFIG = BaseConfig(
     discovery_parameters={},

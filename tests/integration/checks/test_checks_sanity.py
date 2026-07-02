@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 from tests.testlib.agent import (
     agent_controller_daemon,
     download_and_install_agent_package,

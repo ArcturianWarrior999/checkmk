@@ -15,8 +15,8 @@ from pytest_mock import MockerFixture
 import cmk.gui.nagvis._hosttags
 from cmk.gui.watolib.tags import TagConfigFile
 from cmk.gui.watolib.utils import multisite_dir
-from cmk.utils import tags
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher import tags
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 
 def _tag_test_cfg():

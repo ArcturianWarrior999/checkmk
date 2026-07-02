@@ -12,9 +12,9 @@ from cmk.piggyback.backend import (
     parse_flattened_piggyback_time_settings,
     PiggybackTimeSettings,
 )
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 from cmk.utils.paths import omd_root
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
 
 from .loaded_config import BaseConfig
 

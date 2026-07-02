@@ -10,7 +10,7 @@ from typing import NewType
 
 from cmk.agent_based.v1 import Attributes, TableRow
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 from ._sections import ParsedSectionName
 

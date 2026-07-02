@@ -32,7 +32,7 @@ from cmk.gui.watolib.userroles import role_exists, RoleID
 from cmk.livestatus_client.expressions import LqSafe
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables import Hostgroups, Hosts, Servicegroups
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 
 def TypedPlainValidator[T](input_type: type[T], validator: Callable[[T], object]) -> PlainValidator:

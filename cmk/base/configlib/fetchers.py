@@ -10,8 +10,8 @@ from cmk.base.configlib.loaded_config import BaseConfig
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.fetchers.tcp import TCPFetcherConfig
 from cmk.checkengine.snmplib import SNMPSectionName
-from cmk.utils.labels import Labels
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import (
     RulesetMatcher,
     SingleHostRulesetMatcher,
     SingleHostRulesetMatcherFirst,

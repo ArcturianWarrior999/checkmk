@@ -8,7 +8,7 @@
 from collections.abc import Sequence
 from typing import Literal
 
-from cmk.utils.notify_types import EventRule
+from cmk.events.notify_types import EventRule
 
 alert_handler_event_types: list[Literal["statechange", "checkresult"]] = ["statechange"]
 alert_logging = 20

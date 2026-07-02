@@ -6,7 +6,7 @@ from cmk.gui.agent_bakery import RulespecGroupMonitoringAgentsLinuxUnixAgent
 from cmk.gui.i18n import _
 from cmk.gui.plugins.wato.utils import HostRulespec, rulespec_registry
 from cmk.gui.valuespec import Dictionary, ListChoice
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _skippable_aix_agent_sections() -> dict[str, str]:

@@ -38,7 +38,7 @@ from cmk.bi.type_defs import (
     SearchSerialized,
 )
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.labels import AndOrNotLiteral, LabelGroup
+from cmk.ruleset_matcher.labels import AndOrNotLiteral, LabelGroup
 
 ReferToType = Literal["host", "child", "parent", "child_with"]
 

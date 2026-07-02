@@ -204,6 +204,13 @@ from cmk.piggyback.backend import (
 from cmk.piggyback.backend import (
     move_for_host_rename as move_piggyback_for_host_rename,
 )
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel, LabelManager, Labels
+from cmk.ruleset_matcher.matcher import (
+    BundledHostRulesetMatcher,
+    RulesetMatcher,
+    RulesetName,
+)
+from cmk.ruleset_matcher.tags import HostTags
 from cmk.server_side_calls_backend import (
     config_processing,
     ExecutableFinder,
@@ -219,7 +226,6 @@ from cmk.utils.auto_queue import AutoQueue
 from cmk.utils.caching import cache_manager
 from cmk.utils.encoding import ensure_str_with_fallback
 from cmk.utils.ip_lookup import make_lookup_mgmt_board_ip_address
-from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel, LabelManager, Labels
 from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.password_store import make_staged_passwords_lookup
 from cmk.utils.paths import (
@@ -239,14 +245,8 @@ from cmk.utils.paths import (
     tmp_dir,
     var_dir,
 )
-from cmk.utils.rulesets.ruleset_matcher import (
-    BundledHostRulesetMatcher,
-    RulesetMatcher,
-    RulesetName,
-)
 from cmk.utils.security_event import InputValidationFailureEvent, log_security_event
 from cmk.utils.servicename import Item, ServiceName
-from cmk.utils.tags import HostTags
 
 HistoryFile = str
 HistoryFilePair = tuple[HistoryFile, HistoryFile]

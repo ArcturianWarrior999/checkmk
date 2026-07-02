@@ -13,8 +13,8 @@ from typing import (
     Literal,
 )
 
+import cmk.ruleset_matcher.tags
 import cmk.utils
-import cmk.utils.tags
 from cmk.base.default_config.cmc import (
     CMCAuthorization,
     CMCGraphiteConnection,
@@ -26,12 +26,7 @@ from cmk.base.default_config.cmc import (
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.fetchers.ipmi import IPMICredentials
 from cmk.checkengine.snmplib import SNMPCredentials, SNMPTiming
-from cmk.inventory.structured_data import RawIntervalFromConfig
-from cmk.rrd import RRDObjectConfig
-from cmk.utils.host_storage import FolderAttributesForBase
-from cmk.utils.http_proxy_config import HTTPProxySpec
-from cmk.utils.labels import Labels
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     Contact,
     ContactName,
     EventRule,
@@ -39,8 +34,13 @@ from cmk.utils.notify_types import (
     NotificationPluginNameStr,
     NotifyPluginParamsDict,
 )
+from cmk.inventory.structured_data import RawIntervalFromConfig
+from cmk.rrd import RRDObjectConfig
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.utils.host_storage import FolderAttributesForBase
+from cmk.utils.http_proxy_config import HTTPProxySpec
 from cmk.utils.oauth2_connection import OAuth2Connection
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from cmk.utils.servicename import ServiceName
 
 
@@ -106,7 +106,7 @@ class BaseConfig:
     ipv6addresses: Mapping[HostName, HostAddress]
     inventory_check_interval: object
     fake_dns: str | None
-    tag_config: cmk.utils.tags.TagConfigSpec
+    tag_config: cmk.ruleset_matcher.tags.TagConfigSpec
     host_tags: object
     cmc_log_rrdcreation: Literal["terse", "full"] | None
     cmc_host_rrd_config: Sequence[RuleSpec[Any]]

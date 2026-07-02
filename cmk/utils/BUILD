@@ -179,6 +179,7 @@ py_library(
         "//packages/cmk-livestatus-client:py_livestatus",
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:password_store",
+        "//packages/cmk-ruleset-matcher",
         "//packages/cmk-trace",
         "//packages/cmk-web",
         requirement("cryptography"),

@@ -9,7 +9,7 @@ from cmk.gui.i18n import _
 from cmk.gui.plugins.wato.utils import HostRulespec, rulespec_registry
 from cmk.gui.valuespec import Dictionary, ID, ListChoice, SSHKeyPair
 from cmk.gui.watolib.user_scripts import user_script_choices
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def RemoteAlertHandlerChoice(opsys: str) -> ListChoice:

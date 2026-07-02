@@ -16,7 +16,7 @@ from typing import cast
 
 from livestatus import SiteConfigurations
 
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -93,7 +93,7 @@ from cmk.gui.watolib.tags import (
     TagConfigFile,
     update_tag_config,
 )
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 from ._tile_menu import TileMenuRenderer
 
@@ -112,20 +112,20 @@ class ABCTagMode(WatoMode, abc.ABC):
         self._load_effective_config()
 
     def _load_effective_config(self) -> None:
-        self._builtin_config = cmk.utils.tags.BuiltinTagConfig()
+        self._builtin_config = cmk.ruleset_matcher.tags.BuiltinTagConfig()
 
-        self._tag_config = cmk.utils.tags.TagConfig.from_config(
+        self._tag_config = cmk.ruleset_matcher.tags.TagConfig.from_config(
             self._tag_config_file.load_for_reading()
         )
 
-        self._effective_config = cmk.utils.tags.TagConfig.from_config(
+        self._effective_config = cmk.ruleset_matcher.tags.TagConfig.from_config(
             self._tag_config.get_dict_format()
         )
         self._effective_config += self._builtin_config
 
     def _get_tags_using_aux_tag(
-        self, aux_tag: cmk.utils.tags.AuxTag
-    ) -> set[cmk.utils.tags.GroupedTag]:
+        self, aux_tag: cmk.ruleset_matcher.tags.AuxTag
+    ) -> set[cmk.ruleset_matcher.tags.GroupedTag]:
         return {
             tag  #
             for tag_group in self._effective_config.tag_groups
@@ -421,7 +421,9 @@ class ModeTags(ABCTagMode):
                     tag_group_attribute = host_attributes["tag_%s" % tag_group.id]
                     tag_group_attribute.render_input("", tag_group_attribute.default_value())
 
-    def _show_tag_icons(self, table: Table, tag_group: cmk.utils.tags.TagGroup, nr: int) -> None:
+    def _show_tag_icons(
+        self, table: Table, tag_group: cmk.ruleset_matcher.tags.TagGroup, nr: int
+    ) -> None:
         # Tag groups were made built-in with ~1.4. Previously users could modify
         # these groups.  These users now have the modified tag groups in their
         # user configuration and should be able to cleanup this using the GUI
@@ -481,7 +483,7 @@ class ModeTags(ABCTagMode):
                     ),
                 )
 
-    def _show_aux_tag_icons(self, aux_tag: cmk.utils.tags.AuxTag) -> None:
+    def _show_aux_tag_icons(self, aux_tag: cmk.ruleset_matcher.tags.AuxTag) -> None:
         if aux_tag.id in self._builtin_config.aux_tag_list.get_tag_ids():
             html.i("(%s)" % _("built-in"))
             return
@@ -621,8 +623,8 @@ class ModeTagUsage(ABCTagMode):
     def _show_tag_row(
         self,
         table: Table,
-        tag_group: cmk.utils.tags.TagGroup,
-        tag: cmk.utils.tags.GroupedTag,
+        tag_group: cmk.ruleset_matcher.tags.TagGroup,
+        tag: cmk.ruleset_matcher.tags.GroupedTag,
         *,
         pprint_value: bool,
         debug: bool,
@@ -662,7 +664,7 @@ class ModeTagUsage(ABCTagMode):
         if affected_rulesets:
             _show_affected_rulesets(affected_rulesets)
 
-    def _show_tag_group_icons(self, tag_group: cmk.utils.tags.TagGroup) -> None:
+    def _show_tag_group_icons(self, tag_group: cmk.ruleset_matcher.tags.TagGroup) -> None:
         # Tag groups were made built-in with ~1.4. Previously users could modify
         # these groups.  These users now have the modified tag groups in their
         # user configuration and should be able to cleanup this using the GUI
@@ -697,7 +699,7 @@ class ModeTagUsage(ABCTagMode):
     def _show_aux_tag_row(
         self,
         table: Table,
-        aux_tag: cmk.utils.tags.AuxTag,
+        aux_tag: cmk.ruleset_matcher.tags.AuxTag,
         *,
         pprint_value: bool,
         debug: bool,
@@ -736,7 +738,7 @@ class ModeTagUsage(ABCTagMode):
         if affected_rulesets:
             _show_affected_rulesets(affected_rulesets)
 
-    def _show_aux_tag_icons(self, aux_tag: cmk.utils.tags.AuxTag) -> None:
+    def _show_aux_tag_icons(self, aux_tag: cmk.ruleset_matcher.tags.AuxTag) -> None:
         if aux_tag.id in self._builtin_config.aux_tag_list.get_tag_ids():
             html.i("(%s)" % _("built-in"))
             return
@@ -758,7 +760,9 @@ class ModeEditAuxtag(ABCEditTagMode):
         super().__init__(edition)
 
         if self._new:
-            self._aux_tag = cmk.utils.tags.AuxTag(tag_id=TagID(""), title="", topic=None, help=None)
+            self._aux_tag = cmk.ruleset_matcher.tags.AuxTag(
+                tag_id=TagID(""), title="", topic=None, help=None
+            )
         else:
             assert self._id is not None
             self._aux_tag = self._tag_config.aux_tag_list.get_aux_tag(TagID(self._id))
@@ -787,11 +791,11 @@ class ModeEditAuxtag(ABCEditTagMode):
         aux_tag_spec_dict = vs.from_html_vars("aux_tag")
         vs.validate_value(aux_tag_spec_dict, "aux_tag")
 
-        aux_tag_spec = cast(cmk.utils.tags.AuxTagSpec, aux_tag_spec_dict)
-        self._aux_tag = cmk.utils.tags.AuxTag.from_config(aux_tag_spec)
+        aux_tag_spec = cast(cmk.ruleset_matcher.tags.AuxTagSpec, aux_tag_spec_dict)
+        self._aux_tag = cmk.ruleset_matcher.tags.AuxTag.from_config(aux_tag_spec)
         self._aux_tag.validate()
 
-        changed_hosttags_config = cmk.utils.tags.TagConfig.from_config(
+        changed_hosttags_config = cmk.ruleset_matcher.tags.TagConfig.from_config(
             self._tag_config_file.load_for_reading()
         )
 
@@ -841,7 +845,7 @@ class ModeEditTagGroup(ABCEditTagMode):
 
         tg = self._tag_config.get_tag_group(TagGroupID(self._id) if self._id else TagGroupID(""))
         self._untainted_tag_group = (
-            cmk.utils.tags.TagGroup(
+            cmk.ruleset_matcher.tags.TagGroup(
                 group_id=TagGroupID(""), title="", topic=None, help=None, tags=[]
             )
             if tg is None
@@ -850,7 +854,7 @@ class ModeEditTagGroup(ABCEditTagMode):
 
         tg = self._tag_config.get_tag_group(TagGroupID(self._id) if self._id else TagGroupID(""))
         self._tag_group = (
-            cmk.utils.tags.TagGroup(
+            cmk.ruleset_matcher.tags.TagGroup(
                 group_id=TagGroupID(""), title="", topic=None, help=None, tags=[]
             )
             if tg is None
@@ -880,12 +884,12 @@ class ModeEditTagGroup(ABCEditTagMode):
         tag_group_spec_dict = vs.from_html_vars("tag_group")
         vs.validate_value(tag_group_spec_dict, "tag_group")
 
-        tag_group_spec = cast(cmk.utils.tags.TagGroupSpec, tag_group_spec_dict)
+        tag_group_spec = cast(cmk.ruleset_matcher.tags.TagGroupSpec, tag_group_spec_dict)
         # Create new object with existing host tags
-        changed_hosttags_config = cmk.utils.tags.TagConfig.from_config(
+        changed_hosttags_config = cmk.ruleset_matcher.tags.TagConfig.from_config(
             self._tag_config_file.load_for_modification()
         )
-        changed_tag_group = cmk.utils.tags.TagGroup.from_config(tag_group_spec)
+        changed_tag_group = cmk.ruleset_matcher.tags.TagGroup.from_config(tag_group_spec)
         self._tag_group = changed_tag_group
 
         pending_changes = _pending_changes(
@@ -1180,13 +1184,13 @@ def _rename_tags_after_confirmation(
     return True
 
 
-def _show_aux_tag_used_by_tags(tags: set[cmk.utils.tags.GroupedTag]) -> None:
+def _show_aux_tag_used_by_tags(tags: set[cmk.ruleset_matcher.tags.GroupedTag]) -> None:
     if not tags:
         return
 
     html.open_ul()
     html.open_li()
-    builtin_config = cmk.utils.tags.BuiltinTagConfig()
+    builtin_config = cmk.ruleset_matcher.tags.BuiltinTagConfig()
     for index, tag in enumerate(sorted(tags, key=lambda t: t.choice_title)):
         if index > 0:
             html.write_text_permissive(", ")

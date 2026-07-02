@@ -18,7 +18,7 @@ from cmk.gui.valuespec import (
     Tuple,
 )
 from cmk.gui.wato import RulespecGroupActiveChecks
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_active_checks_ftp() -> Dictionary:

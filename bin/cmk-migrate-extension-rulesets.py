@@ -41,6 +41,10 @@ from cmk.mkp_tool import (
     PackageName,
     PackagePart,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import (
+    RulesetName,
+)
 from cmk.rulesets.v1 import entry_point_prefixes
 from cmk.rulesets.v1.rule_specs import (
     ActiveCheck,
@@ -67,10 +71,6 @@ from cmk.update_config.plugins.lib.rulesets import (
 )
 from cmk.utils import paths
 from cmk.utils.redis import disable_redis
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import (
-    RulesetName,
-)
 
 logger = logging.getLogger(__name__)
 

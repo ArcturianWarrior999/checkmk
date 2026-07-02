@@ -86,7 +86,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.rulespecs import rulespec_registry
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
-from cmk.utils.rulesets.definition import RuleGroup, RuleGroupType
+from cmk.ruleset_matcher.definition import RuleGroup, RuleGroupType
 
 
 def register(

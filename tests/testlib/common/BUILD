@@ -47,6 +47,7 @@ py_library(
     ],
     deps = [
         "//cmk/base",
-        "//cmk/utils",
+        "//cmk/utils:paths",
+        "//packages/cmk-ruleset-matcher",
     ],
 )

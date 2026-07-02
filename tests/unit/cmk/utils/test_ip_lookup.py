@@ -14,9 +14,9 @@ from pytest import MonkeyPatch
 
 from cmk.ccc.exceptions import MKIPAddressLookupError
 from cmk.ccc.hostaddress import HostAddress, HostName
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils import ip_lookup
 from cmk.utils.caching import cache_manager
-from cmk.utils.tags import TagGroupID, TagID
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 type _IPLookupCacheMapping = dict[ip_lookup.IPLookupCacheId, HostAddress | MKIPAddressLookupError]

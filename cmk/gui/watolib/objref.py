@@ -8,7 +8,7 @@ import enum
 from dataclasses import dataclass, field
 from typing import Any
 
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 
 
 class ObjectRefType(enum.Enum):

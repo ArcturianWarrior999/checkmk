@@ -13,7 +13,7 @@ from cmk.gui.i18n import _
 from cmk.gui.plugins.wato.utils import HostRulespec, rulespec_registry
 from cmk.gui.valuespec import Alternative, Dictionary, FixedValue, Migrate, TextInput
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _migrate_mk_msoffice(param: object) -> Mapping[str, str] | None:

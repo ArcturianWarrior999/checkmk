@@ -10,14 +10,7 @@ from typing import cast
 import pytest
 
 from cmk.ccc import store, version
-from cmk.gui.rest_api_types.notifications_rule_types import APINotifyPlugin
-from cmk.gui.rest_api_types.notifications_types import get_plugin_from_api_request
-from cmk.gui.watolib.notifications import (
-    ContactSelection,
-    NotificationParameterConfigFile,
-    NotificationRule,
-)
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     EventRule,
     NotificationParameterGeneralInfos,
     NotificationParameterID,
@@ -26,6 +19,13 @@ from cmk.utils.notify_types import (
     NotificationRuleID,
     NotifyPluginParamsDict,
     PluginOptions,
+)
+from cmk.gui.rest_api_types.notifications_rule_types import APINotifyPlugin
+from cmk.gui.rest_api_types.notifications_types import get_plugin_from_api_request
+from cmk.gui.watolib.notifications import (
+    ContactSelection,
+    NotificationParameterConfigFile,
+    NotificationRule,
 )
 
 

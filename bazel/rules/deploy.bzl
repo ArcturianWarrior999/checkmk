@@ -226,6 +226,7 @@ COMMUNITY_WHEELS = [
     "//packages/cmk-plugins:wheel-for-f12-ucs_bladecenter",
     "//packages/cmk-plugins:wheel-for-f12-vsphere",
     "//packages/cmk-relay-protocols:wheel",
+    "//packages/cmk-ruleset-matcher:wheel",
     "//packages/cmk-shared-typing:wheel",
     "//packages/cmk-trace:wheel",
     "//packages/cmk-web:wheel",

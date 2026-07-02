@@ -28,7 +28,7 @@ from cmk.gui.type_defs import (
 )
 from cmk.gui.user_connection_config_types import ConfigurableUserConnectionSpec
 from cmk.gui.utils.roles import UserPermissions
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 from .api_config import APIVersion
 

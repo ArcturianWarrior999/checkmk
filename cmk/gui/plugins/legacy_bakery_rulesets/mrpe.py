@@ -19,8 +19,8 @@ from cmk.gui.valuespec import (
     Migrate,
     TextInput,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.utils.mrpe_config import ensure_mrpe_configs
-from cmk.utils.rulesets.definition import RuleGroup
 
 
 def _regex_service_description() -> str:

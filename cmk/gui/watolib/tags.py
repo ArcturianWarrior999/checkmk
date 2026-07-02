@@ -10,7 +10,7 @@ from collections.abc import Mapping, Sequence
 from enum import Enum
 from typing import Any
 
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.i18n import _
 from cmk.gui.config import active_config
@@ -32,8 +32,8 @@ from cmk.gui.watolib.tag_config_file import (
 from cmk.gui.watolib.tag_config_file import (
     TagConfigFile as TagConfigFile,
 )
-from cmk.utils.rulesets.ruleset_matcher import TagCondition
-from cmk.utils.tags import BuiltinTagConfig, TagConfig, TagGroup, TagGroupID, TagID
+from cmk.ruleset_matcher.matcher import TagCondition
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagConfig, TagGroup, TagGroupID, TagID
 
 
 def load_tag_config() -> TagConfig:
@@ -99,7 +99,9 @@ def tag_group_exists(ident: TagGroupID, builtin_included: bool = False) -> bool:
 def _update_tag_dependencies(tag_config: TagConfig, *, pprint_value: bool) -> None:
     # Patch the current requests config with the changed config
     active_config.wato_tags = tag_config.get_dict_format()
-    active_config.tags = cmk.utils.tags.get_effective_tag_config(tag_config.get_dict_format())
+    active_config.tags = cmk.ruleset_matcher.tags.get_effective_tag_config(
+        tag_config.get_dict_format()
+    )
 
     tree = folder_tree()
     tree.invalidate_caches()

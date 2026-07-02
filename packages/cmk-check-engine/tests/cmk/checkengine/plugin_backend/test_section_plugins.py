@@ -39,7 +39,7 @@ from cmk.checkengine.plugins import (
     SNMPSectionPlugin,
 )
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 
 def _generator_function():

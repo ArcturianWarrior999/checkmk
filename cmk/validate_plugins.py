@@ -56,6 +56,7 @@ from cmk.gui.watolib.rulespecs import (  # astrein: disable=cmk-module-layer-vio
 from cmk.gui.wsgi.app import (  # astrein: disable=cmk-module-layer-violation
     gui_context,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1 import entry_point_prefixes
 from cmk.rulesets.v1.rule_specs import (
     ActiveCheck,
@@ -69,7 +70,6 @@ from cmk.server_side_calls_backend import (  # astrein: disable=cmk-module-layer
     load_special_agents,
 )
 from cmk.utils import paths
-from cmk.utils.rulesets.definition import RuleGroup
 
 _AgentBasedPlugins = (
     agent_based_v2.SimpleSNMPSection

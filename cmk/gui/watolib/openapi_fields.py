@@ -35,7 +35,7 @@ from cmk.gui.groups import GroupName, GroupType
 from cmk.gui.logged_in import user
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables import Hostgroups, Hosts, Servicegroups
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.tags import TagGroupID
 
 from .groups_io import load_group_information
 from .hosts_and_folders import folder_tree, Host, strip_hostname_whitespace_chars

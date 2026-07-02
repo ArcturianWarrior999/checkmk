@@ -15,8 +15,8 @@ from typing import Any, override
 
 from pytest import MonkeyPatch
 
+import cmk.ruleset_matcher.tags
 import cmk.utils.paths
-import cmk.utils.tags
 from cmk.base.app import make_app
 from cmk.base.config import ConfigCache, LoadingResult, make_host_tags, make_hosts_config
 from cmk.ccc.hostaddress import HostAddress, HostName
@@ -24,8 +24,8 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition
 from cmk.checkengine.discovery import AutochecksMemoizer
 from cmk.checkengine.plugins import AutocheckEntry
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.common.utils2 import get_standard_linux_agent_output
 
@@ -74,8 +74,8 @@ class Scenario:
 
         self._edition = edition
         self.get_builtin_host_labels = make_app(edition).get_builtin_host_labels
-        tag_config = cmk.utils.tags.sample_tag_config()
-        self.tags = cmk.utils.tags.get_effective_tag_config(tag_config)
+        tag_config = cmk.ruleset_matcher.tags.sample_tag_config()
+        self.tags = cmk.ruleset_matcher.tags.get_effective_tag_config(tag_config)
         self.site_id = site_id
         self._autochecks_mocker = _AutochecksMocker()
 
@@ -155,7 +155,7 @@ class Scenario:
 
     # TODO: This immitates the logic of cmk.gui.watolib.Host.tag_groups which
     # is currently responsible for calulcating the host tags of a host.
-    # Would be better to untie the GUI code there and move it over to cmk.utils.tags.
+    # Would be better to untie the GUI code there and move it over to cmk.ruleset_matcher.tags.
     def _get_effective_tag_config(
         self,
         tags: Mapping[TagGroupID, TagID],

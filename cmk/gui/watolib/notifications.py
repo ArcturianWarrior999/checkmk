@@ -34,6 +34,18 @@ from typing import Any, cast, NotRequired, override, TypedDict
 
 from cmk.ccc import store, version
 from cmk.ccc.user import UserId
+from cmk.events.notify_types import (
+    EventRule,
+    NotificationParameterGeneralInfos,
+    NotificationParameterID,
+    NotificationParameterItem,
+    NotificationParameterSpec,
+    NotificationPluginNameStr,
+    NotificationRuleID,
+    NotifyBulkType,
+    NotifyPlugin,
+    PluginNameWithParameters,
+)
 from cmk.gui import userdb
 from cmk.gui.i18n import _
 from cmk.gui.rest_api_types.notifications_rule_types import (
@@ -74,18 +86,6 @@ from cmk.gui.watolib.simple_config_file import (
 from cmk.gui.watolib.user_scripts import load_notification_scripts
 from cmk.gui.watolib.utils import wato_root_dir
 from cmk.utils import paths
-from cmk.utils.notify_types import (
-    EventRule,
-    NotificationParameterGeneralInfos,
-    NotificationParameterID,
-    NotificationParameterItem,
-    NotificationParameterSpec,
-    NotificationPluginNameStr,
-    NotificationRuleID,
-    NotifyBulkType,
-    NotifyPlugin,
-    PluginNameWithParameters,
-)
 
 
 class NotificationRuleConfigFile(WatoListConfigFile[EventRule]):

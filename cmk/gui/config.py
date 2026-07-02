@@ -18,7 +18,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Final
 
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk import trace
 from cmk.ccc.site import SiteId
 from cmk.gui import log
@@ -64,7 +64,7 @@ class Config(GeneralConfig):
     mentioned above. But that's fine for now.
     """
 
-    tags: cmk.utils.tags.TagConfig = cmk.utils.tags.TagConfig()
+    tags: cmk.ruleset_matcher.tags.TagConfig = cmk.ruleset_matcher.tags.TagConfig()
 
     def __post_init__(self) -> None:
         self._raw_config: Mapping[str, Any] = {}
@@ -176,7 +176,7 @@ def load_config() -> Config:
     for p in filelist:
         _load_config_file_to(p, raw_config)
 
-    raw_config["tags"] = cmk.utils.tags.get_effective_tag_config(raw_config["wato_tags"])
+    raw_config["tags"] = cmk.ruleset_matcher.tags.get_effective_tag_config(raw_config["wato_tags"])
 
     # TODO: Temporary local hack to transform the values to the correct type. This needs
     # to be done in make_config_object() in the next step.

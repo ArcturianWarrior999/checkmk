@@ -7,7 +7,7 @@ import pytest
 
 from cmk.gui.config import active_config
 from cmk.gui.painter.v0 import all_painters
-from cmk.utils.tags import TagConfig, TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagConfig, TagGroupID, TagID
 
 
 @pytest.mark.usefixtures("load_config")

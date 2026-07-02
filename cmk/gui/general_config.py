@@ -36,8 +36,8 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_connection_config_types import ConfigurableUserConnectionSpec
 from cmk.gui.utils.temperate_unit import TemperatureUnit
 from cmk.inventory.config import InvCleanupParams
+from cmk.ruleset_matcher.tags import TagConfigSpec
 from cmk.utils import paths
-from cmk.utils.tags import TagConfigSpec
 
 CustomLinkSpec = tuple[str, bool, list[tuple[str, str, str | None, str]]]
 

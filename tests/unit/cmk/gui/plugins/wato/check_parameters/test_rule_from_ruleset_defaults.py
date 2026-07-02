@@ -13,8 +13,8 @@ from cmk.gui.watolib import rulesets
 from cmk.gui.watolib import rulesets as gui_rulesets_module
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import RuleOptions, RuleValue
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RulesetName
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RulesetName
 
 
 def _ruleset(ruleset_name: RulesetName) -> rulesets.Ruleset:

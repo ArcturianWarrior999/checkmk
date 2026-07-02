@@ -48,9 +48,9 @@ from cmk.gui.quick_setup.v0_unstable.widgets import (
 from cmk.plugins.proxmox_ve.rulesets import (  # astrein: disable=cmk-module-layer-violation
     proxmox_ve,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1 import Title
 from cmk.rulesets.v1.form_specs import Dictionary
-from cmk.utils.rulesets.definition import RuleGroup
 
 PREV_BUTTON_LABEL = _("Back")
 

@@ -24,8 +24,8 @@ from cmk.base.config import ConfigCache
 from cmk.ccc.daemon import daemonize, pid_file_lock
 from cmk.ccc.hostaddress import Hosts
 from cmk.ccc.site import SiteId
+from cmk.ruleset_matcher.labels import Labels
 from cmk.utils.caching import cache_manager
-from cmk.utils.labels import Labels
 from cmk.utils.paths import omd_root
 from cmk.utils.redis import get_redis_client
 

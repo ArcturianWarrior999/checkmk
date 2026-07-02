@@ -18,9 +18,7 @@ from dataclasses import dataclass, field
 from typing import cast, Literal, NotRequired, Required, TypedDict
 
 import cmk.ec.export as ec  # astrein: disable=cmk-module-layer-violation
-from cmk.gui.watolib.tag_config_file import load_all_tag_config_read_only
-from cmk.utils import password_store
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     AckState,
     AlwaysBulkParameters,
     AsciiMailPluginName,
@@ -91,7 +89,8 @@ from cmk.utils.notify_types import (
     UseSiteIDType,
     WebHookUrl,
 )
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.gui.watolib.tag_config_file import load_all_tag_config_read_only
+from cmk.ruleset_matcher.matcher import (
     is_tag_condition_ne,
     is_tag_condition_nor,
     is_tag_condition_or,
@@ -101,7 +100,8 @@ from cmk.utils.rulesets.ruleset_matcher import (
     TagConditionNOR,
     TagConditionOR,
 )
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
+from cmk.utils import password_store
 
 CheckboxState = Literal["enabled", "disabled"]
 

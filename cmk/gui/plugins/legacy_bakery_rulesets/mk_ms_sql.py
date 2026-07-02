@@ -31,7 +31,7 @@ from cmk.gui.valuespec import (
     ValueSpec,
 )
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 _SectionMode = Literal["sync", "async"] | None
 _Sections = list[tuple[str, DropdownChoice[_SectionMode]]]

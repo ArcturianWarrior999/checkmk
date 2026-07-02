@@ -38,8 +38,8 @@ from cmk.checkengine.specs.parameters import TimespecificParameters, Timespecifi
 from cmk.checkengine.submitters import FormattedSubmittee, Submitter
 from cmk.checkengine.summarize import SummaryConfig
 from cmk.piggyback.backend import Config as PiggybackConfig
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 from cmk.utils.everythingtype import EVERYTHING
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
 from tests.testlib.common.repo import qa_test_data_path
 
 LOGGER = logging.getLogger(__name__)

@@ -198,6 +198,7 @@ from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.translation import HostnameTranslation
 from cmk.gui.watolib.utils import site_neutral_path
 from cmk.livestatus_client import ECCreate, ECResetCounters, ECSwitchMode, LivestatusClient
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.internal.form_specs import (
     DictionaryExtended,
     SingleChoiceElementExtended,
@@ -208,7 +209,6 @@ from cmk.rulesets.v1.form_specs import (
     DictElement,
     String,
 )
-from cmk.utils.rulesets.definition import RuleGroup
 
 from ._rulespecs import RulespecLogwatchEC
 from .config_domain import ConfigDomainEventConsole, EVENT_CONSOLE

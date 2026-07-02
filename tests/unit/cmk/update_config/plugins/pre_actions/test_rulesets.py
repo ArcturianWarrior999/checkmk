@@ -17,10 +17,10 @@ from cmk.gui.watolib.rulesets import (
     Ruleset,
 )
 from cmk.gui.wsgi.app import gui_context
+from cmk.ruleset_matcher.conditions import HostOrServiceConditions
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.plugins.pre_actions.rulesets import PreUpdateRulesets
 from cmk.update_config.plugins.pre_actions.utils import ConflictMode
-from cmk.utils.rulesets.conditions import HostOrServiceConditions
 
 pytestmark = pytest.mark.usefixtures("load_plugins")
 

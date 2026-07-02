@@ -14,9 +14,9 @@ from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.rulesets import Ruleset, RulesetCollection
 from cmk.gui.watolib.rulespec_groups import RulespecGroupMonitoringConfigurationVarious
 from cmk.gui.watolib.rulespecs import HostRulespec, Rulespec, rulespec_registry
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.update_config.plugins.lib import rulesets as rulesets_updater
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 
 
 @pytest.fixture(name="legacy_name")

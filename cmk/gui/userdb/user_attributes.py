@@ -24,7 +24,7 @@ from cmk.gui.valuespec import (
     Tuple,
     ValueSpec,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 from ._user_attribute import UserAttribute, UserAttributeRegistry
 

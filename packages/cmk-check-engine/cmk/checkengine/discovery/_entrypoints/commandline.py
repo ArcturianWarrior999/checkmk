@@ -33,7 +33,7 @@ from cmk.checkengine.sectionparser import (
     SectionPlugin,
     store_piggybacked_sections,
 )
-from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
 from cmk.utils.log import console, section
 
 __all__ = ["commandline_discovery"]

@@ -43,8 +43,8 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.gui.watolib.rulesets import SingleRulesetRecursively
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.livestatus_client import SiteConfigurations
+from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.utils.password_store import PasswordConfig
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from tests.testlib.gui.users import create_and_destroy_user
 from tests.unit.cmk.gui.watolib.test_watolib_password_store import (  # noqa: F401
     mock_update_passwords_merged_file,

@@ -31,13 +31,13 @@ from cmk.ccc.hostaddress import HostName
 from cmk.ccc.regex import regex
 from cmk.ccc.site import omd_site
 from cmk.events.event_context import EnrichedEventContext, EventContext
+from cmk.events.notify import read_notify_host_file
+from cmk.events.notify_types import EventRule
+from cmk.ruleset_matcher.matcher import matches_host_tags
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tuple_rulesets import in_extraconf_servicelist
 from cmk.utils.http_proxy_config import HTTPProxyConfig
-from cmk.utils.notify import read_notify_host_file
-from cmk.utils.notify_types import EventRule
-from cmk.utils.rulesets.ruleset_matcher import matches_host_tags
-from cmk.utils.rulesets.tuple_rulesets import in_extraconf_servicelist
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import TagGroupID, TagID
 from cmk.utils.timeperiod import (
     TimeperiodActiveCoreLookup,
     TimeperiodSpecs,

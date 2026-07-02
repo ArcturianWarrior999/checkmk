@@ -69,10 +69,10 @@ py_library(
         "//cmk/gui/utils:dataclasses",
         "//cmk/gui/utils:permission_verification",
         "//cmk/gui/utils:roles",
-        "//cmk/utils",
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
         "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-ruleset-matcher",
         requirement("werkzeug"),
     ],
 )

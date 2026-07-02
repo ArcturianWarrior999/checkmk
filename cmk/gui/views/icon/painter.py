@@ -28,7 +28,7 @@ from cmk.gui.type_defs import (
 from cmk.gui.utils.html import HTML
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.view_utils import CellSpec, CSVExportError
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 from .base import Icon, IconConfig
 from .registry import all_icons

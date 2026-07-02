@@ -10,7 +10,7 @@ from cmk.gui.plugins.wato.check_parameters import kube_pod_containers
 from cmk.gui.plugins.wato.utils import rulespec_registry
 from cmk.gui.valuespec import Dictionary
 from cmk.gui.watolib.rulespecs import ManualCheckParameterRulespec
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 SECTION_ELEMENTS = ("failed_state",)
 

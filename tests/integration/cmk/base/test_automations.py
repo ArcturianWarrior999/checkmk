@@ -16,7 +16,7 @@ from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.discovery import DiscoveryReport, DiscoverySettings
 from cmk.checkengine.discovery._autochecks import AutochecksSerializer
 from cmk.checkengine.plugins import AutocheckEntry, CheckPluginName
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.utils.servicename import ServiceName
 from tests.testlib.common.utils2 import get_standard_linux_agent_output
 from tests.testlib.site import Site

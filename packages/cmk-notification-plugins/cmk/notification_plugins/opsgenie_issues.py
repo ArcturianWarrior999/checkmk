@@ -36,6 +36,7 @@ from requests.utils import get_environ_proxies
 from tenacity import RetryError
 from urllib3.util import parse_url
 
+from cmk.events.notify_types import PluginNotificationContext
 from cmk.notification_plugins import utils
 from cmk.notification_plugins.utils import get_password_from_env_or_context
 from cmk.utils.http_proxy_config import (
@@ -45,7 +46,6 @@ from cmk.utils.http_proxy_config import (
     NoProxyConfig,
 )
 from cmk.utils.macros import replace_macros_in_str
-from cmk.utils.notify_types import PluginNotificationContext
 from cmk.utils.paths import trusted_ca_file
 
 

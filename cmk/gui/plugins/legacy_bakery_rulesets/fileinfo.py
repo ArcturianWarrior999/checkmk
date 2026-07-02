@@ -7,7 +7,7 @@ from cmk.gui.agent_bakery import RulespecGroupMonitoringAgentsAgentPlugins
 from cmk.gui.i18n import _
 from cmk.gui.plugins.wato.utils import HostRulespec, rulespec_registry
 from cmk.gui.valuespec import ListOfStrings, TextInput
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_agent_config_fileinfo() -> ListOfStrings:

@@ -20,8 +20,9 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/watolib",
         "//cmk/gui/watolib:groups_io",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:store",
         "//packages/cmk-ccc:user",
+        "//packages/cmk-ruleset-matcher",
     ],
 )

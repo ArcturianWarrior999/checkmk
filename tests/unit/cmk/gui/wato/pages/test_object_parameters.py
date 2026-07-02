@@ -11,7 +11,7 @@ from cmk.automations.results import AnalyseServiceResult, ServiceInfo
 from cmk.ccc.hostaddress import HostName
 from cmk.gui.wato.pages.object_parameters import ModeObjectParameters
 from cmk.gui.watolib.rulespecs import AllowAll, rulespec_registry
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def test_handle_auto_origin_no_keyerror_for_unknown_checkgroup() -> None:

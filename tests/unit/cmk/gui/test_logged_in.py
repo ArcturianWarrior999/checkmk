@@ -38,7 +38,7 @@ from cmk.gui.role_types import CustomUserRole
 from cmk.gui.session_context import SuperUserContext, UserContext
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.watolib.rulesets import may_edit_ruleset
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 from tests.testlib.gui.users import create_and_destroy_user
 
 

@@ -38,9 +38,9 @@ from cmk.checkengine.snmplib import SNMPBackendEnum, SNMPVersion
 from cmk.checkengine.sources.api import Source, SourceBuilder
 from cmk.checkengine.specs.parameters import IsTimeperiodActiveCallback, TimespecificParameters
 from cmk.password_store.v1_unstable import Secret
+from cmk.ruleset_matcher.tags import ComputedDataSources, HostTags
 from cmk.server_side_calls_backend import ExecutableFinder
 from cmk.utils.ip_lookup import IPLookup, IPLookupOptional, IPStackConfig
-from cmk.utils.tags import ComputedDataSources, HostTags
 
 
 def dump_source(source: Source) -> str:

@@ -26,7 +26,7 @@ from cmk.gui.valuespec import (
     TextInput,
     TextOrRegExp,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _validate_discovery_filesystem_params(value: dict[str, Any], varprefix: str) -> None:

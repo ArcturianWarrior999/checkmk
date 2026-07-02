@@ -11,6 +11,7 @@ import cmk.ccc.version as cmk_version
 from cmk import fields
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.regex import GROUP_NAME_PATTERN
+from cmk.events.notify_types import EventRule
 from cmk.gui import hooks
 from cmk.gui.config import Config
 from cmk.gui.customer import customer_api
@@ -45,7 +46,6 @@ from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.rulesets import AllRulesets
 from cmk.gui.watolib.timeperiods import load_timeperiods
 from cmk.utils import paths
-from cmk.utils.notify_types import EventRule
 from cmk.utils.timeperiod import timeperiod_spec_alias
 
 from .openapi_fields import HostContactGroup

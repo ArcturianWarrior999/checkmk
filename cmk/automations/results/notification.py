@@ -17,7 +17,7 @@ from cmk.automations.results._base import (
     SerializedResult,
 )
 from cmk.ccc import version as cmk_version
-from cmk.utils.notify_types import NotifyAnalysisInfo, NotifyBulks
+from cmk.events.notify_types import NotifyAnalysisInfo, NotifyBulks
 
 from ..types import AutomationID
 

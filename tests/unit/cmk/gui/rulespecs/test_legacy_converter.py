@@ -43,12 +43,12 @@ from cmk.gui.watolib import rulespec_groups as legacy_rulespec_groups
 from cmk.gui.watolib import rulespecs as legacy_rulespecs
 from cmk.gui.watolib import timeperiods as legacy_timeperiods
 from cmk.gui.watolib.password_store import IndividualOrStoredPassword
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.internal.form_specs import (
     OAuth2Connection,
     StringAutocompleter,
 )
 from cmk.rulesets.v1.form_specs import FormSpec
-from cmk.utils.rulesets.definition import RuleGroup
 
 
 def _v1_custom_text_validate(value: str) -> None:

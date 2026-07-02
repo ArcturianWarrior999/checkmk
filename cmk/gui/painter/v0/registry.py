@@ -13,7 +13,7 @@ from cmk.gui.http import request, response
 from cmk.gui.painter_options import PainterOptions
 from cmk.gui.theme.current_theme import theme
 from cmk.gui.utils.roles import UserPermissions
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 from .base import Painter
 from .helpers import RenderLink

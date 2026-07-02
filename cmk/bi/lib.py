@@ -52,11 +52,11 @@ from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.fields import Boolean, List, Nested, String
 from cmk.livestatus_client import LivestatusResponse, Query
-from cmk.utils.labels import LabelGroups
+from cmk.ruleset_matcher.labels import LabelGroups
+from cmk.ruleset_matcher.matcher import TagCondition
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils.macros import replace_macros_in_str
-from cmk.utils.rulesets.ruleset_matcher import TagCondition
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import TagGroupID, TagID
 
 
 class BIState(enum.IntEnum):

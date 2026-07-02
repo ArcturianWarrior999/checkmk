@@ -21,14 +21,14 @@ from cmk.gui.watolib.hosts_and_folders import (
     WATOFolderInfo,
 )
 from cmk.gui.watolib.utils import wato_root_dir
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroupID, TagID
 from cmk.utils.host_storage import (
     ContactGroupsField,
     FolderAttributesForBase,
     HostsStorageData,
     StandardHostsStorage,
 )
-from cmk.utils.labels import Labels
-from cmk.utils.tags import BuiltinTagConfig, TagGroupID, TagID
 
 KNOWN_EXPLICIT_BUILTIN_ATTRS = ["cmk_agent_connection", "alias", "parents", "metrics_association"]
 

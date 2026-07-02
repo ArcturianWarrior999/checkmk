@@ -11,7 +11,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, Literal, TypedDict
 
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
+from cmk.ruleset_matcher.matcher import RuleSpec
 
 cmc_check_helpers = 5
 cmc_fetcher_helpers = 13

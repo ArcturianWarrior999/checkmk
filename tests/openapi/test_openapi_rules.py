@@ -28,9 +28,9 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.utils import paths
 from cmk.utils.global_ident_type import PROGRAM_ID_QUICK_SETUP
-from cmk.utils.rulesets.definition import RuleGroup
 from tests.testlib.gui.web_test_app import SetConfig
 from tests.testlib.rest_api_client import (
     ClientRegistry,

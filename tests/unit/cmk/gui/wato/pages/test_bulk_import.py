@@ -32,7 +32,7 @@ from cmk.gui.wato.pages.bulk_import import (
 from cmk.gui.watolib.host_attributes import all_host_attributes
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 
 def _noop_pending_changes() -> PendingChanges:

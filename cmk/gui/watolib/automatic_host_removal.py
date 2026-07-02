@@ -46,9 +46,9 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.rulesets import SingleRulesetRecursively, UseHostFolder
 from cmk.livestatus_client import LocalConnection, MKLivestatusSocketError, SiteConfigurations
+from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.paths import log_dir
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 
 _LOGGER = cmk.gui.log.logger.getChild("automatic_host_removal")
 _LOGGER_BACKGROUND_JOB = _LOGGER.getChild("background_job")

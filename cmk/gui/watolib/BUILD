@@ -147,8 +147,8 @@ py_library(
     deps = [
         ":config_infra",
         "//cmk/gui:core_toolkit",
-        "//cmk/utils",
         "//packages/cmk-ccc:store",
+        "//packages/cmk-ruleset-matcher",
     ],
 )
 

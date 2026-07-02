@@ -4,10 +4,10 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import cmk.ruleset_matcher.tags
 import cmk.utils.paths
-import cmk.utils.tags
 from cmk.ccc import store
-from cmk.utils.tags import TagConfigSpec
+from cmk.ruleset_matcher.tags import TagConfigSpec
 
 from ._php_formatter import format_php
 
@@ -38,8 +38,8 @@ def _export_hosttags_to_php(cfg: TagConfigSpec) -> None:
     path = php_api_dir / "hosttags.php"
     php_api_dir.mkdir(mode=0o770, exist_ok=True, parents=True)
 
-    tag_config = cmk.utils.tags.TagConfig.from_config(cfg)
-    tag_config += cmk.utils.tags.BuiltinTagConfig()
+    tag_config = cmk.ruleset_matcher.tags.TagConfig.from_config(cfg)
+    tag_config += cmk.ruleset_matcher.tags.BuiltinTagConfig()
 
     # Transform Setup internal data structures into easier usable ones
     hosttags_dict = {}

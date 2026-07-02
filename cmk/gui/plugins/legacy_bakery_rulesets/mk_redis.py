@@ -20,7 +20,7 @@ from cmk.gui.valuespec import (
     TextInput,
 )
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _migrate(value: object) -> Any:

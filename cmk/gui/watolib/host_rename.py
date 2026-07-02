@@ -18,6 +18,7 @@ from cmk.ccc.hostaddress import HostName
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.version import edition_supports_nagvis
+from cmk.events.notify_types import EventRule
 from cmk.gui import userdb
 from cmk.gui.background_job.job import BackgroundJob, BackgroundProcessInterface
 from cmk.gui.config import Config
@@ -46,7 +47,6 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.agent_registration import UUIDLinkManager
 from cmk.utils.automation_config import LocalAutomationConfig
-from cmk.utils.notify_types import EventRule
 from cmk.utils.object_diff import make_diff_text
 
 from .audit_log import log_audit

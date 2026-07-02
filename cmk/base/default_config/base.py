@@ -13,17 +13,17 @@ from cmk.checkengine.discovery import RediscoveryParameters
 from cmk.checkengine.fetchers.ipmi import IPMICredentials
 from cmk.checkengine.snmplib import SNMPCredentials, SNMPTiming
 from cmk.checkengine.specs.exitspec import ExitSpec
+from cmk.events.notify_types import Contact, ContactName
 from cmk.inventory.structured_data import RawIntervalFromConfig
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.ruleset_matcher.tags import TagConfigSpec
 from cmk.server_side_calls_backend import ConfigSet as SSCConfigSet
 from cmk.utils.host_storage import FolderAttributesForBase
 from cmk.utils.http_proxy_config import HTTPProxySpec
-from cmk.utils.labels import Labels
-from cmk.utils.notify_types import Contact, ContactName
 from cmk.utils.oauth2_connection import OAuth2Connection
 from cmk.utils.password_store import PasswordConfig
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import TagConfigSpec
 
 # This file contains the defaults settings for almost all configuration
 # variables that can be overridden in main.mk. Some configuration

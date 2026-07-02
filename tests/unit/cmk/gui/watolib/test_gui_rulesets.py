@@ -35,10 +35,10 @@ from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import Rule, Ruleset
 from cmk.livestatus_client import SiteConfigurations
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RulesetName, RuleSpec
 from cmk.utils.global_ident_type import PROGRAM_ID_QUICK_SETUP
 from cmk.utils.redis import disable_redis
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RulesetName, RuleSpec
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 

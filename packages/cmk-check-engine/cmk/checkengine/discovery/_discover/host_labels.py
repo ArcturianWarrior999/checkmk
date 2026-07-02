@@ -19,8 +19,8 @@ from cmk.checkengine.helper_interface import HostKey, SourceType
 from cmk.checkengine.plugins import SectionName
 from cmk.checkengine.sectionparser import Provider, ResolvedResult
 from cmk.checkengine.specs.parameters import Parameters
-from cmk.utils.labels import HostLabel as _HostLabel
-from cmk.utils.labels import merge_cluster_labels
+from cmk.ruleset_matcher.labels import HostLabel as _HostLabel
+from cmk.ruleset_matcher.labels import merge_cluster_labels
 from cmk.utils.log import console
 
 __all__ = [

@@ -21,7 +21,7 @@ from cmk.checkengine.specs.checkresults import UnsubmittableServiceCheckResult
 from cmk.checkengine.specs.exitspec import ExitSpec
 from cmk.checkengine.specs.parameters import TimespecificParameters, TimespecificParameterSet
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.servicename import ServiceName
 
 _DUMMY_DF_PLUGIN = CheckPlugin(

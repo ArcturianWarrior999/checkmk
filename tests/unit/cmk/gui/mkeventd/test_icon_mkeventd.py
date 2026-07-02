@@ -14,7 +14,7 @@ import cmk.gui.mkeventd.icon as mkeventd_icon
 from cmk.gui.type_defs import Row
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.views.icon import icon_and_action_registry, IconConfig
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 
 class IconRenderArgs(NamedTuple):

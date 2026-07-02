@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.specs.parameters import Parameters
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 from .filters import RediscoveryParameters
 

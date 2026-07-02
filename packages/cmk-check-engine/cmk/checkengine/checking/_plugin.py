@@ -22,7 +22,7 @@ from cmk.checkengine.specs.parameters import (
     TimespecificParameters,
     TimespecificParameterSet,
 )
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.servicename import Item, ServiceName
 
 from ._checking import ABCCheckingConfig

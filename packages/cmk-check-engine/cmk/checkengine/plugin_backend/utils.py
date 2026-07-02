@@ -23,7 +23,7 @@ from cmk.checkengine.plugins import (
     SectionPlugin,
     SNMPSectionPlugin,
 )
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 TypeLabel = Literal["check", "cluster_check", "discovery", "host_label", "inventory"]
 

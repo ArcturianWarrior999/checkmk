@@ -8,8 +8,8 @@ from collections.abc import Mapping
 import pytest
 
 from cmk.ccc.exceptions import MKGeneralException
-from cmk.utils import tags
-from cmk.utils.tags import AuxTag, GroupedTag, TagConfig, TagGroup, TagGroupID, TagID
+from cmk.ruleset_matcher import tags
+from cmk.ruleset_matcher.tags import AuxTag, GroupedTag, TagConfig, TagGroup, TagGroupID, TagID
 
 
 @pytest.fixture(name="test_cfg")

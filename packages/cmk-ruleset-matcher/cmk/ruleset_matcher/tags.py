@@ -196,7 +196,7 @@ class AuxTag:
         tag_id: TagID,
         title: str,
         topic: str | None,
-        help: str | None,
+        help: str | None,  # noqa: A002
     ) -> None:
         self.id = tag_id
         self.title = title
@@ -362,7 +362,7 @@ class TagGroup:
         group_id: TagGroupID,
         title: str,
         topic: str | None,
-        help: str | None,
+        help: str | None,  # noqa: A002
         tags: list[GroupedTag],
     ) -> None:
         self.id = group_id
@@ -931,7 +931,7 @@ def fallback_tags(site: str) -> Mapping[TagGroupID, TagID]:
     # Handle not existing hosts (No need to performance optimize this)
     # TODO: This immitates the logic of cmk.gui.watolib.Host.tag_groups which
     # is currently responsible for calculating the host tags of a host.
-    # Would be better to untie the GUI code there and move it over to cmk.utils.tags.
+    # Would be better to untie the GUI code there and move it over to cmk.ruleset_matcher.tags.
     return {
         TagGroupID("piggyback"): TagID("auto-piggyback"),
         TagGroupID("networking"): TagID("lan"),

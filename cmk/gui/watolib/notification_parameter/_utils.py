@@ -10,6 +10,12 @@ from dataclasses import dataclass
 from typing import NamedTuple
 
 from cmk.ccc.i18n import _
+from cmk.events.notify_types import (
+    NotificationParameterGeneralInfos,
+    NotificationParameterID,
+    NotificationParameterItem,
+    NotificationParameterMethod,
+)
 from cmk.gui.form_specs import (
     get_visitor,
     process_validation_messages,
@@ -21,12 +27,6 @@ from cmk.gui.logged_in import LoggedInUser
 from cmk.gui.watolib.notifications import NotificationParameterConfigFile
 from cmk.gui.watolib.sample_config import new_notification_parameter_id
 from cmk.gui.watolib.user_scripts import declare_notification_plugin_permissions
-from cmk.utils.notify_types import (
-    NotificationParameterGeneralInfos,
-    NotificationParameterID,
-    NotificationParameterItem,
-    NotificationParameterMethod,
-)
 
 from ._registry import NotificationParameterRegistry
 

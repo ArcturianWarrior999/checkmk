@@ -61,9 +61,9 @@ from cmk.gui.watolib.rulespecs import (
     RulespecAllowList,
 )
 from cmk.gui.watolib.utils import mk_repr
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.labels import Labels, LabelSources
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
-from cmk.utils.labels import Labels, LabelSources
-from cmk.utils.rulesets.definition import RuleGroup
 from cmk.utils.servicename import Item
 
 from ._status_links import make_service_status_link

@@ -14,7 +14,7 @@ from cmk.checkengine.plugins import AgentBasedPlugins, AutocheckEntry
 from cmk.config_anonymizer.interface import AnonInterface
 from cmk.config_anonymizer.step import AnonymizeStep
 from cmk.gui.config import Config
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 
 
 def _autocheck_hosts() -> Iterable[HostName]:

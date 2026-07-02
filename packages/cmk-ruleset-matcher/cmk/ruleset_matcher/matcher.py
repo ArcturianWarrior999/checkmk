@@ -16,25 +16,24 @@ from typing import Any, cast, NotRequired, TypedDict, TypeGuard
 import cmk.trace
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.regex import combine_patterns, regex
-from cmk.utils.global_ident_type import GlobalIdent
-from cmk.utils.labels import (
+
+from ._type_defs import GlobalIdent, Item, ServiceName
+from .conditions import HostOrServiceConditions, HostOrServiceConditionsSimple
+from .labels import (
     AndOrNotLiteral,
     BaseLabel,
     LabelGroups,
     Labels,
 )
-from cmk.utils.servicename import Item, ServiceName
-from cmk.utils.tags import HostTagsMap, TagGroupID, TagID
-
-from .conditions import HostOrServiceConditions, HostOrServiceConditionsSimple
+from .tags import HostTagsMap, TagGroupID, TagID
 
 tracer = cmk.trace.get_tracer()
 
 RulesetName = str  # Could move to a less cluttered module as it is often used on its own.
 
-# The Tag* types below are *not* used in `cmk.utils.tags`
+# The Tag* types below are *not* used in `cmk.ruleset_matcher.tags`
 # but they are used here.  Therefore, they do *not* belong
-# in `cmk.utils.tags`.  This is _not a bug_!
+# in `cmk.ruleset_matcher.tags`.  This is _not a bug_!
 
 TagConditionNE = TypedDict(
     "TagConditionNE",
@@ -1056,10 +1055,10 @@ class SingleServiceRulesetMatcherFirst[TRuleValue, TDefaultValue]:
     def __call__(
         self, host_name: HostName, service_name: ServiceName, service_labels: Labels
     ) -> TRuleValue | TDefaultValue:
-        all = self.matcher.get_service_values_all(
+        all_ = self.matcher.get_service_values_all(
             host_name, service_name, service_labels, self.host_ruleset, self.labels_of_host
         )
-        return all[0] if all else self.default
+        return all_[0] if all_ else self.default
 
 
 # We experimenting here. If this is superior to the above, consolidate.
@@ -1074,10 +1073,10 @@ class SingleServiceRulesetMatcherFirstParsed[TRuleValue, TDefaultValue, TParsedV
     def __call__(
         self, host_name: HostName, service_name: ServiceName, service_labels: Labels
     ) -> TParsedValue | TDefaultValue:
-        all = self.matcher.get_service_values_all(
+        all_ = self.matcher.get_service_values_all(
             host_name, service_name, service_labels, self.host_ruleset, self.labels_of_host
         )
-        return self.parser(all[0]) if all else self.default
+        return self.parser(all_[0]) if all_ else self.default
 
 
 @dataclass(frozen=True)

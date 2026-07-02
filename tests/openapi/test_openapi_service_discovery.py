@@ -20,8 +20,8 @@ from cmk.automations.results import (
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.discovery import CheckPreviewEntry, DiscoverySettings
 from cmk.checkengine.plugins import AutocheckEntry, CheckPluginName, SectionName
+from cmk.ruleset_matcher.labels import HostLabel
 from cmk.utils.automation_config import LocalAutomationConfig
-from cmk.utils.labels import HostLabel
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.servicename import ServiceName
 from tests.testlib.gui.web_test_app import WebTestAppForCMK

@@ -32,11 +32,12 @@ from cmk.checkengine.sources._sources import (
     SpecialAgentSource,
     TCPSource,
 )
-from cmk.checkengine.sources.api._abc import Source
-from cmk.checkengine.sources.api._config import SourceConfig
+from cmk.ruleset_matcher.tags import ComputedDataSources, TagID
 from cmk.server_side_calls_backend import SpecialAgentCommandLine
 from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.tags import ComputedDataSources, TagID
+
+from ._abc import Source
+from ._config import SourceConfig
 
 # TODO: Remove temporary conditional import?
 # Will the feature flag prevent this import?

@@ -25,7 +25,7 @@ from cmk.gui.type_defs import HTTPVariables, IconNames, StaticIcon, VirtualHostT
 from cmk.gui.utils.html import HTML
 from cmk.gui.utils.urls import makeuri_contextless
 from cmk.gui.watolib.hosts_and_folders import folder_tree, get_folder_title_path
-from cmk.utils.tags import TagGroup, TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroup, TagGroupID, TagID
 
 
 class Tree(TypedDict, total=False):

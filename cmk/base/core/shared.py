@@ -20,11 +20,11 @@ from cmk.base.config import ConfigCache, CoreObjectsConfig, ObjectAttributes
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.plugins import ServiceID
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.utils import config_warnings
 from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.labels import Labels
 from cmk.utils.servicename import Item, ServiceName
-from cmk.utils.tags import TagGroupID, TagID
 
 CoreCommandName = str
 CoreCommand = str
@@ -299,7 +299,7 @@ def get_cluster_nodes_for_config(
     default_address_family: Callable[
         [HostName], Literal[socket.AddressFamily.AF_INET, socket.AddressFamily.AF_INET6]
     ],
-    host_tags: cmk.utils.tags.HostTags,
+    host_tags: cmk.ruleset_matcher.tags.HostTags,
     # these two argemnts and their usage are result of a refactoring.
     # I am not convinced if it really makes sense to call this callback on eveny host.
     all_existing_hosts: Iterable[HostName],
@@ -357,7 +357,7 @@ def _verify_cluster_address_family(
 def _verify_cluster_datasource(
     host_name: HostName,
     nodes: Iterable[HostName],
-    host_tags: cmk.utils.tags.HostTags,
+    host_tags: cmk.ruleset_matcher.tags.HostTags,
 ) -> None:
     cluster_tg = host_tags.tags(host_name)
     cluster_agent_ds = cluster_tg.get(TagGroupID("agent"))

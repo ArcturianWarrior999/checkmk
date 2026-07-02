@@ -23,8 +23,8 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.discover_plugins import discover_plugins_from_modules
+from cmk.ruleset_matcher.labels import Labels
 from cmk.utils import log
-from cmk.utils.labels import Labels
 from cmk.utils.log import console
 
 tracer = trace.get_tracer()

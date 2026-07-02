@@ -41,7 +41,7 @@ from cmk.ccc.hostaddress import Hosts
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition, Version
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.utils.labels import get_builtin_host_labels, Labels
+from cmk.ruleset_matcher.labels import get_builtin_host_labels, Labels
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.common.utils import wait_until
 

@@ -13,8 +13,7 @@ from pytest import MonkeyPatch
 from cmk.base import notify
 from cmk.events.event_context import EnrichedEventContext, EventContext, HostName
 from cmk.events.notification_result import NotificationContext
-from cmk.utils.http_proxy_config import EnvironmentProxyConfig
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     AlwaysBulkParameters,
     Contact,
     ContactName,
@@ -26,6 +25,7 @@ from cmk.utils.notify_types import (
     NotificationRuleID,
     NotifyPluginParamsDict,
 )
+from cmk.utils.http_proxy_config import EnvironmentProxyConfig
 
 HTTP_PROXY: Final = EnvironmentProxyConfig()
 

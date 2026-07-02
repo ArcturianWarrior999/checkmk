@@ -23,8 +23,8 @@ from pydantic import (
     ValidationInfo,
 )
 
-from cmk.utils.rulesets.ruleset_matcher import TagCondition
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.matcher import TagCondition
+from cmk.ruleset_matcher.tags import TagGroupID
 
 # These type aliases are introduced to decouple this from what at the time of writing
 # is cmk.utils. Since the a) original types are only aliases as well b) this is wishfull

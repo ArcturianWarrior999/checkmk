@@ -225,7 +225,7 @@ from cmk.gui.watolib.translation import (
 )
 from cmk.gui.watolib.translation import translation_elements as translation_elements
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def check_icmp_params() -> list[DictionaryEntry]:

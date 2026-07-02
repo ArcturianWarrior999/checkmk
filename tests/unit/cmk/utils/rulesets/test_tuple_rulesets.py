@@ -17,15 +17,15 @@ from pytest import MonkeyPatch
 
 import cmk.ccc.version as cmk_version
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.rulesets.ruleset_matcher import RuleSpec
-from cmk.utils.rulesets.tuple_rulesets import (
+from cmk.ruleset_matcher.matcher import RuleSpec
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tuple_rulesets import (
     ALL_HOSTS,
     get_rule_options,
     hosttags_match_taglist,
     in_extraconf_hostlist,
     in_extraconf_servicelist,
 )
-from cmk.utils.tags import TagGroupID, TagID
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 

@@ -15,8 +15,8 @@ from cmk.checkengine.fetcher_utils.trigger import FetcherTriggerFactory
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPPluginStore
 from cmk.licensing.handler import LicensingHandler
-from cmk.utils.labels import LabelManager, Labels
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
+from cmk.ruleset_matcher.labels import LabelManager, Labels
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 
 from .config import ConfigCache, LoadingResult
 

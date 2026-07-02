@@ -5,7 +5,7 @@
 
 from polyfactory.factories import TypedDictFactory
 
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     EventRule,
     get_rules_related_to_parameter,
     NotificationParameterID,

@@ -18,7 +18,7 @@ from urllib.parse import unquote
 from livestatus import SiteConfigurations
 
 import cmk.gui.watolib.sites as watolib_sites
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk.automations.results import (
     DiagCmkAgentInput,
     DiagSnmpInput,
@@ -287,7 +287,7 @@ class ABCHostMode(WatoMode, abc.ABC):
         cluster_nodes = [HostName(node) for node in cluster_nodes_str]
 
         # Fake a cluster host in order to get calculated tag groups via effective attributes...
-        cluster_computed_datasources = cmk.utils.tags.compute_datasources(
+        cluster_computed_datasources = cmk.ruleset_matcher.tags.compute_datasources(
             Host(
                 folder_from_request(
                     tree, request.var("folder"), request.get_ascii_input(self.VAR_HOST)
@@ -312,7 +312,7 @@ class ABCHostMode(WatoMode, abc.ABC):
                     % {"cluster_node": cluster_node},
                 )
 
-            node_computed_datasources = cmk.utils.tags.compute_datasources(
+            node_computed_datasources = cmk.ruleset_matcher.tags.compute_datasources(
                 tree.load_host(cluster_node).tag_groups()
             )
 
@@ -330,7 +330,7 @@ class ABCHostMode(WatoMode, abc.ABC):
     def _format_datasource_differences(
         self,
         node_name: str,
-        differences: cmk.utils.tags.DataSourceDifferences,
+        differences: cmk.ruleset_matcher.tags.DataSourceDifferences,
     ) -> str:
         def _get_is_or_is_not(is_ds: bool) -> str:
             return _("is") if is_ds else _("is <b>not</b>")

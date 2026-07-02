@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-from cmk.utils.tags import (
+from cmk.ruleset_matcher.tags import (
     _get_tag_to_group_map,
     get_effective_tag_config,
     TagConfig,

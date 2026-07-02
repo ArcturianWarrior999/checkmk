@@ -34,6 +34,19 @@ from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
 from cmk.events.notification_result import NotificationContext
+from cmk.events.notify_types import (
+    EventRule,
+    get_rules_related_to_parameter,
+    is_always_bulk,
+    NotificationParameterGeneralInfos,
+    NotificationParameterID,
+    NotificationParameterItem,
+    NotificationParameterSpec,
+    NotificationParameterSpecs,
+    NotificationPluginNameStr,
+    NotifyAnalysisInfo,
+    NotifyPluginInfo,
+)
 from cmk.gui import forms, permissions, sites, userdb
 from cmk.gui.breadcrumb import Breadcrumb
 from cmk.gui.config import active_config, Config
@@ -190,6 +203,7 @@ from cmk.livestatus_client.expressions import And, LqSafe
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables.hosts import Hosts
 from cmk.livestatus_client.tables.services import Services
+from cmk.ruleset_matcher.labels import Labels
 from cmk.rulesets.v1.rule_specs import NotificationParameters
 from cmk.shared_typing.main_menu import NavItem
 from cmk.shared_typing.notifications import (
@@ -206,20 +220,6 @@ from cmk.shared_typing.notifications import (
     RuleTopic,
 )
 from cmk.utils.automation_config import LocalAutomationConfig
-from cmk.utils.labels import Labels
-from cmk.utils.notify_types import (
-    EventRule,
-    get_rules_related_to_parameter,
-    is_always_bulk,
-    NotificationParameterGeneralInfos,
-    NotificationParameterID,
-    NotificationParameterItem,
-    NotificationParameterSpec,
-    NotificationParameterSpecs,
-    NotificationPluginNameStr,
-    NotifyAnalysisInfo,
-    NotifyPluginInfo,
-)
 from cmk.utils.statename import host_state_name, service_state_name
 
 OPTIMIZE_NOTIFICATIONS_ENTRIES: dict[str, list[str]] = {
@@ -4113,7 +4113,7 @@ class ABCNotificationParameterMode(WatoMode):
                         comment="",
                         docu_url="",
                     ),
-                    parameter_properties=DEFAULT_VALUE,  # type: ignore[typeddict-item]  # can not import in cmk.utils.notify_types
+                    parameter_properties=DEFAULT_VALUE,  # type: ignore[typeddict-item]  # can not import in cmk.events.notify_types
                 )
         else:
             try:

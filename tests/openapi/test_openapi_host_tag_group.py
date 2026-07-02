@@ -10,8 +10,8 @@ from typing import Any, Literal
 
 import pytest
 
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.tags import BuiltinTagConfig
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.tags import BuiltinTagConfig
 from tests.testlib.gui.web_test_app import WebTestAppForCMK
 from tests.testlib.rest_api_client import ClientRegistry
 

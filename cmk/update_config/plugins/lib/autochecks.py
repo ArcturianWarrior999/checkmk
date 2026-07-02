@@ -15,9 +15,9 @@ from cmk.checkengine.legacy import LegacyCheckParameters
 from cmk.checkengine.plugin_backend import get_check_plugin
 from cmk.checkengine.plugins import AutocheckEntry, CheckPlugin, CheckPluginName
 from cmk.gui.watolib.rulesets import AllRulesets, Ruleset, RulesetCollection
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.update_config.plugins.lib.replaced_check_plugins import ALL_REPLACED_CHECK_PLUGINS
 from cmk.utils import paths
-from cmk.utils.rulesets.definition import RuleGroup
 
 type ItemTransformer = Callable[[str | None], str | None]
 type TDiscoveredItemsTransforms = Mapping[CheckPluginName, ItemTransformer]

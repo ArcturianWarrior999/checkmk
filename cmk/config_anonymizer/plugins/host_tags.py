@@ -13,8 +13,8 @@ from cmk.config_anonymizer.step import AnonymizeStep
 from cmk.gui.config import Config
 from cmk.gui.watolib.tags import load_tag_config_read_only, TagConfigFile
 from cmk.gui.watolib.utils import multisite_dir, wato_root_dir
-from cmk.utils.labels import Labels
-from cmk.utils.tags import (
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import (
     AuxTag,
     AuxTagList,
     GroupedTag,

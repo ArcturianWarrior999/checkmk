@@ -7,8 +7,8 @@ from collections.abc import Callable
 
 from cmk.base.configlib.loaded_config import BaseConfig
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.labels import LabelManager
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.labels import LabelManager
+from cmk.ruleset_matcher.matcher import (
     RulesetMatcher,
     SingleServiceRulesetMatcherFirstParsed,
 )

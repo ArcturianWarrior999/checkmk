@@ -50,8 +50,8 @@ from cmk.checkengine.sectionparser import (
 from cmk.checkengine.snmplib import SNMPRawData
 from cmk.checkengine.specs.checkresults import ActiveCheckResult
 from cmk.checkengine.summarize import SummarizerFunction
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
 from cmk.utils.auto_queue import AutoQueue
-from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel
 from cmk.utils.log import console
 from cmk.utils.servicename import ServiceName
 

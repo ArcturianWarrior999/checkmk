@@ -17,7 +17,7 @@ from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
-from cmk.utils.servicename import ServiceName
+from cmk.ruleset_matcher._type_defs import ServiceName
 
 Labels = Mapping[str, str]
 

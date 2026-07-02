@@ -104,7 +104,7 @@ from cmk.gui.views.page_show_view import get_all_active_filters
 from cmk.gui.views.store import get_all_views, get_permitted_views, multisite_builtin_views
 from cmk.gui.visuals import get_livestatus_filter_headers
 from cmk.gui.visuals.filter import Filter, FilterRegistry
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 
 @request_memoize()

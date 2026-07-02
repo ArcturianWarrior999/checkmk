@@ -22,7 +22,7 @@ from cmk.gui.valuespec import (
     TextInput,
     Tuple,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 error_message = _(
     "ID entry fields may contain either numeric event ID or pair of numeric event IDs "

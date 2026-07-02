@@ -36,7 +36,7 @@ from cmk.gui.watolib.services import (
     DiscoveryState,
     ServiceDiscoveryBackgroundJob,
 )
-from cmk.utils.labels import HostLabelValueDict
+from cmk.ruleset_matcher.labels import HostLabelValueDict
 
 from ._family import SERVICE_DISCOVERY_FAMILY
 from .models.response_models import (

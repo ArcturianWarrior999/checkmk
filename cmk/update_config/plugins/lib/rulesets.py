@@ -23,11 +23,11 @@ from cmk.gui.watolib.rulesets import (
     RulesetCollection,
 )
 from cmk.gui.watolib.rulespecs import rulespec_registry
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.matcher import RulesetName, TagCondition
+from cmk.ruleset_matcher.tags import TagGroupID
 from cmk.rulesets.v1.form_specs import FormSpec
 from cmk.utils.log import VERBOSE
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import RulesetName, TagCondition
-from cmk.utils.tags import TagGroupID
 
 REPLACED_RULESETS: Mapping[RulesetName, RulesetName] = {}
 

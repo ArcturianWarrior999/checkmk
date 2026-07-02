@@ -205,18 +205,16 @@ from cmk.gui.watolib.rulespecs import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import mk_eval, mk_repr
-from cmk.rulesets.v1.form_specs import FormSpec
-from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
-from cmk.utils.labels import LabelGroups
-from cmk.utils.rulesets import ruleset_matcher
-from cmk.utils.rulesets.conditions import (
+from cmk.ruleset_matcher import matcher as ruleset_matcher
+from cmk.ruleset_matcher.conditions import (
     allow_host_label_conditions,
     allow_service_label_conditions,
     HostOrServiceConditions,
     HostOrServiceConditionsSimple,
 )
-from cmk.utils.rulesets.definition import RuleGroup, RuleGroupType
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.definition import RuleGroup, RuleGroupType
+from cmk.ruleset_matcher.labels import LabelGroups
+from cmk.ruleset_matcher.matcher import (
     RulesetName,
     RuleSpec,
     TagCondition,
@@ -224,8 +222,10 @@ from cmk.utils.rulesets.ruleset_matcher import (
     TagConditionNOR,
     TagConditionOR,
 )
+from cmk.ruleset_matcher.tags import GroupedTag, TagGroupID, TagID
+from cmk.rulesets.v1.form_specs import FormSpec
+from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.servicename import Item, ServiceName
-from cmk.utils.tags import GroupedTag, TagGroupID, TagID
 
 from ._rule_conditions import DictHostTagCondition
 

@@ -14,6 +14,23 @@ from urllib3.util import parse_url
 
 from cmk import fields
 from cmk.ccc import version
+from cmk.events.notify_types import (
+    CaseStateStr,
+    EmailBodyElementsType,
+    GroupbyType,
+    IlertPriorityType,
+    IncidentStateStr,
+    MgmntPriorityType,
+    MgmntUrgencyType,
+    OpsgenieElement,
+    OpsGeniePriorityStrType,
+    PluginOptions,
+    PushOverPriorityStringType,
+    RegexModes,
+    SoundType,
+    SysLogFacilityStrType,
+    SysLogPriorityStrType,
+)
 from cmk.gui.fields import (
     AuxTagIDField,
     ContactGroupField,
@@ -41,23 +58,6 @@ from cmk.gui.watolib.user_scripts import user_script_choices
 from cmk.rulesets.v1.form_specs import Dictionary
 from cmk.rulesets.v1.rule_specs import NotificationParameters
 from cmk.utils import paths
-from cmk.utils.notify_types import (
-    CaseStateStr,
-    EmailBodyElementsType,
-    GroupbyType,
-    IlertPriorityType,
-    IncidentStateStr,
-    MgmntPriorityType,
-    MgmntUrgencyType,
-    OpsgenieElement,
-    OpsGeniePriorityStrType,
-    PluginOptions,
-    PushOverPriorityStringType,
-    RegexModes,
-    SoundType,
-    SysLogFacilityStrType,
-    SysLogPriorityStrType,
-)
 
 
 class Checkbox(BaseSchema):

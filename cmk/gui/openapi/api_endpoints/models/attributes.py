@@ -52,7 +52,7 @@ from cmk.gui.watolib.host_attributes import (
     NetworkScanSpec,
 )
 from cmk.gui.watolib.tags import load_tag_config_read_only
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.tags import TagGroupID
 
 # Shared between the lenient input model (flags optional) and the read-only view model
 # (flags always rendered), so extracted to module level to avoid duplication.

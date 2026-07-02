@@ -27,7 +27,7 @@ from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
 from cmk.checkengine.snmp_backend import make_backend
 from cmk.checkengine.snmp_backends.classic import ClassicSNMPBackend
 from cmk.checkengine.snmp_backends.stored_walk import StoredWalkSNMPBackend
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.unit.base_configuration_scenario import Scenario
 

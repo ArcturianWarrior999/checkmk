@@ -9,7 +9,7 @@ from cmk.gui.i18n import _
 from cmk.gui.plugins.legacy_bakery_rulesets.utils import windows_sections
 from cmk.gui.plugins.wato.utils import HostRulespec, rulespec_registry
 from cmk.gui.valuespec import ListChoice
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_agent_config_win_agent_sections() -> ListChoice:

@@ -36,8 +36,8 @@ from cmk.gui.watolib.hosts_and_folders import (
     Host,
     SearchFolder,
 )
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.tags import TagID
 
 #   "host"        -> normal host edit dialog
 #   "cluster"     -> normal host edit dialog

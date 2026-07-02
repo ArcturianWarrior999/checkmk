@@ -86,13 +86,8 @@ from cmk.events.notification_spool_file import (
     NotificationForward,
     NotificationViaPlugin,
 )
-from cmk.utils import http_proxy_config, log, timeperiod
-from cmk.utils.http_proxy_config import make_http_proxy_getter
-from cmk.utils.labels import LabelManager
-from cmk.utils.log import console
-from cmk.utils.macros import replace_macros_in_str
-from cmk.utils.notify import find_wato_folder
-from cmk.utils.notify_types import (
+from cmk.events.notify import find_wato_folder
+from cmk.events.notify_types import (
     ConditionEventConsoleAlertsType,
     Contact,
     ContactName,
@@ -112,7 +107,12 @@ from cmk.utils.notify_types import (
     ServiceEventType,
     UUIDs,
 )
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher, RuleSpec
+from cmk.ruleset_matcher.labels import LabelManager
+from cmk.ruleset_matcher.matcher import RulesetMatcher, RuleSpec
+from cmk.utils import http_proxy_config, log, timeperiod
+from cmk.utils.http_proxy_config import make_http_proxy_getter
+from cmk.utils.log import console
+from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.timeperiod import (
     get_all_timeperiods,
     is_timeperiod_active,

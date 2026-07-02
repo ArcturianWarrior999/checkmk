@@ -8,7 +8,7 @@ from cmk.base.core.nagios.factory import create_core
 from cmk.ccc.version import Edition
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
 from cmk.licensing.community_handler import CommunityLicensingHandler
-from cmk.utils.labels import get_builtin_host_labels
+from cmk.ruleset_matcher.labels import get_builtin_host_labels
 from cmk.utils.paths import omd_root
 
 

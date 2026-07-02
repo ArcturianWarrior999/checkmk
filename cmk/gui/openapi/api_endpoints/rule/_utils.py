@@ -36,23 +36,23 @@ from cmk.gui.watolib.rulesets import (
     visible_rulesets,
 )
 from cmk.gui.watolib.rulespecs import FormSpecNotImplementedError
-from cmk.utils.labels import LabelGroups
-from cmk.utils.rulesets.conditions import (
+from cmk.ruleset_matcher.conditions import (
     allow_host_label_conditions,
     allow_service_label_conditions,
     HostOrServiceConditionRegex,
     HostOrServiceConditions,
     HostOrServiceConditionsSimple,
 )
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.labels import LabelGroups
+from cmk.ruleset_matcher.matcher import (
     RuleOptionsSpec,
     TagCondition,
     TagConditionNE,
     TagConditionNOR,
     TagConditionOR,
 )
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 from ._family import RULE_FAMILY
 from .models.request_models import (

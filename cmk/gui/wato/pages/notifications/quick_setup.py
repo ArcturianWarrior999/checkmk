@@ -11,6 +11,7 @@ from livestatus import SiteConfiguration, SiteConfigurations
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
+from cmk.events.notify_types import HostEventType, ServiceEventType
 from cmk.gui.config import active_config
 from cmk.gui.form_specs.unstable import (
     Autocompleter,
@@ -102,6 +103,7 @@ from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.timeperiods import load_timeperiods
 from cmk.gui.watolib.user_scripts import load_notification_scripts, NotificationUserScripts
 from cmk.gui.watolib.users import notification_script_choices
+from cmk.ruleset_matcher.tags import AuxTag, TagGroup
 from cmk.rulesets.internal.form_specs import (
     DictionaryExtended,
     ListExtended,
@@ -142,8 +144,6 @@ from cmk.rulesets.v1.form_specs.validators import (
     ValidationError,
 )
 from cmk.shared_typing.configuration_entity import ConfigEntityType
-from cmk.utils.notify_types import HostEventType, ServiceEventType
-from cmk.utils.tags import AuxTag, TagGroup
 from cmk.utils.timeperiod import TimeperiodName
 
 NEXT_BUTTON_ARIA_LABEL = _("Go to the next stage")

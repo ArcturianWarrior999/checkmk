@@ -27,7 +27,7 @@ from cmk.gui.watolib.rulespecs import (
     RulespecGroupRegistry,
     RulespecRegistry,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 from ._valuespecs import vs_element_inventory_visible_raw_path, vs_inventory_path_or_keys_help
 

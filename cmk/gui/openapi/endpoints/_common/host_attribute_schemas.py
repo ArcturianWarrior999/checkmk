@@ -39,8 +39,8 @@ from cmk.gui.watolib.builtin_attributes import (
 )
 from cmk.gui.watolib.groups import HostAttributeContactGroups
 from cmk.licensing.basics.options import get_license_options
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroupID
 from cmk.utils import paths
-from cmk.utils.tags import BuiltinTagConfig, TagGroupID
 
 built_in_tag_group_config = BuiltinTagConfig()
 

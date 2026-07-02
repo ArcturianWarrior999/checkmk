@@ -14,7 +14,7 @@ from cmk.gui.utils.html import HTML
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.urls import makeuri_contextless
 from cmk.gui.views.icon import Icon, IconConfig, IconRegistry
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 from ._compiler import is_part_of_aggregation
 

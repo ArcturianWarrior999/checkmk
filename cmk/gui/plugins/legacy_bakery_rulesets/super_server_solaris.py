@@ -11,7 +11,7 @@ from cmk.gui.plugins.wato.utils import (
     rulespec_registry,
 )
 from cmk.gui.valuespec import DropdownChoice
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_super_server_solaris() -> DropdownChoice[str]:

@@ -12,7 +12,7 @@ from cmk.gui.i18n import _
 from cmk.gui.permissions import declare_permission, permission_registry
 from cmk.gui.type_defs import BuiltinIconVisibility, DynamicIcon, IconSpec, Row, StaticIcon
 from cmk.gui.utils.roles import UserPermissions
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 from .base import Icon, IconConfig
 

@@ -103,6 +103,8 @@ from cmk.gui.watolib.predefined_conditions import PredefinedConditionStore
 from cmk.gui.watolib.sidebar_reload import need_sidebar_reload
 from cmk.gui.watolib.utils import wato_root_dir
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagConfig, TagGroupID, TagID
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.global_ident_type import GlobalIdent
 from cmk.utils.host_storage import (
@@ -120,10 +122,8 @@ from cmk.utils.host_storage import (
     StandardHostsStorage,
     StorageFormat,
 )
-from cmk.utils.labels import Labels
 from cmk.utils.object_diff import make_diff, make_diff_text
 from cmk.utils.redis import get_redis_client, redis_enabled, redis_server_reachable
-from cmk.utils.tags import TagConfig, TagGroupID, TagID
 
 _ContactgroupName = str
 

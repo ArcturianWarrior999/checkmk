@@ -31,8 +31,8 @@ from cmk.logwatch.config import (
     ParameterLogwatchRules,
     set_global_state,
 )
-from cmk.utils.labels import LabelManager
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
+from cmk.ruleset_matcher.labels import LabelManager
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 
 
 def set_global_logwatch_config(

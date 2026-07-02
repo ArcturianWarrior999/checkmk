@@ -612,7 +612,7 @@ py_library(
         ":core_toolkit",
         "//cmk/gui/utils:labels",
         "//cmk/gui/utils:user_errors",
-        "//cmk/utils",
+        "//packages/cmk-ruleset-matcher",
     ],
 )
 

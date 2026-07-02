@@ -106,10 +106,10 @@ from cmk.checkengine.sectionparser import (
 )
 from cmk.checkengine.snmplib import SNMPRawDataElem
 from cmk.checkengine.specs.checkresults import ActiveCheckResult
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.everythingtype import EVERYTHING
 from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel
-from cmk.utils.rulesets import RuleSetName
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 # ---------------------------------------------------------------------------

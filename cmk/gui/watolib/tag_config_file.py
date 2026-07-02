@@ -9,7 +9,7 @@ from cmk.ccc import store
 from cmk.gui import hooks
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoSingleConfigFile
 from cmk.gui.watolib.utils import multisite_dir, wato_root_dir
-from cmk.utils.tags import BuiltinTagConfig, TagConfig, TagConfigSpec
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagConfig, TagConfigSpec
 
 
 class TagConfigFile(WatoSingleConfigFile[TagConfigSpec]):

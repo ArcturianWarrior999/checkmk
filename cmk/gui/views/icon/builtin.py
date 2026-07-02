@@ -26,7 +26,7 @@ from cmk.gui.utils.popups import MethodAjax
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.urls import makeuri, makeuri_contextless
 from cmk.gui.visual_link import url_to_visual
-from cmk.utils.tags import TagID
+from cmk.ruleset_matcher.tags import TagID
 
 from ..graph import cmk_graph_url
 from .base import Icon, IconConfig

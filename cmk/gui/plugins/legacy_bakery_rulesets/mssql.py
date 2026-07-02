@@ -22,7 +22,7 @@ from cmk.gui.valuespec import (
     Tuple,
 )
 from cmk.gui.valuespec.definitions import CascadingDropdownChoice
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _mssql_authentication_choices() -> Sequence[CascadingDropdownChoice]:

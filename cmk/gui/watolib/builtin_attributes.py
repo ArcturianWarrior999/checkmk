@@ -14,7 +14,7 @@ from marshmallow.fields import Field
 
 from livestatus import SiteConfigurations
 
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk import fields
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site, SiteId
@@ -87,6 +87,7 @@ from cmk.gui.watolib.host_attributes import (
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
 from cmk.gui.watolib.tags import TagConfigFile
 from cmk.gui.watolib.translation import HostnameTranslation
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.rulesets.internal.form_specs import ListOfStrings as FSListOfStrings
 from cmk.rulesets.internal.form_specs import (
     SingleChoiceElementExtended,
@@ -100,7 +101,6 @@ from cmk.rulesets.v1.form_specs import (
     MonitoredHost,
     String,
 )
-from cmk.utils.tags import TagGroupID, TagID
 
 from . import openapi_fields
 
@@ -581,7 +581,7 @@ def validate_host_parents(host: Host) -> None:
 @hooks.request_memoize()
 def _get_criticality_choices() -> Sequence[tuple[TagID | None, str]]:
     """Returns the current configuration of the tag_group criticality"""
-    tags = cmk.utils.tags.TagConfig.from_config(TagConfigFile().load_for_reading())
+    tags = cmk.ruleset_matcher.tags.TagConfig.from_config(TagConfigFile().load_for_reading())
     criticality_group = tags.get_tag_group(TagGroupID("criticality"))
     if not criticality_group:
         return []

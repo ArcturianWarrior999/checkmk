@@ -21,6 +21,8 @@ py_library(
         "cmk/events/log_to_history.py",
         "cmk/events/notification_result.py",
         "cmk/events/notification_spool_file.py",
+        "cmk/events/notify.py",
+        "cmk/events/notify_types.py",
     ],
     data = [
         "cmk/events/py.typed",
@@ -28,8 +30,11 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
+        "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:store",
         "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-ruleset-matcher",
+        requirement("pydantic"),
     ],
 )
 

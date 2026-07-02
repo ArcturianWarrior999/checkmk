@@ -12,6 +12,17 @@ from uuid import uuid4, uuid5
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, url_prefix
 from cmk.ccc.user import UserId
+from cmk.events.notify_types import (
+    EventRule,
+    MailPluginModel,
+    NotificationParameterGeneralInfos,
+    NotificationParameterID,
+    NotificationParameterItem,
+    NotificationParameterSpecs,
+    NotificationPluginNameStr,
+    NotificationRuleID,
+    NotifyPlugin,
+)
 from cmk.gui import werks
 from cmk.gui.groups import GroupSpec
 from cmk.gui.log import logger
@@ -45,21 +56,10 @@ from cmk.inventory.config import (
     InvCleanupParamsDefaultCombined,
 )
 from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
+from cmk.ruleset_matcher.tags import sample_tag_config, TagConfig
 from cmk.utils.encryption import raw_certificates_from_file
 from cmk.utils.log import VERBOSE
-from cmk.utils.notify_types import (
-    EventRule,
-    MailPluginModel,
-    NotificationParameterGeneralInfos,
-    NotificationParameterID,
-    NotificationParameterItem,
-    NotificationParameterSpecs,
-    NotificationPluginNameStr,
-    NotificationRuleID,
-    NotifyPlugin,
-)
 from cmk.utils.paths import configuration_lockfile, htpasswd_file, site_cert_file
-from cmk.utils.tags import sample_tag_config, TagConfig
 
 from ._abc import SampleConfigGeneratorABCGroups
 from ._constants import SHIPPED_RULES, USE_NEW_DESCRIPTIONS_FOR_SETTING

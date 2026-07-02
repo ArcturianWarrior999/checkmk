@@ -11,7 +11,7 @@ from pytest import MonkeyPatch
 
 import cmk.utils.paths
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.labels import ABCLabelConfig, DiscoveredHostLabelsStore, LabelManager
+from cmk.ruleset_matcher.labels import ABCLabelConfig, DiscoveredHostLabelsStore, LabelManager
 
 
 @pytest.fixture(name="discovered_host_labels_dir")

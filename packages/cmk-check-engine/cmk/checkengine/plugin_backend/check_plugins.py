@@ -21,7 +21,7 @@ from cmk.checkengine.plugins import (
     ParsedSectionName,
 )
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 from .utils import (
     create_subscribed_sections,

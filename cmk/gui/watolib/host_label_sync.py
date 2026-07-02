@@ -41,8 +41,8 @@ from cmk.gui.watolib.automations import (
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.paths import wato_var_dir
 from cmk.livestatus_client import SiteConfiguration
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore
 from cmk.utils.automation_config import RemoteAutomationConfig
-from cmk.utils.labels import DiscoveredHostLabelsStore
 
 UpdatedHostLabelsEntry = tuple[str, float, str]
 

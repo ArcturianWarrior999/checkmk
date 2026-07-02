@@ -33,8 +33,8 @@ from cmk.checkengine.sectionparser import (
     store_piggybacked_sections,
 )
 from cmk.checkengine.summarize import SummarizerFunction
+from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel, merge_cluster_labels
 from cmk.utils.everythingtype import EVERYTHING
-from cmk.utils.labels import DiscoveredHostLabelsStore, HostLabel, merge_cluster_labels
 from cmk.utils.servicename import ServiceName
 
 from ._autochecks import (

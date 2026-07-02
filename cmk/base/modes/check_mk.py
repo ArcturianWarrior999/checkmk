@@ -128,6 +128,13 @@ from cmk.inventory.structured_data import (
 )
 from cmk.licensing.basics.finder import blocked_feature_files
 from cmk.piggyback import backend as piggyback_backend
+from cmk.ruleset_matcher.labels import LabelManager, Labels
+from cmk.ruleset_matcher.matcher import (
+    BundledHostRulesetMatcher,
+    RulesetMatcher,
+)
+from cmk.ruleset_matcher.tags import HostTags, TagID
+from cmk.ruleset_matcher.tuple_rulesets import hosttags_match_taglist
 from cmk.server_side_calls_backend import (
     ExecutableFinder,
     load_active_checks,
@@ -138,16 +145,9 @@ from cmk.utils.auto_queue import AutoQueue
 from cmk.utils.check_utils import maincheckify
 from cmk.utils.everythingtype import EVERYTHING
 from cmk.utils.ip_lookup import ConfiguredIPLookup
-from cmk.utils.labels import LabelManager, Labels
 from cmk.utils.log import console, section
 from cmk.utils.paths import omd_root
-from cmk.utils.rulesets.ruleset_matcher import (
-    BundledHostRulesetMatcher,
-    RulesetMatcher,
-)
-from cmk.utils.rulesets.tuple_rulesets import hosttags_match_taglist
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import HostTags, TagID
 
 from .modes import Mode, Option
 

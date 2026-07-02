@@ -24,7 +24,7 @@ from cmk.gui.watolib.rulespecs import (
     RulespecRegistry,
     ServiceRulespec,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def register(

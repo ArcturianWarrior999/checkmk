@@ -31,7 +31,7 @@ from cmk.livestatus_client import (
     UnixSocketDetails,
     UnixSocketInfo,
 )
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 from cmk.utils.paths import omd_root
 
 

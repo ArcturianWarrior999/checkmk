@@ -34,19 +34,19 @@ from cmk.gui.watolib.rulesets import (
 )
 from cmk.gui.watolib.tags import load_tag_config_read_only
 from cmk.gui.watolib.utils import wato_root_dir
-from cmk.utils import paths
-from cmk.utils.global_ident_type import GlobalIdent
-from cmk.utils.labels import LabelGroups, Labels
-from cmk.utils.rulesets.conditions import (
+from cmk.ruleset_matcher.conditions import (
     HostOrServiceConditionRegex,
     HostOrServiceConditions,
 )
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.labels import LabelGroups, Labels
+from cmk.ruleset_matcher.matcher import (
     RuleSpec,
     TagCondition,
 )
-from cmk.utils.tags import BuiltinTagConfig, TagGroupID, TagID
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroupID, TagID
+from cmk.utils import paths
+from cmk.utils.global_ident_type import GlobalIdent
 
 
 class AnonymizedAllRulesets(AllRulesets):

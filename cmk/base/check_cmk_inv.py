@@ -44,6 +44,7 @@ from cmk.checkengine.plugin_backend import (
 )
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.specs.checkresults import ActiveCheckResult, ServiceState
+from cmk.ruleset_matcher.matcher import BundledHostRulesetMatcher
 from cmk.server_side_calls_backend import load_secrets_file
 from cmk.utils.ip_lookup import (
     ConfiguredIPLookup,
@@ -51,7 +52,6 @@ from cmk.utils.ip_lookup import (
     make_lookup_mgmt_board_ip_address,
 )
 from cmk.utils.log import console
-from cmk.utils.rulesets.ruleset_matcher import BundledHostRulesetMatcher
 
 
 def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:

@@ -15,7 +15,7 @@ from cmk.gui.i18n import _
 from cmk.gui.painter.v0.helpers import get_tag_groups, tag_choices_for_group
 from cmk.gui.painter.v0.host_tag_painters import HashableTagGroups
 from cmk.gui.type_defs import Row
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 from .base import Sorter
 

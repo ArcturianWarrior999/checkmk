@@ -23,7 +23,7 @@ from cmk.gui.valuespec import (
     Tuple,
 )
 from cmk.gui.wato import RulespecGroupActiveChecks
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _migrate(params: Mapping[str, Any] | tuple[str, Mapping[str, Any]]) -> Mapping[str, Any]:

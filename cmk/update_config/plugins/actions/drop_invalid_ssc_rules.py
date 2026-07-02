@@ -11,9 +11,9 @@ from cmk.gui.config import active_config
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import AllRulesets, RulesetCollection
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.registry import update_action_registry, UpdateAction
-from cmk.utils.rulesets.definition import RuleGroup
 
 
 def _is_valid_ssc_value(value: object) -> bool:

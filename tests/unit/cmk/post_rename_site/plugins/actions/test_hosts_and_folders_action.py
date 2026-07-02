@@ -32,10 +32,10 @@ from cmk.post_rename_site.plugins.actions.hosts_and_folders import (
     _update_locked_by,
     update_hosts_and_folders,
 )
+from cmk.ruleset_matcher.tags import TagGroupID
 from cmk.utils.global_ident_type import (
     GlobalIdent,
 )
-from cmk.utils.tags import TagGroupID
 
 CreateHost = tuple[HostName, HostAttributes, Sequence[HostName] | None]
 

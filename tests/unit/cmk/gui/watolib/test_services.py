@@ -44,9 +44,9 @@ from cmk.gui.watolib.services import (
     perform_service_discovery,
 )
 from cmk.livestatus_client import SiteConfigurations
+from cmk.ruleset_matcher.labels import HostLabel
 from cmk.utils.automation_config import LocalAutomationConfig
 from cmk.utils.everythingtype import EVERYTHING
-from cmk.utils.labels import HostLabel
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.servicename import ServiceName
 

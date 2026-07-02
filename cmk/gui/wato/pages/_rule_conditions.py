@@ -24,7 +24,7 @@ from cmk.gui.valuespec import (
     Tuple,
 )
 from cmk.gui.valuespec.definitions import ValueSpec
-from cmk.utils.tags import AuxTag, TagGroup, TagGroupID, TagID
+from cmk.ruleset_matcher.tags import AuxTag, TagGroup, TagGroupID, TagID
 
 
 def _is_or_is_not(label: str | None = None) -> DropdownChoice:

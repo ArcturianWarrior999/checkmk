@@ -7,16 +7,16 @@ from pathlib import Path
 
 from pytest import MonkeyPatch
 
-import cmk.utils.notify
+import cmk.events.notify
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.notify import (
+from cmk.events.notify import (
     build_descendants_map,
     create_notify_host_files,
     MAX_HOST_DESCENDANTS,
     NotificationHostConfig,
     read_notify_host_file,
 )
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 NHC = NotificationHostConfig(
     host_labels={"owe": "owe"},
@@ -49,7 +49,7 @@ def test_create_notify_host_files(tmp_path: Path, monkeypatch: MonkeyPatch) -> N
     test_file.write_bytes(files[host_name])
 
     monkeypatch.setattr(
-        cmk.utils.notify,
+        cmk.events.notify,
         "make_notify_host_file_path",
         lambda config_path, host_name: test_file,
     )

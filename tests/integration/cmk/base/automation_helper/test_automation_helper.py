@@ -22,7 +22,7 @@ from cmk.base.automation_helper._config import (
     ReloaderConfig,
     ServerConfig,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 from tests.integration.linux_test_host import create_linux_test_host
 from tests.testlib.common.utils import wait_until
 from tests.testlib.site import Site

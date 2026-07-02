@@ -17,12 +17,12 @@ from cmk.ccc.hostaddress import HostName
 from cmk.ccc.i18n import _
 from cmk.ccc.store import DimSerializer, load_object_from_file
 from cmk.events.notification_result import NotificationContext
-from cmk.utils.labels import Labels
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 from .notify_types import ServiceName
 
-logger = logging.getLogger("cmk.utils.notify")
+logger = logging.getLogger("cmk.events.notify")
 
 # Cap protects pathological topologies and keeps env-var sizes bounded.
 # notification_script_env limits each NOTIFY_* env var to 32*PAGESIZE/2

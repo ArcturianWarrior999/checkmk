@@ -48,10 +48,10 @@ from cmk.ccc.config_path import VersionedConfigPath
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.plugins import AgentBasedPlugins, AutocheckEntry, CheckPlugin, CheckPluginName
 from cmk.discover_plugins import PluginLocation
+from cmk.ruleset_matcher.labels import ABCLabelConfig, LabelManager, Labels
 from cmk.server_side_calls.v1 import ActiveCheckCommand, ActiveCheckConfig
 from cmk.server_side_calls_backend import load_active_checks
 from cmk.utils import ip_lookup
-from cmk.utils.labels import ABCLabelConfig, LabelManager, Labels
 from cmk.utils.servicename import ServiceName
 from tests.testlib.common.empty_config import EMPTY_CONFIG, EMPTY_NAGIOS_CORE_CONFIG
 from tests.testlib.unit.base_configuration_scenario import Scenario

@@ -30,14 +30,14 @@ from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.crypto.password_hashing import PasswordHash
 from cmk.crypto.secrets import Secret
+from cmk.events.notify_types import DisabledNotificationsOptions, EventRule
 from cmk.gui.exceptions import FinalizeRequest
 from cmk.gui.utils.speaklater import LazyString
 from cmk.inventory.structured_data import SDPath
+from cmk.ruleset_matcher.labels import Labels
 from cmk.shared_typing.icon import IconNames as IconNames
 from cmk.shared_typing.icon import IconSizes as IconSizes
-from cmk.utils.labels import Labels
 from cmk.utils.metrics import MetricName
-from cmk.utils.notify_types import DisabledNotificationsOptions, EventRule
 from cmk.utils.password_store import PasswordId
 
 _ContactgroupName = str

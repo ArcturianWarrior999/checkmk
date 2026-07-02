@@ -15,7 +15,7 @@ from cmk.agent_based.v2 import (
 )
 from cmk.checkengine.snmplib import SNMPDetectBaseType
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 from ._common import LegacyPluginLocation, RuleSetTypeName, SectionName
 

@@ -53,9 +53,9 @@ from cmk.gui.quick_setup.v0_unstable.widgets import (
     Widget,
 )
 from cmk.gui.utils.urls import doc_reference_url, DocReference, DocReferenceUtm, makeuri_contextless
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1 import Title
 from cmk.rulesets.v1.form_specs import Dictionary
-from cmk.utils.rulesets.definition import RuleGroup
 
 NEXT_BUTTON_ARIA_LABEL = _("Go to the next stage")
 PREV_BUTTON_ARIA_LABEL = _("Go to the previous stage")

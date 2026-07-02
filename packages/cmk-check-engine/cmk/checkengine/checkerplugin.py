@@ -15,7 +15,7 @@ from cmk.checkengine.plugins import CheckPluginName, ParsedSectionName, ServiceI
 from cmk.checkengine.sectionparser import Provider
 from cmk.checkengine.specs.checkresults import ServiceCheckResult
 from cmk.checkengine.specs.parameters import TimespecificParameters
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.servicename import Item, ServiceName
 
 

@@ -126,8 +126,8 @@ from cmk.gui.watolib.translation import (
 )
 from cmk.gui.watolib.users import vs_idle_timeout_duration
 from cmk.gui.watolib.utils import site_neutral_path
-from cmk.utils.rulesets.definition import RuleGroup
-from cmk.utils.tags import TagGroup, TagGroupID, TagID
+from cmk.ruleset_matcher.definition import RuleGroup
+from cmk.ruleset_matcher.tags import TagGroup, TagGroupID, TagID
 
 from ._check_plugin_selection import CheckPluginSelection
 from ._group_selection import (

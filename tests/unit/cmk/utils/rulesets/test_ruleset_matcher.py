@@ -14,7 +14,7 @@ import pytest
 from pytest import MonkeyPatch
 
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.rulesets.ruleset_matcher import (
+from cmk.ruleset_matcher.matcher import (
     matches_tag_condition,
     merge_parameters,
     RuleConditionsSpec,
@@ -23,8 +23,8 @@ from cmk.utils.rulesets.ruleset_matcher import (
     SingleHostRulesetMatcher,
     TagCondition,
 )
+from cmk.ruleset_matcher.tags import TagConfig, TagGroupID, TagID
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import TagConfig, TagGroupID, TagID
 from tests.testlib.unit.base_configuration_scenario import Scenario
 
 ruleset: Sequence[RuleSpec[str]] = [

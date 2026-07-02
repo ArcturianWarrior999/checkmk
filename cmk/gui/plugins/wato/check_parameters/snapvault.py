@@ -12,7 +12,7 @@ from cmk.gui.plugins.wato.utils import (
     RulespecGroupCheckParametersStorage,
 )
 from cmk.gui.valuespec import Age, Checkbox, Dictionary, ListOf, TextInput, Tuple
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _parameter_valuespec_snapvault() -> Dictionary:

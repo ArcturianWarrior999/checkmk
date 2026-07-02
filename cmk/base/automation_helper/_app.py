@@ -31,7 +31,7 @@ from cmk.ccc import version as cmk_version
 from cmk.ccc.hostaddress import Hosts
 from cmk.ccc.site import SiteId
 from cmk.checkengine.plugins import AgentBasedPlugins
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 
 from ._cache import Cache, CacheError
 from ._config import Config, ReloaderConfig

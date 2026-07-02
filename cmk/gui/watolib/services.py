@@ -77,8 +77,8 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
 )
 from cmk.gui.watolib.rulesets import EnabledDisabledServicesEditor, may_edit_ruleset
+from cmk.ruleset_matcher.labels import HostLabel, HostLabelValueDict
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
-from cmk.utils.labels import HostLabel, HostLabelValueDict
 from cmk.utils.object_diff import make_diff_text
 from cmk.utils.servicename import Item, ServiceName
 

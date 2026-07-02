@@ -12,7 +12,7 @@ from cmk.config_anonymizer.step import AnonymizeStep
 from cmk.gui.config import Config
 from cmk.gui.groups import AllGroupSpecs
 from cmk.gui.watolib.groups_io import GroupAliasConfigFile, GroupsConfigFile, load_group_information
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 from cmk.utils.paths import default_config_dir
 
 

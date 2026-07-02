@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from collections.abc import Mapping
 
-from cmk.utils.rulesets.ruleset_matcher import RuleConditionsSpec, RuleOptionsSpec, RuleSpec
+from cmk.ruleset_matcher.matcher import RuleConditionsSpec, RuleOptionsSpec, RuleSpec
 
 _CMK_SERVER_CONDITION = RuleConditionsSpec(
     host_label_groups=[("and", [("and", "cmk/check_mk_server:yes"), ("and", "")])]

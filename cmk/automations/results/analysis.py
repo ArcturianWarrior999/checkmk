@@ -24,8 +24,8 @@ from cmk.checkengine.legacy import LegacyCheckParameters
 from cmk.checkengine.specs.checkresults import ServiceState
 from cmk.checkengine.specs.parameters import TimespecificParameters
 from cmk.checkengine.submitters import ServiceDetails
-from cmk.utils.labels import Labels, LabelSources
-from cmk.utils.rulesets.ruleset_matcher import RulesetName
+from cmk.ruleset_matcher.labels import Labels, LabelSources
+from cmk.ruleset_matcher.matcher import RulesetName
 from cmk.utils.servicename import Item, ServiceName
 
 from ..types import AutomationID

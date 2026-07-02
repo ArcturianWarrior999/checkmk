@@ -53,12 +53,12 @@ from cmk.gui.valuespec import (
     ValueSpecText,
     ValueSpecValidateFunc,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.internal.form_specs import SingleChoiceElementExtended, SingleChoiceExtended
 from cmk.rulesets.v1 import Help, Label, Title
 from cmk.rulesets.v1.form_specs import DefaultValue, FormSpec
 from cmk.rulesets.v1.form_specs import FixedValue as FSFixedValue
 from cmk.utils import paths
-from cmk.utils.rulesets.definition import RuleGroup
 from cmk.utils.timeperiod import TIMESPECIFIC_DEFAULT_KEY, TIMESPECIFIC_VALUES_KEY
 
 from .check_mk_automations import get_check_information_cached

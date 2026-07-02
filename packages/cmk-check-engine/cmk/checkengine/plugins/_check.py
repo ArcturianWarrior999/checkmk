@@ -11,7 +11,7 @@ from typing import Final, NamedTuple
 from cmk.agent_based.v2 import IgnoreResults, Metric, Result, Service
 from cmk.agent_based.v3_unstable import Metric as MetricV3Unstable
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 from cmk.utils.servicename import Item
 
 from ._common import LegacyPluginLocation, RuleSetTypeName

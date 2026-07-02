@@ -8,15 +8,15 @@ import base64
 from pathlib import Path
 from typing import Any
 
+import cmk.ruleset_matcher.tuple_rulesets
 import cmk.utils.paths
-import cmk.utils.rulesets.tuple_rulesets
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.gui.i18n import _
 
 # TODO: Clean up all call sites in the GUI and only use them in Setup config file loading code
-ALL_HOSTS = cmk.utils.rulesets.tuple_rulesets.ALL_HOSTS
-ALL_SERVICES = cmk.utils.rulesets.tuple_rulesets.ALL_SERVICES
-NEGATE = cmk.utils.rulesets.tuple_rulesets.NEGATE
+ALL_HOSTS = cmk.ruleset_matcher.tuple_rulesets.ALL_HOSTS
+ALL_SERVICES = cmk.ruleset_matcher.tuple_rulesets.ALL_SERVICES
+NEGATE = cmk.ruleset_matcher.tuple_rulesets.NEGATE
 
 
 def wato_root_dir() -> Path:

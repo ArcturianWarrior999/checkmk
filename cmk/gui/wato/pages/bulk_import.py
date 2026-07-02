@@ -82,7 +82,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
-from cmk.utils.tags import TagGroup
+from cmk.ruleset_matcher.tags import TagGroup
 
 ImportTuple = tuple[HostName, HostAttributes, None]
 

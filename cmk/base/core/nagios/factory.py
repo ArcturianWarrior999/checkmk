@@ -13,9 +13,9 @@ from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPPluginStore
 from cmk.core_client import NagiosClient
 from cmk.licensing.community_handler import CommunityLicensingHandler
+from cmk.ruleset_matcher.labels import LabelManager
+from cmk.ruleset_matcher.matcher import RulesetMatcher
 from cmk.utils import paths
-from cmk.utils.labels import LabelManager
-from cmk.utils.rulesets.ruleset_matcher import RulesetMatcher
 from cmk.utils.timeperiod import get_all_timeperiods
 
 

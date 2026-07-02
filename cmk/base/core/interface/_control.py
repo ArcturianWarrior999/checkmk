@@ -27,11 +27,11 @@ from cmk.ccc.store import activation_lock
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.plugins import AgentBasedPlugins, ServiceID
 from cmk.core_client import CoreAction, CoreClient
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import HostTags
 from cmk.utils import config_warnings, ip_lookup
-from cmk.utils.labels import Labels
 from cmk.utils.log import console
 from cmk.utils.servicename import ServiceName
-from cmk.utils.tags import HostTags
 
 from ._base_core import MonitoringCore
 from ._snapshot_local_dir import snapshot_local_dir

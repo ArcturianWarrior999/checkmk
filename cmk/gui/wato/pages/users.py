@@ -20,6 +20,7 @@ from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
 from cmk.crypto.password import Password, PasswordPolicy
+from cmk.events.notify_types import EventRule
 from cmk.gui import forms, userdb
 from cmk.gui.background_job import job as background_job
 from cmk.gui.background_job.job import JobTarget
@@ -119,7 +120,6 @@ from cmk.gui.watolib.users import (
     verify_password_policy,
 )
 from cmk.utils import paths, render
-from cmk.utils.notify_types import EventRule
 
 from ._user_security_message import (
     SecurityNotificationEvent,

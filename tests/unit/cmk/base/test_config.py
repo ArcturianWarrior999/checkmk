@@ -78,11 +78,11 @@ from cmk.discover_plugins import DiscoveredPlugins, PluginLocation
 from cmk.gui.watolib.sample_config import USE_NEW_DESCRIPTIONS_FOR_SETTING
 from cmk.password_store.v1_unstable import Secret
 from cmk.piggyback import backend as piggyback_backend
+from cmk.ruleset_matcher.matcher import BundledHostRulesetMatcher, RulesetMatcher, RuleSpec
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.server_side_calls.v1 import ActiveCheckConfig
 from cmk.utils.ip_lookup import IPStackConfig
-from cmk.utils.rulesets import RuleSetName
-from cmk.utils.rulesets.ruleset_matcher import BundledHostRulesetMatcher, RulesetMatcher, RuleSpec
-from cmk.utils.tags import TagGroupID, TagID
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.unit.base_configuration_scenario import Scenario
 

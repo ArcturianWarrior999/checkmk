@@ -18,7 +18,7 @@ from cmk.gui.valuespec import (
 )
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
 from cmk.gui.watolib.rulespecs import HostRulespec, rulespec_registry
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_agent_config_mk_sap_hana() -> Alternative:

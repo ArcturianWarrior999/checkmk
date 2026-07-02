@@ -525,8 +525,8 @@ py_library(
     ],
     deps = [
         "//cmk/gui:core_toolkit",
-        "//cmk/utils",
         "//packages/cmk-ccc:site",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-ruleset-matcher",
     ],
 )

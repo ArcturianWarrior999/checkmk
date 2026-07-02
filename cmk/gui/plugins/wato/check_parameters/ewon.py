@@ -14,7 +14,7 @@ from cmk.gui.plugins.wato.utils import (
     RulespecGroupCheckParametersEnvironment,
 )
 from cmk.gui.valuespec import Dictionary, DropdownChoice, Migrate, Percentage, TextInput, Tuple
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _valuespec_ewon_discovery_rules() -> Migrate[dict[str, Any]]:

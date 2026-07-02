@@ -21,9 +21,9 @@ from typing import Any, TypedDict
 
 from cmk.ccc import store
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.labels import Labels
-from cmk.utils.rulesets.tuple_rulesets import ALL_HOSTS, ALL_SERVICES
-from cmk.utils.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.labels import Labels
+from cmk.ruleset_matcher.tags import TagGroupID, TagID
+from cmk.ruleset_matcher.tuple_rulesets import ALL_HOSTS, ALL_SERVICES
 
 HostAttributeMapping = tuple[
     str, str, dict[str, Any], str

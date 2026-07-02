@@ -37,7 +37,7 @@ from cmk.gui.watolib.host_attributes import (
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.livestatus_client import SiteConfigurations
-from cmk.utils.labels import Labels
+from cmk.ruleset_matcher.labels import Labels
 
 
 @pytest.mark.usefixtures("clearing_attribute")

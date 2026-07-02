@@ -16,7 +16,7 @@ import pytest
 import time_machine
 from pytest_mock import MockerFixture
 
-import cmk.utils.tags
+import cmk.ruleset_matcher.tags
 from cmk.gui.bi import _filters as bi_filters
 from cmk.gui.type_defs import Rows, VisualContext
 from cmk.gui.utils.output_funnel import output_funnel
@@ -606,7 +606,7 @@ def test_filters_filter(test: FilterTest, set_config: SetConfig, request_context
             wato_host_attrs=[
                 {"name": "bla", "title": "Bla"}
             ],  # Needed for ABCFilterCustomAttribute
-            tags=cmk.utils.tags.BuiltinTagConfig(),  # Need for ABCTagFilter
+            tags=cmk.ruleset_matcher.tags.BuiltinTagConfig(),  # Need for ABCTagFilter
         ),
         time_machine.travel(datetime.datetime(2018, 4, 15, 16, 50, tzinfo=ZoneInfo("UTC"))),
     ):

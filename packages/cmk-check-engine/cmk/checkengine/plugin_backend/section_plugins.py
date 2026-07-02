@@ -41,7 +41,7 @@ from cmk.checkengine.plugins import (
 )
 from cmk.checkengine.snmplib import SNMPDetectBaseType
 from cmk.discover_plugins import PluginLocation
-from cmk.utils.rulesets import RuleSetName
+from cmk.ruleset_matcher.ruleset_name import RuleSetName
 
 from .utils import (
     validate_default_parameters,

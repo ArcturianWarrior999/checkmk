@@ -49,9 +49,9 @@ from cmk.gui.quick_setup.v0_unstable.widgets import (
 from cmk.plugins.azure_deprecated.rulesets import (  # astrein: disable=cmk-module-layer-violation
     azure,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1 import Title
 from cmk.rulesets.v1.form_specs import DictElement, Dictionary
-from cmk.utils.rulesets.definition import RuleGroup
 
 NEXT_BUTTON_ARIA_LABEL = _("Go to the next stage")
 PREV_BUTTON_ARIA_LABEL = _("Go to the previous stage")

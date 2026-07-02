@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     EventRule,
     NotificationParameterSpecs,
     NotificationPluginNameStr,

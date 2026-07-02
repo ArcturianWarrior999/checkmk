@@ -63,6 +63,7 @@ from cmk.gui.watolib.rulespecs import (
     ManualCheckParameterRulespec,
     rulespec_group_registry,
 )
+from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets import internal as ruleset_api_internal
 from cmk.rulesets import v1 as ruleset_api_v1
 from cmk.rulesets.internal.form_specs import (
@@ -78,7 +79,6 @@ from cmk.rulesets.internal.form_specs import (
 )
 from cmk.shared_typing.configuration_entity import ConfigEntityType
 from cmk.utils.http_proxy_config import ProxyAuthSpec, ProxyConfigSpec
-from cmk.utils.rulesets.definition import RuleGroup
 
 
 @dataclass(frozen=True)

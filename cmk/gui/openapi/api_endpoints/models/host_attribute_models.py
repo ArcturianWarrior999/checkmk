@@ -55,8 +55,8 @@ from cmk.gui.watolib.host_attributes import (
     MetricsAssociationHostNameLookupRule,
 )
 from cmk.licensing.basics.options import OptionName
+from cmk.ruleset_matcher.tags import BuiltinTagConfig, TagGroupID
 from cmk.utils.agent_registration import HostAgentConnectionMode
-from cmk.utils.tags import BuiltinTagConfig, TagGroupID
 
 _built_in_tag_group_config = BuiltinTagConfig()
 

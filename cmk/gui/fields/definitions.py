@@ -60,8 +60,8 @@ from cmk.livestatus_client.expressions import NothingExpression, QueryExpression
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables import Hostgroups, Hosts, Servicegroups
 from cmk.livestatus_client.types import Column, Table
+from cmk.ruleset_matcher.tags import TagConfig, TagGroup, TagGroupID
 from cmk.utils import paths
-from cmk.utils.tags import TagConfig, TagGroup, TagGroupID
 
 _logger = logging.getLogger(__name__)
 _CONNECTION_ID_PATTERN = "^[-a-z0-9A-Z_]+$"

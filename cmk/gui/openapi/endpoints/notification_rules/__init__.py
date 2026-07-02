@@ -23,6 +23,7 @@ from livestatus import SiteConfigurations
 from cmk import fields
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
+from cmk.events.notify_types import EventRule, NotificationRuleID
 from cmk.gui.config import active_config
 from cmk.gui.http import Response
 from cmk.gui.i18n import _
@@ -50,7 +51,6 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
-from cmk.utils.notify_types import EventRule, NotificationRuleID
 
 RO_PERMISSIONS = permissions.Perm("general.edit_notifications")
 RW_PERMISSIONS = permissions.AllPerm(

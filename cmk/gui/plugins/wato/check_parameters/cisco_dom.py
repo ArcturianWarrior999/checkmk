@@ -20,7 +20,7 @@ from cmk.gui.valuespec import (
     TextInput,
     Tuple,
 )
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _vs_cisco_dom(which_levels: str) -> tuple[str, Alternative]:

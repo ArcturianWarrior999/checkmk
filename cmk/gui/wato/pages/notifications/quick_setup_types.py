@@ -5,14 +5,14 @@
 from collections.abc import Mapping
 from typing import Literal, NotRequired, TypedDict
 
-from cmk.utils.notify_types import (
+from cmk.events.notify_types import (
     NotificationParameterID,
     NotificationPluginNameStr,
     SysLogFacilityIntType,
     SyslogPriorityIntType,
 )
-from cmk.utils.rulesets.ruleset_matcher import TagCondition
-from cmk.utils.tags import TagGroupID
+from cmk.ruleset_matcher.matcher import TagCondition
+from cmk.ruleset_matcher.tags import TagGroupID
 from cmk.utils.timeperiod import TimeperiodName
 
 HostIntState = Literal[-1, 0, 1, 2]

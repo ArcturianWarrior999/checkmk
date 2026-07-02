@@ -33,7 +33,7 @@ from cmk.gui.valuespec import (
 )
 from cmk.gui.valuespec.definitions import DictionaryEntry
 from cmk.gui.wato import MigrateToIndividualOrStoredPassword
-from cmk.utils.rulesets.definition import RuleGroup
+from cmk.ruleset_matcher.definition import RuleGroup
 
 
 def _validate_oracle_password(forbidden_chars: str) -> Callable[[tuple[str, str], str], None]:

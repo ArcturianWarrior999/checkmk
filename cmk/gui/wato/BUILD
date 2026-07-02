@@ -60,9 +60,10 @@ py_library(
         "//cmk/gui/watolib",
         "//cmk/gui/watolib:config_infra",
         "//cmk/gui/watolib:groups_io",
-        "//cmk/utils",
+        "//cmk/utils:paths",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:site",
+        "//packages/cmk-ruleset-matcher",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
     ],
 )

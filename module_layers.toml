@@ -173,7 +173,7 @@ allows = [
   "cmk.gui.wsgi.app",
   "cmk.post_rename_site.internal",
   "cmk.utils.redis",
-  "cmk.utils.rulesets.definition",
+  "cmk.ruleset_matcher",
 ]
 
 [plugin_families.violations.dcd]
@@ -298,12 +298,11 @@ allows = [
   "cmk.utils.config_warnings",
   "cmk.utils.http_proxy_config",
   "cmk.utils.ip_lookup",
-  "cmk.utils.labels",
+  "cmk.ruleset_matcher",
   "cmk.utils.log",
-  "cmk.utils.notify_types",
+  "cmk.events",
   "cmk.utils.oauth2_connection",
   "cmk.utils.paths",
-  "cmk.utils.rulesets.ruleset_matcher",
   "cmk.utils.servicename",
   "cmk.utils.unixsocket_http",
 ]
@@ -331,6 +330,7 @@ allows = [
   "cmk.discover_plugins",
   "cmk.robotmk.bakery",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.bakery.internal"]
@@ -417,6 +417,8 @@ allows = [
   "cmk.rrd",
   "cmk.checkengine.snmplib",
   "cmk.utils",
+  "cmk.events",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.base.nonfree.ultimate.relay"]
@@ -439,6 +441,7 @@ allows = [
   "cmk.rrd",
   "cmk.checkengine.snmplib",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.base.nonfree"]
@@ -462,6 +465,7 @@ allows = [
   "cmk.checkengine.snmplib",
   "cmk.telemetry",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.base.config"]
@@ -488,6 +492,7 @@ allows = [
   "cmk.server_side_calls_backend",
   "cmk.checkengine.snmplib",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.cli"]
@@ -539,11 +544,18 @@ allows = [
   "cmk.server_side_calls_backend",
   "cmk.checkengine.snmplib",
   "cmk.utils",
+  "cmk.ruleset_matcher",
   "livestatus",
 ]
 
 [components."cmk.bi"]
-allows = ["@ccc", "@livestatus_client", "cmk.fields", "cmk.utils"]
+allows = [
+  "@ccc",
+  "@livestatus_client",
+  "cmk.fields",
+  "cmk.ruleset_matcher",
+  "cmk.utils",
+]
 
 [components."cmk.ccc"]
 allows = ["@trace"]
@@ -575,15 +587,11 @@ allows = [
   "cmk.gui.watolib.tags",
   "cmk.gui.watolib.utils",
   "cmk.gui.wsgi.app",
-  "cmk.utils.labels",
+  "cmk.ruleset_matcher",
   "cmk.utils.global_ident_type",
   "cmk.utils.host_storage",
   "cmk.utils.paths",
   "cmk.utils.redis.disable_redis",
-  "cmk.utils.rulesets.conditions",
-  "cmk.utils.rulesets.definition",
-  "cmk.utils.rulesets.ruleset_matcher",
-  "cmk.utils.tags",
 ]
 
 [components."cmk.check_helper_protocol"]
@@ -613,12 +621,11 @@ allows = [
   "cmk.utils.check_utils",
   "cmk.utils.encoding",
   "cmk.utils.everythingtype",
-  "cmk.utils.labels",
+  "cmk.ruleset_matcher",
   "cmk.utils.log",
   "cmk.utils.metrics",
   "cmk.utils.parameters",
   "cmk.utils.paths",
-  "cmk.utils.rulesets",
   "cmk.utils.servicename",
   "cmk.utils.timeperiod",
 ]
@@ -630,7 +637,7 @@ allows = [
   "cmk.server_side_calls_backend",
   "cmk.utils.agent_registration",
   "cmk.utils.ip_lookup",
-  "cmk.utils.tags",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.core_client"]
@@ -652,7 +659,7 @@ allows = ["cmk.ccc.site", "cmk.utils.paths"]
 allows = ["@ccc", "cmk.utils.paths"]
 
 [components."cmk.events"]
-allows = ["@ccc", "@livestatus_client"]
+allows = ["@ccc", "@livestatus_client", "cmk.ruleset_matcher"]
 
 [components."cmk.fetcher_encoder"]
 allows = ["cmk.checkengine.helper_interface"]
@@ -830,8 +837,7 @@ allows = [
   "cmk.utils.mrpe_config",
   "cmk.utils.paths",
   "cmk.utils.render",
-  "cmk.utils.rulesets",
-  "cmk.utils.tags",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.gui.nonfree.pro.plugins"]
@@ -844,7 +850,7 @@ allows = [
   "cmk.utils.nonfree.pro",
   "cmk.utils.paths",
   "cmk.utils.render",
-  "cmk.utils.rulesets",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.gui.nonfree.ultimate.plugins"]
@@ -891,13 +897,12 @@ allows = [
   "cmk.utils.paths",
   "cmk.utils.redis",
   "cmk.utils.render",
-  "cmk.utils.rulesets",
+  "cmk.ruleset_matcher",
   "cmk.utils.schedule",
   "cmk.utils.security_event",
   "cmk.utils.servicename",
   "cmk.utils.setup_search_index",
   "cmk.utils.statename",
-  "cmk.utils.tags",
   "cmk.utils.timeperiod",
   "cmk.utils.typing_helpers",
   "cmk.utils.visuals",
@@ -930,13 +935,12 @@ allows = [
   "cmk.utils.config_warnings",
   "cmk.utils.experimental_config",
   "cmk.utils.global_ident_type",
-  "cmk.utils.labels",
+  "cmk.ruleset_matcher",
   "cmk.utils.macros",
   "cmk.utils.nonfree.pro",
   "cmk.utils.password_store",
   "cmk.utils.paths",
   "cmk.utils.render",
-  "cmk.utils.rulesets",
 ]
 excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 
@@ -1051,7 +1055,7 @@ allows = [
   "cmk.utils.ip_lookup",
   "cmk.utils.jsontype",
   "cmk.utils.keypair_store",
-  "cmk.utils.labels",
+  "cmk.ruleset_matcher",
   "cmk.utils.local_secrets",
   "cmk.utils.log",
   "cmk.utils.macros",
@@ -1060,8 +1064,7 @@ allows = [
   "cmk.utils.metrics",
   "cmk.utils.misc",
   "cmk.utils.ms_teams_constants",
-  "cmk.utils.notify",
-  "cmk.utils.notify_types",
+  "cmk.events",
   "cmk.utils.oauth2_connection",
   "cmk.utils.object_diff",
   "cmk.utils.password_store",
@@ -1070,13 +1073,11 @@ allows = [
   "cmk.utils.prediction",
   "cmk.utils.redis",
   "cmk.utils.render",
-  "cmk.utils.rulesets",
   "cmk.utils.schedule",
   "cmk.utils.security_event",
   "cmk.utils.servicename",
   "cmk.utils.setup_search_index",
   "cmk.utils.statename",
-  "cmk.utils.tags",
   "cmk.utils.timeperiod",
   "cmk.utils.translations",
   "cmk.utils.unixsocket_http",
@@ -1125,7 +1126,7 @@ allows = []
 allows = ["@plugin_apis"]
 
 [components."cmk.notification_plugins"]
-allows = ["@ccc", "cmk.events.notification_result", "cmk.utils"]
+allows = ["@ccc", "cmk.events", "cmk.utils"]
 
 [components."cmk.piggyback"]
 allows = ["@ccc", "@messaging"]
@@ -1148,6 +1149,9 @@ allows = [
   "cmk.ccc.version",
   "cmk.utils.http_proxy_config",
 ]
+
+[components."cmk.ruleset_matcher"]
+allows = ["@ccc", "@trace"]
 
 [components."cmk.rulesets"]
 allows = []
@@ -1258,10 +1262,18 @@ allows = [
   "cmk.robotmk",
   "cmk.utils",
   "cmk.validate_config",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.validate_config"]
-allows = ["@ccc", "cmk.base", "cmk.checkengine", "cmk.gui", "cmk.utils"]
+allows = [
+  "@ccc",
+  "cmk.base",
+  "cmk.checkengine",
+  "cmk.gui",
+  "cmk.ruleset_matcher",
+  "cmk.utils",
+]
 
 [components."cmk.validate_plugins"]
 allows = [
@@ -1269,7 +1281,7 @@ allows = [
   "@plugin_apis",
   "cmk.discover_plugins",
   "cmk.utils.paths",
-  "cmk.utils.rulesets",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.livestatus_client"]
@@ -1347,6 +1359,7 @@ allows = [
   "cmk.licensing.nonfree",
   "cmk.shared_typing",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.otel_collector"]
@@ -1426,6 +1439,7 @@ allows = [
   "cmk.dcd.gui",
   "cmk.gui",
   "cmk.utils",
+  "cmk.ruleset_matcher",
 ]
 
 [components."cmk.trace"]
@@ -1489,13 +1503,7 @@ allows = []
 allows = []
 
 [components."cmk.utils.host_storage"]
-allows = [
-  "cmk.ccc.hostaddress",
-  "cmk.ccc.store",
-  "cmk.utils.labels",
-  "cmk.utils.rulesets",
-  "cmk.utils.tags",
-]
+allows = ["cmk.ccc.hostaddress", "cmk.ccc.store", "cmk.ruleset_matcher"]
 
 [components."cmk.utils.html"]
 allows = []
@@ -1519,16 +1527,6 @@ allows = []
 
 [components."cmk.utils.keypair_store"]
 allows = ["@crypto", "cmk.ccc.store", "cmk.ccc.user"]
-
-[components."cmk.utils.labels"]
-allows = [
-  "cmk.ccc.exceptions",
-  "cmk.ccc.hostaddress",
-  "cmk.ccc.site",
-  "cmk.ccc.store",
-  "cmk.utils.paths",
-  "cmk.utils.servicename",
-]
 
 [components."cmk.licensing.nonfree"]
 allows = [
@@ -1617,20 +1615,6 @@ allows = ["cmk.ccc.store"]
 [components."cmk.multi_tenancy.shared.labels"]
 allows = ["cmk.ccc.site", "cmk.multi_tenancy.shared.customer"]
 
-[components."cmk.utils.notify"]
-allows = [
-  "cmk.ccc.exceptions",
-  "cmk.ccc.hostaddress",
-  "cmk.ccc.i18n",
-  "cmk.ccc.store",
-  "cmk.events.notification_result",
-  "cmk.utils.labels",
-  "cmk.utils.tags",
-]
-
-[components."cmk.utils.notify_types"]
-allows = ["cmk.events", "cmk.utils.rulesets", "cmk.utils.tags"]
-
 [components."cmk.utils.oauth2_connection"]
 allows = ["cmk.ccc.site"]
 
@@ -1673,21 +1657,6 @@ allows = ["cmk.ccc.exceptions", "cmk.utils.paths"]
 [components."cmk.utils.render"]
 allows = ["cmk.ccc.i18n"]
 
-[components."cmk.utils.rulesets"]
-allows = [
-  "@trace",
-  "cmk.ccc.debug",
-  "cmk.ccc.exceptions",
-  "cmk.ccc.hostaddress",
-  "cmk.ccc.regex",
-  "cmk.utils.global_ident_type",
-  "cmk.utils.labels",
-  "cmk.utils.parameters",
-  "cmk.utils.paths",
-  "cmk.utils.servicename",
-  "cmk.utils.tags",
-]
-
 [components."cmk.utils.schedule"]
 allows = []
 
@@ -1705,14 +1674,6 @@ allows = ["cmk.ccc.store", "cmk.utils.paths"]
 
 [components."cmk.utils.statename"]
 allows = ["cmk.ccc.i18n"]
-
-[components."cmk.utils.tags"]
-allows = [
-  "cmk.ccc.exceptions",
-  "cmk.ccc.hostaddress",
-  "cmk.ccc.i18n",
-  "cmk.ccc.site",
-]
 
 [components."cmk.utils.timeout"]
 allows = []
