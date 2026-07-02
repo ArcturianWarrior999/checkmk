@@ -729,6 +729,7 @@ py_library(
     visibility = [
         "//bin:__pkg__",
         "//cmk:__subpackages__",
+        "//non-free/packages/cmk-agent-registration-extended:__pkg__",
         "//omd/packages/check_mk:__pkg__",
         "//tests:__subpackages__",
     ],

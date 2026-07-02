@@ -247,6 +247,7 @@ PRO_WHEELS = COMMUNITY_WHEELS + [
 ]
 
 CLOUD_WHEELS = PRO_WHEELS + [
+    "//non-free/packages/cmk-agent-registration-extended:wheel",
     "//non-free/packages/cmk-cloud:wheel",
     "//non-free/packages/cmk-core-helpers:relay-fetcher-trigger-wheel",
     "//non-free/packages/cmk-mcp:wheel",
@@ -261,6 +262,7 @@ CLOUD_WHEELS = PRO_WHEELS + [
 ]
 
 ULTIMATE_WHEELS = PRO_WHEELS + [
+    "//non-free/packages/cmk-agent-registration-extended:wheel",
     "//non-free/packages/cmk-core-helpers:relay-fetcher-trigger-wheel",
     "//non-free/packages/cmk-mcp:wheel",
     "//non-free/packages/cmk-metric-backend:wheel",

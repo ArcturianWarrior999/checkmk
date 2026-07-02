@@ -155,6 +155,19 @@ allows = [
 
 # This hosts internal plugins. They can not be subjected to
 # any common dependency restrictions.
+[plugin_families.violations.agent_controller]
+allows = [
+  "@ccc",
+  "cmk.gui.config",
+  "cmk.gui.pages",
+  "cmk.gui.session_context",
+  "cmk.gui.watolib.rulesets",
+  "cmk.gui.wsgi.app",
+  "cmk.post_rename_site.internal",
+  "cmk.utils.redis",
+  "cmk.utils.rulesets.definition",
+]
+
 [plugin_families.violations.dcd]
 allows = ["@ccc", "cmk.dcd", "cmk.gui.config", "cmk.post_rename_site.internal"]
 
