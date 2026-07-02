@@ -6,6 +6,6 @@ py_cmk_test(
     args = ["tests/unit/cmk/gui/theme"],
     use_project_pytest_config = True,
     deps = [
-        "//cmk/gui:html_toolkit",
+        "//cmk/gui:core_toolkit",
     ],
 )
