@@ -17,8 +17,6 @@ from cryptography.x509 import CertificateSigningRequest as x509CertificateSignin
 from cryptography.x509 import load_pem_x509_csr
 from dateutil.relativedelta import relativedelta
 
-from livestatus import SiteConfiguration
-
 from cmk import messaging
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.plugin_registry import Registry
@@ -42,6 +40,7 @@ from cmk.gui.watolib.automations import (
     do_remote_automation,
     remote_automation_config_from_site_config,
 )
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils import paths
 from cmk.utils.automation_config import RemoteAutomationConfig
 from cmk.utils.certs import (

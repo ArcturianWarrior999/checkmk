@@ -19,8 +19,6 @@ from typing import Any
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -38,6 +36,7 @@ from cmk.gui.watolib.host_attributes import (
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.labels import Labels
 
 

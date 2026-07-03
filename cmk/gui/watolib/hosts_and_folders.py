@@ -33,8 +33,6 @@ from redis import Redis
 from redis.client import Pipeline
 from redis.typing import EncodableT, FieldT
 
-from livestatus import SiteConfiguration
-
 import cmk.utils.paths
 from cmk.automations.results import ABCAutomationResult
 from cmk.ccc import store
@@ -104,7 +102,7 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.gui.watolib.predefined_conditions import PredefinedConditionStore
 from cmk.gui.watolib.sidebar_reload import need_sidebar_reload
 from cmk.gui.watolib.utils import wato_root_dir
-from cmk.livestatus_client import SiteConfigurations
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.global_ident_type import GlobalIdent
 from cmk.utils.host_storage import (

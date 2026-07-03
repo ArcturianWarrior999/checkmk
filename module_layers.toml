@@ -930,6 +930,7 @@ allows = [
   "cmk.inventory",
   "cmk.licensing",
   "cmk.liveproxyd.gui",
+  "cmk.livestatus_client",
   "cmk.multi_tenancy.shared",
   "cmk.metric_backend.gui",
   "cmk.otel_collector.gui",

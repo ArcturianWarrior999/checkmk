@@ -18,8 +18,6 @@ from unittest.mock import patch
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.automations.results import ABCAutomationResult
 from cmk.base.automations.check_mk import (
     automation_analyze_host_rule_effectiveness,
@@ -36,6 +34,7 @@ from cmk.gui.watolib import rulesets as gui_rulesets_module
 from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import Rule, Ruleset
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.global_ident_type import PROGRAM_ID_QUICK_SETUP
 from cmk.utils.redis import disable_redis
 from cmk.utils.rulesets.definition import RuleGroup

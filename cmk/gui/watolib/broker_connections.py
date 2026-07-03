@@ -12,11 +12,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import override, TypedDict
 
-from livestatus import BrokerConnection, BrokerConnections, BrokerSite, ConnectionId
-
 from cmk.ccc import store
 from cmk.ccc.site import SiteId
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoSingleConfigFile
+from cmk.livestatus_client import BrokerConnection, BrokerConnections, BrokerSite, ConnectionId
 from cmk.utils import paths
 
 

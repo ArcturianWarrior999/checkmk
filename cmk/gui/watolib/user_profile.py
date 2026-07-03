@@ -12,8 +12,6 @@ from multiprocessing import TimeoutError as mp_TimeoutError
 from multiprocessing.pool import ThreadPool
 from typing import Any, cast, Literal, NamedTuple
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -47,6 +45,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import RemoteAutomationConfig
 
 # Callback for dashboard migration — injected at startup from

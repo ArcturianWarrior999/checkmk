@@ -11,8 +11,6 @@ from io import StringIO
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.automations.results import ABCAutomationResult
 from cmk.base.automations.check_mk import (
     automation_analyze_host_rule_matches,
@@ -27,6 +25,7 @@ from cmk.gui.watolib import rulesets
 from cmk.gui.watolib.hosts_and_folders import Folder, FolderTree, HostsAndFoldersConfig
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.watolib.rulesets import FolderRulesets, Rule, RuleConditions, RuleOptions, Ruleset
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.labels import Labels
 from cmk.utils.paths import default_config_dir
 from cmk.utils.rulesets.ruleset_matcher import RuleSpec

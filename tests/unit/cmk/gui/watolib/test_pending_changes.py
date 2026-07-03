@@ -6,8 +6,6 @@
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from contextlib import contextmanager
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.watolib.audit_log import AuditLogStore, make_audit_log_change_hook
@@ -26,6 +24,7 @@ from cmk.gui.watolib.sidebar_reload import (
     sidebar_reload_change_hook,
 )
 from cmk.gui.wsgi.app import gui_context
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 
 
 def _site_config() -> SiteConfiguration:

@@ -48,12 +48,6 @@ from urllib.parse import urlparse
 from pydantic import BaseModel
 from setproctitle import setthreadtitle
 
-from livestatus import (
-    BrokerConnections,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 import cmk.bi.filesystem
 import cmk.ec.export as ec  # astrein: disable=cmk-module-layer-violation
 import cmk.gui.watolib.automations
@@ -162,6 +156,11 @@ from cmk.licensing.export import LicenseUsageExtensions
 from cmk.licensing.handler import ActivationBlock
 from cmk.licensing.registry import get_licensing_user_effect, is_free
 from cmk.licensing.usage import save_extensions
+from cmk.livestatus_client import (
+    BrokerConnections,
+    SiteConfiguration,
+    SiteConfigurations,
+)
 from cmk.messaging import rabbitmq
 from cmk.shared_typing.changes import (
     ActivationPhase,

@@ -7,8 +7,6 @@ from collections.abc import Generator
 
 import pytest
 
-from livestatus import SiteConfiguration
-
 import cmk.ccc.version as cmk_version
 from cmk.ccc.site import SiteId
 from cmk.gui.watolib import activate_changes
@@ -17,6 +15,7 @@ from cmk.gui.watolib.config_sync import (
     ReplicationPath,
     ReplicationPathType,
 )
+from cmk.livestatus_client import SiteConfiguration
 from tests.testlib.common.utils import reset_registries
 
 EDITION = cmk_version.Edition.COMMUNITY

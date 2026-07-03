@@ -20,13 +20,6 @@ The chain has three parts that are independently testable:
 
 import pytest
 
-from livestatus import (
-    NetworkSocketDetails,
-    SAMLAuthenticationEntry,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.form_specs.unstable.legacy_converter import (
     TransformDataForLegacyFormatOrRecomposeFunction,
@@ -36,6 +29,12 @@ from cmk.gui.watolib.sites import (
     _auth_connections_to_disk,
     DROP_KEY,
     SiteManagement,
+)
+from cmk.livestatus_client import (
+    NetworkSocketDetails,
+    SAMLAuthenticationEntry,
+    SiteConfiguration,
+    SiteConfigurations,
 )
 
 

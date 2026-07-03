@@ -15,15 +15,6 @@ from collections.abc import Collection, Mapping
 from multiprocessing import JoinableQueue, Process
 from typing import Any, cast, NamedTuple, Protocol
 
-from livestatus import (
-    BrokerConnection,
-    BrokerConnections,
-    ConnectionId,
-    NetworkSocketDetails,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 import cmk.ccc.version as cmk_version
 import cmk.gui.sites
 import cmk.gui.watolib.activate_changes
@@ -94,6 +85,14 @@ from cmk.gui.watolib.mode import mode_registry
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoSingleConfigFile
 from cmk.licensing.handler import LicenseState
+from cmk.livestatus_client import (
+    BrokerConnection,
+    BrokerConnections,
+    ConnectionId,
+    NetworkSocketDetails,
+    SiteConfiguration,
+    SiteConfigurations,
+)
 from cmk.rulesets.internal.form_specs import (
     SingleChoiceElementExtended,
     SingleChoiceExtended,

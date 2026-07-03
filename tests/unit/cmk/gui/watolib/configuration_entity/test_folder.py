@@ -8,8 +8,6 @@ from collections.abc import Iterator
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.gui.form_specs import get_visitor, RawDiskData, RawFrontendData, VisitorOptions
 from cmk.gui.logged_in import user
@@ -19,6 +17,7 @@ from cmk.gui.watolib.configuration_entity._folder import (
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree, FolderTree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 
 MAIN_FOLDER = ""
 SUB_FOLDER = "sub-folder"
