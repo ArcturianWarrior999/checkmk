@@ -97,7 +97,6 @@ _EXCLUDED_PREFIXES = (
     "packages/cmk-agent-receiver",
     "packages/cmk-check-engine",
     "packages/cmk-ec",
-    "packages/cmk-mkp-tool",
     "packages/cmk-plugins",
 )
 

@@ -116,7 +116,10 @@ def read_manifest_optionally(manifest_path: Path) -> Manifest | None:
     try:
         return Manifest.parse_python_string(manifest_path.read_text())
     except (OSError, SyntaxError, TypeError, ValueError, ValidationError):
-        _logger.exception("[%s]: Failed to read package manifest", manifest_path)
+        _logger.exception(
+            "[%(manifest_path)s]: Failed to read package manifest",
+            {"manifest_path": manifest_path},
+        )
     return None
 
 
@@ -144,7 +147,7 @@ def extract_manifest_optionally(pkg_path: Path) -> Manifest | None:
         return _extract_manifest_cached(pkg_path, pkg_path.stat().st_mtime)
     except Exception:
         # Do not make broken files / packages fail the whole mechanism
-        _logger.exception("[%s]: Failed to read package manifest", pkg_path)
+        _logger.exception("[%(pkg_path)s]: Failed to read package manifest", {"pkg_path": pkg_path})
     return None
 
 
@@ -210,9 +213,9 @@ def _create_tgz(files: Iterable[tuple[str, bytes]]) -> bytes:
 
 def _create_tar(name: str, src: Path, filenames: Iterable[Path]) -> tuple[str, bytes]:
     tarname = f"{name}.tar"
-    _logger.debug("  Packing %s:", tarname)
+    _logger.debug("  Packing %(tarname)s:", {"tarname": tarname})
     for f in filenames:
-        _logger.debug("    %s", f)
+        _logger.debug("    %(file)s", {"file": f})
     return tarname, subprocess.check_output(
         [
             "tar",
@@ -249,13 +252,13 @@ def _extract_tgz(mkp: bytes, content: Iterable[tuple[str, Path, Iterable[Path]]]
 
 
 def _extract_tar(tar: tarfile.TarFile, name: str, dst: Path, filenames: Iterable[Path]) -> None:
-    _logger.debug("  Extracting '%s':", name)
+    _logger.debug("  Extracting '%(name)s':", {"name": name})
     for fn in filenames:
-        _logger.debug("    %s", fn)
+        _logger.debug("    %(filename)s", {"filename": fn})
 
     if not dst.exists():
         # make sure target directory exists
-        _logger.debug("    Creating directory %s", dst)
+        _logger.debug("    Creating directory %(dst)s", {"dst": dst})
         dst.mkdir(parents=True, exist_ok=True)
 
     tarsource = tar.extractfile(name)

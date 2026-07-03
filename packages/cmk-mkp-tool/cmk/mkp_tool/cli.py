@@ -455,9 +455,9 @@ def _command_remove(
     if package_id in package_store.get_enabled_manifests():
         raise PackageError("This package is enabled! Please disable it first.")
 
-    _logger.info("Removing package %s...", package_id.name)
+    _logger.info("Removing package %(name)s...", {"name": package_id.name})
     package_store.remove(package_id)
-    _logger.info("Successfully removed package %s.", package_id.name)
+    _logger.info("Successfully removed package %(name)s.", {"name": package_id.name})
     return 0
 
 
@@ -711,7 +711,10 @@ def _command_package(
             raise
         sys.stderr.write(f"{exc}\n")
         return 1
-    _logger.info("Successfully created %s %s", package.name, package.version)
+    _logger.info(
+        "Successfully created %(name)s %(version)s",
+        {"name": package.name, "version": package.version},
+    )
 
     if site_context is None:
         persisting_function(
@@ -749,7 +752,10 @@ def _command_package(
     except PackageError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
-    _logger.info("Successfully installed %s %s", manifest.name, manifest.version)
+    _logger.info(
+        "Successfully installed %(name)s %(version)s",
+        {"name": manifest.name, "version": manifest.version},
+    )
 
     return 0
 

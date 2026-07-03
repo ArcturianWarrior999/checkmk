@@ -69,7 +69,10 @@ def _log_exception(m: Manifest, name: str) -> Iterator[None]:
     try:
         yield
     except Exception:
-        _logger.exception("[%s %s]: Error in post %s hook", m.name, m.version, name)
+        _logger.exception(
+            "[%(name)s %(version)s]: Error in post %(hook)s hook",
+            {"name": m.name, "version": m.version, "hook": name},
+        )
 
 
 def release(
@@ -80,11 +83,11 @@ def release(
     if (manifest := installer.get_installed_manifest(pacname)) is None:
         raise PackageError(f"Package {pacname} not installed or corrupt.")
 
-    _logger.info("Releasing files of package %s into freedom...", pacname)
+    _logger.info("Releasing files of package %(pacname)s into freedom...", {"pacname": pacname})
     for part, files in manifest.files.items():
-        _logger.info("  Part '%s':", part.ident)
+        _logger.info("  Part '%(ident)s':", {"ident": part.ident})
         for f in files:
-            _logger.info("    %s", f)
+            _logger.info("    %(file)s", {"file": f})
 
     for part in set(manifest.files) & set(callbacks):
         with _log_exception(manifest, "release"):
@@ -359,13 +362,18 @@ def _install(
 
     if old_manifest := installer.get_installed_manifest(manifest.name):
         _logger.info(
-            "[%s %s]: Updating from %s",
-            manifest.name,
-            manifest.version,
-            old_manifest.version,
+            "[%(name)s %(version)s]: Updating from %(old_version)s",
+            {
+                "name": manifest.name,
+                "version": manifest.version,
+                "old_version": old_manifest.version,
+            },
         )
     else:
-        _logger.info("[%s %s]: Installing", manifest.name, manifest.version)
+        _logger.info(
+            "[%(name)s %(version)s]: Installing",
+            {"name": manifest.name, "version": manifest.version},
+        )
 
     _raise_for_installability(
         installer,
@@ -409,7 +417,10 @@ def _install(
 def _remove_pycache(manifest: Manifest, folder: Path) -> None:
     pycache_folder = folder / "__pycache__"
     shutil.rmtree(pycache_folder, ignore_errors=True)
-    _logger.debug("[%s %s]: Removed folder %s", manifest.name, manifest.version, pycache_folder)
+    _logger.debug(
+        "[%(name)s %(version)s]: Removed folder %(folder)s",
+        {"name": manifest.name, "version": manifest.version, "folder": pycache_folder},
+    )
 
 
 def _clear_remove_folders(manifest: Manifest, part: Path, folder: Path) -> None:
@@ -418,10 +429,8 @@ def _clear_remove_folders(manifest: Manifest, part: Path, folder: Path) -> None:
     try:
         folder_path.rmdir()
         _logger.debug(
-            "[%s %s]: Removed empty directory %s",
-            manifest.name,
-            manifest.version,
-            folder,
+            "[%(name)s %(version)s]: Removed empty directory %(folder)s",
+            {"name": manifest.name, "version": manifest.version, "folder": folder},
         )
     except OSError:
         return  # no point in recursing further
@@ -438,7 +447,7 @@ def remove_files(
     errors = []
     paths_to_clean = set()
     for part, files in manifest.files.items():
-        _logger.debug("  Part '%s':", part.ident)
+        _logger.debug("  Part '%(ident)s':", {"ident": part.ident})
         for fn in set(files) - set(keep_files.get(part, [])):
             paths_to_clean.add((part_path := path_config.get_path(part), fn.parent))
             path = part_path / fn
@@ -447,7 +456,10 @@ def remove_files(
             except OSError as e:
                 errors.append(f"[{manifest.name} {manifest.version}]: Error removing {path}: {e}")
             else:
-                _logger.info("[%s %s]: Removed file %s", manifest.name, manifest.version, path)
+                _logger.info(
+                    "[%(name)s %(version)s]: Removed file %(path)s",
+                    {"name": manifest.name, "version": manifest.version, "path": path},
+                )
 
     for part_path, folder in paths_to_clean:
         _clear_remove_folders(manifest, part_path, folder)
@@ -516,10 +528,12 @@ def _fix_files_permissions(manifest: Manifest, path_config: PathConfig) -> None:
             has_perm = path.stat().st_mode & 0o7777
             if has_perm != desired_perm:
                 _logger.debug(
-                    "Fixing %s: %s -> %s",
-                    path,
-                    filemode(has_perm),
-                    filemode(desired_perm),
+                    "Fixing %(path)s: %(current_mode)s -> %(desired_mode)s",
+                    {
+                        "path": path,
+                        "current_mode": filemode(has_perm),
+                        "desired_mode": filemode(desired_perm),
+                    },
                 )
                 path.chmod(desired_perm)
 
@@ -713,7 +727,10 @@ def _deinstall_inapplicable_active_packages(
                 parse_version=parse_version,
             )
         except PackageError as exc:
-            _logger.info("[%s %s]: Uninstalling: %s", manifest.name, manifest.version, exc)
+            _logger.info(
+                "[%(name)s %(version)s]: Uninstalling: %(error)s",
+                {"name": manifest.name, "version": manifest.version, "error": exc},
+            )
             _uninstall(
                 installer,
                 path_config,
@@ -722,7 +739,10 @@ def _deinstall_inapplicable_active_packages(
             )
             uninstalled.append(manifest)
         else:
-            _logger.info("[%s %s]: Not uninstalling", manifest.name, manifest.version)
+            _logger.info(
+                "[%(name)s %(version)s]: Not uninstalling",
+                {"name": manifest.name, "version": manifest.version},
+            )
     return uninstalled
 
 
@@ -752,9 +772,15 @@ def _install_applicable_inactive_packages(
                     )
                 )
             except PackageError as exc:
-                _logger.info("[%s %s]: Not installed: %s", name, manifest.version, exc)
+                _logger.info(
+                    "[%(name)s %(version)s]: Not installed: %(error)s",
+                    {"name": name, "version": manifest.version, "error": exc},
+                )
             else:
-                _logger.info("[%s %s]: Installed", name, manifest.version)
+                _logger.info(
+                    "[%(name)s %(version)s]: Installed",
+                    {"name": name, "version": manifest.version},
+                )
                 # We're done with this package.
                 # Do not try to install older versions, or the installation function will
                 # silently downgrade the package.
@@ -800,10 +826,8 @@ def disable_outdated(
             )
         except PackageError as exc:
             _logger.info(
-                "[%s %s]: Disabling: %s",
-                manifest.name,
-                manifest.version,
-                exc,
+                "[%(name)s %(version)s]: Disabling: %(error)s",
+                {"name": manifest.name, "version": manifest.version, "error": exc},
             )
             if (
                 disabled_manifest := disable(
@@ -816,7 +840,10 @@ def disable_outdated(
             ) is not None:
                 disabled.append(disabled_manifest)
         else:
-            _logger.info("[%s %s]: Not disabling", manifest.name, manifest.version)
+            _logger.info(
+                "[%(name)s %(version)s]: Not disabling",
+                {"name": manifest.name, "version": manifest.version},
+            )
     return disabled
 
 
