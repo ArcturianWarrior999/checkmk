@@ -12,6 +12,7 @@ from cmk.gui.autocompleters import autocompleter_registry
 from cmk.gui.legacy_plugins import get_failed_plugins as get_failed_plugins
 from cmk.gui.main_navigation import main_navigation_renderer_registry, MainNavigation
 from cmk.gui.openapi import endpoint_family_registry, versioned_endpoint_registry
+from cmk.gui.pagetypes import builtin_pagetype_topic_registry
 from cmk.gui.sidebar import SidebarRenderer, snapin_registry
 from cmk.gui.watolib.config_domain_name import config_domain_registry, config_variable_registry
 from cmk.gui.watolib.config_sync import replication_path_registry
@@ -32,6 +33,7 @@ def _build_context(edition: Edition, features: LicenseOptions) -> RegistrationCo
         edition=edition,
         features=features,
         autocompleter_registry=autocompleter_registry,
+        builtin_pagetype_topic_registry=builtin_pagetype_topic_registry,
         config_domain_registry=config_domain_registry,
         config_variable_registry=config_variable_registry,
         endpoint_family_registry=endpoint_family_registry,

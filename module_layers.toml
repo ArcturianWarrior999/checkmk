@@ -744,6 +744,7 @@ allows = [
   "cmk.gui.autocompleters",
   "cmk.gui.graphing",
   "cmk.gui.openapi",
+  "cmk.gui.pagetypes",
   "cmk.gui.sidebar",
   "cmk.gui.watolib",
   "cmk.licensing.basics.options",

@@ -14,6 +14,7 @@ py_library(
         "//cmk/gui/graphing",
         "//cmk/gui/openapi/framework",
         "//cmk/gui/openapi/restful_objects",
+        "//cmk/gui/pagetypes",
         "//cmk/gui/sidebar",
         "//cmk/gui/watolib",
         "//cmk/gui/watolib:config_infra",
