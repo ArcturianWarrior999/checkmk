@@ -9,7 +9,12 @@ import type { ListPropDef, MultiSelectPropDef } from '@ucl/_ucl/types/prop-def'
 
 import type { MetricType } from '@/metric-backend/consolidation/types'
 
-import { type PresetName, presetOptions } from './consolidationPresets'
+import {
+  type PresetName,
+  type ScopeName,
+  presetOptions,
+  scopeOptions
+} from './consolidationPresets'
 
 const TYPE_OPTIONS: Array<{ title: string; name: MetricType }> = [
   { title: 'Gauge', name: 'gauge' },
@@ -34,10 +39,21 @@ export const panelConfig = {
       'UCL demo: the metric types the backend resolved. One shows a plain ' +
       'dropdown, more than one the "Treat as <Type>" grouping. Leave empty for ' +
       'the unknown case: all types are offered.'
+  },
+  scope: {
+    type: 'list',
+    title: 'Offered functions',
+    options: scopeOptions,
+    initialState: 'fullCatalog',
+    help:
+      'Restricts offered functions per type via the allowedFunctions prop. ' +
+      '"Backend-supported" mirrors the custom graph editor: one function per type ' +
+      '(gauge last value, sum rate, histogram quantile).'
   }
-} satisfies PanelConfigFor<typeof FormConsolidation, 'modelValue'> & {
+} satisfies PanelConfigFor<typeof FormConsolidation, 'modelValue' | 'allowedFunctions'> & {
   preset: ListPropDef<PresetName>
   availableTypes: MultiSelectPropDef<MetricType>
+  scope: ListPropDef<ScopeName>
 }
 </script>
 
@@ -52,28 +68,63 @@ import {
 import { ref, watch } from 'vue'
 
 import FormConsolidation from '@/metric-backend/consolidation/FormConsolidation.vue'
-import type { ConsolidationModel } from '@/metric-backend/consolidation/types'
+import {
+  DEFAULT_QUANTILE,
+  defaultFunction,
+  functionSpecsForType
+} from '@/metric-backend/consolidation/types'
+import type { AllowedFunctions, ConsolidationModel } from '@/metric-backend/consolidation/types'
 
-import { consolidationPresets } from './consolidationPresets'
+import { allowedFunctionsScopes, consolidationPresets } from './consolidationPresets'
 
 defineProps<{ screenshotMode: boolean }>()
 
-const propState = new PanelStateCreator<typeof FormConsolidation, 'modelValue'>().createRef(
-  panelConfig
-)
+const propState = new PanelStateCreator<
+  typeof FormConsolidation,
+  'modelValue' | 'allowedFunctions'
+>().createRef(panelConfig)
 
 function clonePreset(name: PresetName): ConsolidationModel {
   return structuredClone(consolidationPresets[name])
 }
 
-const model = ref<ConsolidationModel>(clonePreset(propState.value.preset))
+// Keep the selected function within the scope so the demo never shows an option the dropdown omits.
+function clampToScope(
+  configuration: ConsolidationModel,
+  allowed: AllowedFunctions
+): ConsolidationModel {
+  if (
+    functionSpecsForType(configuration.type, allowed).some(
+      (spec) => spec.fn === configuration.function
+    )
+  ) {
+    return configuration
+  }
+  const fn = defaultFunction(configuration.type, allowed)
+  return {
+    ...configuration,
+    function: fn,
+    params: fn === 'quantile' ? { quantile: DEFAULT_QUANTILE } : {}
+  }
+}
+
+const model = ref<ConsolidationModel>(
+  clampToScope(clonePreset(propState.value.preset), allowedFunctionsScopes[propState.value.scope])
+)
 
 watch(
   () => propState.value.preset,
   (name) => {
-    const preset = clonePreset(name)
+    const preset = clampToScope(clonePreset(name), allowedFunctionsScopes[propState.value.scope])
     model.value = preset
     propState.value.availableTypes = [preset.type]
+  }
+)
+
+watch(
+  () => propState.value.scope,
+  (name) => {
+    model.value = clampToScope(model.value, allowedFunctionsScopes[name])
   }
 )
 </script>
@@ -83,7 +134,11 @@ watch(
     <UclDetailPageHeader>FormConsolidation</UclDetailPageHeader>
 
     <UclDetailPageComponent>
-      <FormConsolidation v-model="model" :available-types="propState.availableTypes" />
+      <FormConsolidation
+        v-model="model"
+        :available-types="propState.availableTypes"
+        :allowed-functions="allowedFunctionsScopes[propState.scope]"
+      />
 
       <template #properties>
         <UclPropertiesPanel v-model="propState" :config="panelConfig" />

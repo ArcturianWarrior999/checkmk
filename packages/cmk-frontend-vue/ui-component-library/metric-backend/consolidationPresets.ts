@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { ConsolidationModel } from '@/metric-backend/consolidation/types'
+import type { AllowedFunctions, ConsolidationModel } from '@/metric-backend/consolidation/types'
 
 export type PresetName =
   | 'sumRate'
@@ -40,5 +40,23 @@ export const consolidationPresets: Record<PresetName, ConsolidationModel> = {
     function: 'fraction_between',
     params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 },
     lookbackSeconds: 300
+  }
+}
+
+export type ScopeName = 'fullCatalog' | 'backendSupported'
+
+export const scopeOptions: Array<{ title: string; name: ScopeName }> = [
+  { title: 'Full catalog', name: 'fullCatalog' },
+  { title: 'Backend-supported (graph editor)', name: 'backendSupported' }
+]
+
+// fullCatalog ({}) offers everything; backendSupported mirrors the graph editor's
+// one function per type.
+export const allowedFunctionsScopes: Record<ScopeName, AllowedFunctions> = {
+  fullCatalog: {},
+  backendSupported: {
+    gauge: ['last_value'],
+    sum: ['rate'],
+    histogram: ['quantile']
   }
 }
