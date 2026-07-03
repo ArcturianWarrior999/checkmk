@@ -36,7 +36,7 @@ class EvaluatedQuantity:
 class Quantity(Protocol):
     def ident(self) -> str: ...
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]: ...
+    def metrics(self) -> Iterable[RRDMetric]: ...
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None: ...
 
@@ -111,7 +111,7 @@ class Constant:
     def ident(self) -> str:
         return f"constant:{self.value}"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[RRDMetric]:
         return ()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
@@ -130,7 +130,7 @@ class RRDMetric:
     def ident(self) -> str:
         return f"metric:{self.host_name}/{self.service_name}/{self.metric_name}"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[RRDMetric]:
         yield self
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
@@ -176,7 +176,7 @@ class ScalarOf:
     def ident(self) -> str:
         return f"{self.scalar_type}:{self.metric.ident()}"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[RRDMetric]:
         yield self.metric
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
@@ -196,9 +196,9 @@ class Sum:
     def ident(self) -> str:
         return f"sum({','.join(summand.ident() for summand in self.summands)})"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[RRDMetric]:
         for summand in self.summands:
-            yield from summand.rrd_metrics()
+            yield from summand.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         evaluated = [summand.evaluate(context) for summand in self.summands]
@@ -215,9 +215,9 @@ class Product:
     def ident(self) -> str:
         return f"product({','.join(factor.ident() for factor in self.factors)})"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[RRDMetric]:
         for factor in self.factors:
-            yield from factor.rrd_metrics()
+            yield from factor.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
         return _apply_operator(
@@ -235,9 +235,9 @@ class Difference:
     def ident(self) -> str:
         return f"difference({self.minuend.ident()},{self.subtrahend.ident()})"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
-        yield from self.minuend.rrd_metrics()
-        yield from self.subtrahend.rrd_metrics()
+    def metrics(self) -> Iterable[RRDMetric]:
+        yield from self.minuend.metrics()
+        yield from self.subtrahend.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         minuend = self.minuend.evaluate(context)
@@ -258,9 +258,9 @@ class Fraction:
     def ident(self) -> str:
         return f"fraction({self.dividend.ident()},{self.divisor.ident()})"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
-        yield from self.dividend.rrd_metrics()
-        yield from self.divisor.rrd_metrics()
+    def metrics(self) -> Iterable[RRDMetric]:
+        yield from self.dividend.metrics()
+        yield from self.divisor.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
         return _apply_operator(

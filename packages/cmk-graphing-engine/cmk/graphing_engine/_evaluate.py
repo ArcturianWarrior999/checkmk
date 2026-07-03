@@ -141,7 +141,7 @@ def _title_metrics(
 ) -> Mapping[MetricName, PerformanceData]:
     services = {
         Service(host_name=metric.host_name, service_name=metric.service_name)
-        for metric in graph.rrd_metrics()
+        for metric in graph.metrics()
     }
     return {
         name: data

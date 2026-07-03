@@ -67,7 +67,7 @@ def fetch_performance_data(
     rrd: RRDDataSource,
 ) -> Mapping[Service, Mapping[MetricName, PerformanceData]]:
     parsed_translations = parse_translations_from_api(translations)
-    rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.rrd_metrics()))
+    rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
     raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
     performance_data = {
         service: dict(translate_performance_data(raw, parsed_translations))
@@ -128,7 +128,7 @@ def fetch_time_series(
         RRDMetric, tuple[ConsolidationFunction, list[tuple[RRDMetric, float]]]
     ] = {}
     rrd_metrics_per_function: dict[ConsolidationFunction, list[RRDMetric]] = {}
-    for metric in graph.rrd_metrics():
+    for metric in graph.metrics():
         service = Service(host_name=metric.host_name, service_name=metric.service_name)
         if (data := performance_data.get(service, {}).get(metric.metric_name)) is None:
             continue

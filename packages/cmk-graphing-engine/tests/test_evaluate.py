@@ -297,7 +297,7 @@ def test_evaluate_graph_evaluates_the_stack_reference_baseline() -> None:
     time_series = {floor: _time_series(1.0), band: _time_series(2.0)}
 
     # The reference baseline is part of the graph's metrics (so it gets fetched) ...
-    assert floor in graph.rrd_metrics()
+    assert floor in graph.metrics()
     # ... and is evaluated onto EvaluatedStack.reference, separate from the drawn members.
     [stack] = evaluate_graph(graph, _perf(metric_data), time_series, _TR).stacks
     assert [member.attributes.title for member in stack.members] == ["band"]

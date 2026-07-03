@@ -54,8 +54,8 @@ class Negated:
     def ident(self) -> str:
         return f"negated({self.operand.ident()})"
 
-    def rrd_metrics(self) -> Iterable[RRDMetric]:
-        yield from self.operand.rrd_metrics()
+    def metrics(self) -> Iterable[RRDMetric]:
+        yield from self.operand.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         evaluated = self.operand.evaluate(context)
@@ -74,7 +74,7 @@ def test_custom_quantity_is_accepted_as_a_quantity() -> None:
     # Static structural conformance: a Negated is usable wherever a Quantity is expected.
     a = _metric("a")
     quantity: Quantity = Negated(operand=a)
-    assert list(quantity.rrd_metrics()) == [a]
+    assert list(quantity.metrics()) == [a]
 
 
 def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:

@@ -65,7 +65,7 @@ class Graph:
     lines: Sequence[Line] = ()
     rules: Sequence[Rule] = ()
 
-    def rrd_metrics(self) -> Sequence[RRDMetric]:
+    def metrics(self) -> Sequence[RRDMetric]:
         return list(
             dict.fromkeys(
                 rrd_metric
@@ -75,6 +75,6 @@ class Graph:
                     (line.curve.quantity for line in self.lines),
                     (rule.curve.quantity for rule in self.rules),
                 )
-                for rrd_metric in quantity.rrd_metrics()
+                for rrd_metric in quantity.metrics()
             )
         )
