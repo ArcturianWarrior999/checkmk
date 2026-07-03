@@ -5,15 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import usei18n from '@/lib/i18n'
-import type { TranslatedString } from '@/lib/i18nString'
 
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
-import CmkTag, { type Colors } from '@/components/CmkTag.vue'
 
 import type { HostState } from '../../api/types.ts'
+import HostStateDisplay from '../HostStateDisplay.vue'
 import StateIcon from '../StateIcon.vue'
 import BaseCell from './BaseCell.vue'
 
@@ -26,46 +23,14 @@ export interface StateCellProps {
 
 const { _t } = usei18n()
 
-const props = defineProps<StateCellProps>()
-
-const stateLabel = computed<TranslatedString>(() => {
-  switch (props.state) {
-    case 'DOWN':
-      return _t('DOWN')
-    case 'UP':
-      return _t('UP')
-    case 'UNREACHABLE':
-    default:
-      return _t('UNREACH')
-  }
-})
-
-const stateColor = computed<Colors>(() => {
-  let color: Colors = 'unknown'
-
-  switch (props.state) {
-    case 'UP':
-      color = 'success'
-      break
-    case 'DOWN':
-      color = 'danger'
-      break
-  }
-  return color
-})
+defineProps<StateCellProps>()
 </script>
 
 <template>
   <BaseCell :column-id="columnId">
     <template #default>
       <div class="monitoring-state-cell">
-        <CmkTag
-          :color="stateColor"
-          variant="weighted"
-          :content="stateLabel"
-          class="monitoring-state-cell__tag"
-          size="small"
-        />
+        <HostStateDisplay :state="state" class="monitoring-state-cell__tag" />
         <StateIcon v-if="stale">
           <CmkMultitoneIcon name="stale" primary-color="font" :title="_t('Stale state')" />
         </StateIcon>

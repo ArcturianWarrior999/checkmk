@@ -10,7 +10,7 @@ import {
   type RowSelectionState
 } from '@tanstack/vue-table'
 import type { MonitoringAllHostsApp } from 'cmk-shared-typing/typescript/monitoring/all_hosts'
-import { computed, onBeforeUnmount, onMounted, provide, ref, useTemplateRef } from 'vue'
+import { computed, markRaw, onBeforeUnmount, onMounted, provide, ref, useTemplateRef } from 'vue'
 
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
@@ -18,6 +18,7 @@ import { getKeyShortcutServiceInstance } from '@/lib/keyShortcuts'
 
 import type { SimpleIcons } from '@/components/CmkIcon/types'
 import CmkSearchInput from '@/components/CmkSearchInput.vue'
+import CmkSlideInTabbed, { type SlideInTab } from '@/components/CmkSlideInTabbed'
 import CmkSplitPane from '@/components/CmkSplitPane.vue'
 
 import type { HostEntry, HostRef, HostState } from '@/monitoring/shared/api/types'
@@ -53,6 +54,8 @@ import { createActionRegistry } from '../shared/components/action/registry'
 import { useMonitoringActions } from '../shared/services/useMonitoringActions'
 import { HostApi } from './api/hosts'
 import HostRow from './components/HostRow.vue'
+import HostOverviewTab from './components/slide-in/HostOverviewTab.vue'
+import HostSlideInHeader from './components/slide-in/HostSlideInHeader.vue'
 import { HostService } from './services/HostService'
 
 const { _t } = usei18n()
@@ -309,6 +312,29 @@ function onHostAction(payload: { action: CellAction; host: HostEntry }): void {
   void payload
 }
 
+const slideInHost = ref<HostEntry | null>(null)
+const slideInOpen = computed(() => slideInHost.value !== null)
+
+const slideInTabs = computed<SlideInTab[]>(() => {
+  const host = slideInHost.value
+  if (!host) {
+    return []
+  }
+  const hostRef: HostRef = { site_id: host.site_id, name: host.name }
+  return [
+    {
+      id: 'overview',
+      title: _t('Overview'),
+      component: markRaw(HostOverviewTab),
+      props: { host: hostRef }
+    }
+  ]
+})
+
+function closeSlideIn(): void {
+  slideInHost.value = null
+}
+
 function onBulkAction(action: CellAction): void {
   if (selectedHosts.value.length === 0 || !(action.id in actionRegistry)) {
     return
@@ -421,6 +447,16 @@ function onRightPaneCollapse(collapsed: boolean): void {
         />
       </template>
     </CmkSplitPane>
+    <CmkSlideInTabbed
+      :open="slideInOpen"
+      :tabs="slideInTabs"
+      :header="{ title: slideInHost?.name ?? '', closeButton: true }"
+      @close="closeSlideIn"
+    >
+      <template #above-tabs>
+        <HostSlideInHeader v-if="slideInHost" :host="slideInHost" />
+      </template>
+    </CmkSlideInTabbed>
   </div>
 </template>
 
