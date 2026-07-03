@@ -351,8 +351,7 @@ export function add_snapin(name: string) {
         }
       }
 
-      const add_snapin_page = window.frames[0] ? window.frames[0].document : document
-      const preview = add_snapin_page.getElementById('snapin_container_' + name)
+      const preview = document.getElementById('snapin_container_' + name)
       if (preview) {
         const container = preview.parentElement?.parentElement
         container?.remove()
@@ -403,11 +402,8 @@ function remove_snapin(id: string) {
     static_snapins.splice(static_index, 1)
   }
 
-  // reload main frame if it is currently displaying the "add snapin" page
-  if (parent.frames[0]) {
-    const href = encodeURIComponent(parent.frames[0].location.toString())
-    if (href.indexOf('sidebar_add_snapin.py') > -1) parent.frames[0].location.reload()
-  }
+  // reload the page if it is currently displaying the "add snapin" page
+  if (window.location.href.indexOf('sidebar_add_snapin.py') > -1) window.location.reload()
 }
 
 export function toggle_sidebar_snapin(oH2: HTMLElement, url: string, imgId: string) {
@@ -581,7 +577,7 @@ function highlight_link(link_obj: HTMLElement, container_id: string) {
 export function wato_folders_clicked(link_obj: HTMLElement, folderpath: string) {
   g_last_folder = folderpath
   highlight_link(link_obj, 'snapin_container_wato_folders')
-  parent.frames[0].location = g_last_view + '&wato_folder=' + encodeURIComponent(g_last_folder)
+  window.location.href = g_last_view + '&wato_folder=' + encodeURIComponent(g_last_folder)
 }
 
 export function wato_views_clicked(link_obj: HTMLLinkElement) {
@@ -592,7 +588,7 @@ export function wato_views_clicked(link_obj: HTMLLinkElement) {
 
   if (g_last_folder != '') {
     // Navigate by using javascript, cancel following the default link
-    parent.frames[0].location = g_last_view + '&wato_folder=' + encodeURIComponent(g_last_folder)
+    window.location.href = g_last_view + '&wato_folder=' + encodeURIComponent(g_last_folder)
     return false
   } else {
     // Makes use the url stated in href attribute
@@ -619,7 +615,7 @@ export function wato_tree_click(_link_obj: string, folderpath: string) {
 
   href += '&wato_folder=' + encodeURIComponent(folderpath)
 
-  parent.frames[0].location = href
+  window.location.href = href
 }
 
 export function wato_tree_topic_changed(topic_field: HTMLSelectElement) {
@@ -733,8 +729,8 @@ export function fetch_nagvis_snapin_contents() {
  *************************************************/
 
 export function add_bookmark() {
-  const url = parent.frames[0].location
-  const title = parent.frames[0].document.title
+  const url = window.location
+  const title = document.title
   call_ajax('add_bookmark.py', {
     add_ajax_id: false,
     response_handler: update_vue_snapin_contents,
