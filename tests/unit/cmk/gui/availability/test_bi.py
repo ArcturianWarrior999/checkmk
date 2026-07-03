@@ -3,11 +3,10 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from livestatus import LivestatusRow
-
 from cmk.bi.lib import NodeComputeResult
 from cmk.bi.trees import CompiledAggrTree
 from cmk.gui.availability.bi import _limit_reached_for_any_site, create_bi_timeline_entry
+from cmk.livestatus_client import LivestatusRow
 
 
 def _rows_for_site(site: str, count: int) -> list[LivestatusRow]:

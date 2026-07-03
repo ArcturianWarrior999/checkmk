@@ -17,8 +17,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final, Literal, TypedDict
 
-from livestatus import SiteConfigurations
-
 import cmk.ccc.plugin_registry
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
@@ -35,6 +33,7 @@ from cmk.gui.utils.html import HTML
 from cmk.gui.utils.speaklater import LazyString
 from cmk.gui.valuespec import ValueSpec
 from cmk.gui.watolib.site_changes import ChangeSpec
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.config_warnings import ConfigurationWarnings
 
 ConfigDomainName = str

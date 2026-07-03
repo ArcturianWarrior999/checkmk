@@ -12,8 +12,6 @@ import shlex
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from livestatus import lqencode, MKLivestatusNotFoundError
-
 from cmk.ccc.site import SiteId
 from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
@@ -31,6 +29,7 @@ from cmk.graphing_engine import (
 )
 from cmk.gui import sites
 from cmk.gui.log import logger
+from cmk.livestatus_client import lqencode, MKLivestatusNotFoundError
 
 from ._engine_rrd_resample import merge_series, resample, scaled_series
 from ._engine_rrd_translate import (

@@ -16,8 +16,6 @@ from typing import Annotated, Self
 from dateutil.relativedelta import relativedelta
 from pydantic import AwareDatetime, BaseModel, PlainValidator
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
@@ -38,6 +36,7 @@ from cmk.gui.watolib.automations import (
     MKAutomationException,
     remote_automation_config_from_site_config,
 )
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils.agent_registration import HostAgentConnectionMode
 
 _AnnotatedUserId = Annotated[UserId, PlainValidator(UserId.parse)]

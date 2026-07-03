@@ -12,8 +12,6 @@ import pytest
 from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.utils.paths
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -38,6 +36,7 @@ from cmk.gui.role_types import CustomUserRole
 from cmk.gui.session_context import SuperUserContext, UserContext
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.watolib.rulesets import may_edit_ruleset
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.rulesets.definition import RuleGroup
 from tests.testlib.gui.users import create_and_destroy_user
 

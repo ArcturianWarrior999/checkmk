@@ -8,8 +8,6 @@ from collections.abc import Iterator
 import pytest
 from pytest_mock import MockerFixture
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.paths
 from cmk.automations.results import GetAgentOutputResult
 from cmk.ccc.hostaddress import HostName
@@ -25,6 +23,7 @@ from cmk.gui.wato.pages.fetch_agent_output import (
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig
 from tests.testlib.common.repo import repo_path
 

@@ -8,8 +8,6 @@ import datetime as dt
 from collections.abc import Hashable, Sequence
 from typing import Literal
 
-from livestatus import MultiSiteConnection
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -23,6 +21,7 @@ from cmk.livestatus_client import (
     LivestatusClient,
     ModifyHostDowntime,
     ModifyServiceDowntime,
+    MultiSiteConnection,
     ScheduleHostDowntime,
     ScheduleServiceDowntime,
     tables,

@@ -6,8 +6,6 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import assert_never, cast, Final, get_args, Literal
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
@@ -102,6 +100,7 @@ from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.timeperiods import load_timeperiods
 from cmk.gui.watolib.user_scripts import load_notification_scripts, NotificationUserScripts
 from cmk.gui.watolib.users import notification_script_choices
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.rulesets.internal.form_specs import (
     DictionaryExtended,
     ListExtended,

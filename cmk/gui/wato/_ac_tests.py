@@ -14,8 +14,6 @@ from pathlib import Path
 import requests
 import urllib3
 
-from livestatus import LocalConnection, SiteConfiguration, SiteConfigurations
-
 import cmk.utils.paths
 import cmk.utils.render
 from cmk.backup.gui.handler import BackupConfig
@@ -60,6 +58,7 @@ from cmk.gui.watolib.config_domains import ConfigDomainOMD
 from cmk.gui.watolib.hosts_and_folders import Folder
 from cmk.gui.watolib.rulesets import AllRulesets, Rule, SingleRulesetRecursively
 from cmk.gui.watolib.sites import site_management_registry
+from cmk.livestatus_client import LocalConnection, SiteConfiguration, SiteConfigurations
 from cmk.utils.paths import (
     local_agent_based_plugins_dir,
     local_checks_dir,

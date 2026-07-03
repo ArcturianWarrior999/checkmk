@@ -26,8 +26,6 @@ import pytest
 import time_machine
 from pytest import MonkeyPatch
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.paths
 import cmk.utils.tags
 from cmk.ccc.exceptions import MKGeneralException
@@ -52,6 +50,7 @@ from cmk.gui.watolib.hosts_and_folders import (
     make_folder_tree,
 )
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.redis import disable_redis
 
 # Cheap in-memory acting user with all permissions. Avoids the expensive

@@ -42,11 +42,9 @@ from functools import partial
 from pathlib import Path
 from typing import cast, Literal
 
-import livestatus
-from livestatus import MKLivestatusException
-
 import cmk.ccc.debug
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 import cmk.utils.paths
 import cmk.utils.timeperiod
 from cmk.automations.backends.helper import AutomationHelperUnavailable, HelperExecutor
@@ -86,6 +84,7 @@ from cmk.events.notification_spool_file import (
     NotificationForward,
     NotificationViaPlugin,
 )
+from cmk.livestatus_client import MKLivestatusException
 from cmk.utils import http_proxy_config, log, timeperiod
 from cmk.utils.http_proxy_config import make_http_proxy_getter
 from cmk.utils.labels import LabelManager

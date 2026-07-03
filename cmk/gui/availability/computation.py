@@ -7,13 +7,6 @@ from collections import Counter
 from collections.abc import Mapping
 from typing import cast, Literal
 
-from livestatus import (
-    lqencode,
-    OnlySites,
-    Query,
-    QuerySpecification,
-)
-
 from cmk.ccc.cpu_tracking import CPUTracker
 from cmk.gui.data_source import query_livestatus
 from cmk.gui.i18n import _
@@ -28,6 +21,12 @@ from cmk.gui.type_defs import (
 from cmk.gui.utils.urls import urlencode_vars
 from cmk.gui.view_utils import cmp_service_name_equiv
 from cmk.gui.watolib.groups_io import all_groups
+from cmk.livestatus_client import (
+    lqencode,
+    OnlySites,
+    Query,
+    QuerySpecification,
+)
 
 from .annotations import (
     reclassify_config_by_annotation as reclassify_config_by_annotation,

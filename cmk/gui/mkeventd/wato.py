@@ -22,13 +22,6 @@ from html import escape as html_escape
 from pathlib import Path
 from typing import Any, cast, Literal, overload, override
 
-from livestatus import (
-    LocalConnection,
-    MKLivestatusSocketError,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 import cmk.ccc.translations
 
 # It's OK to import centralized config load logic
@@ -196,7 +189,16 @@ from cmk.gui.watolib.rulespecs import (
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.translation import HostnameTranslation
 from cmk.gui.watolib.utils import site_neutral_path
-from cmk.livestatus_client import ECCreate, ECResetCounters, ECSwitchMode, LivestatusClient
+from cmk.livestatus_client import (
+    ECCreate,
+    ECResetCounters,
+    ECSwitchMode,
+    LivestatusClient,
+    LocalConnection,
+    MKLivestatusSocketError,
+    SiteConfiguration,
+    SiteConfigurations,
+)
 from cmk.rulesets.internal.form_specs import (
     DictionaryExtended,
     SingleChoiceElementExtended,

@@ -7,9 +7,8 @@
 import pytest
 from pytest_mock import MockType
 
-from livestatus import LivestatusResponse
-
 import cmk.product_usage.collectors.checks as checks_collector
+from cmk.livestatus_client import LivestatusResponse
 from cmk.product_usage.exceptions import ServicesInfoLengthError
 from cmk.product_usage.schema import Checks
 

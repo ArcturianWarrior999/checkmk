@@ -9,8 +9,7 @@ import time
 from datetime import datetime
 from typing import Any, override
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import SiteId
 from cmk.gui import sites

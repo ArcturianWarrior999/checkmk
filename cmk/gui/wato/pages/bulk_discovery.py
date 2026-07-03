@@ -11,8 +11,6 @@ import copy
 from collections.abc import Collection
 from typing import cast, override
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site
 from cmk.checkengine.discovery import DiscoverySettings
@@ -49,6 +47,7 @@ from cmk.gui.watolib.hosts_and_folders import (
     SearchFolder,
 )
 from cmk.gui.watolib.mode import ModeRegistry, WatoMode
+from cmk.livestatus_client import SiteConfigurations
 
 from ._bulk_actions import get_hostnames_from_checkboxes
 

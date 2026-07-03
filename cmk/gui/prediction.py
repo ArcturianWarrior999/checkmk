@@ -10,14 +10,6 @@ from collections.abc import Hashable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Literal
 
-from livestatus import (
-    get_rrd_data,
-    lqencode,
-    MKLivestatusNotFoundError,
-    MKLivestatusSocketError,
-    SingleSiteConnection,
-)
-
 import cmk.ccc.debug
 from cmk.agent_based.prediction_backend import PredictionInfo
 from cmk.ccc.exceptions import MKGeneralException
@@ -34,6 +26,13 @@ from cmk.gui.permissions import permission_registry
 from cmk.gui.sites import live
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.view_breadcrumbs import make_service_breadcrumb
+from cmk.livestatus_client import (
+    get_rrd_data,
+    lqencode,
+    MKLivestatusNotFoundError,
+    MKLivestatusSocketError,
+    SingleSiteConnection,
+)
 from cmk.utils.metrics import MetricName
 from cmk.utils.prediction import estimate_levels, PredictionData, PredictionQuerier
 from cmk.utils.servicename import ServiceName

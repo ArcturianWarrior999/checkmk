@@ -14,8 +14,7 @@ from pathlib import Path
 import pytest
 from pytest import MonkeyPatch
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.livestatus_client.testing import MockLiveStatusConnection

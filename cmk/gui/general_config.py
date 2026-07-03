@@ -10,12 +10,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from livestatus import (
-    AuthenticationConnectionEntry,
-    BrokerConnections,
-    SiteConfigurations,
-)
-
 from cmk.ccc.version import Edition, edition
 from cmk.checkengine.discovery import DiscoverySettingFlags
 from cmk.gui.role_types import BuiltInUserRole, CustomUserRole
@@ -36,6 +30,11 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_connection_config_types import ConfigurableUserConnectionSpec
 from cmk.gui.utils.temperate_unit import TemperatureUnit
 from cmk.inventory.config import InvCleanupParams
+from cmk.livestatus_client import (
+    AuthenticationConnectionEntry,
+    BrokerConnections,
+    SiteConfigurations,
+)
 from cmk.utils import paths
 from cmk.utils.tags import TagConfigSpec
 

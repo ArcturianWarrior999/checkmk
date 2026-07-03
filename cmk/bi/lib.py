@@ -26,8 +26,6 @@ from typing import (
 
 from marshmallow import Schema as marshmallow_Schema
 
-from livestatus import LivestatusResponse, Query
-
 from cmk.bi.fields import ReqBoolean, ReqList, ReqNested, ReqString
 from cmk.bi.schema import Schema
 from cmk.bi.type_defs import (
@@ -53,6 +51,7 @@ from cmk.ccc import plugin_registry
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.fields import Boolean, List, Nested, String
+from cmk.livestatus_client import LivestatusResponse, Query
 from cmk.utils.labels import LabelGroups
 from cmk.utils.macros import replace_macros_in_str
 from cmk.utils.rulesets.ruleset_matcher import TagCondition

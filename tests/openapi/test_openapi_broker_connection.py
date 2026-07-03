@@ -8,10 +8,9 @@ from collections.abc import Iterator
 import pytest
 from pytest import MonkeyPatch
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.site import SiteId
 from cmk.gui.watolib.broker_connections import BrokerConnectionInfo, SiteConnectionInfo
+from cmk.livestatus_client import SiteConfiguration
 from tests.testlib.gui.web_test_app import SetConfig
 from tests.testlib.rest_api_client import (
     ClientRegistry,

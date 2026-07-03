@@ -18,9 +18,8 @@ import traceback
 from collections.abc import Iterator, Mapping, Sequence
 from typing import cast, override, Protocol, Self, TypedDict
 
-import livestatus
-
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import SiteId
 from cmk.crash import AggregatedCrashInfo, read_occurrences, SENSITIVE_KEYWORDS

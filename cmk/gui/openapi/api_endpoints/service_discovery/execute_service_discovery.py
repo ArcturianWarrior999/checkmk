@@ -5,8 +5,6 @@
 
 from typing import assert_never
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site
 from cmk.gui.logged_in import user
 from cmk.gui.openapi.framework import (
@@ -33,6 +31,7 @@ from cmk.gui.watolib.services import (
     perform_host_label_discovery,
     perform_service_discovery,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.everythingtype import EVERYTHING
 

@@ -192,7 +192,7 @@ section-order = [
 ]
 
 [tool.ruff.lint.isort.sections]
-first-party-not-cmk = ["cmc_proto", "omdlib", "livestatus"]
+first-party-not-cmk = ["cmc_proto", "omdlib"]
 
 # NOTE: Keep this is sync with mypy-raw.ini!
 # The number of errors/files below are just a snapshot to give a rough idea. In

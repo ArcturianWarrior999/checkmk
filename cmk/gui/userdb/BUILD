@@ -35,7 +35,7 @@ py_library(
         "//packages/cmk-ccc:user",
         "//packages/cmk-ccc:version",
         "//packages/cmk-crypto",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         requirement("pydantic"),
     ],
 )

@@ -5,14 +5,13 @@
 
 import pytest
 
-from livestatus import LivestatusResponse
-
 from cmk.bi.actions import BICallARuleAction
 from cmk.bi.aggregation import BIAggregation
 from cmk.bi.data_fetcher import BIStatusFetcher, BIStructureFetcher
 from cmk.bi.packs import BIAggregationPacks
 from cmk.bi.searcher import BISearcher
 from cmk.ccc.site import SiteId
+from cmk.livestatus_client import LivestatusResponse
 
 from .bi_test_data import sample_config
 

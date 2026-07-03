@@ -13,8 +13,6 @@ from pathlib import Path
 import pytest
 from pytest import MonkeyPatch
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.gui.watolib.hosts_and_folders
 import cmk.utils.paths
 from cmk.ccc.hostaddress import HostName
@@ -27,6 +25,7 @@ from cmk.gui.watolib.host_attributes import (
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.post_rename_site.logger import logger
 from cmk.post_rename_site.plugins.actions.hosts_and_folders import (
     _update_locked_by,

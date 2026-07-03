@@ -16,9 +16,8 @@ By placing the dispatcher here, the import graph is acyclic:
     rawdata.py → bi.py → computation.py
 """
 
-from livestatus import OnlySites
-
 from cmk.gui.type_defs import FilterHeader, ViewProcessTracking, VisualContext
+from cmk.livestatus_client import OnlySites
 
 from .bi import get_bi_availability_rawdata
 from .computation import get_host_service_availability_rawdata

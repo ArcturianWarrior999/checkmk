@@ -10,12 +10,6 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import assert_never, Literal, overload, override, TypeGuard
 
-from livestatus import (
-    AuthenticationConnectionEntry,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
@@ -34,6 +28,11 @@ from cmk.gui.watolib.config_domain_name import ABCConfigDomain
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoListConfigFile
 from cmk.gui.watolib.utils import multisite_dir
+from cmk.livestatus_client import (
+    AuthenticationConnectionEntry,
+    SiteConfiguration,
+    SiteConfigurations,
+)
 
 from ._connector import ConnectorType, user_connector_registry, UserConnector
 

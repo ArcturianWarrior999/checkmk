@@ -8,8 +8,6 @@
 import abc
 from collections.abc import Collection, Iterator, Sequence
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.paths
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -64,6 +62,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.livestatus_client import SiteConfigurations
 
 
 def register(mode_registry: ModeRegistry) -> None:

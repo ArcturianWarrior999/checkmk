@@ -14,8 +14,6 @@ from typing import TypedDict
 import psutil
 from redis import Redis
 
-from livestatus import Query, QuerySpecification
-
 from cmk.bi import storage
 from cmk.bi.aggregation import BIAggregation
 from cmk.bi.data_fetcher import BIStructureFetcher, SiteProgramStart
@@ -29,6 +27,7 @@ from cmk.bi.trees import BICompiledAggregation
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.i18n import _
+from cmk.livestatus_client import Query, QuerySpecification
 from cmk.utils.redis import get_redis_client
 
 # NOTE: Multiprocessing support was reverted due to unexpected high resource usage. However, the

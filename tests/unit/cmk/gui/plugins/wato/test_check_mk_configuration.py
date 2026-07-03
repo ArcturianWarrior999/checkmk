@@ -5,8 +5,6 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.version import Edition, edition
 from cmk.gui.plugins.wato.utils import ConfigVariableGroupUserInterface
@@ -17,6 +15,7 @@ from cmk.gui.watolib.config_domain_name import config_variable_registry, GlobalS
 from cmk.gui.watolib.config_domains import ConfigDomainGUI
 from cmk.gui.watolib.sample_config import USE_NEW_DESCRIPTIONS_FOR_SETTING
 from cmk.gui.watolib.utils import site_neutral_path
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.paths import log_dir, omd_root, var_dir
 
 

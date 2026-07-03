@@ -8,15 +8,6 @@ from collections import Counter
 from collections.abc import Generator, Sequence
 from typing import Any, NamedTuple
 
-from livestatus import (
-    LivestatusRow,
-    lq_logic,
-    MKLivestatusPayloadTooLargeError,
-    OnlySites,
-    Query,
-    QuerySpecification,
-)
-
 from cmk.bi.lib import (
     BIHostSpec,
     BIHostStatusInfoRow,
@@ -37,6 +28,14 @@ from cmk.gui.type_defs import (
     FilterHeader,
     Row,
     Rows,
+)
+from cmk.livestatus_client import (
+    LivestatusRow,
+    lq_logic,
+    MKLivestatusPayloadTooLargeError,
+    OnlySites,
+    Query,
+    QuerySpecification,
 )
 from cmk.utils.servicename import ServiceName
 

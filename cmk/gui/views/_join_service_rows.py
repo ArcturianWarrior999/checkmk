@@ -9,8 +9,6 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import NamedTuple
 
-from livestatus import lqencode
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.regex import regex
 from cmk.ccc.site import SiteId
@@ -22,6 +20,7 @@ from cmk.gui.views.sorter import SorterEntry
 from cmk.gui.views.store import get_permitted_views
 from cmk.gui.visuals import get_livestatus_filter_headers
 from cmk.gui.visuals.filter import Filter
+from cmk.livestatus_client import lqencode
 
 
 def _parents(rows: Rows) -> Mapping[tuple[SiteId, HostName], Sequence[HostName]]:

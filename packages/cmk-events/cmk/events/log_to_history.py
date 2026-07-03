@@ -16,8 +16,7 @@ by sending the message to the local monitoring core.
 import logging
 from typing import Final, NewType
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.livestatus_client import LivestatusClient, Log
 
 from .notification_result import (

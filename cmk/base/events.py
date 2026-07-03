@@ -21,10 +21,9 @@ from collections.abc import Callable, Iterable, Mapping
 from typing import Any, cast, Literal, Protocol
 from urllib.parse import quote, urlencode
 
-import livestatus
-
 import cmk.ccc.daemon
 import cmk.ccc.debug
+import cmk.livestatus_client as livestatus
 from cmk.ccc.config_path import VersionedConfigPath
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.regex import regex

@@ -9,8 +9,6 @@
 import re
 from collections.abc import Collection, Iterable, Mapping, Sequence
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.checkengine.plugins import CheckPluginName
@@ -58,6 +56,7 @@ from cmk.gui.watolib.hosts_and_folders import (
 from cmk.gui.watolib.mode import ModeRegistry, WatoMode
 from cmk.gui.watolib.rulesets import Rule, rules_grouped_by_folder, SingleRulesetRecursively
 from cmk.gui.watolib.utils import mk_repr
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 
 

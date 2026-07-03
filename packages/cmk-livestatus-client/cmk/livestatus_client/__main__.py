@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from os import getenv
 from typing import NoReturn
 
-from livestatus import SingleSiteConnection
+from cmk.livestatus_client import SingleSiteConnection
 
 # This will be substituted at 'make dist' time.
 __version__ = "3.0.0b1"

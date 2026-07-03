@@ -10,8 +10,6 @@ from logging import Logger
 
 from pydantic import BaseModel
 
-from livestatus import SiteConfigurations
-
 from cmk.gui.background_job.job import (
     BackgroundJob,
     BackgroundProcessInterface,
@@ -35,6 +33,7 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_connection_config_types import UserConnectionConfig
 from cmk.gui.utils.roles import UserPermissions, UserPermissionSerializableConfig
 from cmk.gui.utils.urls import makeuri_contextless
+from cmk.livestatus_client import SiteConfigurations
 
 from ._connections import active_connections
 from ._user_attribute import get_user_attributes, UserAttribute

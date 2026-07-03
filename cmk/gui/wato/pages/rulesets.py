@@ -26,8 +26,6 @@ from typing import (
     TypedDict,
 )
 
-from livestatus import SiteConfiguration
-
 from cmk import trace
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName, HostNameValidationError
@@ -204,6 +202,7 @@ from cmk.gui.watolib.rulespecs import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import mk_eval, mk_repr
+from cmk.livestatus_client import SiteConfiguration
 from cmk.rulesets.v1.form_specs import FormSpec
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.labels import LabelGroups

@@ -8,8 +8,6 @@
 import time
 from typing import NamedTuple, override
 
-from livestatus import LivestatusResponse, MKLivestatusNotFoundError
-
 import cmk.utils.render
 from cmk.gui import sites
 from cmk.gui.breadcrumb import Breadcrumb, make_simple_page_breadcrumb
@@ -41,6 +39,7 @@ from cmk.gui.utils.transaction_manager import transactions
 from cmk.gui.utils.urls import make_confirm_delete_link, makeactionuri
 from cmk.gui.watolib.profile_replication import start_profile_replication_job
 from cmk.gui.watolib.user_scripts import declare_notification_plugin_permissions
+from cmk.livestatus_client import LivestatusResponse, MKLivestatusNotFoundError
 
 
 def register(

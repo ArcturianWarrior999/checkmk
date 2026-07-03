@@ -9,8 +9,6 @@ import time
 from collections.abc import Callable, Mapping, Sequence
 from uuid import uuid4
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
@@ -81,6 +79,7 @@ from cmk.gui.watolib.services import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.sites import ReplicationStatusFetcher
+from cmk.livestatus_client import SiteConfiguration
 from cmk.password_store.v1_unstable import Secret
 from cmk.rulesets.v1.form_specs import Dictionary
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig

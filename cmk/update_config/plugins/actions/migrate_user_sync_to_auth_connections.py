@@ -27,12 +27,11 @@ new fields have been derived; ``user_sync`` is no longer part of the
 from logging import Logger
 from typing import Literal, override
 
-from livestatus import AuthenticationConnectionEntry
-
 from cmk.ccc.site import omd_site
 from cmk.gui.config import active_config
 from cmk.gui.userdb._connections import is_ldap, load_connection_config
 from cmk.gui.watolib.sites import site_management_registry
+from cmk.livestatus_client import AuthenticationConnectionEntry
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.registry import update_action_registry, UpdateAction
 from cmk.utils.log import VERBOSE

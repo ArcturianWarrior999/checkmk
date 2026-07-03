@@ -12,8 +12,6 @@ from typing import Any, Literal, override
 from marshmallow import ValidationError
 from marshmallow.fields import Field
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.tags
 from cmk import fields
 from cmk.ccc.hostaddress import HostName
@@ -87,6 +85,7 @@ from cmk.gui.watolib.host_attributes import (
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
 from cmk.gui.watolib.tags import TagConfigFile
 from cmk.gui.watolib.translation import HostnameTranslation
+from cmk.livestatus_client import SiteConfigurations
 from cmk.rulesets.internal.form_specs import ListOfStrings as FSListOfStrings
 from cmk.rulesets.internal.form_specs import (
     SingleChoiceElementExtended,

@@ -10,8 +10,6 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.automations.results import Gateway, GatewayResult, ScanParentsResult
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
@@ -25,6 +23,7 @@ from cmk.gui.parentscan.background_job import (
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.wsgi.app import application_and_request_context
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 
 
 def _noop_pending_changes() -> PendingChanges:

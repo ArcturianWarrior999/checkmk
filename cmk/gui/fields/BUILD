@@ -17,7 +17,7 @@ py_library(
     deps = [
         "//cmk/fields",
         "//packages/cmk-ccc:version",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         requirement("apispec"),
         requirement("marshmallow"),
     ],
@@ -53,7 +53,7 @@ py_library(
         "//cmk/utils",
         "//packages/cmk-ccc:plugin-registry",
         "//packages/cmk-ccc:user",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         requirement("cryptography"),
         requirement("marshmallow"),
         requirement("marshmallow-oneofschema"),

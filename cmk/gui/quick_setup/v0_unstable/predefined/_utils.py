@@ -5,8 +5,6 @@
 
 from collections.abc import Callable, Mapping, Sequence
 
-from livestatus import SiteConfiguration
-
 from cmk.automations.results import SpecialAgentDiscoveryPreviewResult
 from cmk.ccc.site import omd_site, SiteId
 from cmk.checkengine.discovery import CheckPreviewEntry
@@ -25,6 +23,7 @@ from cmk.gui.quick_setup.v0_unstable.type_defs import (
 from cmk.gui.watolib.automations import make_automation_config
 from cmk.gui.watolib.check_mk_automations import special_agent_discovery_preview
 from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
+from cmk.livestatus_client import SiteConfiguration
 from cmk.rulesets.v1.form_specs import Dictionary
 
 

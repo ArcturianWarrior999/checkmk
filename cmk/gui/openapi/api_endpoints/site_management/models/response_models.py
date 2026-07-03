@@ -7,8 +7,6 @@
 
 from typing import Annotated, Literal, Self
 
-from livestatus import SiteConfiguration
-
 import cmk.ccc.version as cmk_version
 from cmk.ccc.version import Edition
 from cmk.gui.fields.utils import edition_field_description
@@ -17,6 +15,7 @@ from cmk.gui.openapi.framework.model.base_models import DomainObjectModel
 from cmk.gui.openapi.framework.model.constructors import generate_links
 from cmk.gui.openapi.framework.model.restrict_editions import RestrictEditions
 from cmk.gui.site_config import site_is_local
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils import paths
 
 from .common import (

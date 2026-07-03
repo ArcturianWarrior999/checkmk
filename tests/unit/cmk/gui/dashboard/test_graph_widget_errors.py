@@ -14,8 +14,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from livestatus import MKLivestatusNotFoundError
-
 from cmk.gui.dashboard.dashlet.dashlets.graph import (
     TemplateGraphDashlet,
     TemplateGraphDashletConfig,
@@ -24,6 +22,7 @@ from cmk.gui.dashboard.exceptions import WidgetRenderError
 from cmk.gui.dashboard.page_graph_widget import GraphWidgetPage, render_graph_widget_content
 from cmk.gui.exceptions import MKMissingDataError, MKUserError
 from cmk.gui.graphing import MKGraphRecipeNotFoundError, MKGraphWidgetTooSmallError
+from cmk.livestatus_client import MKLivestatusNotFoundError
 
 
 class TestGraphWidgetErrorHandling:

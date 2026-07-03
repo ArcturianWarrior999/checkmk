@@ -7,8 +7,6 @@
 
 from typing import Annotated, Literal
 
-from livestatus import OnlySites
-
 from cmk.ccc.site import SiteId
 from cmk.gui import sites
 from cmk.gui.mkeventd._openapi.commands import (
@@ -29,6 +27,7 @@ from cmk.gui.openapi.framework import (
 from cmk.gui.openapi.framework.model import api_field, api_model
 from cmk.gui.openapi.framework.model.base_models import DomainObjectCollectionModel
 from cmk.gui.openapi.restful_objects.constructors import collection_href
+from cmk.livestatus_client import OnlySites
 
 from .endpoint_family import CURRENT_EVENTS_FAMILY
 from .models.request_models import EventConsoleEventsQuery

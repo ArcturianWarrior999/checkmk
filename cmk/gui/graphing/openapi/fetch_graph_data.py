@@ -5,8 +5,6 @@
 
 from typing import assert_never, Literal
 
-from livestatus import MKLivestatusException
-
 from cmk.graphing_engine import ConsolidationFunction
 from cmk.graphing_engine import TimeRange as EngineTimeRange
 from cmk.gui.openapi.framework import (
@@ -20,6 +18,7 @@ from cmk.gui.openapi.framework import (
 from cmk.gui.openapi.restful_objects.constructors import domain_type_action_href
 from cmk.gui.openapi.utils import ProblemException
 from cmk.gui.utils import permission_verification as permissions
+from cmk.livestatus_client import MKLivestatusException
 
 from .._engine_dispatch import evaluate_graphs, GraphDataRequest
 from ._family import GRAPH_FAMILY

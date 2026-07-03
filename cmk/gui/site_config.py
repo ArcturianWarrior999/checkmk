@@ -7,10 +7,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.utils.paths
 from cmk.ccc.site import omd_site, SiteId
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 
 
 # TODO: Cleanup: Make clear that this function is used by the status GUI (and not WATO)

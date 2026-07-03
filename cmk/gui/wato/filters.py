@@ -8,8 +8,6 @@
 import time
 from collections.abc import Iterable, Iterator
 
-from livestatus import lq_logic
-
 from cmk.gui import site_config, sites
 from cmk.gui.config import active_config
 from cmk.gui.i18n import _, _l
@@ -19,6 +17,7 @@ from cmk.gui.valuespec import DualListChoice, ValueSpec
 from cmk.gui.visuals.filter import Filter, FilterGroup, FilterRegistry
 from cmk.gui.visuals.filter.components import Dropdown, DualList, FilterComponent, StaticText
 from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree
+from cmk.livestatus_client import lq_logic
 
 
 def register(filter_registry: FilterRegistry) -> None:

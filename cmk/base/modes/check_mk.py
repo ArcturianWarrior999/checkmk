@@ -19,12 +19,11 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Final, Literal, NamedTuple, TypedDict
 
-import livestatus
-
 import cmk.base.dump_host
 import cmk.ccc.cleanup
 import cmk.ccc.debug
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 import cmk.utils.password_store
 import cmk.utils.paths
 from cmk import trace

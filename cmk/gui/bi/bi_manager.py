@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from livestatus import LivestatusResponse, Query
-
 from cmk.bi.compiler import BICompiler
 from cmk.bi.computer import BIComputer
 from cmk.bi.data_fetcher import BIStatusFetcher
@@ -24,6 +22,7 @@ from cmk.ccc.site import SiteId
 from cmk.gui import sites
 from cmk.gui.hooks import request_memoize
 from cmk.gui.i18n import _
+from cmk.livestatus_client import LivestatusResponse, Query
 
 
 class BIManager:

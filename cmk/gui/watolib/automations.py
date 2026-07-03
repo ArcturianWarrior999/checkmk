@@ -28,8 +28,6 @@ import urllib3
 from pydantic import BaseModel, field_validator, PlainValidator
 from requests import RequestException
 
-from livestatus import SiteConfiguration
-
 import cmk.ccc.version as cmk_version
 from cmk import trace
 from cmk.automations.backends import AutomationExecutor, HelperExecutor, SubprocessExecutor
@@ -64,6 +62,7 @@ from cmk.gui.watolib.host_attributes import CollectedHostAttributes
 from cmk.gui.watolib.utils import mk_repr
 from cmk.licensing.handler import LicenseState
 from cmk.licensing.registry import get_license_state
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils import paths
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 

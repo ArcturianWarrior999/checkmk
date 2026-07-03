@@ -20,11 +20,10 @@ from unittest.mock import patch
 import pytest
 from fakeredis import FakeRedis
 
-import livestatus
-
 import cmk.ccc.debug
 import cmk.ccc.version as cmk_version
 import cmk.crypto.password_hashing
+import cmk.livestatus_client as livestatus
 import cmk.utils.caching
 import cmk.utils.paths
 from cmk.ccc.site import omd_site, SiteId

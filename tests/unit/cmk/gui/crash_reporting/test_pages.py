@@ -12,12 +12,11 @@ import pytest
 from polyfactory.factories.typed_dict_factory import TypedDictFactory
 from werkzeug.test import create_environ
 
-from livestatus import OnlySites
-
 from cmk.crash import AggregatedCrashInfo
 from cmk.gui.crash_reporting.pages import CrashReport, CrashReportRow
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.http import Request
+from cmk.livestatus_client import OnlySites
 
 
 class CrashInfoFactory(TypedDictFactory[AggregatedCrashInfo]):

@@ -13,8 +13,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import override
 
-from livestatus import LivestatusResponse, Query, QuerySpecification
-
 from cmk.bi.filesystem import BIFileSystem
 from cmk.bi.lib import (
     ABCBIStatusFetcher,
@@ -30,6 +28,7 @@ from cmk.bi.lib import (
 from cmk.bi.trees import BICompiledAggregation, BICompiledRule
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
+from cmk.livestatus_client import LivestatusResponse, Query, QuerySpecification
 
 SiteProgramStart = tuple[SiteId, int]
 

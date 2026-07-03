@@ -14,8 +14,6 @@ from typing import Any, cast, get_args, override
 
 from pydantic import BaseModel
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.paths
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, SiteId
@@ -49,6 +47,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.user_profile import push_user_profiles_to_site_transitional_wrapper
 from cmk.gui.watolib.users import get_enabled_remote_sites_for_logged_in_user
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import RemoteAutomationConfig
 
 

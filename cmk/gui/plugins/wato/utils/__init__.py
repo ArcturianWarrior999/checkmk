@@ -14,8 +14,6 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any, cast, Literal
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.ccc.plugin_registry
 import cmk.ccc.version as cmk_version
 import cmk.gui.watolib.rulespecs as _rulespecs
@@ -226,6 +224,7 @@ from cmk.gui.watolib.translation import (
     ServiceDescriptionTranslation as ServiceDescriptionTranslation,
 )
 from cmk.gui.watolib.translation import translation_elements as translation_elements
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.rulesets.definition import RuleGroup
 
 

@@ -17,8 +17,6 @@ from pytest_mock import MockerFixture
 from redis import Redis
 from werkzeug.test import create_environ
 
-from livestatus import SiteConfigurations
-
 from cmk.automations.results import GetConfigurationResult
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
@@ -49,6 +47,7 @@ from cmk.gui.wato._omd_configuration import (
 from cmk.gui.watolib.config_domains import ConfigDomainOMD
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 from cmk.livestatus_client.testing import MockLiveStatusConnection
 
 

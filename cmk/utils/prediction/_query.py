@@ -7,11 +7,10 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from livestatus import Query as OldQuery
-from livestatus import SingleSiteConnection
-
 from cmk.agent_based.prediction_backend import PredictionInfo
 from cmk.ccc.hostaddress import HostName
+from cmk.livestatus_client import Query as OldQuery
+from cmk.livestatus_client import SingleSiteConnection
 from cmk.livestatus_client.expressions import And, LqSafe
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables.services import Services

@@ -35,7 +35,7 @@ py_library(
         "//packages/cmk-ccc:resulttype",
         "//packages/cmk-ccc:site",
         "//packages/cmk-ccc:store",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         requirement("marshmallow-oneofschema"),
         requirement("pydantic"),
     ],

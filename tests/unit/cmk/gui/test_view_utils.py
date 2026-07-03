@@ -8,11 +8,10 @@ from typing import cast
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.gui.http import request
 from cmk.gui.utils.html import HTML
 from cmk.gui.view_utils import determine_must_escape, format_plugin_output
+from cmk.livestatus_client import SiteConfigurations
 
 
 @pytest.mark.usefixtures("patch_theme")

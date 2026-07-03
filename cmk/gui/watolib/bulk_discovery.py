@@ -15,8 +15,6 @@ from typing import Literal, NamedTuple, NewType, override
 
 from pydantic import BaseModel
 
-from livestatus import SiteConfigurations
-
 import cmk.ccc.resulttype as result
 from cmk.automations.results import ServiceDiscoveryResult as AutomationDiscoveryResult
 from cmk.ccc import store
@@ -81,6 +79,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.paths import configuration_lockfile, tmp_run_dir
 

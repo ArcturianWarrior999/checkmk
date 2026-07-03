@@ -29,9 +29,8 @@ from typing import Any, Final, override
 
 import requests
 
-import livestatus
-
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 import cmk.utils.paths
 from cmk.automations.results import CreateDiagnosticsDumpResult
 from cmk.automations.types import AutomationID

@@ -47,7 +47,7 @@ py_library(
         "//packages/cmk-ec:event",
         "//packages/cmk-ec:syslog",
         "//packages/cmk-events",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:bakery",
         "//packages/cmk-plugin-apis:discover_plugins",

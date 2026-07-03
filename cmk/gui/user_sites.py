@@ -5,12 +5,11 @@
 
 from __future__ import annotations
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
 from cmk.gui.logged_in import user as global_user
 from cmk.gui.site_config import enabled_sites, is_replication_enabled, site_is_local
+from cmk.livestatus_client import SiteConfigurations
 
 
 def sorted_sites(site_configs: SiteConfigurations) -> list[tuple[SiteId, str]]:

@@ -17,8 +17,6 @@ configuration of all roles.
 
 from collections.abc import Collection
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
@@ -76,6 +74,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.userroles import RoleID
+from cmk.livestatus_client import SiteConfigurations
 
 
 def register(mode_registry: ModeRegistry) -> None:

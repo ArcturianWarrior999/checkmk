@@ -20,8 +20,6 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any, assert_never, Literal, Self, TypedDict
 
-from livestatus import LocalConnection, SiteConfigurations
-
 import cmk.gui.sites
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
@@ -40,6 +38,7 @@ from cmk.gui.watolib.automations import (
     make_automation_config,
 )
 from cmk.gui.watolib.sites import get_effective_global_setting
+from cmk.livestatus_client import LocalConnection, SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.statename import short_service_state_name
 

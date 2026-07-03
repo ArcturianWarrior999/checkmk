@@ -166,7 +166,6 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/discovery",
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client",
-        "//packages/cmk-livestatus-client:py_livestatus",
         requirement("flask"),
         requirement("pydantic"),
     ],

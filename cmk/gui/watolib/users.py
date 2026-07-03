@@ -8,8 +8,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import cast, Literal
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -39,6 +37,7 @@ from cmk.gui.watolib.user_scripts import (
     user_script_title,
 )
 from cmk.gui.watolib.utils import multisite_dir, wato_root_dir
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import paths
 from cmk.utils.notify_types import EventRule
 from cmk.utils.object_diff import make_diff_text

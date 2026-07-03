@@ -10,8 +10,6 @@ from typing import Any
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.valuespec import Dictionary, Float, Migrate
@@ -20,6 +18,7 @@ from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChan
 from cmk.gui.watolib.rulesets import Rule, RuleConditions, Ruleset, RulesetCollection
 from cmk.gui.watolib.rulespec_groups import RulespecGroupMonitoringConfigurationVarious
 from cmk.gui.watolib.rulespecs import Rulespec
+from cmk.livestatus_client import SiteConfigurations
 from cmk.update_config.plugins.lib import rulesets as rulesets_updater
 
 

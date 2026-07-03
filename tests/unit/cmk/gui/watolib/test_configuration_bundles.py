@@ -8,8 +8,6 @@ from collections.abc import Iterable
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 import cmk.gui.watolib.check_mk_automations
 from cmk.automations.results import DeleteHostsResult
 from cmk.ccc.exceptions import MKGeneralException
@@ -44,6 +42,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.rulesets import SingleRulesetRecursively
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.password_store import PasswordConfig
 from cmk.utils.rulesets.ruleset_matcher import RuleSpec
 from tests.testlib.gui.users import create_and_destroy_user

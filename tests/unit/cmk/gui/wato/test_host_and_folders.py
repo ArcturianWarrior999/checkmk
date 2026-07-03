@@ -9,13 +9,12 @@ from collections.abc import Generator
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.gui.logged_in import user
 from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree, FolderSiteStats
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 
 
 def _noop_pending_changes() -> PendingChanges:

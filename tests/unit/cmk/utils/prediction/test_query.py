@@ -3,10 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from livestatus import LocalConnection
-
 from cmk.agent_based.prediction_backend import PredictionInfo, PredictionParameters
 from cmk.ccc.hostaddress import HostName
+from cmk.livestatus_client import LocalConnection
 from cmk.livestatus_client.testing import MockLiveStatusConnection, SiteName
 from cmk.utils.prediction import DataStat, PredictionData
 from cmk.utils.prediction._query import PredictionQuerier

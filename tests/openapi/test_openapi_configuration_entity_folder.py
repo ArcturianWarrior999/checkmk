@@ -8,12 +8,11 @@ from collections.abc import Iterator
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.gui.logged_in import user
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
+from cmk.livestatus_client import SiteConfigurations
 from cmk.shared_typing.configuration_entity import ConfigEntityType
 from tests.testlib.gui.web_test_app import SetConfig
 from tests.testlib.rest_api_client import ClientRegistry

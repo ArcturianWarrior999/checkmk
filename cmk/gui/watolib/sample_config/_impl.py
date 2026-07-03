@@ -9,8 +9,6 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4, uuid5
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.ccc import store
 from cmk.ccc.site import omd_site, url_prefix
 from cmk.ccc.user import UserId
@@ -46,6 +44,7 @@ from cmk.inventory.config import (
     InvCleanupParams,
     InvCleanupParamsDefaultCombined,
 )
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.encryption import raw_certificates_from_file
 from cmk.utils.log import VERBOSE
 from cmk.utils.notify_types import (

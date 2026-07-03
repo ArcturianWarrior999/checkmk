@@ -20,11 +20,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Literal
 
-import livestatus
-
 import cmk.ccc.debug
 import cmk.ccc.resulttype as result
 import cmk.checkengine.plugin_backend as agent_based_register
+import cmk.livestatus_client as livestatus
 import cmk.utils.paths
 from cmk.agent_based.prediction_backend import (
     InjectedParameters,

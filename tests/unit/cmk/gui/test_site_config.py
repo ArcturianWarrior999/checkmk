@@ -3,10 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.gui.site_config import sites_ready_for_remote_automation
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 
 
 def _site_config(*, replication: bool, secret: bool) -> SiteConfiguration:

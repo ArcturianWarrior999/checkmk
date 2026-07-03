@@ -29,7 +29,7 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         "//packages/cmk-ccc:store",
-        "//packages/cmk-livestatus-client:py_livestatus",
+        "//packages/cmk-livestatus-client",
     ],
 )
 

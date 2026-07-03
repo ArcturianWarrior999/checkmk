@@ -17,8 +17,6 @@ import pytest
 from flask import Flask
 from pytest_mock import MockerFixture
 
-from livestatus import SiteConfigurations
-
 import cmk.gui.config as config_module
 import cmk.gui.watolib.password_store
 import cmk.utils.log
@@ -33,6 +31,7 @@ from cmk.gui.logged_in import user
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.gui.wsgi.app import session_wsgi_app
+from cmk.livestatus_client import SiteConfigurations
 
 from .web_test_app import WebTestAppForCMK
 

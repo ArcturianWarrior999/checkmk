@@ -22,8 +22,6 @@ from pathlib import Path
 
 from dateutil.relativedelta import relativedelta
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.gui.site_config
 from cmk.ccc.site import omd_site, SiteId
 from cmk.crypto.certificate import Certificate, CertificatePEM
@@ -45,6 +43,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.automation_config import RemoteAutomationConfig
 from cmk.utils.certs import (
     cert_dir,

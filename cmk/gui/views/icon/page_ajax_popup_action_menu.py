@@ -5,8 +5,6 @@
 
 """Realizes the popup action menu for hosts/services in views"""
 
-from livestatus import livestatus_lql
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
 from cmk.gui import sites
@@ -19,6 +17,7 @@ from cmk.gui.painter.v0.helpers import replace_action_url_macros, transform_acti
 from cmk.gui.permissions import permission_registry
 from cmk.gui.type_defs import Row, StaticIcon
 from cmk.gui.utils.roles import UserPermissions
+from cmk.livestatus_client import livestatus_lql
 from cmk.utils.servicename import ServiceName
 
 from .base import IconConfig

@@ -7,14 +7,13 @@ from typing import Literal
 
 import pytest
 
-from livestatus import MKLivestatusSocketError
-
 from cmk.graphing_engine import ConsolidationFunction, Graph
 from cmk.gui.graphing._engine_dispatch import serialize_graphs
 from cmk.gui.graphing.openapi import fetch_graph_data as fetch_graph_data_module
 from cmk.gui.graphing.openapi.fetch_graph_data import _consolidation_function, fetch_graph_data_v1
 from cmk.gui.graphing.openapi.models import ApiTimeRange, GraphFetchRequest
 from cmk.gui.openapi.utils import ProblemException
+from cmk.livestatus_client import MKLivestatusSocketError
 
 
 @pytest.mark.parametrize(

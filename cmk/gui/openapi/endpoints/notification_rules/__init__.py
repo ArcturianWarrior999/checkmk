@@ -18,8 +18,6 @@ all notification rules configured.
 from collections.abc import Mapping
 from typing import Any
 
-from livestatus import SiteConfigurations
-
 from cmk import fields
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -50,6 +48,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.notify_types import EventRule, NotificationRuleID
 
 RO_PERMISSIONS = permissions.Perm("general.edit_notifications")

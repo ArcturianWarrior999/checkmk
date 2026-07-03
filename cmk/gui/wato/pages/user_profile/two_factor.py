@@ -34,8 +34,6 @@ from fido2.webauthn import (
     UserVerificationRequirement,
 )
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site
 from cmk.ccc.user import UserId
@@ -115,6 +113,7 @@ from cmk.gui.wato.pages._user_security_message import (
     send_security_message,
 )
 from cmk.gui.watolib.mode import redirect
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.jsontype import JsonSerializable
 from cmk.utils.security_event import log_security_event
 

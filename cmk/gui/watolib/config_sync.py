@@ -14,13 +14,6 @@ from pathlib import Path
 from typing import NamedTuple, override, Self
 from urllib.parse import quote
 
-from livestatus import (
-    AuthenticationConnectionEntry,
-    SAMLAuthenticationEntry,
-    SiteConfiguration,
-    SiteGlobals,
-)
-
 import cmk.ccc.version as cmk_version
 import cmk.utils.paths
 from cmk.ccc import store
@@ -30,6 +23,12 @@ from cmk.gui.config import active_config
 from cmk.gui.log import logger
 from cmk.gui.userdb import get_active_saml_connections, user_sync_default_config
 from cmk.gui.watolib.config_domain_name import wato_fileheader
+from cmk.livestatus_client import (
+    AuthenticationConnectionEntry,
+    SAMLAuthenticationEntry,
+    SiteConfiguration,
+    SiteGlobals,
+)
 from cmk.messaging import rabbitmq
 
 Command = list[str]

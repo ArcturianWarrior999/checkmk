@@ -83,7 +83,6 @@ py_library(
         "//packages/cmk-ec:syslog",
         "//packages/cmk-events",
         "//packages/cmk-livestatus-client",
-        "//packages/cmk-livestatus-client:py_livestatus",
         "//packages/cmk-logwatch:config",
         "//packages/cmk-logwatch:plugins",
         "//packages/cmk-messaging",

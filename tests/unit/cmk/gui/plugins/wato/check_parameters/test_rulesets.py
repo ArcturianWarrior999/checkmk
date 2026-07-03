@@ -21,8 +21,6 @@ from collections.abc import Mapping
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -44,6 +42,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.rulesets import Rule, RuleOptions, Ruleset
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.global_ident_type import PROGRAM_ID_QUICK_SETUP
 from cmk.utils.rulesets.definition import RuleGroup
 from cmk.utils.rulesets.ruleset_matcher import RuleOptionsSpec, RulesetName, RuleSpec

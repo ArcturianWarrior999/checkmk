@@ -16,8 +16,6 @@ import http.client
 from collections.abc import Mapping
 from typing import Any, cast
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.config import active_config
@@ -54,6 +52,7 @@ from cmk.gui.watolib.timeperiods import (
     TimePeriodInUseError,
     TimePeriodNotFoundError,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import dateutils
 from cmk.utils.timeperiod import TimeperiodSpec
 

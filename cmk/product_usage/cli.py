@@ -44,7 +44,7 @@ class ProductUsageRequest:
 
 def resolve_proxy_config(proxy_setting: ProxySetting) -> ProxyConfig:
     # Building the base app and loading the base config is expensive and pulls in cmk.base (and
-    # its transitive `import livestatus`). It is only needed to read the configured HTTP proxies
+    # its transitive `import cmk.livestatus_client`). It is only needed to read the configured HTTP proxies
     # for the upload, so we import it lazily and call this only on the upload path. This keeps
     # disabled and not-due runs cheap and free of cmk.base imports.
     from cmk.base.app import make_app

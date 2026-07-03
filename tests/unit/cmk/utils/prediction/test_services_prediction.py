@@ -8,8 +8,7 @@ import json
 
 import pytest
 
-from livestatus import RRDResponse
-
+from cmk.livestatus_client import RRDResponse
 from cmk.utils.prediction import _prediction
 from tests.testlib.common.repo import repo_path
 

@@ -56,8 +56,6 @@ import dateutil.parser
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 
-from livestatus import LivestatusResponse
-
 import cmk.ccc.plugin_registry
 import cmk.ccc.regex
 import cmk.utils.log
@@ -114,6 +112,7 @@ from cmk.gui.utils.popups import MethodAjax, MethodColorpicker
 from cmk.gui.utils.speaklater import LazyString
 from cmk.gui.utils.urls import is_allowed_url, makeuri, urlencode
 from cmk.gui.view_utils import render_labels
+from cmk.livestatus_client import LivestatusResponse
 from cmk.utils import dateutils
 from cmk.utils.labels import AndOrNotLiteral, LabelSources
 from cmk.utils.render import SecondsRenderer

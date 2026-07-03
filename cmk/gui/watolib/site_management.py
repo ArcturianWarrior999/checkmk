@@ -7,14 +7,6 @@ from __future__ import annotations
 
 from collections.abc import Set
 
-from livestatus import (
-    BrokerConnection,
-    BrokerConnections,
-    ConnectionId,
-    SiteConfiguration,
-    SiteConfigurations,
-)
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.i18n import _
@@ -26,6 +18,13 @@ from cmk.gui.watolib.config_domain_name import ABCConfigDomain, GUI
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.licensing.license_distribution_registry import distribute_license_to_remotes
+from cmk.livestatus_client import (
+    BrokerConnection,
+    BrokerConnections,
+    ConnectionId,
+    SiteConfiguration,
+    SiteConfigurations,
+)
 
 DEFAULT_MESSAGE_BROKER_PORT = 5672
 

@@ -15,8 +15,7 @@ from uuid import UUID
 
 import pytest
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.discover_plugins import discover_families, PluginGroup
 from cmk.licensing.basics.paths import get_license_usage_report_file_path
 from cmk.licensing.basics.protocol_version import get_licensing_protocol_version

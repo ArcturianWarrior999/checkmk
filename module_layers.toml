@@ -139,6 +139,7 @@ allows = [
 # We cannot expect them to not depend on the core product.
 [plugin_families.violations.checkmk]
 allows = [
+  "@livestatus_client",
   # FIXME
   "cmk.agent_based.v1",
   "cmk.base",
@@ -378,6 +379,7 @@ allows = ["@ccc", "cmk.bakery", "cmk.utils"]
 
 [components."cmk.base.nonfree.notify_automation"]
 allows = [
+  "@livestatus_client",
   "cmk.automations",
   "cmk.base.automations",
   "cmk.base.base_app",
@@ -437,6 +439,7 @@ allows = [
 [components."cmk.base.nonfree"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.bakery.base",
   "cmk.base",
@@ -494,6 +497,7 @@ allows = ["cmk.bakery", "cmk.base.api.bakery", "cmk.utils"]
 [components."cmk.base"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "@relay_protocols",
   "@trace",
@@ -521,7 +525,7 @@ allows = [
 ]
 
 [components."cmk.bi"]
-allows = ["@ccc", "cmk.fields", "cmk.utils"]
+allows = ["@ccc", "@livestatus_client", "cmk.fields", "cmk.utils"]
 
 [components."cmk.ccc"]
 allows = ["@trace"]
@@ -663,6 +667,7 @@ allows = []
 [components."cmk.gui.cmkcert"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@messaging",
   "cmk.crypto.certificate",
   "cmk.gui",
@@ -797,6 +802,7 @@ allows = [
 [components."cmk.gui.plugins"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.bi",
   "cmk.checkengine",
@@ -919,6 +925,7 @@ excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 [components."cmk.gui.nonfree.ultimatemt"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "@crypto",
   "@messaging",
@@ -1178,6 +1185,7 @@ allows = [
 [components."cmk.update_config"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@messaging",
   "@mkp_tool",
   "@plugin_apis",
@@ -1223,6 +1231,7 @@ allows = ["@ccc", "cmk.crash", "cmk.events"]
 [components."cmk.metric_backend.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@metric_backend",
   "@plugin_apis",
   "cmk.fields",
@@ -1254,6 +1263,7 @@ allows = []
 [components."cmk.liveproxyd.daemon"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@trace",
   "cmk.crash",
   "cmk.inventory",
@@ -1264,6 +1274,7 @@ allows = [
 [components."cmk.liveproxyd.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.gui",
   "cmk.liveproxyd.shared",
@@ -1273,8 +1284,8 @@ allows = [
 [components."cmk.robotmk"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
-  # I don't think we have any idea of how to fix this.
   "cmk.bakery.base",
   "cmk.bakery.internal",
   "cmk.bakery.shared",
@@ -1471,12 +1482,12 @@ allows = [
 [components."cmk.licensing.nonfree"]
 allows = [
   "@crypto",
+  "@livestatus_client",
   "cmk.ccc.exceptions",
   "cmk.ccc.i18n",
   "cmk.ccc.site",
   "cmk.ccc.store",
   "cmk.ccc.version",
-  # ARGL
   "cmk.cloud.config",
   "cmk.licensing",
   "cmk.utils.mail",
@@ -1537,6 +1548,7 @@ allows = ["@ccc", "cmk.utils"]
 [components."cmk.dcd.gui"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.dcd.protocols",
   "cmk.discover_plugins",

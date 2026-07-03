@@ -12,8 +12,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 import cmk.utils.paths
 from cmk.ccc import store, version
 from cmk.ccc.hostaddress import HostName
@@ -45,6 +43,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.agent_registration import UUIDLinkManager
 from cmk.utils.automation_config import LocalAutomationConfig
 from cmk.utils.notify_types import EventRule

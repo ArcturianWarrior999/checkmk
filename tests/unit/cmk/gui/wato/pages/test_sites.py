@@ -5,10 +5,9 @@
 
 import pytest
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.gui.wato.pages.sites import StatusHostFormSpecAdapter
+from cmk.livestatus_client import SiteConfigurations
 
 ADAPTER = StatusHostFormSpecAdapter(SiteConfigurations({}))
 

@@ -6,7 +6,7 @@
 import os
 import sys
 
-import livestatus
+import cmk.livestatus_client as livestatus
 
 try:
     omd_root = os.environ["OMD_ROOT"]

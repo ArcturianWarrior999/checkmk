@@ -31,12 +31,11 @@ from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Literal
 
-import livestatus
-
 import cmk.base.parent_scan
 import cmk.ccc.cleanup
 import cmk.ccc.debug
 import cmk.ccc.site
+import cmk.livestatus_client as livestatus
 import cmk.utils.password_store
 import cmk.utils.paths
 import cmk.utils.timeperiod

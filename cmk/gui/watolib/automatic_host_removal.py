@@ -14,8 +14,6 @@ from typing import Literal, NamedTuple, override, TypedDict
 
 from redis import ConnectionError as RedisConnectionError
 
-from livestatus import LocalConnection, MKLivestatusSocketError, SiteConfigurations
-
 import cmk.gui.log
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site, SiteId
@@ -47,6 +45,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.rulesets import SingleRulesetRecursively, UseHostFolder
+from cmk.livestatus_client import LocalConnection, MKLivestatusSocketError, SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.paths import log_dir
 from cmk.utils.rulesets.ruleset_matcher import RuleSpec

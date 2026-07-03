@@ -8,8 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from livestatus import LivestatusResponse, Query
-
 from cmk.bi.data_fetcher import BIStatusFetcher, BIStructureFetcher
 from cmk.bi.filesystem import BIFileSystem
 from cmk.bi.lib import SitesCallback
@@ -19,6 +17,7 @@ from cmk.bi.rule import BIRule
 from cmk.bi.rule_interface import bi_rule_id_registry
 from cmk.bi.searcher import BISearcher
 from cmk.ccc.site import SiteId
+from cmk.livestatus_client import LivestatusResponse, Query
 from tests.unit.cmk.bi.bi_mocks import MockBIAggregationPack
 
 

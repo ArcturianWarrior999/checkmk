@@ -12,8 +12,6 @@ from unittest.mock import patch
 import pytest
 from pytest_mock import MockerFixture
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.gui.cmkcert.main import (
     _certificate_path,
@@ -22,6 +20,7 @@ from cmk.gui.cmkcert.main import (
     CertificateType,
 )
 from cmk.gui.config import Config
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.certs import cert_dir, SiteCA
 
 
