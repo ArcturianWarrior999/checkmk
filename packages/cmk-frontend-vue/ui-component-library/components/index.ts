@@ -34,6 +34,7 @@ import UclCmkFlyout from './content-organization/CmkFlyout/UclCmkFlyout.vue'
 import UclCmkScrollContainer from './content-organization/CmkScrollContainer/UclCmkScrollContainer.vue'
 import UclCmkSlideIn from './content-organization/CmkSlideIn/UclCmkSlideIn.vue'
 import UclCmkSlideInDialog from './content-organization/CmkSlideInDialog/UclCmkSlideInDialog.vue'
+import UclCmkSlideInTabbed from './content-organization/CmkSlideInTabbed/UclCmkSlideInTabbed.vue'
 import UclCmkSplitPane from './content-organization/CmkSplitPane/UclCmkSplitPane.vue'
 import UclCmkTabs from './content-organization/CmkTabs/UclCmkTabs.vue'
 import UclCmkWizard from './content-organization/CmkWizard/UclCmkWizard.vue'
@@ -108,6 +109,7 @@ const contentOrganizationPages = [
   new Page('CmkScrollContainer', UclCmkScrollContainer),
   new Page('CmkSlideIn', UclCmkSlideIn),
   new Page('CmkSlideInDialog', UclCmkSlideInDialog),
+  new Page('CmkSlideInTabbed', UclCmkSlideInTabbed),
   new Page('CmkSplitPane', UclCmkSplitPane),
   new Page('CmkWizard', UclCmkWizard)
 ]
