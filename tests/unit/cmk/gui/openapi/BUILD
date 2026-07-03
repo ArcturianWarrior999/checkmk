@@ -67,6 +67,7 @@ py_cmk_test(
         requirement("polyfactory"),
         requirement("pytest-mock"),
         requirement("pytest-random-order"),
+        requirement("python-dateutil"),
         requirement("pyyaml"),
         requirement("werkzeug"),
     ],
