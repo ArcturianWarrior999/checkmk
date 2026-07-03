@@ -38,7 +38,7 @@ class UserId(str):
         * Micro Core
         * Nagios core
         * livestatus queries and commands
-            * livestatus.py (the validation regex is currently duplicated here!)
+            * cmk.livestatus_client
             * cmk.gui.livestatus_utils (acknowledgements, comments, downtimes, ...)
         * event console for contacts, notifications, possibly more
         * agent registration and background jobs
@@ -48,7 +48,6 @@ class UserId(str):
         * X509 certificates and the `Key` object (`cmk.gui.key_mgmt`)
     """
 
-    # Note: livestatus.py duplicates the regex to validate incoming UserIds!
     USER_ID_REGEX = re.compile(r"^[\w$][-@.+\w$]*$", re.UNICODE)
 
     def __new__(cls, text: str) -> Self:

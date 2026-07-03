@@ -39,8 +39,7 @@ from ._connection import (
     SiteConfigurations,
 )
 
-# TODO: Make livestatus.py a well tested package on pypi
-# TODO: Move this code to the livestatus package
+# TODO: Make cmk-livestatus-client a well tested package on pypi
 
 MatchType = Literal["strict", "ellipsis", "loose"]
 Operator = str
@@ -309,7 +308,7 @@ program_start num_hosts num_services max_long_output_size core_pid edition'
         return result, output_format
 
     def enabled_and_disabled_sites(self, user_id: object) -> tuple[dict, dict]:  # noqa: ARG002
-        """This method is used to inject the currently configured sites into livestatus.py"""
+        """This method is used to inject the currently configured sites into cmk.livestatus_client"""
         return {site_name: {"socket": "unix:"} for site_name in self.sites}, {}
 
     def __call__(self, expect_status_query: bool = True) -> MockLiveStatusConnection:

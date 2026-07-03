@@ -19,5 +19,5 @@ def test_intercept_queries(
     with mock_livestatus(expect_status_query=False), livestatus.intercept_queries() as queries:
         live.query("GET hosts\nColumns: name")
 
-    # livestatus.py appends a lot of extra columns, so we only check for startswith
+    # cmk.livestatus_client appends a lot of extra columns, so we only check for startswith
     assert queries[0].startswith("GET hosts\nColumns: name\n")

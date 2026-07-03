@@ -1,6 +1,6 @@
-=================================
-Livestatus client - livestatus.py
-=================================
+===========================================
+Livestatus client - cmk.livestatus_client
+===========================================
 
 Introduction and goals
 ======================
@@ -12,17 +12,17 @@ The distributed architecture of Checkmk is powered by the livestatus protocol
 making it one of the most important parts of Checkmk.
 
 The most used client library implementation is our python implementation
-`livestatus.py`. Many of our internal components use this library to communicate
-with the monitoring core.
+`cmk.livestatus_client`. Many of our internal components use this library to
+communicate with the monitoring core.
 
 Implementation
 --------------
 
 The implementation is located in the Checkmk git at
-`livestatus/api/python/livestatus.py`.
+`packages/cmk-livestatus-client`.
 
-The client is built as standalone module and must not rely on other Python code
-of Checkmk.
+The client is built as standalone package and must not rely on other Python
+code of Checkmk.
 
 See also
 --------

@@ -155,7 +155,7 @@ class Query:
       * value - returns a scalar
       * first_value - returns a scalar or None
 
-    All methods honor the "set_prepend_site" setting of livestatus.py and prepend the site
+    All methods honor the "set_prepend_site" setting of cmk.livestatus_client and prepend the site
     on each row or add the site into the dictionary with the key "site".
 
     Examples:

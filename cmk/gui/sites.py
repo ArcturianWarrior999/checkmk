@@ -409,7 +409,7 @@ def _get_enabled_and_disabled_sites(
 
 
 def _site_config_for_livestatus(site_id: SiteId, site_spec: SiteConfiguration) -> SiteConfiguration:
-    """Prepares a site config specification for the livestatus module
+    """Prepares a site config specification for cmk.livestatus_client
 
     In case the GUI connects to the local livestatus proxy there are several
     special things to do:
