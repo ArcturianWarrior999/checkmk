@@ -785,7 +785,7 @@ export const oneColorIcons = [
   'waiting',
   'more-actions'
 ] as const
-export const twoColorIcons = ['aggr'] as const
+export const twoColorIcons = ['aggr', 'experiment'] as const
 
 export const iconSizes: Record<IconSizes, number> = {
   xxsmall: 8,

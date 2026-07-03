@@ -242,6 +242,7 @@ export const iconSearchLabels: Record<string, string[]> = {
   event: ['log entry', 'occurrence', 'alert'],
   'event console-status': ['event state', 'ec status'],
   'event-console': ['ec', 'syslog', 'log events'],
+  experiment: ['test', 'trial', 'lab', 'flask'],
   expand: ['maximize', 'unfold', 'grow', 'show'],
   export: ['arrow out', 'save', 'download', 'send'],
   'export-link': ['save link', 'download url', 'arrow out'],
