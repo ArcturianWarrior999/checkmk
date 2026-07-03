@@ -17,9 +17,10 @@ export type ToggleButtonOption = {
 export interface ToggleButtonGroupProps {
   options: ToggleButtonOption[]
   modelValue?: string | null
+  spacing?: 'default' | 'none'
 }
 
-const props = defineProps<ToggleButtonGroupProps>()
+const props = withDefaults(defineProps<ToggleButtonGroupProps>(), { spacing: 'default' })
 
 const emit = defineEmits({
   'update:modelValue': (_value: string) => true
@@ -34,7 +35,10 @@ function setSelectedOption(value: string) {
 </script>
 
 <template>
-  <div class="cmk-toggle-button-group__container">
+  <div
+    class="cmk-toggle-button-group__container"
+    :class="{ 'cmk-toggle-button-group__container--spacing-default': props.spacing === 'default' }"
+  >
     <button
       v-for="option in options"
       :key="option.value"
@@ -59,13 +63,16 @@ function setSelectedOption(value: string) {
 .cmk-toggle-button-group__container {
   width: max-content;
   max-width: 100%;
-  margin-bottom: 8px;
   padding: 5px;
   border-radius: 5px;
   border: 1px solid var(--toggle-button-group-border-color);
   background-color: var(--toggle-button-group-inactive-bg-color);
   display: flex;
   flex-wrap: wrap;
+}
+
+.cmk-toggle-button-group__container--spacing-default {
+  margin-bottom: 8px;
 }
 
 .cmk-toggle-button-group__toggle-option {

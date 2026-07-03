@@ -37,7 +37,7 @@ export const panelConfig = {
     ] satisfies Options<string>[],
     initialState: 'list' as const
   }
-} satisfies PanelConfigFor<typeof CmkToggleButtonGroup, 'options'>
+} satisfies PanelConfigFor<typeof CmkToggleButtonGroup, 'options' | 'spacing'>
 </script>
 
 <script setup lang="ts">
@@ -66,9 +66,10 @@ const demoOptions: ToggleButtonOption[] = [
   }
 ]
 
-const propState = new PanelStateCreator<typeof CmkToggleButtonGroup, 'options'>().createRef(
-  panelConfig
-)
+const propState = new PanelStateCreator<
+  typeof CmkToggleButtonGroup,
+  'options' | 'spacing'
+>().createRef(panelConfig)
 </script>
 
 <template>
@@ -76,7 +77,7 @@ const propState = new PanelStateCreator<typeof CmkToggleButtonGroup, 'options'>(
     <UclDetailPageHeader>CmkToggleButtonGroup</UclDetailPageHeader>
 
     <UclDetailPageComponent>
-      <CmkToggleButtonGroup v-model="propState.modelValue" :options="demoOptions" />
+      <CmkToggleButtonGroup v-model="propState.modelValue" :options="demoOptions" spacing="none" />
 
       <template #properties>
         <UclPropertiesPanel v-model="propState" :config="panelConfig" />
