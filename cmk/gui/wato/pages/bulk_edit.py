@@ -127,6 +127,7 @@ class ModeBulkEdit(WatoMode):
             # Either offer API in class Host for bulk change or
             # delay saving until end somehow
 
+        # astrein: disable=localization-named-placeholder
         flash(_("Edited %d hosts") % len(host_names))
         return redirect(self._folder.url(request))
 
@@ -148,6 +149,7 @@ class ModeBulkEdit(WatoMode):
         html.p(
             "%s%s %s"
             % (
+                # astrein: disable=localization-named-placeholder
                 _(
                     "You have selected <b>%d</b> hosts for bulk edit. You can now change "
                     "host attributes for all selected hosts at once. "
@@ -277,6 +279,7 @@ class ModeBulkCleanup(WatoMode):
         hosts = get_hosts_from_checkboxes(self._folder)
 
         html.p(
+            # astrein: disable=localization-named-placeholder
             _(
                 "You have selected <b>%d</b> hosts for bulk cleanup. This means removing "
                 "explicit attribute values from hosts. The hosts will then inherit attributes "

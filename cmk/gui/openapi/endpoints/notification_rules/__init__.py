@@ -93,6 +93,7 @@ def show_rule(params: Mapping[str, Any]) -> Response:
     raise ProblemException(
         status=404,
         title=_("The requested notification rule was not found"),
+        # astrein: disable=localization-named-placeholder
         detail=_("The rule_id %s does not exist.") % params["rule_id"],
     )
 

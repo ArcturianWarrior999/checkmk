@@ -832,6 +832,7 @@ class Ruleset:
         pending_changes.add(
             Change(
                 action_name="new-rule",
+                # astrein: disable=localization-named-placeholder
                 text=_l('Cloned rule from rule %s in rule set "%s" in folder "%s"')
                 % (orig_rule.id, self.title(), rule.folder.alias_path()),
                 object_ref=rule.object_ref(),
@@ -877,6 +878,7 @@ class Ruleset:
         pending_changes.add(
             Change(
                 action_name="edit-rule",
+                # astrein: disable=localization-named-placeholder
                 text=_l(
                     'Moved rule %s of rule set "%s" from folder "%s" to position #%d in folder "%s"'
                 )
@@ -906,6 +908,7 @@ class Ruleset:
         pending_changes.add(
             Change(
                 action_name="new-rule",
+                # astrein: disable=localization-named-placeholder
                 text=_('Created new rule #%d in rule set "%s" in folder "%s"')
                 % (index, self.title(), folder.alias_path()),
                 object_ref=rule.object_ref(),
@@ -1095,6 +1098,7 @@ class Ruleset:
         pending_changes.add(
             Change(
                 action_name="edit-rule",
+                # astrein: disable=localization-named-placeholder
                 text=_l('Changed properties of rule #%d in rule set "%s" in folder "%s"')
                 % (index, self.title(), rule.folder.alias_path()),
                 object_ref=rule.object_ref(),
@@ -1118,6 +1122,7 @@ class Ruleset:
             pending_changes.add(
                 Change(
                     action_name="edit-rule",
+                    # astrein: disable=localization-named-placeholder
                     text=_l('Deleted rule #%d in rule set "%s" in folder "%s"')
                     % (index, self.title(), rule.folder.alias_path()),
                     object_ref=rule.object_ref(),
@@ -1139,6 +1144,7 @@ class Ruleset:
         pending_changes.add(
             Change(
                 action_name="edit-ruleset",
+                # astrein: disable=localization-named-placeholder
                 text=_l('Moved rule %s from position #%d to #%d in rule set "%s" in folder "%s"')
                 % (rule.id, old_index, index, self.title(), rule.folder.alias_path()),
                 object_ref=self.object_ref(),
@@ -1256,6 +1262,7 @@ class Ruleset:
                 # cmk-update-config command would be a good place to do this.
                 if not isinstance(rule.value, dict):
                     raise MKGeneralException(
+                        # astrein: disable=localization-named-placeholder
                         _(
                             'Failed to process rule #%d of rule set "%s" '
                             'in folder "%s". The value of a rule is '
@@ -1517,11 +1524,13 @@ class Rule:
                 value_text = str(value_model.value_to_html(self.value))
         except MKAuthException as e:
             html.show_error(
+                # astrein: disable=localization-named-placeholder
                 _("Failed to search rule of rule set '%s': %s") % (self.ruleset.title(), e)
             )
         except Exception as e:
             logger.exception("error searching ruleset %s", self.ruleset.title())
             html.show_warning(
+                # astrein: disable=localization-named-placeholder
                 _("Failed to search rule of rule set '%s' in folder '%s' (%r): %s")
                 % (self.ruleset.title(), self.folder.title(), self.to_config(), e)
             )
@@ -1587,6 +1596,7 @@ class Rule:
                 filename="wato.py",
             )
             html.show_warning(
+                # astrein: disable=localization-named-placeholder
                 _(
                     'Rule <a href="%s"><tt>%s</tt></a> of rule set <a href="%s">%s</a> in folder "%s" '
                     "contains an invalid regular expression: %s"
@@ -2005,6 +2015,7 @@ def find_timeperiod_usage_in_time_specific_parameters(
                         ("rule_id", rule.id),
                     ],
                 )
+                # astrein: disable=localization-named-placeholder
                 used_in.append((_("Time-specific check parameter #%d") % (index + 1), edit_url))
     return used_in
 
@@ -2192,6 +2203,7 @@ def _create_rule_properties_catalog_topic(
                     parameter_form=FixedValueAPI(
                         title=Title("Source"),
                         value=locked_conditions.instance_id,
+                        # astrein: disable=localization-named-placeholder
                         label=Label("%s") % str(locked_conditions.render_link),
                     ),
                     required=True,
@@ -2220,6 +2232,7 @@ def _create_explicit_rule_services_dict(rule_spec_item: RuleSpecItem) -> DictEle
     value_parameter_form = (
         MultipleChoiceAPI(
             elements=[
+                # astrein: disable=localization-named-placeholder
                 MultipleChoiceElementAPI(name=n, title=Title("%s") % t)
                 for n, t in rule_spec_item.choices
             ],
@@ -2239,6 +2252,7 @@ def _create_explicit_rule_services_dict(rule_spec_item: RuleSpecItem) -> DictEle
     )
     return DictElementAPI(
         parameter_form=DictionaryAPI(
+            # astrein: disable=localization-named-placeholder
             title=Title("%s") % rule_spec_item.name,
             elements={
                 "value": DictElementAPI(parameter_form=value_parameter_form, required=True),
@@ -2304,6 +2318,7 @@ def _create_explicit_rule_conditions_dict(
                 title=Title("Folder"),
                 help_text=Help("Rule only applies to hosts directly in or below this folder."),
                 elements=[
+                    # astrein: disable=localization-named-placeholder
                     SingleChoiceElementExtendedAPI(name=n, title=Title("%s") % t)
                     for n, t in tree.folder_choices(user)
                 ],
@@ -2439,6 +2454,7 @@ def _create_rule_conditions_catalog_topic(
                                 parameter_form=SingleChoiceAPI(
                                     title=Title("Predefined condition"),
                                     elements=[
+                                        # astrein: disable=localization-named-placeholder
                                         SingleChoiceElementAPI(name=n, title=Title("%s") % t)
                                         for n, t in PredefinedConditionStore().choices()
                                     ],
@@ -2491,6 +2507,7 @@ def create_rule_catalog(
                 rule_identifier=rule_identifier, locked_conditions=locked_conditions
             ),
             "value": Topic(
+                # astrein: disable=localization-named-placeholder
                 title=Title("%s") % title if title else Title("Value"),
                 elements={
                     "value": TopicElement(

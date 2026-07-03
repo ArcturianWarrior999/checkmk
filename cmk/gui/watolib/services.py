@@ -494,6 +494,7 @@ class Discovery:
         debug: bool,
         pending_changes: PendingChanges,
     ) -> None:
+        # astrein: disable=localization-named-placeholder
         message = _("Saved check configuration of host '%s' with %d services") % (
             affected_host_name,
             len(autochecks_table.target_services),
@@ -866,6 +867,7 @@ def _perform_update_host_labels(
         if (host := folder_tree().host(host_name)) is None:
             raise ValueError(f"no such host: {host_name!r}")
 
+        # astrein: disable=localization-named-placeholder
         message = _("Updated discovered host labels of '%s' with %d labels") % (
             host_name,
             len(host_labels),
@@ -1184,6 +1186,7 @@ def get_check_table(
         pending_changes.add(
             Change(
                 action_name="refresh-autochecks",
+                # astrein: disable=localization-named-placeholder
                 text=_("Refreshed check configuration of host '%s'") % host.name(),
                 object_ref=host.object_ref(),
                 domains=[CORE_DOMAIN],

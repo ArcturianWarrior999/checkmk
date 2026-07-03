@@ -172,6 +172,7 @@ class BICompiler:
                 branch_title = bi_branch.properties.title
                 if branch_title in used_titles:
                     raise MKGeneralException(
+                        # astrein: disable=localization-named-placeholder
                         _(
                             'The aggregation titles are not unique. "%s" is created '
                             "by aggregation <b>%s</b> and <b>%s</b>"

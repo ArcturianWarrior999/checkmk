@@ -76,6 +76,7 @@ def _render_mkeventd_icon(
         ("host", row["host_name"]),
     ]
 
+    # astrein: disable=localization-named-placeholder
     title = _("Events of host %s") % (row["host_name"])
 
     if len(args) >= 2:

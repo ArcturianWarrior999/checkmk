@@ -33,7 +33,9 @@ class DatePickerVisitor(FormSpecVisitor[DatePicker, _ParsedValueModel, _Fallback
             dateutil.parser.isoparse(raw_value.value)
         except (ValueError, TypeError):
             return InvalidValue(
-                reason=_("Invalid date format %s") % raw_value.value, fallback_value=""
+                # astrein: disable=localization-named-placeholder
+                reason=_("Invalid date format %s") % raw_value.value,
+                fallback_value="",
             )
 
         return raw_value.value

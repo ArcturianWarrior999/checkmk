@@ -1128,6 +1128,7 @@ def _handle_command_freeze_aggregation_affected(
     len_action_rows: int, cmdtag: Literal["HOST", "SVC"]
 ) -> HTML:
     return HTML.without_escaping(
+        # astrein: disable=localization-named-placeholder
         _("Affected %s: %s")
         % (
             ungettext(

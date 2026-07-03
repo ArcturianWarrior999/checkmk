@@ -19,6 +19,7 @@ def _item_spec_nimble_latency() -> TextInput:
 
 def _parameter_valuespec_nimble_latency() -> Dictionary:
     return Dictionary(
+        # astrein: disable=localization-named-placeholder
         help=_(
             # xgettext: no-python-format
             "You can set limits for the latency of read or write I/O operations of Nimble "

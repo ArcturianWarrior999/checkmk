@@ -161,6 +161,7 @@ class RowTableInventoryHistory(ABCRowTable):
             user_errors.add(
                 MKUserError(
                     "load_inventory_delta_tree",
+                    # astrein: disable=localization-named-placeholder
                     _(
                         "Cannot load HW/SW inventory history entries %s. Please remove the corrupted files."
                     )

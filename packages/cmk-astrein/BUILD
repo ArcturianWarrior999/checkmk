@@ -21,6 +21,7 @@ py_library(
         "cmk/astrein/framework.py",
         "cmk/astrein/lsp.py",
         "cmk/astrein/module_layers_config.py",
+        "cmk/astrein/placeholders.py",
         "cmk/astrein/sarif.py",
     ],
     data = [

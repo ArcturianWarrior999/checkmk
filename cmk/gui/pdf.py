@@ -1680,6 +1680,7 @@ def pdf2png(pdf_source: bytes) -> bytes:
 
     if completed_process.returncode:
         raise MKInternalError(
+            # astrein: disable=localization-named-placeholder
             _(
                 "Cannot create PNG from PDF: %s, exit code is %d, "
                 'command was "%s", PDF source code was "%s..."'

@@ -363,6 +363,7 @@ def command_delete_crash_report_affected(
     len_action_rows: int, cmdtag: Literal["HOST", "SVC"]
 ) -> HTML:
     return HTML.without_escaping(
+        # astrein: disable=localization-named-placeholder
         _("Affected %s: %s")
         % (
             ungettext(

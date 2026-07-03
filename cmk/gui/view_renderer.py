@@ -277,6 +277,7 @@ class GUIViewRenderer(ABCViewRenderer):
         missing_single_infos = self.view.missing_single_infos
         if missing_single_infos:
             html.show_warning(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Unable to render this view, "
                     "because we miss some required context information (%s). Please update the "

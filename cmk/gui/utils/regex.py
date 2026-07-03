@@ -18,6 +18,7 @@ def validate_regex(value: str, varname: str | None) -> None:
     except re.error:
         raise MKUserError(
             varname,
+            # astrein: disable=localization-named-placeholder
             _(
                 "Your search statement is not valid. You need to provide a %s (regex). For example "
                 "you need to use <tt>\\\\</tt> instead of <tt>\\</tt> if you want to search for a "

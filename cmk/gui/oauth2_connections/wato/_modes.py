@@ -155,6 +155,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         SingleChoiceElementExtended(
                             name=name,
+                            # astrein: disable=localization-named-placeholder
                             title=Title("%s") % title,
                         )
                         for name, title in sorted_contact_group_choices()
@@ -189,6 +190,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         SingleChoiceElementExtended(
                             name=site_id,
+                            # astrein: disable=localization-named-placeholder
                             title=Title("%s") % name,
                         )
                         for site_id, name in configured_site_choices
@@ -229,6 +231,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         MultipleChoiceElementExtended(
                             name=name,
+                            # astrein: disable=localization-named-placeholder
                             title=Title("%s") % title,
                         )
                         for name, title in sorted_contact_group_choices()
@@ -263,6 +266,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                                 elements=[
                                     MultipleChoiceElementExtended(
                                         name=site_id,
+                                        # astrein: disable=localization-named-placeholder
                                         title=Title("%s") % name,
                                     )
                                     for site_id, name in get_configured_site_choices()
@@ -564,7 +568,9 @@ class ModeOAuth2Connections(SimpleListMode[OAuth2Connection]):
         entries = load_oauth2_connections()
         if ident not in entries:
             raise MKUserError(
-                "_delete", _("This %s does not exist.") % self._mode_type.name_singular()
+                "_delete",
+                # astrein: disable=localization-named-placeholder
+                _("This %s does not exist.") % self._mode_type.name_singular(),
             )
 
         found_rules = []
@@ -602,6 +608,7 @@ class ModeOAuth2Connections(SimpleListMode[OAuth2Connection]):
             )
             raise MKUserError(
                 "_delete",
+                # astrein: disable=localization-named-placeholder
                 ungettext(
                     "OAuth2 connection '%s' is still being used by this rule: %s",
                     "OAuth2 connection '%s' is still being used by these rules: %s",
@@ -704,12 +711,14 @@ class ModeCreateOAuth2Connection(SimpleEditMode[OAuth2Connection]):
         if editable_by is None:
             raise MKUserError(
                 "",
+                # astrein: disable=localization-named-placeholder
                 _("You don't have permission to edit this %s.") % self._mode_type.name_singular(),
             )
         assert user.id
         if editable_by not in userdb.contactgroups_of_user(user.id):
             raise MKUserError(
                 "",
+                # astrein: disable=localization-named-placeholder
                 _("You don't have permission to edit this %s.") % self._mode_type.name_singular(),
             )
 
@@ -722,6 +731,7 @@ class ModeCreateOAuth2Connection(SimpleEditMode[OAuth2Connection]):
         ):
             raise MKUserError(
                 "",
+                # astrein: disable=localization-named-placeholder
                 _("You need to be a member of at least one contact group to create a %s.")
                 % self._mode_type.name_singular(),
             )

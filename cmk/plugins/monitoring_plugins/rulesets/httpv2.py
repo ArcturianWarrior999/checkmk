@@ -261,6 +261,7 @@ def _send_data() -> Dictionary:
                                                     name=content_type.lower()
                                                     .replace("/", "_")
                                                     .replace("-", "_"),
+                                                    # astrein: disable=localization-named-placeholder
                                                     title=Title("%s") % content_type,
                                                 )
                                                 for content_type in [

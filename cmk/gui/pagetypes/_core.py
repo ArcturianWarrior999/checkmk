@@ -288,6 +288,7 @@ class Base[T_BaseConfig: BaseConfig](abc.ABC):
                         "name",
                         ID(
                             title=_("Unique ID"),
+                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 "The ID will be used do identify this page in URLs. If this page has the "
                                 "same ID as a built-in page of the type <i>%s</i> then it will shadow the built-in one."
@@ -514,6 +515,7 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
         if is_user_with_publish_permissions("pagetype", user.id, cls.type_name(), user_permissions):
             vs_visibility: ValueSpec = Optional(
                 title=_("Visibility"),
+                # astrein: disable=localization-named-placeholder
                 label=_("Make this %s available for other users") % cls.phrase("title").lower(),
                 none_label=_("Don't publish to other users"),
                 valuespec=PublishTo(
@@ -704,12 +706,15 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
 
         assert user.id is not None
 
+        # astrein: disable=localization-named-placeholder
         confirm_message = _("ID: %s") % self.name()
         if not self.is_mine():
+            # astrein: disable=localization-named-placeholder
             confirm_message += "<br>" + _("Owner: %s") % self.owner()
 
         return make_confirm_delete_link(
             url=makeactionuri(request, transactions, add_vars),
+            # astrein: disable=localization-named-placeholder
             title=_("Delete %s") % self.phrase("title").lower(),
             suffix=self.title(),
             message=confirm_message,
@@ -755,6 +760,7 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
                 section=PERMISSION_SECTION_GENERAL,
                 name="edit_" + cls.type_name(),
                 title=_l("Customize and use %(title_lower)s") % {"title_lower": title_lower},
+                # astrein: disable=localization-named-placeholder
                 description=_l("Allows to create own %s, customize built-in %s and use them.")
                 % (title_lower, title_lower),
                 defaults=["admin", "user"],
@@ -834,6 +840,7 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
                 section=PERMISSION_SECTION_GENERAL,
                 name="force_" + cls.type_name(),
                 title=_l("Modify built-in %(title_lower)s") % {"title_lower": title_lower},
+                # astrein: disable=localization-named-placeholder
                 description=_l("Make own published %s override built-in %s for all users.")
                 % (title_lower, title_lower),
                 defaults=["admin"],
@@ -870,6 +877,7 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
     def need_overriding_permission(cls, permission_name: Literal["edit", "see_user"]) -> None:
         if not cls.has_overriding_permission(permission_name):
             raise MKAuthException(
+                # astrein: disable=localization-named-placeholder
                 _("Sorry, you lack the permission. Operation: %s, table: %s")
                 % (permission_name, cls.phrase("title_plural"))
             )
@@ -914,6 +922,7 @@ class Overridable[T_OverridableConfig: OverridableConfig](Base[T_OverridableConf
 
                 except SyntaxError as e:
                     raise MKGeneralException(
+                        # astrein: disable=localization-named-placeholder
                         _("Cannot load %s from %s: %s") % (cls.type_name(), path, e)
                     )
 
@@ -1034,6 +1043,7 @@ class ListPage[T: Overridable](Page):
                             item=make_confirmed_form_submit_link(
                                 form_name="bulk_delete",
                                 button_name="_bulk_delete",
+                                # astrein: disable=localization-named-placeholder
                                 title=_("Delete selected %s") % title_plural.lower(),
                             ),
                             is_shortcut=True,
@@ -1168,8 +1178,10 @@ class ListPage[T: Overridable](Page):
             self._type.save_user_instances(instances, user_permissions, owner)
 
         if len(to_delete) > 1:
+            # astrein: disable=localization-named-placeholder
             flash(_("Selected %s have been deleted.") % self._type.phrase("title_plural").lower())
         elif len(to_delete) == 1:
+            # astrein: disable=localization-named-placeholder
             flash(_("%s has been deleted.") % self._type.phrase("title"))
 
         html.reload_whole_page()
@@ -1297,6 +1309,7 @@ class EditPage[T_OverridableConfig: OverridableConfig, T: Overridable](Page):
             except KeyError:
                 raise MKUserError(
                     None,
+                    # astrein: disable=localization-named-placeholder
                     _("The requested %s does not exist") % self._type.phrase("title"),
                 )
 
@@ -1304,6 +1317,7 @@ class EditPage[T_OverridableConfig: OverridableConfig, T: Overridable](Page):
             if mode == "edit":
                 if not page.may_edit():
                     raise MKAuthException(
+                        # astrein: disable=localization-named-placeholder
                         _("You do not have the permissions to edit this %s")
                         % self._type.phrase("title")
                     )
@@ -1534,6 +1548,7 @@ def vs_no_permission_to_publish(type_title: str, title: str) -> FixedValue:
     return FixedValue(
         value=False,
         title=title,
+        # astrein: disable=localization-named-placeholder
         totext=_("The %s is only visible to you because you don't have the permission to share it.")
         % type_title.lower(),
     )
@@ -1548,6 +1563,7 @@ def PublishTo(
     with_foreign_groups: bool = True,
 ) -> CascadingDropdown:
     if title is None:
+        # astrein: disable=localization-named-placeholder
         title = _("Make this %s available for other users") % type_title.lower()
 
     choices: list[CascadingDropdownChoice] = []
@@ -1845,6 +1861,7 @@ class OverridableContainer[T_OverridableContainerConfig: OverridableContainerCon
         page = instances.find_page(page_name, user_permissions)
         if page is None:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _("Cannot find %s with the name %s") % (cls.phrase("title"), page_name)
             )
         if not page.is_mine():
@@ -1938,6 +1955,7 @@ class PageRenderer[T_PageRendererConfig: PageRendererConfig](
                             default_value=99,
                             minvalue=1,
                             maxvalue=65535,
+                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 "You can customize the order of the %s by changing "
                                 "this number. Lower numbers will be sorted first. "
@@ -1951,9 +1969,11 @@ class PageRenderer[T_PageRendererConfig: PageRendererConfig](
                         "is_show_more",
                         Checkbox(
                             title=_("Show more"),
+                            # astrein: disable=localization-named-placeholder
                             label=_("Only show the %s if show more is active")
                             % cls.phrase("title_plural"),
                             default_value=False,
+                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 "The navigation allows to hide items based on a show "
                                 "less / show more toggle. You can specify here whether or "
@@ -2016,6 +2036,7 @@ class PageRenderer[T_PageRendererConfig: PageRendererConfig](
         page = instances.find_page(name, user_permissions)
         if not page:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _("Cannot find %s with the name %s") % (cls.phrase("title"), name)
             )
         return page

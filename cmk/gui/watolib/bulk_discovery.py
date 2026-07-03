@@ -383,6 +383,7 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
         job_interface.send_progress_update(_("Bulk discovery finished."))
 
         job_interface.send_progress_update(
+            # astrein: disable=localization-named-placeholder
             _("Hosts: %d total (%d succeeded, %d skipped, %d failed)")
             % (
                 self._num_hosts_total,
@@ -392,6 +393,7 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
             )
         )
         job_interface.send_progress_update(
+            # astrein: disable=localization-named-placeholder
             _("Host labels: %d total (%d added, %d changed, %d removed, %d kept)")
             % (
                 self._num_host_labels.total,
@@ -402,6 +404,7 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
             )
         )
         job_interface.send_progress_update(
+            # astrein: disable=localization-named-placeholder
             _("Services: %d total (%d added, %d changed, %d removed, %d kept)")
             % (
                 self._num_services.total,
@@ -468,11 +471,13 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
     ) -> None:
         self._num_hosts_failed += len(task.host_names)
         if task.site_id:
+            # astrein: disable=localization-named-placeholder
             msg = _("Error during discovery of %s on site %s") % (
                 ", ".join(task.host_names),
                 task.site_id,
             )
         else:
+            # astrein: disable=localization-named-placeholder
             msg = _("Error during discovery of %s") % (", ".join(task.host_names))
         self._logger.warning("%s, Error: %s", msg, exception[0])
         job_interface.send_progress_update(f"{msg}, Error: {exception[0]}")
@@ -564,6 +569,7 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
             self._num_hosts_failed += 1
             if not host.locked():
                 host.set_discovery_failed(pprint_value=pprint_value, acting_user=user)
+            # astrein: disable=localization-named-placeholder
             return _("discovery failed: %s") % result.error_text
 
         self._num_hosts_succeeded += 1
@@ -571,6 +577,7 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
         pending_changes.add(
             Change(
                 action_name="bulk-discovery",
+                # astrein: disable=localization-named-placeholder
                 text=_(
                     "Discovery on host %s: %d services (%d added, %d changed, %d removed, %d kept)"
                     "and %d host labels (%d added, %d changed, %d removed, %d kept)"

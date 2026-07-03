@@ -54,6 +54,7 @@ def unique_id_formspec_wrapper(
                         custom_validate=(
                             validators.LengthInRange(
                                 min_value=1,
+                                # astrein: disable=localization-named-placeholder
                                 error_msg=Message("%s is required but not specified.")
                                 % title.localize(translate_to_current_language),
                             ),
@@ -91,6 +92,7 @@ def _host_name_dict_element(
                 validators.LengthInRange(
                     min_value=1,
                     max_value=240,
+                    # astrein: disable=localization-named-placeholder
                     error_msg=Message(
                         "The %s is required but not specified or too long. Please enter a name that is not yet in use and is no longer than 253 characters."
                     )
@@ -98,6 +100,7 @@ def _host_name_dict_element(
                 ),
                 validators.MatchRegex(
                     regex=HOST_NAME_REGEXP,
+                    # astrein: disable=localization-named-placeholder
                     error_msg=Message(
                         "Found invalid characters in the %s. Please ensure that only letters from the English alphabet, numbers and the special characters dot, hyphen and underscore are used."
                     )

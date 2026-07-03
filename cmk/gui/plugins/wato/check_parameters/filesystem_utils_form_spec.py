@@ -96,6 +96,7 @@ def _get_free_used_dynamic_form_spec(
             parameter_form=TupleLevels(
                 elements=[
                     Percentage(
+                        # astrein: disable=localization-named-placeholder
                         title=Title("Warning if %s") % course,
                         custom_validate=[
                             validators.NumberInRange(
@@ -106,6 +107,7 @@ def _get_free_used_dynamic_form_spec(
                         prefill=DefaultValue(percentage_levels[0]),
                     ),
                     Percentage(
+                        # astrein: disable=localization-named-placeholder
                         title=Title("Critical if %s") % course,
                         custom_validate=[
                             validators.NumberInRange(
@@ -127,6 +129,7 @@ def _get_free_used_dynamic_form_spec(
                 parameter_form=TupleLevels(
                     elements=[
                         Integer(
+                            # astrein: disable=localization-named-placeholder
                             title=Title("Warning if %s") % course,
                             unit_symbol="MB",
                             custom_validate=[
@@ -137,6 +140,7 @@ def _get_free_used_dynamic_form_spec(
                             ],
                         ),
                         Integer(
+                            # astrein: disable=localization-named-placeholder
                             title=Title("Critical if %s") % course,
                             unit_symbol="MB",
                             custom_validate=[
@@ -160,6 +164,7 @@ def _get_free_used_dynamic_form_spec(
 
     return enable_deprecated_alternative(
         wrapped_form_spec=CascadingSingleChoice(
+            # astrein: disable=localization-named-placeholder
             title=Title("Levels for %s") % title,
             prefill=DefaultValue("alternative_percentage"),
             elements=vs_subgroup
@@ -285,6 +290,7 @@ def _filesystem_reserved_elements() -> Mapping[str, DictElement]:
         "show_reserved": DictElement(
             parameter_form=SingleChoiceExtended(
                 title=Title("Show space reserved for the <tt>root</tt> user"),
+                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "Checkmk treats space that is reserved for the "
                     "<tt>root</tt> user on Linux and Unix as used space. "
@@ -306,6 +312,7 @@ def _filesystem_reserved_elements() -> Mapping[str, DictElement]:
                 title=Title(
                     "Exclude space reserved for the <tt>root</tt> user from calculation of used space"
                 ),
+                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "By default, Checkmk treats space that is reserved for "
                     "the <tt>root</tt> user on Linux and Unix as used space. "

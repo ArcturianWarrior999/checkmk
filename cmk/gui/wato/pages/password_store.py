@@ -108,12 +108,14 @@ class ModePasswords(SimpleListMode[PasswordConfig]):
         if is_locked_by_quick_setup(entry.get("locked_by")):
             raise MKUserError(
                 "_delete",
+                # astrein: disable=localization-named-placeholder
                 _("Cannot delete %s because it is managed by Quick Setup.")
                 % self._mode_type.name_singular(),
             )
         if is_locked_by_oauth2_connection(entry.get("locked_by")):
             raise MKUserError(
                 "_delete",
+                # astrein: disable=localization-named-placeholder
                 _("Cannot delete %s because it is managed by an existing OAuth2 connection.")
                 % self._mode_type.name_singular(),
             )
@@ -134,6 +136,7 @@ class ModePasswords(SimpleListMode[PasswordConfig]):
         if is_locked_by_quick_setup(entry.get("locked_by")):
             html.icon_button(
                 url="",
+                # astrein: disable=localization-named-placeholder
                 title=_("%s can only be deleted via Quick Setup")
                 % self._mode_type.name_singular().title(),
                 icon=StaticIcon(IconNames.delete),
@@ -142,6 +145,7 @@ class ModePasswords(SimpleListMode[PasswordConfig]):
         elif is_locked_by_oauth2_connection(entry.get("locked_by")):
             html.icon_button(
                 url="",
+                # astrein: disable=localization-named-placeholder
                 title=_("%s can only be deleted via OAuth2 connection")
                 % self._mode_type.name_singular().title(),
                 icon=StaticIcon(IconNames.delete),

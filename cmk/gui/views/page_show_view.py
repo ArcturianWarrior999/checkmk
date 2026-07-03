@@ -275,6 +275,7 @@ def get_row_count(view: View, config: Config) -> int:
     if view.missing_single_infos:
         raise MKUserError(
             None,
+            # astrein: disable=localization-named-placeholder
             _(
                 "Missing context information: %s. You can either add this as a fixed "
                 "setting, or call the with the missing HTTP variables."
@@ -449,7 +450,9 @@ def _export_view(
     exporter = exporter_registry.get(html.output_format)
     if not exporter:
         raise MKUserError(
-            "output_format", _("Output format '%s' not supported") % html.output_format
+            "output_format",
+            # astrein: disable=localization-named-placeholder
+            _("Output format '%s' not supported") % html.output_format,
         )
 
     exporter.handler(view.row_cells, view.group_cells, rows, view.name, view.spec)

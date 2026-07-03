@@ -194,6 +194,7 @@ class SingleChoiceVisitor[T](
         message = (
             self.form_spec.invalid_element_validation
             and self.form_spec.invalid_element_validation.error_msg
+            # astrein: disable=localization-named-placeholder
         ) or Message("Invalid choice %r")
         message_localized = localize(message)
         if "%s" in message_localized or "%r" in message_localized:

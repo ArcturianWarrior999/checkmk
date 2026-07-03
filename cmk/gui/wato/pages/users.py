@@ -450,6 +450,7 @@ class ModeUsers(WatoMode):
 
             if deleted_users:
                 flash(
+                    # astrein: disable=localization-named-placeholder
                     _("Successfully deleted the following %s: %s")
                     % (
                         ungettext("user", "users", len(deleted_users)),
@@ -462,6 +463,7 @@ class ModeUsers(WatoMode):
             rule_count = len(rules)
             rule_singular_plural = ungettext("rule", "rules", rule_count)
             flash(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The deleted user '%s' is used as only specific user by %d notification %s. Please adjust the affected %s."
                 )
@@ -642,6 +644,7 @@ class ModeUsers(WatoMode):
                 if user.may("wato.show_last_user_activity"):
                     last_seen, auth_type = userdb.get_last_seen(user_spec)
                     if last_seen >= online_threshold:
+                        # astrein: disable=localization-named-placeholder
                         title = _("Online (%s %s via %s)") % (
                             render.date(last_seen),
                             render.time_of_day(last_seen),
@@ -649,6 +652,7 @@ class ModeUsers(WatoMode):
                         )
                         img_txt = StaticIcon(IconNames.checkmark)
                     elif last_seen != 0:
+                        # astrein: disable=localization-named-placeholder
                         title = _("Offline (%s %s via %s)") % (
                             render.date(last_seen),
                             render.time_of_day(last_seen),
@@ -717,6 +721,7 @@ class ModeUsers(WatoMode):
                     retention = active_config.ldap_quarantine_period
                     quarantined_on = render.date(quarantine["quarantined_on"])
                     if retention is not None:
+                        # astrein: disable=localization-named-placeholder
                         deletion = _("scheduled for deletion on %s") % render.date(
                             quarantine["quarantined_on"] + retention
                         )
@@ -724,6 +729,7 @@ class ModeUsers(WatoMode):
                         deletion = _("deletion pending on the next synchronization")
                     html.static_icon(
                         StaticIcon(IconNames.pending_task),
+                        # astrein: disable=localization-named-placeholder
                         title=_("Quarantined since %s (source: %s); %s")
                         % (quarantined_on, quarantine["connection_id"], deletion),
                     )
@@ -925,6 +931,7 @@ class ModeEditUser(WatoMode):
     def title(self) -> str:
         if self._is_new_user:
             return _("Add user")
+        # astrein: disable=localization-named-placeholder
         return _("Edit user %s") % self._user_id
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -982,6 +989,7 @@ class ModeEditUser(WatoMode):
                                 ("_disable_two_factor", "1"),
                             ],
                         ),
+                        # astrein: disable=localization-named-placeholder
                         title=_("Remove two-factor authentication of %s") % self._user_id,
                     )
                 ),
@@ -1714,6 +1722,7 @@ def select_language(user_spec: UserSpec, default_language: str) -> None:
         0,
         (
             "_default_",
+            # astrein: disable=localization-named-placeholder
             _("Use the default language (%s)") % get_language_alias(default_language),
         ),
     )

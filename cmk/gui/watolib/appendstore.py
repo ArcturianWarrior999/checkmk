@@ -68,6 +68,7 @@ class ABCAppendStore[VT](abc.ABC):
         except SyntaxError as e:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The audit log cannot be shown because of "
                     "a syntax error in %s.<br><br>Please review and fix the file "
@@ -95,6 +96,7 @@ class ABCAppendStore[VT](abc.ABC):
         except Exception as e:
             # The _append_transaction context manager re-raises the original exception
             # after attempting to truncate. We catch it here and wrap it.
+            # astrein: disable=localization-named-placeholder
             raise MKGeneralException(_('Cannot write file "%s": %s') % (self._path, e)) from e
 
     @contextmanager

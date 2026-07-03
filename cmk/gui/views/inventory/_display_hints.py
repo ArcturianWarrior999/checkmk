@@ -934,6 +934,7 @@ class AttributeDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Inventory attribute: %s") % self.long_title
 
 
@@ -978,6 +979,7 @@ class ColumnDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Inventory column: %s") % self.long_title
 
 
@@ -1137,6 +1139,7 @@ class ColumnDisplayHintOfView:
 
     @property
     def long_inventory_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Inventory column: %s") % self.long_title
 
 
@@ -1234,6 +1237,7 @@ class TableWithView:
 
     @property
     def long_inventory_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Inventory table: %s") % self.long_title
 
 
@@ -1250,6 +1254,7 @@ class NodeDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Inventory node: %s") % self.long_title
 
     def get_attribute_hint(self, key: str) -> AttributeDisplayHint:

@@ -221,6 +221,7 @@ def crash_dump_message(crash: GUICrashReport, show_crash_link: bool) -> str:
     # users to prevent disclosure of internal information
     if not show_crash_link:
         message += (
+            # astrein: disable=localization-named-placeholder
             _(
                 "An internal error occurred while processing your request (crash ID: %s). "
                 "You can report this issue to your Checkmk administrator. "
@@ -230,6 +231,7 @@ def crash_dump_message(crash: GUICrashReport, show_crash_link: bool) -> str:
             % crash.ident_to_text()
         )
     else:
+        # astrein: disable=localization-named-placeholder
         message += _(
             "An internal error occurred while processing your request (crash ID: %s). "
             "You can report this issue to the Checkmk team to help "

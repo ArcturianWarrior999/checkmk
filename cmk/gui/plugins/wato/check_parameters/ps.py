@@ -57,11 +57,13 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
         (
             True,
             # xgettext: no-python-format
+            # astrein: disable=localization-named-placeholder
             _("100% is all cores at full load"),
         ),
         (
             False,
             # xgettext: no-python-format
+            # astrein: disable=localization-named-placeholder
             _("N * 100% as each core contributes with 100% at full load"),
         ),
     ]
@@ -70,6 +72,7 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
             "cpu_rescale_max",
             DropdownChoice[bool](
                 title=_("CPU rescale maximum load"),
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     # xgettext: no-python-format
                     "CPU utilization is delivered by the operating "
@@ -347,6 +350,7 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
             DropdownChoice(
                 title=_("Enable per-process details in long-output"),
                 label=_("Enable per-process details"),
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     "If active, the long output of this service will contain a list of all the "
                     "matching processes and their details (i.e. PID, CPU usage, memory usage). "
@@ -430,6 +434,7 @@ def validate_process_discovery_descr_option(description: str, varprefix: str) ->
     if "%s" in description and re.search(r"%(\d+)", description):
         raise MKUserError(
             varprefix,
+            # astrein: disable=localization-named-placeholder
             _('Combining "%s" and "%1" style replacements in the service name is not allowed.'),
         )
 
@@ -440,6 +445,7 @@ def process_discovery_descr_option() -> TextInput:
         size=49,
         allow_empty=False,
         validate=validate_process_discovery_descr_option,
+        # astrein: disable=localization-named-placeholder
         help=_(
             "<p>The process name may contain one or more occurrences of <tt>%s</tt>. If "
             "you do this, then the pattern must be a regular expression and be prefixed "
@@ -574,6 +580,7 @@ def cgroup_match_options() -> Tuple[tuple[str, ValueSpec]]:
                     ),
                 ],
                 match=match_alt,
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     "<p>The control group information is currently only specified by the Linux agent"
                     " (cgroup). If it is present and this rule is set, the inventory will only trigger"
@@ -692,6 +699,7 @@ def _valuespec_inventory_processes_rules() -> Dictionary:
                             value=False,
                             title=_("Grab user from found processes"),
                             totext="",
+                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 'Specifying "grab user" makes the created check expect the process to '
                                 "run as the same user as during inventory: the username will be "

@@ -115,12 +115,14 @@ def PredictiveLevels(
                                         Percentage(
                                             title=_("Warning at"),
                                             # xgettext: no-python-format
+                                            # astrein: disable=localization-named-placeholder
                                             unit=_("% above predicted value"),
                                             default_value=10,
                                         ),
                                         Percentage(
                                             title=_("Critical at"),
                                             # xgettext: no-python-format
+                                            # astrein: disable=localization-named-placeholder
                                             unit=_("% above predicted value"),
                                             default_value=20,
                                         ),

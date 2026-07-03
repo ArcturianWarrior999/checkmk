@@ -252,6 +252,7 @@ class ProfileReplicationBackgroundJob(BackgroundJob):
                     pending_changes=pending_changes,
                 )
                 job_interface.send_progress_update(
+                    # astrein: disable=localization-named-placeholder
                     _("Replication to %s failed: %s") % (site_result.site_id, site_result.error)
                 )
             else:
@@ -259,6 +260,7 @@ class ProfileReplicationBackgroundJob(BackgroundJob):
                     site_result.site_id, ACTIVATION_TIME_PROFILE_SYNC, site_result.duration
                 )
                 job_interface.send_progress_update(
+                    # astrein: disable=localization-named-placeholder
                     _("Replication to %s successful (%.1fs)")
                     % (site_result.site_id, site_result.duration)
                 )

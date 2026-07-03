@@ -90,6 +90,7 @@ def prepare_aws() -> QuickSetupStage:
                 list_type="ordered",
             ),
             NoteText(
+                # astrein: disable=localization-named-placeholder
                 text=_(
                     "Note: For access options like AssumeRole or a custom IAM region, please use "
                     "the %s."
@@ -235,6 +236,7 @@ def _save_and_activate_recap(title: str, parsed_data: ParsedFormData) -> Sequenc
         if not ec2_creation.handle_automatically:
             messages.append(
                 Text(
+                    # astrein: disable=localization-named-placeholder
                     text=_(
                         "Hosts for EC2 instances need to be created manually, please check the %s."
                     )

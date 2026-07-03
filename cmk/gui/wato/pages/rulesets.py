@@ -776,6 +776,7 @@ class ModeRulesetGroup(ABCRulesetMode):
                 folder_tree(), request.var("folder"), request.get_ascii_input("host")
             )
             yield PageMenuEntry(
+                # astrein: disable=localization-named-placeholder
                 title=_("Hosts in folder: %s") % current_folder.title(),
                 icon_name=StaticIcon(IconNames.folder),
                 item=make_simple_link(current_folder.url(request)),
@@ -971,9 +972,11 @@ class ModeEditRuleset(WatoMode):
         try:
             self._rulespec = rulespec_registry[self._name]
         except KeyError:
+            # astrein: disable=localization-named-placeholder
             raise MKUserError("varname", _('The rule set "%s" does not exist.') % self._name)
 
         if not visible_ruleset(self._rulespec.name):
+            # astrein: disable=localization-named-placeholder
             raise MKUserError("varname", _('The rule set "%s" does not exist.') % self._name)
 
         if not self._item:
@@ -1047,9 +1050,11 @@ class ModeEditRuleset(WatoMode):
         title = self._rulespec.title
 
         if self._hostname:
+            # astrein: disable=localization-named-placeholder
             title += _(" for host %s") % self._hostname
             if request.has_var("item") and self._rulespec.item_type:
                 assert self._rulespec.item_name is not None
+                # astrein: disable=localization-named-placeholder
                 title += _(" and %s '%s'") % (self._rulespec.item_name.lower(), self._item)
 
         return title
@@ -1159,6 +1164,7 @@ class ModeEditRuleset(WatoMode):
             title = _("Add rule for current host")
             if self._item is not None and self._rulespec.item_type:
                 assert self._rulespec.item_name is not None
+                # astrein: disable=localization-named-placeholder
                 title = _("Add rule for current host and %s") % self._rulespec.item_name.lower()
 
             yield PageMenuEntry(
@@ -1174,6 +1180,7 @@ class ModeEditRuleset(WatoMode):
 
         if not self._folder.is_root():
             yield PageMenuEntry(
+                # astrein: disable=localization-named-placeholder
                 title=_("Add rule in folder %s") % self._folder.title(),
                 icon_name=StaticIcon(
                     IconNames.folder_blue,
@@ -1462,6 +1469,7 @@ class ModeEditRuleset(WatoMode):
                     url=self._action_url("delete", folder, rule.id),
                     title=_("Delete rule #%(rulenr)d") % {"rulenr": rulenr},
                     suffix=rule.rule_options.description,
+                    # astrein: disable=localization-named-placeholder
                     message=_("Folder: %s") % folder.alias_path(),
                 ),
                 title=_("Delete this rule"),
@@ -1547,12 +1555,14 @@ class ModeEditRuleset(WatoMode):
     ) -> RuleMatchResult:
         if rule.is_disabled():
             return RuleMatchResult(
+                # astrein: disable=localization-named-placeholder
                 _("This rule does not match: %s") % _("This rule is disabled"),
                 StaticIcon(IconNames.hyphen),
             )
 
         if not rule_matches:
             return RuleMatchResult(
+                # astrein: disable=localization-named-placeholder
                 _("This rule does not match: %s") % _("The rule does not match"),
                 StaticIcon(IconNames.hyphen),
             )
@@ -1594,6 +1604,7 @@ class ModeEditRuleset(WatoMode):
         return RuleMatchResult(
             (_("This rule matches for the host '%(host_name)s'") % {"host_name": host_name})
             + (
+                # astrein: disable=localization-named-placeholder
                 _(" and the %s '%s'.") % (ruleset.item_name(), item) if ruleset.item_type() else "."
             ),
             StaticIcon(IconNames.checkmark),
@@ -1738,6 +1749,7 @@ class ModeEditRuleset(WatoMode):
             ],
         )
         html.write_text_permissive(
+            # astrein: disable=localization-named-placeholder
             _('Predefined condition: <a href="%s">%s</a>') % (url, condition["title"])
         )
 
@@ -2204,7 +2216,9 @@ class ABCEditRuleMode(WatoMode):
             self._rulespec = rulespec_registry[self._name]
         except KeyError:
             raise MKUserError(
-                self.VAR_RULE_SPEC_NAME, _('The rule set "%s" does not exist.') % self._name
+                self.VAR_RULE_SPEC_NAME,
+                # astrein: disable=localization-named-placeholder
+                _('The rule set "%s" does not exist.') % self._name,
             )
 
         self._back_mode = request.get_ascii_input_mandatory("back_mode", "edit_ruleset")
@@ -2257,6 +2271,7 @@ class ABCEditRuleMode(WatoMode):
         self._rule = self._orig_rule.clone(preserve_id=True)
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Edit rule: %s") % self._rulespec.title
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -2436,6 +2451,7 @@ class ABCEditRuleMode(WatoMode):
         pending_changes.add(
             Change(
                 action_name="edit-rule",
+                # astrein: disable=localization-named-placeholder
                 text=_('Changed properties of rule "%s", moved rule from folder "%s" to "%s"')
                 % (self._ruleset.title(), self._folder.alias_path(), new_rule_folder.alias_path()),
                 diff_text=self._ruleset.diff_rules(self._orig_rule, self._rule),
@@ -2465,6 +2481,7 @@ class ABCEditRuleMode(WatoMode):
         self._rulesets.save_folder(pprint_value=pprint_value, debug=debug)
 
     def _success_message(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _('Edited rule in rule set "%s" in folder "%s"') % (
             self._ruleset.title(),
             self._folder.alias_path(),
@@ -2833,6 +2850,7 @@ class VSExplicitConditions(Transform):
                 )
             )
             + HTML.without_escaping(
+                # astrein: disable=localization-named-placeholder
                 _("For more help have a look at the %s.")
                 % html.render_a(
                     _("documentation"),
@@ -2906,6 +2924,7 @@ class VSExplicitConditions(Transform):
                 re.compile(value[1:])
                 return  # valid regex
             except re.error as e:
+                # astrein: disable=localization-named-placeholder
                 raise MKUserError(varprefix, _("Invalid regex pattern: %s") % str(e))
         try:
             HostName(value)
@@ -3057,22 +3076,28 @@ class RuleConditionRenderer:
             if isinstance(tag, GroupedTag):
                 if negate:
                     return escape_to_html_permissive(
+                        # astrein: disable=localization-named-placeholder
                         _("Host tag: %s is <b>not</b> <b>%s</b>") % (tag.group.title, tag.title)
                     )
                 return escape_to_html_permissive(
+                    # astrein: disable=localization-named-placeholder
                     _("Host tag: %s is <b>%s</b>") % (tag.group.title, tag.title)
                 )
 
             if negate:
+                # astrein: disable=localization-named-placeholder
                 return escape_to_html_permissive(_("Host does not have tag <b>%s</b>") % tag.title)
+            # astrein: disable=localization-named-placeholder
             return escape_to_html_permissive(_("Host has tag <b>%s</b>") % tag.title)
 
         if negate:
             return escape_to_html_permissive(
+                # astrein: disable=localization-named-placeholder
                 _("Unknown tag: Host has <b>not</b> the tag <tt>%s</tt>") % str(tag_id)
             )
 
         return escape_to_html_permissive(
+            # astrein: disable=localization-named-placeholder
             _("Unknown tag: Host has the tag <tt>%s</tt>") % str(tag_id)
         )
 
@@ -3322,6 +3347,7 @@ class ModeCloneRule(ABCEditRuleMode):
         return "clone_rule"
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Copy rule: %s") % self._rulespec.title
 
     def _set_rule(self) -> None:
@@ -3353,6 +3379,7 @@ class ModeNewRule(ABCEditRuleMode):
         return "new_rule"
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Add rule: %s") % self._rulespec.title
 
     def _set_folder(self, tree: FolderTree) -> None:
@@ -3477,6 +3504,7 @@ class ModeNewRule(ABCEditRuleMode):
         pass
 
     def _success_message(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _('Created new rule in rule set "%s" in folder "%s"') % (
             self._ruleset.title(),
             self._folder.alias_path(),
@@ -3489,6 +3517,7 @@ class ModeExportRule(ABCEditRuleMode):
         return "export_rule"
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Rule representation: %s") % self._rulespec.title
 
     def _save_rule(
@@ -3811,6 +3840,7 @@ class ModeUnknownRulesets(WatoMode):
             ) as table:
                 for unknown_check_parameter_ruleset in unknown_check_parameter_rulesets:
                     table.groupheader(
+                        # astrein: disable=localization-named-placeholder
                         _("Unknown rule set: %s") % unknown_check_parameter_ruleset.name
                     )
                     for rules in unknown_check_parameter_ruleset.rules.values():

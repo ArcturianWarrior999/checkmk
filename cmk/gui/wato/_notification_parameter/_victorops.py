@@ -66,7 +66,9 @@ def form_spec() -> Dictionary:
                                 ),
                                 elements=[
                                     SingleChoiceElementExtended(
-                                        title=Title("%s") % title, name=ident
+                                        # astrein: disable=localization-named-placeholder
+                                        title=Title("%s") % title,
+                                        name=ident,
                                     )
                                     for ident, title in passwordstore_choices_without_user()
                                     if ident is not None

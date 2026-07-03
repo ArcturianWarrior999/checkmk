@@ -628,6 +628,7 @@ class BIConfigCallARuleAction(BICallARuleAction, ABCBIConfigAction):
         if len(arguments) != len(rule_params):
             raise MKUserError(
                 varprefix + "_1_0",
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The rule you selected needs %d argument(s) (%s), "
                     "but you configured %d arguments."
@@ -809,6 +810,7 @@ bi_config_aggregation_function_registry = BIConfigAggregationFunctionRegistry()
 
 class BIConfigAggregationFunctionBest(BIAggregationFunctionBest, ABCBIConfigAggregationFunction):
     def __str__(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Best state, %d nodes, restrict to %s") % (
             self.count,
             short_service_state_name(self.restrict_state),
@@ -855,6 +857,7 @@ class BIConfigAggregationFunctionBest(BIAggregationFunctionBest, ABCBIConfigAggr
 
 class BIConfigAggregationFunctionWorst(BIAggregationFunctionWorst, ABCBIConfigAggregationFunction):
     def __str__(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Worst state, %d nodes, restrict to %s") % (
             self.count,
             short_service_state_name(self.restrict_state),

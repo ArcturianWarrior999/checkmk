@@ -70,6 +70,7 @@ def _parameter_valuespec_oracle_dataguard_stats() -> Migrate[dict[str, Any]]:
                     "apply_lag_min",
                     Tuple(
                         title=_("Apply lag: Minimum time"),
+                        # astrein: disable=localization-named-placeholder
                         help=_(
                             "The minimum limit for the apply lag in <tt>v$dataguard_stats</tt>. "
                             "This is only useful if also <i>%s</i> has been configured."

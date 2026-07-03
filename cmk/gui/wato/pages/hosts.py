@@ -335,6 +335,7 @@ class ABCHostMode(WatoMode, abc.ABC):
         def _get_is_or_is_not(is_ds: bool) -> str:
             return _("is") if is_ds else _("is <b>not</b>")
 
+        # astrein: disable=localization-named-placeholder
         return _("The cluster %s while the node <b>%s</b> %s") % (
             ", ".join(
                 [
@@ -622,6 +623,7 @@ class ModeEditHost(ABCHostMode):
                             entries=list(page_menu_host_entries(self.name(), self._host)),
                         ),
                         PageMenuTopic(
+                            # astrein: disable=localization-named-placeholder
                             title=_("For all hosts on site %s") % self._host.site_id(),
                             entries=list(
                                 page_menu_all_hosts_entries(
@@ -670,6 +672,7 @@ class ModeEditHost(ABCHostMode):
                     remaining = len(failed_hosts) - display_limit
                     hosts_display += _(", +%(remaining)d more") % {"remaining": remaining}
 
+                # astrein: disable=localization-named-placeholder
                 failed_warning_message = _(
                     "<b>Lookup IPv4 addresses of %d hosts failed.</b><br>"
                     "Monitoring for these hosts may be incomplete.<br><br>"
@@ -1088,6 +1091,7 @@ class ModeCreateHost(CreateHostMode):
 
     def title(self) -> str:
         if self._mode == "clone":
+            # astrein: disable=localization-named-placeholder
             return _("Create clone of %s") % self._host.name()
         return _("Add host")
 
@@ -1150,6 +1154,7 @@ class ModeCreateCluster(CreateHostMode):
 
     def title(self) -> str:
         if self._mode == "clone":
+            # astrein: disable=localization-named-placeholder
             return _("Create clone of %s") % self._host.name()
         return _("Create cluster")
 

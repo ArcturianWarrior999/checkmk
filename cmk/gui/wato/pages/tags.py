@@ -267,6 +267,7 @@ class ModeTags(ABCTagMode):
                 if del_id in grouped_tag.aux_tag_ids:
                     raise MKUserError(
                         None,
+                        # astrein: disable=localization-named-placeholder
                         _(
                             "You cannot delete this auxiliary tag. "
                             "It is being used in the tag group <b>%s</b>."
@@ -370,6 +371,7 @@ class ModeTags(ABCTagMode):
             return
 
         html.show_warning(
+            # astrein: disable=localization-named-placeholder
             _(
                 "You have customized the tag group(s) <tt>%s</tt> in your tag configuration. "
                 "In current Checkmk versions, these are <i>built-in</i> tag groups which "
@@ -443,6 +445,7 @@ class ModeTags(ABCTagMode):
             url=make_action_link(request, [("mode", "tags"), ("_delete", tag_group.id)]),
             title=_("Delete tag group"),
             suffix=tag_group.title,
+            # astrein: disable=localization-named-placeholder
             message=_("ID: %s") % tag_group.id,
         )
         html.icon_button(delete_url, _("Delete this tag group"), StaticIcon(IconNames.delete))
@@ -491,6 +494,7 @@ class ModeTags(ABCTagMode):
             url=make_action_link(request, [("mode", "tags"), ("_del_aux", aux_tag.id)]),
             title=_("Delete auxiliary tag"),
             suffix=aux_tag.title,
+            # astrein: disable=localization-named-placeholder
             message=_("ID: %s") % aux_tag.id,
         )
         html.icon_button(edit_url, _("Edit this auxiliary tag"), StaticIcon(IconNames.edit))
@@ -905,11 +909,13 @@ class ModeEditTagGroup(ABCEditTagMode):
             pending_changes.add(
                 Change(
                     action_name="edit-hosttags",
+                    # astrein: disable=localization-named-placeholder
                     text=_("Created new host tag group '%s'") % changed_tag_group.id,
                     domains=[CORE],
                 ),
                 ChangeScope.all_activation_sites(),
             )
+            # astrein: disable=localization-named-placeholder
             flash(_("Created new host tag group '%s'") % changed_tag_group.title)
             return redirect(mode_url("tags"))
 
@@ -943,6 +949,7 @@ class ModeEditTagGroup(ABCEditTagMode):
         pending_changes.add(
             Change(
                 action_name="edit-hosttags",
+                # astrein: disable=localization-named-placeholder
                 text=_("Edited host tag group %s (%s)") % (message, self._id),
                 domains=[CORE],
             ),
@@ -1075,6 +1082,7 @@ def _rename_tags_after_confirmation(
             pending_changes=pending_changes,
         )
 
+        # astrein: disable=localization-named-placeholder
         return _("Modified folders: %d, modified hosts: %d, modified rule sets: %d") % (
             len(affected_folders),
             len(affected_hosts),
@@ -1214,6 +1222,7 @@ def _show_affected_hosts(affected_hosts: list[Host]) -> None:
     html.open_li()
     for nr, host in enumerate(affected_hosts):
         if nr > 20:
+            # astrein: disable=localization-named-placeholder
             html.write_text_permissive(_("... (%d more)") % (len(affected_hosts) - 20))
             break
 

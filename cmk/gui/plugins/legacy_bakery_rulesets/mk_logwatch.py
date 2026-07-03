@@ -387,6 +387,7 @@ def _valuespec_agent_config_mk_logwatch() -> Alternative:
         ),
         elements=[
             Dictionary(
+                # astrein: disable=localization-named-placeholder
                 title=_("Deploy the %s plug-in and its configuration") % "Logwatch",
                 elements=[
                     (
@@ -419,13 +420,17 @@ def _valuespec_agent_config_mk_logwatch() -> Alternative:
             ),
             FixedValue(
                 value=True,
+                # astrein: disable=localization-named-placeholder
                 title=_("Deploy the %s plug-in without configuration") % "Logwatch",
+                # astrein: disable=localization-named-placeholder
                 help=_("The file %s needs to be created and maintained manually.")
                 % "<tt>/etc/check_mk/logwatch.cfg</tt>",
+                # astrein: disable=localization-named-placeholder
                 totext=_("manually configure %s") % "<tt>/etc/check_mk/logwatch.cfg</tt>",
             ),
             FixedValue(
                 value=None,
+                # astrein: disable=localization-named-placeholder
                 title=_("Do not deploy the %s plug-in") % "Logwatch",
                 totext=_("(disabled)"),
             ),

@@ -789,6 +789,7 @@ class ModeFolder(WatoMode):
                 ),
                 acting_user=user,
             )
+            # astrein: disable=localization-named-placeholder
             flash(_("Moved %d hosts to %s") % (len(selected_host_names), target_folder.title()))
             return redirect(folder_url)
 
@@ -1028,6 +1029,7 @@ class ModeFolder(WatoMode):
         if show_file_names:
             if num_hosts:
                 confirm_message += _("<br><br>")
+            # astrein: disable=localization-named-placeholder
             confirm_message += _("Directory: <tt>%s</tt>.") % subfolder.filesystem_path()
 
         html.icon_button(
@@ -1061,6 +1063,7 @@ class ModeFolder(WatoMode):
             html.br()
             if num > 1 and len(permitted_groups) > 4:
                 html.write_text_permissive(
+                    # astrein: disable=localization-named-placeholder
                     _("<i>%d more contact groups</i><br>") % (len(permitted_groups) - num - 1)
                 )
                 break
@@ -1232,6 +1235,7 @@ class ModeFolder(WatoMode):
             assert nodes is not None
             html.static_icon(
                 StaticIcon(IconNames.cluster),
+                # astrein: disable=localization-named-placeholder
                 title=_("This host is a cluster of %s") % ", ".join(nodes),
             )
             html.nbsp()
@@ -1435,6 +1439,7 @@ class ModeFolder(WatoMode):
             pending_changes=pending_changes,
             acting_user=user,
         )
+        # astrein: disable=localization-named-placeholder
         flash(_("Successfully deleted %d hosts") % len(host_names))
         return redirect(self._folder.url(request))
 

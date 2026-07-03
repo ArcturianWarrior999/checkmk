@@ -100,7 +100,9 @@ class VisualFilter(ValueSpec[FilterHTTPVariables]):
     def validate_datatype(self, value: FilterHTTPVariables, varprefix: str) -> None:
         if not isinstance(value, dict):
             raise MKUserError(
-                varprefix, _("The value must be of type dict, but it has type %s") % type(value)
+                varprefix,
+                # astrein: disable=localization-named-placeholder
+                _("The value must be of type dict, but it has type %s") % type(value),
             )
 
     def validate_value(self, value: FilterHTTPVariables, varprefix: str) -> None:

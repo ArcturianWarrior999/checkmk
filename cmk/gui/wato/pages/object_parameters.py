@@ -454,6 +454,7 @@ class ModeObjectParameters(WatoMode):
         if origin_rule_result is None:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("Failed to determine origin rule of %s / %s") % (self._hostname, self._service),
             )
         rule_folder, rule_index, rule = origin_rule_result
@@ -629,6 +630,7 @@ class ModeObjectParameters(WatoMode):
         if len(rules) == 1:
             rule_folder, rule_index, rule = rules[0]
             url = rule_url(rule)
+            # astrein: disable=localization-named-placeholder
             html.a(_("Rule %d in %s") % (rule_index + 1, rule_folder.title()), href=rule_url(rule))
 
         elif len(rules) > 1:
@@ -644,6 +646,7 @@ class ModeObjectParameters(WatoMode):
         if isinstance(known_settings, dict) and "tp_computed_params" in known_settings:
             computed_at = known_settings["tp_computed_params"]["computed_at"]
             html.write_text_permissive(
+                # astrein: disable=localization-named-placeholder
                 _("Time-specific parameters computed at %s")
                 % cmk.utils.render.date_and_time(computed_at)
             )

@@ -11,20 +11,15 @@ import ast
 import re
 
 from cmk.astrein.framework import ASTVisitorChecker
+from cmk.astrein.placeholders import has_positional_placeholder
 
 # Inlined from cmk.utils.escaping to avoid external dependencies
 _ALLOWED_TAGS = r"h1|h2|b|tt|i|u|hr|br(?: /)?|nobr(?: /)?|pre|sup|p|li|ul|ol"
 
-
-class LocalizationChecker(ASTVisitorChecker):
-    """Checker for localization function calls.
-
-    Validates that:
-    1. Localization functions are called with literal strings (not variables)
-    2. HTML tags in localized strings are from the allowed set
-    """
-
-    _TRANSLATION_FUNCTIONS = {
+#: The gettext family plus the ``cmk.rulesets.v1`` formspec classes, matched by bare
+#: name (as the other localization checks are). Shared by the checkers below.
+_TRANSLATION_FUNCTIONS = frozenset(
+    {
         "_",
         "_l",
         "gettext",
@@ -44,6 +39,18 @@ class LocalizationChecker(ASTVisitorChecker):
         "Label",
         "Message",
     }
+)
+
+
+class LocalizationChecker(ASTVisitorChecker):
+    """Checker for localization function calls.
+
+    Validates that:
+    1. Localization functions are called with literal strings (not variables)
+    2. HTML tags in localized strings are from the allowed set
+    """
+
+    _TRANSLATION_FUNCTIONS = _TRANSLATION_FUNCTIONS
 
     _TAG_PATTERN = re.compile("<.*?>")
     _ALLOWED_TAGS_PATTERN = re.compile(
@@ -100,3 +107,41 @@ class LocalizationChecker(ASTVisitorChecker):
 
         tags = re.findall(self._TAG_PATTERN, node.value)
         return all(re.match(self._ALLOWED_TAGS_PATTERN, tag) for tag in tags)
+
+
+class LocalizationNamedPlaceholderChecker(ASTVisitorChecker):
+    """Requires localized strings to use named ``%(name)s`` placeholders.
+
+    Positional ``_("%s unknown to %s")`` is forbidden in favour of
+    ``_("%(thing)s unknown to %(target)s")``. Named placeholders let translators
+    reorder values for their language and keep each value labelled, whereas ``%s``
+    forces a fixed order and hides what each value means.
+
+    Every string literal passed positionally to a localization function is inspected
+    (covering the ``ngettext``/``pgettext`` plural and context message arguments too).
+    Suppress a deliberate case with ``# astrein: disable=localization-named-placeholder``
+    on the call's line or the line above it.
+    """
+
+    _TRANSLATION_FUNCTIONS = _TRANSLATION_FUNCTIONS
+
+    def checker_id(self) -> str:
+        return "localization-named-placeholder"
+
+    def visit_Call(self, node: ast.Call) -> None:
+        if isinstance(node.func, ast.Name) and node.func.id in self._TRANSLATION_FUNCTIONS:
+            for arg in node.args:
+                if (
+                    isinstance(arg, ast.Constant)
+                    and isinstance(arg.value, str)
+                    and has_positional_placeholder(arg.value)
+                ):
+                    self.add_error(
+                        "Localized strings must use named `%(name)s` placeholders instead of "
+                        "positional `%s`/`%d`, so translators can reorder values and each value "
+                        'stays labelled. Use _("%(host)s in %(site)s") % {"host": ..., "site": ...} '
+                        'instead of _("%s in %s") % (..., ...).',
+                        node,
+                    )
+                    break
+        self.generic_visit(node)

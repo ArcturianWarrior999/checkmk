@@ -315,6 +315,7 @@ class ModeDiagnostics(WatoMode[object]):
         return Dictionary(
             title=_("Collect diagnostic dump"),
             render="form",
+            # astrein: disable=localization-named-placeholder
             help=_(
                 "Files collected by the support diagnostics tool are automatically categorized to"
                 " help you identify sensitive data. We recommend reviewing all files prior to"
@@ -356,6 +357,7 @@ class ModeDiagnostics(WatoMode[object]):
                                         "support diagnostics from command line "
                                         "(see inline help)."
                                     ),
+                                    # astrein: disable=localization-named-placeholder
                                     help=_(
                                         "The timeout in seconds when gathering the support "
                                         "diagnostics data. The default is 110 seconds. When "
@@ -893,6 +895,7 @@ class DiagnosticsDumpBackgroundJob(BackgroundJob):
                 _("Dump file: %(tarfile_path)s") % {"tarfile_path": tarfile_path}
             )
             job_interface.send_result_message(
+                # astrein: disable=localization-named-placeholder
                 _("%s Retrieve created dump file")
                 % HTMLGenerator.render_icon_button(
                     url=download_url,

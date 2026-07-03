@@ -64,6 +64,7 @@ def render_cache_info(what: str, row: Row) -> str:
     cache_interval = row["service_cache_interval"]
     cache_age = time.time() - cached_at
 
+    # astrein: disable=localization-named-placeholder
     text = _("Cache generated %s ago, cache interval: %s") % (
         cmk.utils.render.approx_age(cache_age),
         cmk.utils.render.approx_age(cache_interval),
@@ -71,6 +72,7 @@ def render_cache_info(what: str, row: Row) -> str:
 
     if cache_interval:
         percentage = 100.0 * cache_age / cache_interval
+        # astrein: disable=localization-named-placeholder
         text += _(", elapsed cache lifespan: %s") % cmk.utils.render.percent(percentage)
 
     return text

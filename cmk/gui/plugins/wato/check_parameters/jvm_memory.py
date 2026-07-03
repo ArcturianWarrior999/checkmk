@@ -34,6 +34,7 @@ def _get_memory_level_elements(mem_type: str) -> Iterable[tuple[str, Tuple]]:
                     Percentage(
                         title=_("Warning at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         label=_("% usage"),
                         default_value=80.0,
                         maxvalue=None,
@@ -41,6 +42,7 @@ def _get_memory_level_elements(mem_type: str) -> Iterable[tuple[str, Tuple]]:
                     Percentage(
                         title=_("Critical at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         label=_("% usage"),
                         default_value=90.0,
                         maxvalue=None,
@@ -69,6 +71,7 @@ def _parameter_valuespec_jvm_memory() -> Dictionary:
                 "non-heap and total memory area usage on web application servers."
             )
             + " "
+            # astrein: disable=localization-named-placeholder
             + _("Other keywords for this rule: %s") % "Tomcat, Jolokia, JMX"
         ),
         elements=[
@@ -107,6 +110,7 @@ def _parameter_valuespec_jvm_memory_pools() -> Dictionary:
                 " pools on web application servers."
             )
             + " "
+            # astrein: disable=localization-named-placeholder
             + _("Other keywords for this rule: %s") % "Tomcat, Jolokia, JMX"
         ),
         elements=_get_memory_level_elements("used"),

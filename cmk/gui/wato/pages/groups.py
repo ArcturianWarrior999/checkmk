@@ -161,6 +161,7 @@ class ModeGroups(WatoMode, abc.ABC):
 
             if usages:
                 message = "<b>{}</b><br>{}:<ul>".format(
+                    # astrein: disable=localization-named-placeholder
                     _("You cannot delete this %s group.") % self.type_name,
                     _("It is still in use by"),
                 )
@@ -207,6 +208,7 @@ class ModeGroups(WatoMode, abc.ABC):
         )
         delete_url = make_confirm_delete_link(
             url=makeactionuri(request, transactions, [("_delete", name)]),
+            # astrein: disable=localization-named-placeholder
             title=_("Delete %s group #%d") % (self.type_name, nr),
             suffix=group["alias"],
             message=_("Name: %(name)s") % {"name": name},

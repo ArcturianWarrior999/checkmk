@@ -137,6 +137,7 @@ class RealIo:
                 tmp_path.unlink(missing_ok=True)
 
             # TODO: How to handle debug mode or logging?
+            # astrein: disable=localization-named-placeholder
             raise MKGeneralException(_('Cannot write configuration file "%s": %s') % (self.path, e))
 
         finally:
@@ -157,6 +158,7 @@ class RealIo:
         except Exception as e:
             if cmk.ccc.debug.enabled():
                 raise
+            # astrein: disable=localization-named-placeholder
             raise MKGeneralException(_('Cannot read file "%s": %s') % (self.path, e))
 
     def locked(self) -> Iterator[None]:

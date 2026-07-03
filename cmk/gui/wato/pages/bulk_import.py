@@ -131,6 +131,7 @@ def _attribute_choices(
 
     # Add tag groups
     for tag_group in tag_groups:
+        # astrein: disable=localization-named-placeholder
         attributes.append(("tag_" + tag_group.id, _("Tag: %s") % tag_group.title))
 
     # Add custom attributes
@@ -302,6 +303,7 @@ class CSVBulkImport:
                 if self._num_fields is not None and len(row) != self.row_length:
                     raise MKUserError(
                         None,
+                        # astrein: disable=localization-named-placeholder
                         _(
                             "All rows in the CSV file must have the same number of columns. "
                             "The following row had a different number of columns than the first "

@@ -431,6 +431,7 @@ def configuration_advanced() -> Mapping[str, DictElement]:
         "config": DictElement(
             parameter_form=Dictionary(
                 title=Title("Retrieve information"),
+                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "By default, all resources associated to the configured tenant ID"
                     " will be monitored. "

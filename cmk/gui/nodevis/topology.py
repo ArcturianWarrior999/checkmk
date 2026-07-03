@@ -613,11 +613,13 @@ class ABCTopologyNodeDataGenerator:
         total_nodes = len(self._topology_nodes)
         if total_nodes > self._topology_configuration.filter.max_nodes:
             raise MKGrowthExceeded(
+                # astrein: disable=localization-named-placeholder
                 _("Maximum number of nodes exceeded %d/%d")
                 % (total_nodes, self._topology_configuration.filter.max_nodes)
             )
         if total_nodes > self._topology_configuration.filter.growth_auto_max_nodes:
             raise MKGrowthInterruption(
+                # astrein: disable=localization-named-placeholder
                 _("Growth interrupted %d/%d")
                 % (
                     total_nodes,

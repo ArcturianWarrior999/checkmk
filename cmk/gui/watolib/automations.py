@@ -82,11 +82,13 @@ def remote_automation_config_from_site_config(
 ) -> RemoteAutomationConfig:
     if "secret" not in site_config:
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _('Cannot connect to site "%s": The site is not logged in') % site_config["alias"]
         )
 
     if not is_replication_enabled(site_config):
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _('Cannot connect to site "%s": The replication is disabled') % site_config["alias"]
         )
     return RemoteAutomationConfig(
@@ -455,6 +457,7 @@ def get_url_raw(
         raise MKUserError(None, _("Site is not running"))
 
     if response.status_code != 200:
+        # astrein: disable=localization-named-placeholder
         raise MKUserError(None, _("HTTP Error - %d: %s") % (response.status_code, response.text))
 
     _verify_compatibility(response)
@@ -595,6 +598,7 @@ def do_site_login(site: SiteConfiguration, name: UserId, password: str, *, debug
         url, site.get("insecure", False), auth=(name, password), data=post_data
     ).strip()
     if "<html>" in response.lower():
+        # astrein: disable=localization-named-placeholder
         message = _(
             "Authentication to web service failed.<br>Message:<br>%s"
         ) % escaping.strip_tags(escaping.strip_scripts(response))

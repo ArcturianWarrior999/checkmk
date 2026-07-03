@@ -170,6 +170,7 @@ class ModeKeyManagement(WatoMode[object]):
                     message = self._delete_confirm_msg()
                     if key.owner != user.id:
                         message += (
+                            # astrein: disable=localization-named-placeholder
                             _("<br><br><b>Note</b>: this key was created by user <b>%s</b>")
                             % key.owner
                         )
@@ -242,6 +243,7 @@ class ModeEditKey(WatoMode[object]):
         except KeyAlreadyExists as e:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("The key / certificate already exists (key: %s, description: %s)")
                 % (e.key_id, e.alias),
             )
@@ -370,6 +372,7 @@ class ModeUploadKey(WatoMode[object]):
         except KeyAlreadyExists as e:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("The key / certificate already exists (key: %s, description: %s)")
                 % (e.key_id, e.alias),
             )

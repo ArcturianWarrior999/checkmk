@@ -31,6 +31,7 @@ class _GroupSelection(ElementSelection):
     ) -> None:
         kwargs.setdefault(
             "empty_text",
+            # astrein: disable=localization-named-placeholder
             _(
                 "You have not defined any %s group yet. Please "
                 '<a href="wato.py?mode=edit_%s_group">create</a> at least one first.'

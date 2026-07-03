@@ -74,6 +74,7 @@ def execute_network_scan_job(config: Config) -> None:
     run_as = UserId(folder.attributes["network_scan"]["run_as"])
     if not userdb.user_exists(run_as):
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _("The user %s used by the network scan of the folder %s does not exist.")
             % (run_as, folder.title())
         )
@@ -133,6 +134,7 @@ def execute_network_scan_job(config: Config) -> None:
             result.update(
                 {
                     "state": True,
+                    # astrein: disable=localization-named-placeholder
                     "output": _("The network scan found %d new hosts.") % len(found),
                 }
             )

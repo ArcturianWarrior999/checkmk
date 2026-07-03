@@ -146,6 +146,7 @@ class ModeUserMigrate(WatoMode):
             return
 
         html.show_message(
+            # astrein: disable=localization-named-placeholder
             _("You have selected %d %s for migration: %s")
             % (
                 len(selected_users),
@@ -194,6 +195,7 @@ class ModeUserMigrate(WatoMode):
             pprint_value=config.wato_pprint_config,
         )
 
+        # astrein: disable=localization-named-placeholder
         flashed_msg: str = _("Migrated %d %s to connector '%s': %s") % (
             len(users_migrated),
             ungettext("user", "users", len(users_migrated)),
@@ -206,11 +208,13 @@ class ModeUserMigrate(WatoMode):
             ConnectorType.SAML2,
             ConnectorType.LDAP,
         ]:
+            # astrein: disable=localization-named-placeholder
             flashed_msg += "<br>" + _(
                 "Please note: Connector-specific user attributes may be set on the next %s."
             ) % (_("login") if connection_type == ConnectorType.SAML2 else _("synchronization"))
 
         if users_with_warning:
+            # astrein: disable=localization-named-placeholder
             flashed_msg += "<br><br>" + _("The following %s could not be found: %s") % (
                 ungettext("user", "users", len(users_with_warning)),
                 _format_users(users_with_warning),

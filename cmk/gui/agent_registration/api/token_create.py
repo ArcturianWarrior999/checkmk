@@ -52,6 +52,7 @@ def create_agent_registration_token_v1(
             raise ProblemException(
                 status=400,
                 title="Unknown site",
+                # astrein: disable=localization-named-placeholder
                 detail=_('No site with ID "%s" is configured.') % body.site_id,
             )
         if not site_is_local(site_config):

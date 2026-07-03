@@ -413,6 +413,7 @@ def _valuespec_log_levels(edition: Edition, context: GlobalSettingsContext) -> M
     return Migrate(
         valuespec=Dictionary(
             title=_("Logging"),
+            # astrein: disable=localization-named-placeholder
             help=_(
                 "This setting decides which types of messages to log into the web log <tt>%s</tt>."
             )
@@ -469,6 +470,7 @@ def _web_log_level_elements(edition: Edition) -> list[tuple[str, DropdownChoice]
         (
             "cmk.web.ui-job-scheduler",
             _("Job scheduler"),
+            # astrein: disable=localization-named-placeholder
             _(
                 "The job scheduler manages regularly running tasks and the execution of "
                 "background jobs. Log entries of this component are written to <tt>%s</tt>."
@@ -564,6 +566,7 @@ ConfigVariableDebug = ConfigVariable(
 def _valuespec_profile(context: GlobalSettingsContext) -> DropdownChoice:
     return DropdownChoice(
         title=_("Profile requests"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "It is possible to profile the rendering process of graphical user interface (GUI) pages. This "
             "is done using the Python module cProfile. When profiling is performed "
@@ -833,6 +836,7 @@ ConfigVariablePageHeading = ConfigVariable(
     ident="page_heading",
     valuespec=lambda context: TextInput(
         title=_("Page title"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "This title will be displayed in your browser's title bar or tab. You can use "
             "a <tt>%s</tt> to insert the alias of your monitoring site to the title."
@@ -1046,6 +1050,7 @@ def _validate_virtual_host_trees(value: Any, varprefix: str) -> None:
             if element in seen:
                 raise MKUserError(
                     varprefix,
+                    # astrein: disable=localization-named-placeholder
                     _(
                         "Found '%s' a second time in tree '%s'. Each element can only be "
                         "chosen once."
@@ -1270,6 +1275,7 @@ ConfigVariableLoginScreen = ConfigVariable(
                         ],
                         orientation="horizontal",
                     ),
+                    # astrein: disable=localization-named-placeholder
                     totext=_("%d links"),
                     title=_("Custom footer links"),
                 ),
@@ -1299,6 +1305,7 @@ ConfigVariableUserLocalizations = ConfigVariable(
             ),
             title=_("Custom localizations"),
             movable=False,
+            # astrein: disable=localization-named-placeholder
             totext=_("%d translations"),
         ),
         to_valuespec=lambda d: sorted(d.items()),
@@ -1412,6 +1419,7 @@ ConfigVariableUserIconsAndActions = ConfigVariable(
             ),
             title=_("Custom icons and actions"),
             movable=False,
+            # astrein: disable=localization-named-placeholder
             totext=_("%d icons and actions"),
         ),
         to_valuespec=lambda d: sorted(d.items()),
@@ -1470,6 +1478,7 @@ ConfigVariableCustomServiceAttributes = ConfigVariable(
                 optional_keys=[],
             ),
             title=_("Custom service attributes"),
+            # astrein: disable=localization-named-placeholder
             help=_(
                 'These custom service attributes can be assigned to services using the rule set <a href="%s">%s</a>.'
             )
@@ -1478,6 +1487,7 @@ ConfigVariableCustomServiceAttributes = ConfigVariable(
                 _("Custom service attributes"),
             ),
             movable=False,
+            # astrein: disable=localization-named-placeholder
             totext=_("%d custom service attributes"),
             allow_empty=False,
             # Unique IDs are ensured by the transform below. The Transform is executed
@@ -1508,7 +1518,9 @@ def _validate_unique_entries(value: Sequence[Mapping[str, object]], varprefix: s
     for entry in value:
         if entry["title"] in seen_titles:
             raise MKUserError(
-                varprefix, _("Found multiple entries using the title '%s'") % entry["title"]
+                varprefix,
+                # astrein: disable=localization-named-placeholder
+                _("Found multiple entries using the title '%s'") % entry["title"],
             )
         seen_titles.append(entry["title"])
 
@@ -1519,6 +1531,7 @@ def _custom_service_attributes_validate_unique_entries(
     seen_ids = []
     for entry in value:
         if entry[0] in seen_ids:
+            # astrein: disable=localization-named-placeholder
             raise MKUserError(varprefix, _("Found multiple entries using for '%s'") % entry[0])
         seen_ids.append(entry[0])
 
@@ -1542,6 +1555,7 @@ def _service_tag_rules_validate_unique_entries(
     seen_ids = []
     for entry in value:
         if entry[0] in seen_ids:
+            # astrein: disable=localization-named-placeholder
             raise MKUserError(varprefix, _("Found multiple entries using for '%s'") % entry[0])
         seen_ids.append(entry[0])
 
@@ -1602,6 +1616,7 @@ ConfigVariableUserDowntimeTimeranges = ConfigVariable(
         ),
         title=_("Downtime duration presets"),
         movable=True,
+        # astrein: disable=localization-named-placeholder
         totext=_("%d time ranges"),
     ),
 )
@@ -1655,6 +1670,7 @@ ConfigVariableBuiltinIconVisibility = ConfigVariable(
             ),
             title=_("Built-in icon visibility"),
             movable=False,
+            # astrein: disable=localization-named-placeholder
             totext=_("%d icons customized"),
             help=_(
                 "You can use this option to change the default visibility "
@@ -1794,6 +1810,7 @@ ConfigVariableTrustedCertificateAuthorities = ConfigVariable(
     ident="trusted_certificate_authorities",
     valuespec=lambda context: Dictionary(
         title=_("Trusted certificate authorities for SSL"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "Whenever a server component of Checkmk opens an SSL connection, it uses the "
             "certificate authorities configured here for verifying the SSL certificate of "
@@ -1807,6 +1824,7 @@ ConfigVariableTrustedCertificateAuthorities = ConfigVariable(
                 "use_system_wide_cas",
                 Checkbox(
                     title=_("Use system wide CAs"),
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "All supported Linux distributions provide a mechanism of managing "
                         "trusted CAs. Depending on your Linux distributions the paths where "
@@ -2505,6 +2523,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "aix_memory",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Memory usage for %s hosts") % "AIX",
                 label=_("Use the new service name"),
             ),
@@ -2527,6 +2546,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "cisco_mem",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Cisco memory usage (%s)") % "cisco_mem",
                 label=_("Use the new service name"),
             ),
@@ -2534,6 +2554,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "cisco_mem_asa",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Cisco memory usage (%s)") % "cisco_mem_asa",
                 label=_("Use the new service name"),
             ),
@@ -2541,6 +2562,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "cisco_mem_asa64",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Cisco memory usage (%s)") % "cisco_mem_asa64",
                 label=_("Use the new service name"),
             ),
@@ -2744,6 +2766,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "juniper_mem",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Juniper memory usage (%s)") % "juniper_mem",
                 label=_("Use the new service name"),
             ),
@@ -2751,6 +2774,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "juniper_screenos_mem",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Juniper memory usage (%s)") % "juniper_screenos_mem",
                 label=_("Use the new service name"),
             ),
@@ -2758,6 +2782,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "juniper_trpz_mem",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Juniper memory usage (%s)") % "juniper_trpz_mem",
                 label=_("Use the new service name"),
             ),
@@ -2805,6 +2830,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "mem_win",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Memory usage for %s hosts") % "Windows",
                 label=_("Use the new service name"),
             ),
@@ -2953,6 +2979,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "solaris_mem",
             Checkbox(
+                # astrein: disable=localization-named-placeholder
                 title=_("Memory usage for %s hosts") % "Solaris",
                 label=_("Use the new service name"),
             ),
@@ -3219,6 +3246,7 @@ ConfigVariableHTTPProxies = ConfigVariable(
                         "title",
                         TextInput(
                             title=_("Title"),
+                            # astrein: disable=localization-named-placeholder
                             help=_("The title of the %s. It will be used as display name.")
                             % _("HTTP proxy"),
                             allow_empty=False,
@@ -3231,6 +3259,7 @@ ConfigVariableHTTPProxies = ConfigVariable(
             ),
             title=_("HTTP proxies"),
             movable=False,
+            # astrein: disable=localization-named-placeholder
             totext=_("%d HTTP proxy servers configured"),
             help=_(
                 "Use this option to configure one or several proxy servers that can then be "
@@ -3250,13 +3279,16 @@ def _validate_proxies(value: Sequence[Mapping[str, object]], varprefix: str) -> 
     for http_proxy in value:
         if http_proxy["ident"] in seen_idents:
             raise MKUserError(
-                varprefix, _("Found multiple proxies using the ID '%s'") % http_proxy["ident"]
+                varprefix,
+                # astrein: disable=localization-named-placeholder
+                _("Found multiple proxies using the ID '%s'") % http_proxy["ident"],
             )
         seen_idents.append(http_proxy["ident"])
 
         if http_proxy["title"] in seen_titles:
             raise MKUserError(
                 varprefix,
+                # astrein: disable=localization-named-placeholder
                 _("Found multiple proxies using the title '%s'") % http_proxy["title"],
             )
         seen_titles.append(http_proxy["title"])
@@ -3280,6 +3312,7 @@ ConfigVariableInventoryCheckInterval = ConfigVariable(
             default_value=720,
         ),
         title=_("Enable regular service discovery checks (deprecated)"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "If enabled, Checkmk will create one additional service per host "
             "that does a regular check, if the service discovery would find new services "
@@ -4713,6 +4746,7 @@ def _valuespec_custom_service_attributes() -> ListOf:
             orientation="horizontal",
         ),
         title=_("Custom service attributes"),
+        # astrein: disable=localization-named-placeholder
         help=_('Use this ruleset to assign <a href="%s">%s</a> to services.')
         % (
             "wato.py?mode=edit_configvar&varname=custom_service_attributes",
@@ -4937,6 +4971,7 @@ def _valuespec_service_tag_rules() -> ListOf:
             orientation="horizontal",
         ),
         title=_("Service tags"),
+        # astrein: disable=localization-named-placeholder
         help=_('Use this ruleset to assign <a href="%s">%s</a> to services.')
         % ("wato.py?mode=tags", _("Tags")),
         allow_empty=False,
@@ -5108,6 +5143,7 @@ def _valuespec_automatic_host_removal(edition: Edition) -> CascadingDropdown:
         help=_("Configure the automatic removal of monitored hosts.")
         + (
             (
+                # astrein: disable=localization-named-placeholder
                 _(
                     " <b>Note</b>: To restrict this rule to hosts created via "
                     '<a href="%s">auto-registration</a>, use the host label '
@@ -5180,6 +5216,7 @@ def AutomaticHostRemoval(edition: Edition) -> HostRulespec:
 def _valuespec_extra_host_conf_icon_image() -> IconSelector:
     return IconSelector(
         title=_("Icon image for hosts in status GUI"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "You can assign icons to hosts for the status GUI. Put your images into <tt>%s</tt>. "
         )
@@ -5198,6 +5235,7 @@ ExtraHostConfIconImage = HostRulespec(
 def _valuespec_extra_service_conf_icon_image() -> IconSelector:
     return IconSelector(
         title=_("Icon image for services in status GUI"),
+        # astrein: disable=localization-named-placeholder
         help=_(
             "You can assign icons to services for the status GUI. "
             "Put your images into <tt>%s</tt>. "
@@ -5218,6 +5256,7 @@ ExtraServiceConfIconImage = ServiceRulespec(
 
 def UserIconOrAction(title: str, help: str) -> DropdownChoice:
     empty_text = (
+        # astrein: disable=localization-named-placeholder
         _(
             "In order to be able to choose actions here, you need to "
             '<a href="%s">define your own actions</a>.'
@@ -5449,6 +5488,7 @@ SnmpCharacterEncodings = HostRulespec(
 
 
 def _help_enable_snmpv2c() -> str:
+    # astrein: disable=localization-named-placeholder
     return _(
         "Use this rule to enable the use of SNMP version 2c instead of the default SNMP version 1."
         " Checkmk defaults to SNMPv1 in order to support as many devices as possible."
@@ -5985,6 +6025,7 @@ CheckMkExitStatus = HostRulespec(
 def _valuespec_check_mk_agent_target_versions() -> CascadingDropdown:
     return CascadingDropdown(
         title=_("Check for correct version of Checkmk agent"),
+        # astrein: disable=localization-named-placeholder
         help=_('This ruleset is deprecated. Please use the ruleset <i>"%s"</i> instead.')
         % _("Checkmk agent installation auditing"),
         choices=[

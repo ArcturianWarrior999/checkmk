@@ -85,6 +85,7 @@ def _grouping_elements() -> Mapping[str, DictElement[Any]]:
             required=True,
             parameter_form=String(
                 title=Title("Group name"),
+                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "The section and the group name will be included in the item name."
                     " To use the single file aggregation, add <tt>%s</tt> to the group name."
@@ -274,6 +275,7 @@ def _valuespec_agent_config_mk_filestats() -> Dictionary:
                                 required=True,
                                 parameter_form=String(
                                     title=Title("Section name"),
+                                    # astrein: disable=localization-named-placeholder
                                     help_text=Help(
                                         "The section name will be included in the item name."
                                         " To use the single file aggregation, add"

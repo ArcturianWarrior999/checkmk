@@ -132,6 +132,7 @@ class ModePredefinedConditions(SimpleListMode[PredefinedConditionSpec]):
         }:
             raise MKUserError(
                 "_delete",
+                # astrein: disable=localization-named-placeholder
                 _('You cannot delete this %s because it is <a href="%s">in use</a>.')
                 % (self._mode_type.name_singular(), self._search_url(ident)),
             )
@@ -158,6 +159,7 @@ class ModePredefinedConditions(SimpleListMode[PredefinedConditionSpec]):
 
         html.icon_button(
             self._search_url(ident),
+            # astrein: disable=localization-named-placeholder
             _("Show rules using this %s") % self._mode_type.name_singular(),
             StaticIcon(IconNames.search),  # TODO: new icon!
         )

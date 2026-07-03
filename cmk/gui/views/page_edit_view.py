@@ -360,6 +360,7 @@ def _get_join_vs_column_choice(
                     TextOrRegExp(
                         title=_("of Service"),
                         allow_empty=False,
+                        # astrein: disable=localization-named-placeholder
                         help=_(
                             "If multiple entries are found, the first one of the sorted entries"
                             " is used. If you use macros within inventory based views these"

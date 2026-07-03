@@ -142,6 +142,7 @@ class Command(abc.ABC):
         if self._affected_output_cb:
             return self._affected_output_cb(len_action_rows, cmdtag)
         return HTML.with_escaping(
+            # astrein: disable=localization-named-placeholder
             _("Affected %s: %s")
             % (
                 (

@@ -34,12 +34,14 @@ def _parameter_valuespec_cisco_mem() -> Dictionary:
                             Percentage(
                                 title=_("Warning at a usage of"),
                                 # xgettext: no-python-format
+                                # astrein: disable=localization-named-placeholder
                                 unit=_("% of RAM"),
                                 maxvalue=None,
                             ),
                             Percentage(
                                 title=_("Critical at a usage of"),
                                 # xgettext: no-python-format
+                                # astrein: disable=localization-named-placeholder
                                 unit=_("% of RAM"),
                                 maxvalue=None,
                             ),

@@ -173,6 +173,7 @@ class MasterControlSnapin(SidebarSnapin):
             html.open_td()
             html.toggle_switch(
                 enabled=colvalue,
+                # astrein: disable=localization-named-placeholder
                 help_txt=_("Switch '%s' to '%s'") % (title, _("off") if colvalue else _("on")),
                 onclick=onclick,
                 class_=["large"],
@@ -232,6 +233,7 @@ class MasterControlSnapin(SidebarSnapin):
 
         log_audit(
             action="master-control-toggle",
+            # astrein: disable=localization-named-placeholder
             message=_("Set '%s' to '%s' on site %s")
             % (
                 dict(self._core_toggles())[column],

@@ -153,6 +153,7 @@ def _valuespec_inv_exports_software_csv() -> Dictionary:
                     title=_(
                         "Export file to create, containing <tt>&lt;HOST&gt;</tt> for the host name"
                     ),
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Please specify the path to the export file. The text <tt>[HOST]</tt> "
                         "will be replaced with the host name the inventory has been done for. "

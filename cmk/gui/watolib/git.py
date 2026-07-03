@@ -105,6 +105,7 @@ def _git_command(args: list[str], stdin: str | None = None) -> None:
 
     if completed_process.returncode:
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _("Error executing GIT command <tt>%s</tt>:<br><br>%s")
             % (debug_command, completed_process.stdout.replace("\n", "<br>\n"))
         )

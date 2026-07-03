@@ -263,6 +263,7 @@ class BackupConfig:
         )
         if completed_process.returncode:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _("Failed to apply the cronjob config: %s") % completed_process.stdout
             )
 
@@ -310,6 +311,7 @@ class MKBackupJob(abc.ABC):
             )
         except Exception as e:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('Failed to parse state file "%s": %s') % (self.state_file_path(), e)
             )
 
@@ -348,6 +350,7 @@ class MKBackupJob(abc.ABC):
             check=False,
         )
         if completed_process.returncode != 0:
+            # astrein: disable=localization-named-placeholder
             raise MKGeneralException(_("Failed to start the job: %s") % completed_process.stdout)
 
     @abc.abstractmethod
@@ -621,6 +624,7 @@ class ModeBackup(WatoMode[object]):
                     ),
                     title=_("Delete job #%(nr)d") % {"nr": nr},
                     suffix=job.title,
+                    # astrein: disable=localization-named-placeholder
                     message=_("ID: %s") % job.ident,
                 )
                 edit_url = makeuri_contextless(
@@ -698,6 +702,7 @@ class ModeBackup(WatoMode[object]):
                 table.cell(_("Runtime"))
                 if state.started:
                     html.write_text_permissive(
+                        # astrein: disable=localization-named-placeholder
                         _("Started at %s") % render.date_and_time(state.started)
                     )
                     duration = time.time() - state.started
@@ -715,6 +720,7 @@ class ModeBackup(WatoMode[object]):
 
                     assert state.bytes_per_second is not None
                     html.write_text_permissive(
+                        # astrein: disable=localization-named-placeholder
                         _(" (duration: %s, %s IO: %s/s)")
                         % (
                             render.timespan(duration),
@@ -761,6 +767,7 @@ class ModeEditBackupJob(WatoMode[object]):
             self._new = False
             self._ident: str | None = job_ident
             self._job_cfg: JobConfig | dict[str, object] = job.config
+            # astrein: disable=localization-named-placeholder
             self._title = _("Edit backup job: %s") % job.title
         else:
             self._new = True
@@ -1098,6 +1105,7 @@ def show_job_details(job: MKBackupJob) -> None:
     html.td(_("Runtime"), class_="left")
     html.open_td()
     if state.started:
+        # astrein: disable=localization-named-placeholder
         html.write_text_permissive(_("Started at %s") % render.date_and_time(state.started))
         duration = time.time() - state.started
         if state.state == "finished":
@@ -1105,6 +1113,7 @@ def show_job_details(job: MKBackupJob) -> None:
             html.write_text_permissive(", Finished at %s" % render.date_and_time(state.started))
             duration = state.finished - state.started
 
+        # astrein: disable=localization-named-placeholder
         html.write_text_permissive(_(" (duration: %s)") % render.timespan(duration))
     html.close_td()
     html.close_tr()
@@ -1141,6 +1150,7 @@ class ModeBackupJobState(WatoMode[object]):
         return self._job
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Job state: %s") % self._job.title
 
     def page(self, config: Config) -> None:
@@ -1684,6 +1694,7 @@ class Target:
         except KeyError:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("Unknown target type: %s. Available types: %s.")
                 % (
                     target_type_ident,
@@ -1755,6 +1766,7 @@ def _show_target_list(
                     ),
                     title=_("Delete target #%(nr)d") % {"nr": nr},
                     suffix=target.title,
+                    # astrein: disable=localization-named-placeholder
                     message=_("ID: %s") % target.ident,
                 )
                 edit_url = makeuri_contextless(
@@ -1833,6 +1845,7 @@ class ModeBackupTargets(WatoMode[object]):
         if jobs := [job for job in backup_config.jobs.values() if job.target_ident() == target_id]:
             raise MKUserError(
                 "target",
+                # astrein: disable=localization-named-placeholder
                 _("You cannot delete this target because it is used by these backup jobs: %s")
                 % ", ".join(job.title for job in jobs),
             )
@@ -1857,6 +1870,7 @@ class ModeEditBackupTarget(WatoMode[object]):
             self._new = False
             self._ident: TargetId | None = target_ident
             self._target_cfg: TargetConfig | None = target.config
+            # astrein: disable=localization-named-placeholder
             self._title = _("Edit backup target: %s") % target.title
         else:
             self._new = True
@@ -2108,6 +2122,7 @@ def show_key_download_warning(keys: KeypairMap) -> None:
     to_load = [k.alias for k in keys.values() if k.not_downloaded]
     if to_load:
         html.show_warning(
+            # astrein: disable=localization-named-placeholder
             _(
                 "To be able to restore your encrypted backups, you need to "
                 "download and keep the backup encryption keys in a safe place. "
@@ -2200,6 +2215,7 @@ class ModeBackupRestore(WatoMode[object]):
     def title(self) -> str:
         if not self._target:
             return _("Site restore")
+        # astrein: disable=localization-named-placeholder
         return _("Restore from target: %s") % self._target.title
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:

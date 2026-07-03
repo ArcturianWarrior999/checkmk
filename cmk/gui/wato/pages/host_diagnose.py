@@ -442,6 +442,7 @@ def _vs_rules(
                     minvalue=1,
                     maxvalue=65535,
                     default_value=agent_port if agent_port is not None else 6556,
+                    # astrein: disable=localization-named-placeholder
                     title=_('Checkmk agent port (<a href="%s">rules</a>)')
                     % folder_preserving_link(
                         request,
@@ -464,6 +465,7 @@ def _vs_rules(
                     unit=_("sec"),
                     display_format="%.0f",  # show values consistent to
                     size=2,  # SNMP-Timeout
+                    # astrein: disable=localization-named-placeholder
                     title=_('TCP connection timeout (<a href="%s">Rules</a>)')
                     % folder_preserving_link(
                         request,
@@ -482,6 +484,7 @@ def _vs_rules(
             (
                 "snmp_timeout",
                 Integer(
+                    # astrein: disable=localization-named-placeholder
                     title=_('SNMP-timeout (<a href="%s">Rules</a>)')
                     % folder_preserving_link(
                         request,
@@ -503,6 +506,7 @@ def _vs_rules(
             (
                 "snmp_retries",
                 Integer(
+                    # astrein: disable=localization-named-placeholder
                     title=_('SNMP-retries (<a href="%s">Rules</a>)')
                     % folder_preserving_link(
                         request,
@@ -592,10 +596,12 @@ class PageAjaxDiagHost(AjaxPage):
             # messages: the tuple carries the SNMPv3 password in plaintext.
             case tuple() as unexpected:
                 raise MKGeneralException(
+                    # astrein: disable=localization-named-placeholder
                     _("Unexpected SNMPv3 credentials shape: tuple of length %d") % len(unexpected)
                 )
             case unexpected:
                 raise MKGeneralException(
+                    # astrein: disable=localization-named-placeholder
                     _("Unexpected SNMPv3 credentials type: %s") % type(unexpected).__name__
                 )
 

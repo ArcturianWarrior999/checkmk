@@ -273,15 +273,18 @@ class AuxTagList:
             builtin_config = BuiltinTagConfig()
             if builtin_config.aux_tag_list.exists(aux_tag.id):
                 raise MKGeneralException(
+                    # astrein: disable=localization-named-placeholder
                     _('You cannot override the built-in auxiliary tag "%s".') % aux_tag.id
                 )
 
             if builtin_config.tag_group_exists(TagGroupID(aux_tag.id)):
                 raise MKGeneralException(
+                    # astrein: disable=localization-named-placeholder
                     _('You cannot override the built-in tag group "%s".') % aux_tag.id
                 )
 
             if aux_tag.id in seen:
+                # astrein: disable=localization-named-placeholder
                 raise MKGeneralException(_('Duplicate tag ID "%s" in auxiliary tags') % aux_tag.id)
 
             seen.add(aux_tag.id)
@@ -509,6 +512,7 @@ class TagConfig:
             )
         if tag_groups_using_aux_tag:
             raise AuxTagInUseError(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "You cannot delete this auxiliary tag. "
                     'It is being used by the following tag groups: "%s"'
@@ -562,6 +566,7 @@ class TagConfig:
                 self.tag_groups[idx] = tag_group
                 break
         else:
+            # astrein: disable=localization-named-placeholder
             raise MKGeneralException(_('Unknown tag group "%s"') % tag_group.id)
         self._validate_group(tag_group)
 
@@ -578,11 +583,13 @@ class TagConfig:
         seen_ids: set[TagID | TagGroupID] = set()
         for tag_group in self.tag_groups:
             if tag_group.id in seen_ids:
+                # astrein: disable=localization-named-placeholder
                 raise MKGeneralException(_('The tag group ID "%s" is used twice.') % tag_group.id)
             seen_ids.add(tag_group.id)
 
         for aux_tag in self.aux_tag_list.get_tags():
             if aux_tag.id in seen_ids:
+                # astrein: disable=localization-named-placeholder
                 raise MKGeneralException(_('The tag ID "%s" is used twice.') % aux_tag.id)
             seen_ids.add(aux_tag.id)
 
@@ -604,22 +611,26 @@ class TagConfig:
 
         if tag_group.id == "site":
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('The tag group "%s" is reserved for internal use.') % tag_group.id
             )
 
         builtin_config = BuiltinTagConfig()
         if builtin_config.tag_group_exists(tag_group.id):
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('You cannot override the built-in tag group "%s".') % tag_group.id
             )
 
         if builtin_config.aux_tag_list.exists(TagID(tag_group.id)):
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('You cannot override the built-in auxiliary tag "%s".') % tag_group.id
             )
 
         if not tag_group.title:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('Please specify a title for your tag group "%s".') % tag_group.id
             )
 
@@ -643,6 +654,7 @@ class TagConfig:
                 for n, x in enumerate(tag_group.tags):
                     if n != nr and x.id == tag.id:
                         raise MKGeneralException(
+                            # astrein: disable=localization-named-placeholder
                             _('Tags IDs must be unique. You\'ve used "%s" twice.') % tag.id
                         )
 

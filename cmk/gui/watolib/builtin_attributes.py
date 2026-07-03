@@ -421,6 +421,7 @@ class HostAttributeSNMPCommunity(ABCHostAttributeValueSpec):
 
     def valuespec(self) -> ValueSpec:
         return SNMPCredentials(
+            # astrein: disable=localization-named-placeholder
             help=_(
                 "Configure the community to be used when contacting this host via SNMPv1/v2 or "
                 "v3. You can also configure the SNMP community using the <a href='%s'>SNMP "
@@ -434,6 +435,7 @@ class HostAttributeSNMPCommunity(ABCHostAttributeValueSpec):
 
     def form_spec(self) -> TransformDataForLegacyFormatOrRecomposeFunction:
         return create_snmp_credentials(
+            # astrein: disable=localization-named-placeholder
             help_text=Help(
                 "Configure the community to be used when contacting this host via SNMPv1/v2 or "
                 "v3. You can also configure the SNMP community using the <a href='%s'>SNMP "
@@ -562,6 +564,7 @@ def validate_host_parents(host: Host) -> None:
         if host.site_id() != parent.site_id():
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The parent '%s' is monitored on site '%s' while the host itself "
                     "is monitored on site '%s'. Both must be monitored on the same site. Remember: The parent/child "

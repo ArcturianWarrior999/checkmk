@@ -105,6 +105,7 @@ class FetchAgentOutputRequest:
         host = folder_tree().host(HostName(host_name))
         if host is None:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Host %s does not exist on remote site %s. This "
                     "may be caused by a failed configuration synchronization. Have a look at "
@@ -162,6 +163,7 @@ class AgentOutputPage(Page, abc.ABC):
         )
         if not host:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _('Host is not managed by Setup. Click <a href="%s">here</a> to go back.')
                 % self._back_url
             )
@@ -224,6 +226,7 @@ class PageFetchAgentOutput(AgentOutputPage):
         html.footer()
 
     def _title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("%s: Download agent output") % self._request.host.name()
 
     def _breadcrumb(self, title: str, user_permissions: UserPermissions) -> Breadcrumb:
@@ -308,6 +311,7 @@ class ABCAutomationFetchAgentOutput(AutomationCommand[FetchAgentOutputRequest]):
 
         ascii_input = request.get_ascii_input("request")
         if ascii_input is None:
+            # astrein: disable=localization-named-placeholder
             raise MKUserError("request", _('The parameter "%s" is missing.') % "request")
         return FetchAgentOutputRequest.deserialize(
             ast.literal_eval(ascii_input),
@@ -341,6 +345,7 @@ def start_fetch_agent_job(api_request: FetchAgentOutputRequest) -> None:
                 ),
             ),
             InitialStatusArgs(
+                # astrein: disable=localization-named-placeholder
                 title=_("Fetching %s of %s / %s")
                 % (
                     api_request.agent_type,
@@ -416,6 +421,7 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
         debug: bool,
         timeout: int,
     ) -> None:
+        # astrein: disable=localization-named-placeholder
         job_interface.send_progress_update(_("Fetching '%s'...") % self._agent_type)
 
         agent_output_result = get_agent_output(
@@ -428,6 +434,7 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
 
         if not agent_output_result.success:
             job_interface.send_progress_update(
+                # astrein: disable=localization-named-placeholder
                 _("Failed: %s") % agent_output_result.service_details
             )
             # Specifically catch the phrase used in the job timeout message.
@@ -441,6 +448,7 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
                     result = (
                         _("Background job timed out due to the global setting ")
                         + f"'<a href=\"{url}\">{global_setting_name}</a>'. "
+                        # astrein: disable=localization-named-placeholder
                         + _("%s Click on the icon to review.")
                         % HTMLGenerator.render_icon_button(
                             url=url,
@@ -473,6 +481,7 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
 
         job_interface.send_progress_update("Job finished.")
         job_interface.send_result_message(
+            # astrein: disable=localization-named-placeholder
             _("%s Click on the icon to download the agent output.")
             % HTMLGenerator.render_icon_button(
                 url=download_url,

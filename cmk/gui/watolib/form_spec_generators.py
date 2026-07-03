@@ -135,6 +135,7 @@ def create_host_attributes_selection(
             attribute_choices.append(
                 CascadingSingleChoiceElementExtended(
                     name=attr.name(),
+                    # astrein: disable=localization-named-placeholder
                     title=Title("%s: %s") % (topic_title, attr.title()),
                     parameter_form=form_spec,
                 )

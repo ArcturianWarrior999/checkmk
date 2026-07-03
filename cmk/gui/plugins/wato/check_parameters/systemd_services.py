@@ -100,6 +100,7 @@ def _valuespec_discovery_systemd_units_host_labels() -> list[tuple[str, ValueSpe
                 True,
                 title=_("Automatic generation of host labels"),
                 totext=_("active"),
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     "Create host labels for each discovered systemd service in the following"
                     " format %r"

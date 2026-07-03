@@ -208,6 +208,7 @@ def configure_services_to_monitor() -> QuickSetupStage:
 class _GCERecapMessage:
     @staticmethod
     def _cre_message() -> str:
+        # astrein: disable=localization-named-placeholder
         return _(
             "Hosts for virtual machines need to be created manually, please check the %s."
         ) % HTMLWriter.render_a(

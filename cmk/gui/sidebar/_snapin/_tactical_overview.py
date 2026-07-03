@@ -541,8 +541,10 @@ class TacticalOverviewSnapin(CustomizableSidebarSnapin):
     ) -> None:
         html.open_div(class_="spacertop")
         html.open_div(class_=css_class)
+        # astrein: disable=localization-named-placeholder
         message_template = ungettext("%d site is %s.", "%d sites are %s.", len(site_ids))
         message = message_template % (len(site_ids), site_status)
+        # astrein: disable=localization-named-placeholder
         tooltip_template = ungettext(
             "Associated hosts, services and events are not included "
             "in the Tactical Overview. The %s site is %s.",

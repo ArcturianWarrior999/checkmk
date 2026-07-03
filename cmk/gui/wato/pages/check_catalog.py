@@ -597,6 +597,7 @@ class ModeCheckManPage(WatoMode):
         else:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("Could not detect type of manual page: %s. Maybe the check is missing ")
                 % self._check_plugin_name,
             )

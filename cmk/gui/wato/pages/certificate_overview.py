@@ -130,6 +130,7 @@ class ModeCertificateOverview(WatoMode):
     def page(self, config: Config) -> None:
         html.div(
             HTML.without_escaping(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "This page provides a comprehensive overview of the certificates Checkmk uses internally. "
                     "Trusted CAs for TLS are managed in the <a href='%s'>settings</a>."

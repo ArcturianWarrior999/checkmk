@@ -105,6 +105,7 @@ class SidebarSnapinCMAWebconf(SidebarSnapin):
         )
 
         if completed_process.stderr:
+            # astrein: disable=localization-named-placeholder
             html.show_error(_("Failed to render navigation: %s") % completed_process.stderr)
             return []
 

@@ -55,6 +55,7 @@ class TemperatureUnitUserAttribute(UserAttribute):
         return Alternative(
             title=_("Temperature unit"),
             orientation="horizontal",
+            # astrein: disable=localization-named-placeholder
             help=_(
                 "Set the temperature unit used for graphs and Perf-O-Meters. The default unit can be "
                 "configured <a href='%s'>here</a>. Note that this setting does not affect the "

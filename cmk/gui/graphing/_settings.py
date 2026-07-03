@@ -33,6 +33,7 @@ def _valuespec(context: GlobalSettingsContext) -> ListOf[dict[str, object]]:
         ),
         title=_("Custom graph time ranges"),
         movable=True,
+        # astrein: disable=localization-named-placeholder
         totext=_("%d time ranges"),
         default_value=[dict(graph_range) for graph_range in context.configured_graph_timeranges],
     )

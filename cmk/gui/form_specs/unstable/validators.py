@@ -23,6 +23,7 @@ class EnforceSuffix:
         suffix: str,
         *,
         case: typing.Literal["ignore", "sensitive"],
+        # astrein: disable=localization-named-placeholder
         error_msg: Message = Message("Does not end with %s"),
     ) -> None:
         self.suffix = suffix
@@ -140,6 +141,7 @@ class HostAddressList:
                     try:
                         re.compile(hostname[1:])
                     except re.error as e:
+                        # astrein: disable=localization-named-placeholder
                         raise ValidationError(Message("Invalid regex pattern: %s") % str(e))
                 else:
                     try:

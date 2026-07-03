@@ -74,6 +74,7 @@ class ABCEventsMode[T_EventSpec: EventRule | dict](WatoMode, abc.ABC):
                 ListChoice(
                     title=_("Match host event type"),
                     help=(
+                        # astrein: disable=localization-named-placeholder
                         _(
                             "Select the host event types and transitions this rule should handle.<br>"
                             "Note: If you activate this option and do <b>not</b> also specify service event "
@@ -95,6 +96,7 @@ class ABCEventsMode[T_EventSpec: EventRule | dict](WatoMode, abc.ABC):
                 ListChoice(
                     title=_("Match service event type"),
                     help=(
+                        # astrein: disable=localization-named-placeholder
                         _(
                             "Select the service event types and transitions this rule should handle.<br>"
                             "Note: If you activate this option and do <b>not</b> also specify host event "

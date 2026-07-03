@@ -271,6 +271,7 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         )
 
     def _new_button_label(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Add %s") % self._mode_type.name_singular()
 
     def action(self, config: Config) -> ActionResult:
@@ -292,12 +293,15 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         ident = request.get_ascii_input("_delete")
         if ident not in entries:
             raise MKUserError(
-                "_delete", _("This %s does not exist.") % self._mode_type.name_singular()
+                "_delete",
+                # astrein: disable=localization-named-placeholder
+                _("This %s does not exist.") % self._mode_type.name_singular(),
             )
 
         if ident not in self._store.filter_editable_entries(entries):
             raise MKUserError(
                 "_delete",
+                # astrein: disable=localization-named-placeholder
                 _("You are not allowed to delete this %s.") % self._mode_type.name_singular(),
             )
 
@@ -306,12 +310,14 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         entry = entries.pop(ident)
         self._add_change(
             action="delete",
+            # astrein: disable=localization-named-placeholder
             text=_("Removed the %s '%s'") % (self._mode_type.name_singular(), ident),
             affected_sites=self._mode_type.affected_sites(entry),
             pending_changes=_pending_changes(config, omd_site(), user.id),
         )
         self._store.save(entries, pprint_value=config.wato_pprint_config)
 
+        # astrein: disable=localization-named-placeholder
         flash(_("The %s has been deleted.") % self._mode_type.name_singular())
         return redirect(mode_url(self._mode_type.list_mode_name()))
 
@@ -319,6 +325,7 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         """Override this to implement custom validations"""
 
     def _delete_confirm_title(self, nr: int) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Delete %s #%d") % (self._mode_type.name_singular(), nr)
 
     def _delete_confirm_message(self) -> str:
@@ -359,6 +366,7 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         )
         html.icon_button(
             edit_url,
+            # astrein: disable=localization-named-placeholder
             _("Edit this %s") % self._mode_type.name_singular(),
             StaticIcon(IconNames.edit),
         )
@@ -372,6 +380,7 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         )
         html.icon_button(
             clone_url,
+            # astrein: disable=localization-named-placeholder
             _("Clone this %s") % self._mode_type.name_singular(),
             StaticIcon(IconNames.clone),
         )
@@ -394,10 +403,12 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
             title=self._delete_confirm_title(nr),
             suffix=entry["title"],
             message=confirm_delete,
+            # astrein: disable=localization-named-placeholder
             post_confirm_waiting_text=_("Deleting %s...") % self._mode_type.name_singular(),
         )
         html.icon_button(
             delete_url,
+            # astrein: disable=localization-named-placeholder
             _("Delete this %s") % self._mode_type.name_singular(),
             StaticIcon(IconNames.delete),
         )
@@ -440,7 +451,9 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
                 entry = self._store.filter_editable_entries(self._store.load_for_reading())[ident]
             except KeyError:
                 raise MKUserError(
-                    "ident", _("This %s does not exist.") % self._mode_type.name_singular()
+                    "ident",
+                    # astrein: disable=localization-named-placeholder
+                    _("This %s does not exist.") % self._mode_type.name_singular(),
                 )
 
             self._new = False
@@ -454,7 +467,9 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
                 entry = self._store.filter_editable_entries(self._store.load_for_reading())[clone]
             except KeyError:
                 raise MKUserError(
-                    "clone", _("This %s does not exist.") % self._mode_type.name_singular()
+                    "clone",
+                    # astrein: disable=localization-named-placeholder
+                    _("This %s does not exist.") % self._mode_type.name_singular(),
                 )
 
             self._clone = self._default_id()
@@ -472,7 +487,9 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
 
     def title(self) -> str:
         if self._new:
+            # astrein: disable=localization-named-placeholder
             return _("Add %s") % self._mode_type.name_singular()
+        # astrein: disable=localization-named-placeholder
         return _("Edit %s: %s") % (self._mode_type.name_singular(), self._entry["title"])
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -489,6 +506,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         individual_keys = individual_elements.keys()
         headers: Headers = [
             (_("General properties"), list(general_keys)),
+            # astrein: disable=localization-named-placeholder
             (_("%s properties") % self._mode_type.name_singular().title(), list(individual_keys)),
         ]
         return Dict2CatalogConverter.build_from_dictionary(
@@ -523,6 +541,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
             show_more_keys=["docu_url"],
             headers=[
                 (_("General properties"), general_keys),
+                # astrein: disable=localization-named-placeholder
                 (_("%s properties") % self._mode_type.name_singular().title(), individual_keys),
             ],
             render="form",
@@ -570,6 +589,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
                     "disabled",
                     Checkbox(
                         title=_("Configuration activation"),
+                        # astrein: disable=localization-named-placeholder
                         help=_(
                             "Selecting this option will disable the %s, but "
                             "it will remain in the configuration."
@@ -589,6 +609,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
                     "title",
                     TextInput(
                         title=_("Title"),
+                        # astrein: disable=localization-named-placeholder
                         help=_("Name your %s for easy recognition.")
                         % (self._mode_type.name_singular()),
                         allow_empty=False,
@@ -653,6 +674,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         elements["title"] = form_specs.DictElement(
             parameter_form=form_specs.String(
                 title=Title("Title"),
+                # astrein: disable=localization-named-placeholder
                 help_text=Help("Name your %s for easy recognition.")
                 % self._mode_type.name_singular(),
                 custom_validate=(
@@ -701,6 +723,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
             elements["disabled"] = form_specs.DictElement(
                 parameter_form=form_specs.BooleanChoice(
                     title=Title("Configuration activation"),
+                    # astrein: disable=localization-named-placeholder
                     help_text=Help(
                         "Selecting this option will disable the %s, but "
                         "it will remain in the configuration."
@@ -795,7 +818,9 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
 
         if not self._new and self._ident not in self._store.filter_editable_entries(entries):
             raise MKUserError(
-                "ident", _("You are not allowed to edit this %s.") % self._mode_type.name_singular()
+                "ident",
+                # astrein: disable=localization-named-placeholder
+                _("You are not allowed to edit this %s.") % self._mode_type.name_singular(),
             )
 
         pending_changes = _pending_changes(config, omd_site(), user.id)
@@ -803,6 +828,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
             entries[self._ident] = self._entry
             self._add_change(
                 action="add",
+                # astrein: disable=localization-named-placeholder
                 text=_("Added the %s '%s'") % (self._mode_type.name_singular(), self._ident),
                 affected_sites=self._mode_type.affected_sites(self._entry),
                 pending_changes=pending_changes,
@@ -821,6 +847,7 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
 
             self._add_change(
                 action="edit",
+                # astrein: disable=localization-named-placeholder
                 text=_("Edited the %s '%s'") % (self._mode_type.name_singular(), self._ident),
                 affected_sites=affected_sites,
                 pending_changes=pending_changes,

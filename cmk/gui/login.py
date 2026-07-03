@@ -425,6 +425,7 @@ def _show_remaining_trial_time(remaining_trial_time: RemainingTrialTime) -> None
     html.open_div(class_="trial_expiration_info" + (" warning" if remaining_days < 8 else ""))
     html.span(
         (
+            # astrein: disable=localization-named-placeholder
             _("%d days") % remaining_days
             if remaining_days > 1
             else "%d " % remaining_hours + ungettext("hour", "hours", remaining_hours)

@@ -26,6 +26,7 @@ def _parameter_form() -> Dictionary:
                     level_direction=LevelDirection.UPPER,
                     form_spec_template=Percentage(),
                     prefill_fixed_levels=DefaultValue(value=(60, 80)),
+                    # astrein: disable=localization-named-placeholder
                     help_text=Help(
                         # xgettext: no-python-format
                         "The device utilization data reported to the Meraki "

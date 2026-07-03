@@ -280,9 +280,11 @@ def add_summary_error_message(
     )
 
     msg = (
+        # astrein: disable=localization-named-placeholder
         _("Stages %s contain invalid form data. Please correct them and try again.")
         % ", ".join(str(index) for index in normalized_faulty_stage_numbers)
         if len(normalized_faulty_stage_numbers) > 1
+        # astrein: disable=localization-named-placeholder
         else _("Stage %s contains invalid form data. Please correct them and try again.")
         % normalized_faulty_stage_numbers[0]
     )

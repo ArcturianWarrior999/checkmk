@@ -593,6 +593,7 @@ def _render_time_range_selection(
                     artwork_or_errors.annotations,
                     expandable_legend_appearance,
                 ),
+                # astrein: disable=localization-named-placeholder
                 title=_("Change graph time range to: %s") % timerange_attrs["title"],
             )
         )
@@ -620,6 +621,7 @@ def _render_graph_content_html(
     if artwork_or_errors.errors:
         if url := render_state.specification.url():
             output = HTMLWriter.render_div(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Cannot render complete graph. See graph '<a href='%s'>%s</a>' for further details."
                 )
@@ -639,6 +641,7 @@ def _render_graph_content_html(
     if show_limits_if_reached and artwork_or_errors.graph_metric_limits_reached:
         if url := render_state.specification.url():
             output += HTMLWriter.render_div(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The result of your query hit the maximum number of %s time series."
                     " Please narrow down your query."
@@ -656,6 +659,7 @@ def _render_graph_content_html(
             )
         else:
             output += HTMLWriter.render_div(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The result of your query hit the maximum number of %s time series."
                     " Please narrow down your query."
@@ -884,6 +888,7 @@ def _compute_legend_titles(
         if consolidation_function is None or step == 60:
             return ""
         return (
+            # astrein: disable=localization-named-placeholder
             _(
                 'This graph is based on data consolidated with the function "%s". The '
                 'values in this column are the "%s" values of the "%s" values '
@@ -1321,6 +1326,7 @@ def render_graph_html(
     )
 
     if artwork_or_errors.errors:
+        # astrein: disable=localization-named-placeholder
         error_msg = _(
             "Error while querying the following metrics: %s."
             "<br>Last error message: %s."
@@ -1334,6 +1340,7 @@ def render_graph_html(
 
     if artwork_or_errors.graph_metric_limits_reached:
         if show_titles_if_limit_reached:
+            # astrein: disable=localization-named-placeholder
             warning_msg = _(
                 "The result of your query hit the maximum number of %s time series."
                 " Please narrow down your queries for the following metrics: %s"
@@ -1348,6 +1355,7 @@ def render_graph_html(
                 ),
             )
         else:
+            # astrein: disable=localization-named-placeholder
             warning_msg = _(
                 "The result of your query hit the maximum number of %s time series."
                 " Please narrow down your query."

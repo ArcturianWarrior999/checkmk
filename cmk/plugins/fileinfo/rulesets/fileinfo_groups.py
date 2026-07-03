@@ -58,6 +58,7 @@ DISPLAYED_MAGNITUDES_DATA = [
 
 
 def _get_fileinfo_groups_help() -> Help:
+    # astrein: disable=localization-named-placeholder
     return Help(
         "The checks <tt>fileinfo</tt> and <tt>sap_hana_fileinfo</tt> monitor "
         "the age and size of a single file. Each file information that is sent "
@@ -199,6 +200,7 @@ def _item_spec_fileinfo_groups() -> String:
     href = "wato.py?mode=edit_ruleset&varname=discovery_parameters%3Afileinfo_groups"
     return String(
         title=Title("File group name"),
+        # astrein: disable=localization-named-placeholder
         help_text=Help(
             "This name must match the name of the group defined "
             'in the <a href="%s">%s</a> rule set.'

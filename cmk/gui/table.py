@@ -393,6 +393,7 @@ class Table:
 
             if limit and num_rows_unlimited > limit:
                 html.show_message(
+                    # astrein: disable=localization-named-placeholder
                     _(
                         "This table is limited to show only %d of %d rows. "
                         'Click <a href="%s">here</a> to disable the limitation.'
@@ -690,6 +691,7 @@ class Table:
                 action_uri = makeuri(request, [("_%s_sort" % table_id, "%d,%d" % (nr, reverse))])
                 html.open_th(
                     class_=css_class,
+                    # astrein: disable=localization-named-placeholder
                     title=_("Sort by %s") % header.title,
                     onclick="location.href='%s'" % action_uri,
                 )

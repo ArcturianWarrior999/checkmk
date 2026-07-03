@@ -13,6 +13,7 @@ def declare_visual_permissions(what: VisualTypeName, what_plural: str) -> None:
     declare_permission(
         "general.edit_" + what,
         _("Customize %(what_plural)s and use them") % {"what_plural": what_plural},
+        # astrein: disable=localization-named-placeholder
         _("Allows to create own %s, customize built-in %s and use them.")
         % (what_plural, what_plural),
         ["admin", "user"],
@@ -84,6 +85,7 @@ def declare_visual_permissions(what: VisualTypeName, what_plural: str) -> None:
     declare_permission(
         "general.force_" + what,
         _("Modify built-in %(what_plural)s") % {"what_plural": what_plural},
+        # astrein: disable=localization-named-placeholder
         _("Make own published %s override built-in %s for all users.") % (what_plural, what_plural),
         ["admin"],
     )

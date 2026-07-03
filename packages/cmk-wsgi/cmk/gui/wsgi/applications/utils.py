@@ -160,11 +160,13 @@ def _ensure_general_access(request: Request) -> None:
         return
 
     reason = [
+        # astrein: disable=localization-named-placeholder
         _("You are not authorized to use the Checkmk GUI. Sorry. You are logged in as <b>%s</b>.")
         % user.id
     ]
 
     if user.role_ids:
+        # astrein: disable=localization-named-placeholder
         reason.append(_("Your roles are <b>%s</b>.") % ", ".join(user.role_ids))
     else:
         reason.append(_("<b>You do not have any roles.</b>"))

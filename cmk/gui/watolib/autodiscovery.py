@@ -59,6 +59,7 @@ class AutodiscoveryBackgroundJob(BackgroundJob):
     def _get_discovery_message_text(
         hostname: str, discovery_result: SingleHostDiscoveryResult
     ) -> str:
+        # astrein: disable=localization-named-placeholder
         return _(
             "Discovery on host %s: %d services (%d added, %d changed, %d removed, %d kept)"
             " and %d host labels (%d added, %d changed, %d removed, %d kept)"

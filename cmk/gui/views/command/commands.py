@@ -558,6 +558,7 @@ def command_clear_modified_attributes_confirm_dialog_additions(
     return (
         HTMLWriter.render_br()
         + HTMLWriter.render_br()
+        # astrein: disable=localization-named-placeholder
         + _("Resets the commands '%s', '%s' and '%s' to the default state")
         % (
             CommandToggleActiveChecks.title,
@@ -704,6 +705,7 @@ def _render_test_notification_tip() -> None:
     html.static_icon(StaticIcon(IconNames.toggle_details))
     html.write_text_permissive(
         " &nbsp; "
+        # astrein: disable=localization-named-placeholder
         + _(
             "If you are looking for a way to test your notification settings, try '%s' in Setup > Test notifications"
         )
@@ -733,6 +735,7 @@ def command_fake_check_result_action(
         pluginoutput = request.get_str_input_mandatory("_fake_output").strip()
 
         if not pluginoutput:
+            # astrein: disable=localization-named-placeholder
             pluginoutput = _("Manually set to %s by %s") % (
                 escaping.escape_attribute(statename),
                 user.id,
@@ -761,7 +764,9 @@ def command_fake_check_result_action(
 CommandFakeCheckResult = Command(
     ident="fake_check_result",
     title=_l("Fake check results"),
+    # astrein: disable=localization-named-placeholder
     confirm_title=lambda: _l("Set fake check result to ‘%s’?") % _get_target_state(),
+    # astrein: disable=localization-named-placeholder
     confirm_button=lambda: _l("Set to '%s'") % _get_target_state(),
     permission=PermissionActionFakeChecks,
     tables=["host", "service"],
@@ -1001,6 +1006,7 @@ def command_acknowledge_render(what: str) -> None:
             "time_value": time_,
             "server_time_text": timezone_utc_offset_str()
             + " "
+            # astrein: disable=localization-named-placeholder
             + _("Server time (currently: %s)")
             % time.strftime("%Y-%m-%d %H:%M", time.localtime(time.time())),
         },
@@ -1040,6 +1046,7 @@ def command_acknowledge_render(what: str) -> None:
         html.render_checkbox(
             "_ack_notify",
             active_config.acknowledge_problems["ack_notify"],
+            # astrein: disable=localization-named-placeholder
             label=_("Notify affected users if %s are in place (send notifications)")
             % _link_to_notification_rules(),
         )
@@ -1157,6 +1164,7 @@ def command_acknowledge_action(
                 commands.append((site, cmd))
 
             dialog_options.affected = HTML.with_escaping(
+                # astrein: disable=localization-named-placeholder
                 _("Affected aggregations: %d") % len(action_rows)
             )
             dialog_options.additions = dialog_options.additions + HTMLWriter.render_p(
@@ -1247,6 +1255,7 @@ def command_remove_acknowledgements_action(
             commands.append((site, cmd))
 
         dialog_options.affected = HTML.with_escaping(
+            # astrein: disable=localization-named-placeholder
             _("Affected aggregations: %d") % len(action_rows)
         )
         dialog_options.additions = dialog_options.additions + HTMLWriter.render_p(
@@ -1489,6 +1498,7 @@ class CommandScheduleDowntimes(Command):
         if cmdtag == "SVC" and not request.var("_down_remove"):
             return [
                 (
+                    # astrein: disable=localization-named-placeholder
                     _("Schedule downtime for %d %s")
                     % (len_rows, ungettext("service", "services", len_rows)),
                     "_do_confirm_service_downtime",
@@ -1570,6 +1580,7 @@ class CommandScheduleDowntimesForm:
                 "time_value": time.strftime("%H:%M"),
                 "server_time_text": timezone_utc_offset_str()
                 + " "
+                # astrein: disable=localization-named-placeholder
                 + _("Server time (currently: %s)")
                 % time.strftime("%Y-%m-%d %H:%M", time.localtime()),
             },
@@ -1785,6 +1796,7 @@ class CommandScheduleDowntimesForm:
             if "aggr_tree" in row:  # BI mode
                 node: CompiledAggrTree = row["aggr_tree"]
                 dialog_options.affected = HTML.with_escaping(
+                    # astrein: disable=localization-named-placeholder
                     _("Affected aggregations: %d") % len(action_rows)
                 )
                 dialog_options.additions = dialog_options.additions + HTMLWriter.render_p(
@@ -1825,6 +1837,7 @@ class CommandScheduleDowntimesForm:
         attributes = HTML.empty()
         if recurring_number_from_html := self.recurring_downtimes.number():
             attributes += HTMLWriter.render_li(
+                # astrein: disable=localization-named-placeholder
                 _("Repeats every %s")
                 % self.recurring_downtimes.choices()[recurring_number_from_html][1]
             )
@@ -1844,6 +1857,7 @@ class CommandScheduleDowntimesForm:
             hours, remaining_seconds = divmod(duration, 3600)
             minutes, _seconds = divmod(remaining_seconds, 60)
             attributes += HTMLWriter.render_li(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Starts if host/service goes DOWN/UNREACH with a max. duration of %d hours and %d %s."
                 )
@@ -1866,6 +1880,7 @@ class CommandScheduleDowntimesForm:
             )
 
         return additions + HTMLWriter.render_p(
+            # astrein: disable=localization-named-placeholder
             _("<u>Info</u>: Downtime also applies to all services of the %s.")
             % ungettext(
                 "host",
@@ -2096,6 +2111,7 @@ def _confirm_dialog_date_and_time_format(timestamp: float, show_timezone: bool =
     'Mon, 01. January 2042 at 01:23 [UTC+01:00]'"""
     local_time = time.localtime(timestamp)
     return (
+        # astrein: disable=localization-named-placeholder
         time.strftime(_("%a, %d. %B %Y at %H:%M"), local_time)
         + (" " + timezone_utc_offset_str(timestamp))
         if show_timezone
@@ -2245,6 +2261,7 @@ def _rm_downtime_from_bi_aggregation(
     # for BI aggregations in the core command logic. Already too much BI logic has bled into this
     # module. So instead, we will generate the options and then patch the values after the fact.
     dialog_options = command.confirm_dialog_options("HOST", row, action_rows)
+    # astrein: disable=localization-named-placeholder
     dialog_options.affected = HTML.with_escaping(_("Affected aggregations: %d") % len(action_rows))
     dialog_options.additions = dialog_options.additions + HTMLWriter.render_p(
         _("Command applies to all nested hosts and services in aggregation.")
@@ -2334,6 +2351,7 @@ def command_remove_comments_confirm_dialog_additions(
     action_rows: Rows,
 ) -> HTML:
     if len(action_rows) > 1:
+        # astrein: disable=localization-named-placeholder
         return HTML.without_escaping(_("Total comments: %d") % len(action_rows))
     return HTML.without_escaping(_("Author: ")) + row["comment_author"]
 

@@ -27,6 +27,7 @@ def _parameter_valuespec_elasticsearch_indices_discovery() -> Dictionary:
                 "grouping",
                 CascadingDropdown(
                     title=_("Grouping of indices"),
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Configure the grouping of indices. Elasticsearch can for example be "
                         "configured to automatically add a timestamp to index names, see "

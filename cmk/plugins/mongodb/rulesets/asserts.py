@@ -22,6 +22,7 @@ def _parameter_valuespec_mongodb_asserts() -> Dictionary:
         elements={
             "%s_assert_rate" % what: DictElement[SimpleLevelsConfigModel[float]](
                 parameter_form=SimpleLevels[float](
+                    # astrein: disable=localization-named-placeholder
                     title=Title("%s rate") % what.title(),
                     level_direction=LevelDirection.UPPER,
                     prefill_fixed_levels=DefaultValue((1.0, 2.0)),

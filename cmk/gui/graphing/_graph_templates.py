@@ -151,6 +151,7 @@ def get_graph_plugin_and_single_metric_choices(
             single_metric_choices.append(
                 GraphPluginChoice(
                     f"METRIC_{metric_name}",
+                    # astrein: disable=localization-named-placeholder
                     _("Metric: %s") % translated_metric.title,
                 )
             )
@@ -208,6 +209,7 @@ def _create_graph_recipe(
     ):
         if len(units) > 1:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _("Cannot create graph with metrics of different units '%s'")
                 % ", ".join(repr(unit) for unit in units)
             )

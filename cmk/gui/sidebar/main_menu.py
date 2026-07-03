@@ -319,6 +319,7 @@ class PageAjaxSidebarGetUnackIncompWerks(AjaxPage):
 
         num_unack_werks = num_unacknowledged_incompatible_werks()
         tooltip_text = (
+            # astrein: disable=localization-named-placeholder
             ungettext(
                 "%d unacknowledged incompatible werk",
                 "%d unacknowledged incompatible werks",
@@ -329,6 +330,7 @@ class PageAjaxSidebarGetUnackIncompWerks(AjaxPage):
 
         return {
             "count": num_unack_werks,
+            # astrein: disable=localization-named-placeholder
             "text": _("%d open incompatible werks") % num_unack_werks,
             "tooltip": tooltip_text,
         }

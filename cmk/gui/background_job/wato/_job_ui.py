@@ -305,6 +305,7 @@ class JobRenderer:
             html.open_td()
             if exceptions:
                 exceptions.append(
+                    # astrein: disable=localization-named-placeholder
                     _("More information can be found in %s") % job_status.logfile_path
                 )
             html.open_div(class_="log_output", id_="exception_log")

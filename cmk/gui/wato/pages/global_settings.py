@@ -348,7 +348,9 @@ class ABCEditGlobalSettingMode(WatoMode):
             self._config_variable = config_variable_registry[self._varname]
         except KeyError:
             raise MKUserError(
-                "varname", _('The global setting "%s" does not exist.') % self._varname
+                "varname",
+                # astrein: disable=localization-named-placeholder
+                _('The global setting "%s" does not exist.') % self._varname,
             )
 
         if not self._may_edit_configvar(self._varname):
@@ -416,6 +418,7 @@ class ABCEditGlobalSettingMode(WatoMode):
                 pass
 
             msg = HTML.with_escaping(
+                # astrein: disable=localization-named-placeholder
                 _("Resetted configuration variable %s to its default.") % self._varname
             )
         else:
@@ -429,6 +432,7 @@ class ABCEditGlobalSettingMode(WatoMode):
 
             self._current_settings[self._varname] = new_value
             msg = HTML.without_escaping(
+                # astrein: disable=localization-named-placeholder
                 _("Changed global configuration variable %s to %s.")
                 % (
                     escaping.escape_attribute(self._varname),
@@ -541,6 +545,7 @@ class ABCEditGlobalSettingMode(WatoMode):
             forms.section(_("Current state"))
             if is_configured_globally:
                 html.write_text_permissive(
+                    # astrein: disable=localization-named-placeholder
                     _('This variable is configured in <a href="%s">Global settings</a>.')
                     % ("wato.py?mode=edit_configvar&varname=%s" % self._varname)
                 )
@@ -589,6 +594,7 @@ class ModeEditGlobals(ABCGlobalSettingsMode):
 
     def title(self) -> str:
         if self._search:
+            # astrein: disable=localization-named-placeholder
             return _("Global settings matching '%s'") % self._search
         return _("Global settings")
 
@@ -645,6 +651,7 @@ class ModeEditGlobals(ABCGlobalSettingsMode):
             self._current_settings[varname] = not self._current_settings[varname]
         else:
             self._current_settings[varname] = not def_value
+        # astrein: disable=localization-named-placeholder
         msg = _("Changed Configuration variable %s to %s.") % (
             varname,
             "on" if self._current_settings[varname] else "off",

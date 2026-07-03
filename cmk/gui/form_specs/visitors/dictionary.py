@@ -83,6 +83,7 @@ class DictionaryVisitor(FormSpecVisitor[DictionaryExtended, _ParsedValueModel, _
         )
         if not isinstance(value, Mapping):
             return InvalidValue[_FallbackModel](
+                # astrein: disable=localization-named-placeholder
                 reason=_("Invalid datatype of value: %s") % type(value),
                 fallback_value=self._compute_default_values(),
             )
@@ -108,6 +109,7 @@ class DictionaryVisitor(FormSpecVisitor[DictionaryExtended, _ParsedValueModel, _
                     # This should never happen, but we handle it gracefully
                     # to avoid breaking the parsing of the form spec.
                     return InvalidValue[_FallbackModel](
+                        # astrein: disable=localization-named-placeholder
                         reason=_("Unexpected dictionary type: %s") % type(raw_value),
                         fallback_value=self._compute_default_values(),
                     )

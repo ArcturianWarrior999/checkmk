@@ -94,6 +94,7 @@ def _parameter_valuespec_memory() -> Dictionary:
                                 ],
                             ),
                             title=_("Levels for free memory"),
+                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 # xgettext: no-python-format
                                 "Keep in mind that if you have 1GB RAM and 1GB Swap you need to "

@@ -400,6 +400,7 @@ def _time_series_math(
     operators = time_series_operators()
     if operator_id not in operators:
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _("Undefined operator '%s' in graph expression")
             % escaping.escape_attribute(operator_id)
         )

@@ -862,6 +862,7 @@ class SiteManagement:
         if site_configuration["socket"][0] == "local" and site_id != omd_site():
             raise MKUserError(
                 "method_sel",
+                # astrein: disable=localization-named-placeholder
                 _(
                     "You can only configure a local site connection for "
                     "the local site. The site IDs ('%s' and '%s') are "

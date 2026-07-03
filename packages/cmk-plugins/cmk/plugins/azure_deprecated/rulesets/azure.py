@@ -304,6 +304,7 @@ def configuration_advanced() -> Mapping[str, DictElement]:
                 # of allowed API requests. At the time of this writing (11/2018)
                 # you can find the number here:
                 # https://docs.microsoft.com/de-de/azure/azure-resource-manager/resource-manager-request-limits
+                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "By default, all resources associated to the configured tenant ID"
                     " will be monitored. "

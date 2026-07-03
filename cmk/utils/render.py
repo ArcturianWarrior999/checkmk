@@ -75,6 +75,7 @@ def date(timestamp: float | None) -> str:
     return time.strftime(
         str(
             # xgettext: no-python-format
+            # astrein: disable=localization-named-placeholder
             _("%Y-%m-%d")
         ),
         time.localtime(timestamp),

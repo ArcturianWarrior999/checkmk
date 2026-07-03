@@ -349,6 +349,7 @@ def show_availability_page(
     if missing_single_infos:
         raise MKUserError(
             None,
+            # astrein: disable=localization-named-placeholder
             _(
                 "Unable to render this availability view, because we miss some required context "
                 "information (%s). Please update the filters on the source view or add the "
@@ -364,6 +365,7 @@ def show_availability_page(
         # with changed logrow_limit = 0, which means no limit
         if has_reached_logrow_limit:
             text = escaping.escape_to_html_permissive(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Your query matched more than %d log entries. "
                     "<b>Note:</b> The number of shown rows does not necessarily reflect the "
@@ -385,6 +387,7 @@ def show_availability_page(
             if only_sites is None or site_id in only_sites
         ]:
             html.show_warning(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The following sites could not be reached, so the shown data is "
                     "incomplete and the computed availability might be incorrect: %s"
@@ -628,6 +631,7 @@ def _render_availability_timeline(
     *,
     table_row_limit: int,
 ) -> None:
+    # astrein: disable=localization-named-placeholder
     html.h3(_("Timeline of %s") % object_title(what, av_entry))
 
     timeline_rows = av_entry["timeline"]
@@ -1110,6 +1114,7 @@ def show_bi_availability(
         # with changed logrow_limit = 0, which means no limit
         if has_reached_logrow_limit:
             text = HTML.with_escaping(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Your query matched more than %d log entries. "
                     "<b>Note:</b> The shown data does not necessarily reflect the "
@@ -1123,6 +1128,7 @@ def show_bi_availability(
 
         if dead_sites:
             html.show_warning(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "The following sites could not be reached, so the shown data is "
                     "incomplete and the computed availability might be incorrect: %s"

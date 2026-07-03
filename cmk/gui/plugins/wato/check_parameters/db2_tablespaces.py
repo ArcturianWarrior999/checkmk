@@ -99,11 +99,13 @@ def db_levels_common() -> list[tuple[str, ValueSpec]]:
                             Percentage(
                                 title=_("Warning if below"),
                                 # xgettext: no-python-format
+                                # astrein: disable=localization-named-placeholder
                                 unit=_("% free"),
                             ),
                             Percentage(
                                 title=_("Critical if below"),
                                 # xgettext: no-python-format
+                                # astrein: disable=localization-named-placeholder
                                 unit=_("% free"),
                             ),
                         ],
@@ -129,11 +131,13 @@ def db_levels_common() -> list[tuple[str, ValueSpec]]:
                                                 Percentage(
                                                     title=_("Warning if below"),
                                                     # xgettext: no-python-format
+                                                    # astrein: disable=localization-named-placeholder
                                                     unit=_("% free"),
                                                 ),
                                                 Percentage(
                                                     title=_("Critical if below"),
                                                     # xgettext: no-python-format
+                                                    # astrein: disable=localization-named-placeholder
                                                     unit=_("% free"),
                                                 ),
                                             ],
@@ -180,6 +184,7 @@ def db_levels_common() -> list[tuple[str, ValueSpec]]:
                     Percentage(
                         title=_("Maximum warning level"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% free"),
                         allow_int=True,
                         default_value=60.0,
@@ -187,6 +192,7 @@ def db_levels_common() -> list[tuple[str, ValueSpec]]:
                     Percentage(
                         title=_("Maximum critical level"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% free"),
                         allow_int=True,
                         default_value=50.0,

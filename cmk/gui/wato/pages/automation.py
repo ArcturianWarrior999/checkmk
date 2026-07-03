@@ -206,6 +206,7 @@ class PageAutomation(AjaxPage):
             try:
                 automation_command = automation_command_registry[self._command]
             except KeyError:
+                # astrein: disable=localization-named-placeholder
                 raise MKGeneralException(_("Invalid automation command: %s.") % self._command)
             self._execute_automation_command(automation_command, config)
 
@@ -282,6 +283,7 @@ class PageAutomation(AjaxPage):
             logger.exception("error pushing profile")
             if debug:
                 raise
+            # astrein: disable=localization-named-placeholder
             response.set_data(_("Internal automation error: %s\n%s") % (e, traceback.format_exc()))
 
     def _automation_push_profile(
@@ -337,6 +339,7 @@ class PageAutomation(AjaxPage):
             logger.exception("error executing automation command")
             if config.debug:
                 raise
+            # astrein: disable=localization-named-placeholder
             response.set_data(_("Internal automation error: %s\n%s") % (e, traceback.format_exc()))
 
 

@@ -1462,6 +1462,7 @@ class CheckmkConfigFilesDiagnosticsElement(ABCCheckmkFilesDiagnosticsElement):
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Configuration files ('*.mk' or '*.conf') from etc/checkmk: %s") % ", ".join(
             self.rel_checkmk_files
         )
@@ -1481,6 +1482,7 @@ class CheckmkLogFilesDiagnosticsElement(ABCCheckmkFilesDiagnosticsElement):
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Log files ('*.log' or '*.state') from var/log: %s") % ", ".join(
             self.rel_checkmk_files
         )
@@ -1505,11 +1507,13 @@ class CheckmkDirectoryDiagnosticsElement(ABCDiagnosticsElement):
     @override
     @property
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Files in %s") % self.directory
 
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Configuration files from %s") % str(self.directory)
 
     @override
@@ -1541,11 +1545,13 @@ class CheckmkCommandDiagnosticsElementTextDump(ABCDiagnosticsElementTextDump):
     @override
     @property
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Command %s") % self._command_id
 
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Output of %s") % " ".join(self._command)
 
     @override
@@ -1586,6 +1592,7 @@ class CheckmkCoreFilesDiagnosticsElement(ABCCheckmkFilesDiagnosticsElement):
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Core files (config, state and history) from var/check_mk/core: %s") % ", ".join(
             self.rel_checkmk_files
         )
@@ -1605,6 +1612,7 @@ class CheckmkLicensingFilesDiagnosticsElement(ABCCheckmkFilesDiagnosticsElement)
     @override
     @property
     def description(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _(
             "Licensing files (data, config and logs) from var/check_mk/licensing, etc/check_mk/multisite.d and var/log: %s"
         ) % ", ".join(self.rel_checkmk_files)

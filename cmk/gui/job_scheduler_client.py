@@ -41,6 +41,7 @@ class JobSchedulerClient:
         except requests.ConnectionError as e:
             return result.Error(
                 StartupError(
+                    # astrein: disable=localization-named-placeholder
                     _(
                         "Could not connect to ui-job-scheduler. "
                         "Possibly the service <tt>ui-job-scheduler</tt> is not started, "
@@ -60,6 +61,7 @@ class JobSchedulerClient:
 
         if response.status_code != 200:
             return result.Error(
+                # astrein: disable=localization-named-placeholder
                 StartupError(_("Got response: HTTP %s: %s") % (response.status_code, response.text))
             )
 

@@ -272,6 +272,7 @@ def _process_icons(
                 IconEntry(
                     sort_index=icon.sort_index,
                     icon_name=StaticIcon(IconNames.alert),
+                    # astrein: disable=localization-named-placeholder
                     title=_("Exception in icon '%s': %s")
                     % (
                         icon_id,
@@ -307,6 +308,7 @@ def _process_icon(
         yield IconEntry(
             sort_index=icon.sort_index,
             icon_name=StaticIcon(IconNames.alert),
+            # astrein: disable=localization-named-placeholder
             title=_("Exception in icon '%s': %s") % (icon_id, traceback.format_exc()),
         )
 

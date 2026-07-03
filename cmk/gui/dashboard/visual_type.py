@@ -221,6 +221,7 @@ class VisualTypeDashboards(VisualType):
             )
 
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _("Graph specification '%s' is insufficient for dashboard.")
             % graph_specification.graph_type
         )

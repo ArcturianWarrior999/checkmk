@@ -293,6 +293,7 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"edit-{connection_type}-connection",
+                # astrein: disable=localization-named-placeholder
                 text=_("Changed %s connection %s") % (connection_type.upper(), connection_id),
                 domains=[d.ident() for d in domains],
             ),
@@ -312,6 +313,7 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"new-{connection_type}-connection",
+                # astrein: disable=localization-named-placeholder
                 text=_("Created new %s connection") % connection_type.upper(),
                 domains=[d.ident() for d in domains],
             ),
@@ -332,6 +334,7 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"delete-{connection_type}-connection",
+                # astrein: disable=localization-named-placeholder
                 text=_("Deleted %s connection %s") % (connection_type.upper(), connection_id),
                 domains=[d.ident() for d in domains],
             ),
@@ -353,6 +356,7 @@ class UserConnectionConfigFile(WatoListConfigFile[ConfigurableUserConnectionSpec
         pending_changes.add(
             Change(
                 action_name=f"move-{connection_type}-connection",
+                # astrein: disable=localization-named-placeholder
                 text=_("Changed position of connection %s to %d") % (connection_id, to_index),
                 domains=[d.ident() for d in domains],
             ),

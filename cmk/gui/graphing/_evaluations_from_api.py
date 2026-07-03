@@ -126,6 +126,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Warning (lower) of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),
@@ -158,6 +159,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Critical (lower) of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),
@@ -190,6 +192,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Warning of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),
@@ -222,6 +225,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Critical of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),
@@ -254,6 +258,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Minimum of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),
@@ -286,6 +291,7 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
+                        # astrein: disable=localization-named-placeholder
                         _("Maximum of %s")
                         % get_metric_spec(quantity.metric_name, registered_metrics).title
                     ),

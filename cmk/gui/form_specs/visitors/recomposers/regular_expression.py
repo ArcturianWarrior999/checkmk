@@ -65,6 +65,7 @@ def recompose(form_spec: FormSpec[str]) -> String:
             re.compile(value)
 
         except re.error:
+            # astrein: disable=localization-named-placeholder
             raise ValidationError(Message("Invalid regular expression: %s") % value)
 
         return value

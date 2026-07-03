@@ -304,6 +304,7 @@ class NotificationMethod:
         if (bulk := self.notification_bulking.to_mk_file_format()) is not None:
             if not self._bulking_allowed():
                 raise BulkNotAllowedException(
+                    # astrein: disable=localization-named-placeholder
                     _("The notification script %s does not allow building bulks.")
                     % self.notify_plugin.plugin_name
                 )

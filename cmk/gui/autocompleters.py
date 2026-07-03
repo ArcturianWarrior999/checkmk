@@ -53,14 +53,17 @@ def register(page_registry: PageRegistry) -> None:
 def validate_autocompleter_data(api_request: dict[str, object]) -> None:
     params = api_request.get("params")
     if params is None:
+        # astrein: disable=localization-named-placeholder
         raise MKUserError("params", _('You need to set the "%s" parameter.') % "params")
 
     value = api_request.get("value")
     if value is None:
+        # astrein: disable=localization-named-placeholder
         raise MKUserError("params", _('You need to set the "%s" parameter.') % "value")
 
     ident = api_request.get("ident")
     if ident is None:
+        # astrein: disable=localization-named-placeholder
         raise MKUserError("ident", _('You need to set the "%s" parameter.') % "ident")
 
 

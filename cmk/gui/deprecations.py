@@ -224,6 +224,7 @@ class _ACTestResultProblem:
             html_code += HTMLWriter.render_p(recommendation)
 
         html_code += HTMLWriter.render_p(
+            # astrein: disable=localization-named-placeholder
             _("Affected sites: %s") % ", ".join(sorted(self._ac_test_results))
         )
         html_code += HTMLWriter.render_p(_("Details:"))
@@ -258,6 +259,7 @@ class _ACTestResultProblem:
 class _ACTestResultProblemMKP(_ACTestResultProblem):
     @override
     def _create_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Deprecated extension package: %s") % self.ident
 
     @override
@@ -280,6 +282,7 @@ class _ACTestResultProblemMKP(_ACTestResultProblem):
 class _ACTestResultProblemFile(_ACTestResultProblem):
     @override
     def _create_title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Deprecated plug-in: %s") % self.ident
 
     @override
@@ -327,6 +330,7 @@ class _ACTestResultProblemUnsorted(_ACTestResultProblem):
     def _create_recommendation(self) -> HTML | str:
         if self._is_unknown_check_params_rule_set_problem:
             return HTMLWriter.render_p(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "This configuration has no effect in the current installation. It may be"
                     " associated with an older version of Checkmk or an unused extension package,"

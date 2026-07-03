@@ -51,10 +51,13 @@ class LengthInRange:
                         "configured, otherwise this validator is meaningless."
                     )
                 )
+            # astrein: disable=localization-named-placeholder
             return Message("The maximum allowed length is %s.") % str(max_)
 
         if max_ is None:
+            # astrein: disable=localization-named-placeholder
             return Message("The minimum allowed length is %s.") % str(min_)
+        # astrein: disable=localization-named-placeholder
         return Message("Allowed lengths range from %s to %s.") % (str(min_), str(max_))
 
     def __call__(self, value: Sized) -> None:
@@ -88,10 +91,13 @@ class NumberInRange:
                         "configured, otherwise this validator is meaningless."
                     )
                 )
+            # astrein: disable=localization-named-placeholder
             return Message("The maximum allowed value is %s.") % str(max_)
 
         if max_ is None:
+            # astrein: disable=localization-named-placeholder
             return Message("The minimum allowed value is %s.") % str(min_)
+        # astrein: disable=localization-named-placeholder
         return Message("Allowed values range from %s to %s.") % (str(min_), str(max_))
 
     def __call__(self, value: int | float) -> None:
@@ -125,10 +131,13 @@ class RegexGroupsInRange:
                         " otherwise this validator is meaningless."
                     )
                 )
+            # astrein: disable=localization-named-placeholder
             return Message("The maximum allowed number of regex groups is %s.") % str(max_)
 
         if max_ is None:
+            # astrein: disable=localization-named-placeholder
             return Message("The minimum allowed number of regex groups is %s.") % str(min_)
+        # astrein: disable=localization-named-placeholder
         return Message("Allowed number of regex groups ranges from %s to %s.") % (
             str(min_),
             str(max_),
@@ -148,6 +157,7 @@ class MatchRegex:
     def __init__(self, regex: re.Pattern[str] | str, error_msg: Message | None = None) -> None:
         self.regex: Final = re.compile(regex) if isinstance(regex, str) else regex
         self.error_msg: Final = error_msg or (
+            # astrein: disable=localization-named-placeholder
             Message("Your input does not match the required format '%s'.") % self.regex.pattern
         )
 
@@ -205,6 +215,7 @@ class Url:
     def __init__(self, protocols: Sequence[UrlProtocol], error_msg: Message | None = None) -> None:
         self.protocols: Final = protocols
         self.error_msg: Final = error_msg or (
+            # astrein: disable=localization-named-placeholder
             Message("Your input is not a valid URL conforming to any allowed protocols ('%s').")
             % str(", ".join(self.protocols))
         )
@@ -213,6 +224,7 @@ class Url:
         try:
             parts = urlparse(value)
         except ValueError as exc:
+            # astrein: disable=localization-named-placeholder
             raise ValidationError(Message("%s") % str(exc))
 
         if not parts.scheme or not parts.netloc or parts.scheme not in self.protocols:

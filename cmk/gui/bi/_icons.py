@@ -55,6 +55,7 @@ def _render_aggregations_icon(
         url = makeuri_contextless(request, urivars, filename="view.py")
         return (
             StaticIcon(IconNames.aggr),
+            # astrein: disable=localization-named-placeholder
             _("BI aggregations containing this %s")
             % (what == "host" and _("Host") or _("Service")),
             url,

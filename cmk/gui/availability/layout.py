@@ -435,6 +435,7 @@ def layout_timeline(
     def chaos_period(
         chaos_begin: AVTimeStamp, chaos_end: AVTimeStamp, chaos_count: int, chaos_width: float
     ) -> AVTimelineSpan:
+        # astrein: disable=localization-named-placeholder
         title = _("%d chaotic state changes from %s until %s (%s)") % (
             chaos_count,
             render_date(chaos_begin),
@@ -468,6 +469,7 @@ def layout_timeline(
             if sid != state_id:
                 continue
 
+            # astrein: disable=localization-named-placeholder
             title = _("From %s until %s (%s) %s") % (
                 from_text,
                 until_text,

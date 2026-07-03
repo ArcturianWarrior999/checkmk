@@ -236,6 +236,7 @@ class ABCBIMode(WatoMode):
     def verify_pack_permission(self, bi_pack: BIAggregationPack) -> None:
         if not is_contact_for_pack(bi_pack):
             raise MKAuthException(
+                # astrein: disable=localization-named-placeholder
                 _("You have no permission for changes in this BI pack %s.") % bi_pack.title
             )
 
@@ -333,6 +334,7 @@ class ModeBIEditPack(ABCBIMode):
 
     def title(self) -> str:
         if self._bi_pack:
+            # astrein: disable=localization-named-placeholder
             return _("Edit BI pack %s") % self.bi_pack.title
         return _("Add BI pack")
 
@@ -353,6 +355,7 @@ class ModeBIEditPack(ABCBIMode):
                 pending_changes.add(
                     Change(
                         action_name="bi-edit-pack",
+                        # astrein: disable=localization-named-placeholder
                         text=_("Modified BI pack %s") % self.bi_pack.id,
                         domains=[GUI],
                     ),
@@ -364,6 +367,7 @@ class ModeBIEditPack(ABCBIMode):
                 pending_changes.add(
                     Change(
                         action_name="bi-new-pack",
+                        # astrein: disable=localization-named-placeholder
                         text=_("Added new BI pack %s") % vs_config["id"],
                         domains=[GUI],
                     ),
@@ -573,6 +577,7 @@ class ModeBIPacks(ABCBIMode):
         if pack.num_rules() > 0:
             raise MKUserError(
                 None,
+                # astrein: disable=localization-named-placeholder
                 _("You cannot delete this pack. It contains <b>%d</b> rules.") % pack.num_rules(),
             )
 
@@ -648,8 +653,10 @@ class ModeBIPacks(ABCBIMode):
 
 def _get_pack_confirm_message(pack: BIAggregationPack) -> str:
     return str(
+        # astrein: disable=localization-named-placeholder
         _("ID: %s") % pack.id
         + "<br>"
+        # astrein: disable=localization-named-placeholder
         + _("Contains: %d %s and %d %s")
         % (
             num_aggregations := pack.num_aggregations(),
@@ -1250,6 +1257,7 @@ class ModeBIEditRule(ABCBIMode):
             assert existing_bi_rule is not None
             raise MKUserError(
                 "rule_p_id",
+                # astrein: disable=localization-named-placeholder
                 _(
                     "There is already a rule with the ID <b>%s</b>. "
                     "It is in the pack <b>%s</b> and as the title <b>%s</b>"
@@ -1271,6 +1279,7 @@ class ModeBIEditRule(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-new-rule",
+                    # astrein: disable=localization-named-placeholder
                     text=_("Add BI rule %s") % new_bi_rule.id,
                     domains=[GUI],
                 ),
@@ -1280,6 +1289,7 @@ class ModeBIEditRule(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-edit-rule",
+                    # astrein: disable=localization-named-placeholder
                     text=_("Modified BI rule %s") % new_bi_rule.id,
                     domains=[GUI],
                 ),
@@ -1361,6 +1371,7 @@ class ModeBIEditRule(ABCBIMode):
         if rules_without_permissions:
             message = ", ".join(
                 [
+                    # astrein: disable=localization-named-placeholder
                     _("BI rules %s from BI pack '%s'")
                     % (", ".join(["'%s'" % ruleid for ruleid in ruleids]), title)
                     for (_nodeid, title), ruleids in rules_without_permissions.items()
@@ -1418,6 +1429,7 @@ class ModeBIEditRule(ABCBIMode):
                 TextInput(
                     title=_("Documentation URL"),
                     help=HTML.without_escaping(
+                        # astrein: disable=localization-named-placeholder
                         _(
                             "An optional URL pointing to the documentation or any other page. It will be "
                             "displayed as an icon %s and opens "
@@ -1507,6 +1519,7 @@ class ModeBIEditRule(ABCBIMode):
                         ]
                     ),
                     title=_("Display additional messages"),
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         # xgettext: no-python-format
                         "This option allows you to display an additional, freely configurable text, to the rule outcome, "
@@ -1796,6 +1809,7 @@ class BIModeEditAggregation(ABCBIMode):
 
     def title(self) -> str:
         if self._clone:
+            # astrein: disable=localization-named-placeholder
             return _("Clone aggregation %s") % request.get_str_input_mandatory("clone")
         if self._new:
             return _("Add aggregation")
@@ -1871,6 +1885,7 @@ class BIModeEditAggregation(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-new-aggregation",
+                    # astrein: disable=localization-named-placeholder
                     text=_("Add new BI aggregation %s") % new_bi_aggregation.id,
                     domains=[GUI],
                 ),
@@ -1880,6 +1895,7 @@ class BIModeEditAggregation(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-edit-aggregation",
+                    # astrein: disable=localization-named-placeholder
                     text=_("Modified BI aggregation %s") % (new_bi_aggregation.id),
                     domains=[GUI],
                 ),
@@ -2072,6 +2088,7 @@ class BIModeEditAggregation(ABCBIMode):
                         choices=[
                             (
                                 "builtin_default",
+                                # astrein: disable=localization-named-placeholder
                                 _("Default (%s)")
                                 % active_config.default_bi_layout["node_style"][8:].title(),
                             ),
@@ -2090,6 +2107,7 @@ class BIModeEditAggregation(ABCBIMode):
                         choices=[
                             (
                                 "default",
+                                # astrein: disable=localization-named-placeholder
                                 _("Default (%s)")
                                 % active_config.default_bi_layout["line_style"].title(),
                             ),

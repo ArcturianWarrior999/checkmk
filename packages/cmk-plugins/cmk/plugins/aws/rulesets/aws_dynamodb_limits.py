@@ -87,6 +87,7 @@ def _fs_aws_limits(
         title_default = Title("Limit from AWS API")
     return CascadingSingleChoice(
         prefill=DefaultValue("set_levels"),
+        # astrein: disable=localization-named-placeholder
         title=Title("Set limit and levels for %s") % resource_title,
         elements=[
             CascadingSingleChoiceElement(

@@ -246,6 +246,7 @@ def edit_ldap_connection(params: Mapping[str, Any]) -> Response:
                     if suffix == ldap_data["ldap_connection"]["connection_suffix"]["suffix"]:
                         raise MKUserError(
                             None,
+                            # astrein: disable=localization-named-placeholder
                             _("The suffix '%s' is already in use by another LDAP connection.")
                             % ldap_connection["suffix"],
                         )

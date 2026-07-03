@@ -216,6 +216,7 @@ def _filesystem_reserved_elements() -> list[DictionaryEntry]:
             "show_reserved",
             DropdownChoice(
                 title=_("Show space reserved for the <tt>root</tt> user"),
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     # xgettext: no-python-format
                     "Checkmk treats space that is reserved for the <tt>root</tt> user on Linux and Unix as "
@@ -235,6 +236,7 @@ def _filesystem_reserved_elements() -> list[DictionaryEntry]:
                 title=_(
                     "Exclude space reserved for the <tt>root</tt> user from calculation of used space"
                 ),
+                # astrein: disable=localization-named-placeholder
                 help=_(
                     # xgettext: no-python-format
                     "By default, Checkmk treats space that is reserved for the <tt>root</tt> user on Linux and Unix as "
@@ -361,6 +363,7 @@ def _filesystem_magic_elements() -> list[DictionaryEntry]:
                     Percentage(
                         title=_("Warning at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% usage"),
                         allow_int=True,
                         default_value=50,
@@ -368,6 +371,7 @@ def _filesystem_magic_elements() -> list[DictionaryEntry]:
                     Percentage(
                         title=_("Critical at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% usage"),
                         allow_int=True,
                         default_value=60,

@@ -124,6 +124,7 @@ def delete_users(
         pending_changes.add(
             Change(
                 action_name="edit-users",
+                # astrein: disable=localization-named-placeholder
                 text=_l("Deleted user: %s") % ", ".join(deleted_users),
                 domains=[CORE],
             ),
@@ -337,6 +338,7 @@ def remove_custom_attribute_from_all_users(
         pending_changes.add(
             Change(
                 action_name="edit-users",
+                # astrein: disable=localization-named-placeholder
                 text=_l("Modified users: %s") % ", ".join(modified_users_info),
                 domains=[CORE],
             ),
@@ -498,6 +500,7 @@ def verify_password_policy(
     if result == PasswordPolicy.Result.TooShort:
         raise MKUserError(
             varname,
+            # astrein: disable=localization-named-placeholder
             _(
                 "The password does not comply with the configured password policy: "
                 "It must have at least %d characters."
@@ -507,6 +510,7 @@ def verify_password_policy(
     if result == PasswordPolicy.Result.TooSimple:
         raise MKUserError(
             varname,
+            # astrein: disable=localization-named-placeholder
             _(
                 "The password does not comply with the configured password policy: "
                 "It must use at least %d different character groups, such as lowercase letters, "

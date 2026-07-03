@@ -201,6 +201,7 @@ def handle_acknowledgement(request: Request) -> None:
         ):
             acknowledge_werk(werk)
             html.show_message(
+                # astrein: disable=localization-named-placeholder
                 _("Werk %s - %s has been acknowledged.")
                 % (render_werk_id(werk), render_werk_title(request, werk))
             )
@@ -523,6 +524,7 @@ def _werk_table_option_entries() -> list[tuple[_WerkTableOptionColumns, str, Val
                 choices=[
                     (None, _("All editions")),
                     *(
+                        # astrein: disable=localization-named-placeholder
                         (e.short, _("Werks only concerning the %s") % e.title)
                         for e in available_editions
                     ),
@@ -584,6 +586,7 @@ def render_unacknowleged_werks(request: Request) -> None:
     if werks and not request.has_var("show_unack"):
         html.open_div(class_=["warning"])
         html.write_text_permissive(
+            # astrein: disable=localization-named-placeholder
             _("<b>Warning:</b> There are %d unacknowledged incompatible werks:") % len(werks)
         )
         html.br()

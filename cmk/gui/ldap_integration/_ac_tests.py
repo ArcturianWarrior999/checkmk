@@ -59,6 +59,7 @@ class ACTestLDAPSecured(ACTest):
             if connection.use_ssl():
                 yield ACSingleResult(
                     state=ACResultState.OK,
+                    # astrein: disable=localization-named-placeholder
                     text=_("%s: uses SSL") % connection_id,
                     site_id=site_id,
                 )
@@ -66,6 +67,7 @@ class ACTestLDAPSecured(ACTest):
             else:
                 yield ACSingleResult(
                     state=ACResultState.WARN,
+                    # astrein: disable=localization-named-placeholder
                     text=_("%s: not using SSL. Consider enabling it in the connection settings.")
                     % connection_id,
                     site_id=site_id,

@@ -191,6 +191,7 @@ def _validate_hostname(text: str) -> None:
         # 240 seems to be OK to still be able to delete a host if it causes
         # trouble elsewhere
         raise validators.ValidationError(
+            # astrein: disable=localization-named-placeholder
             Message("Host address too long: %s") % f"{text[:16] + '…'!r}"
         )
 

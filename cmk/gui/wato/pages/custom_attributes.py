@@ -172,6 +172,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             if title == this_attr["title"] and self._name != this_attr["name"]:
                 raise MKUserError(
                     "alias",
+                    # astrein: disable=localization-named-placeholder
                     _("This alias is already used by the attribute %s.") % this_attr["name"],
                 )
 
@@ -218,6 +219,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             ).add(
                 Change(
                     action_name="edit-%sattr" % self._type,
+                    # astrein: disable=localization-named-placeholder
                     text=_("Create new %s attribute %s") % (self._type, self._name),
                     domains=[CORE],
                 ),
@@ -232,6 +234,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             ).add(
                 Change(
                     action_name="edit-%sattr" % self._type,
+                    # astrein: disable=localization-named-placeholder
                     text=_("Modified %s attribute %s") % (self._type, self._name),
                     domains=[CORE],
                 ),
@@ -600,6 +603,7 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
                     url=makeactionuri(request, transactions, [("_delete", custom_attr["name"])]),
                     title=_("Delete custom attribute #%(nr)d") % {"nr": nr},
                     suffix=custom_attr["title"],
+                    # astrein: disable=localization-named-placeholder
                     message=_("Name: %s") % custom_attr["name"],
                 )
                 html.icon_button(edit_url, _("Properties"), StaticIcon(IconNames.edit))

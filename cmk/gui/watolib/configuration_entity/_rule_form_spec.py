@@ -63,7 +63,9 @@ def _get_rule_spec_and_form_spec(
 
     if not rule_spec.has_form_spec:
         raise MKUserError(
-            None, _('The rule set "%s" uses legacy valuespecs.') % rule_identifier.name
+            None,
+            # astrein: disable=localization-named-placeholder
+            _('The rule set "%s" uses legacy valuespecs.') % rule_identifier.name,
         )
 
     return (

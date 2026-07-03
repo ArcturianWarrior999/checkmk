@@ -526,6 +526,7 @@ class Cell:
 
             classes += ["sort"]
             onclick = "location.href='%s'" % makeuri(request, addvars=params, remove_prefix="sort")
+            # astrein: disable=localization-named-placeholder
             title = _("Sort by %s") % self.tooltip_title()
         classes += self.painter().title_classes()
 

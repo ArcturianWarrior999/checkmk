@@ -81,6 +81,7 @@ def title_help_text_for_macros(
     macros_as_list = (
         f"<ul>{''.join(f'<li><tt>{macro}</tt></li>' for macro in available_macros)}</ul>"
     )
+    # astrein: disable=localization-named-placeholder
     return _("You can use the following macros to fill in the corresponding information:%s%s") % (
         macros_as_list,
         _(

@@ -19,6 +19,7 @@ def _parameter_valuespec_mongodb_locks() -> Dictionary:
             (
                 "%s_locks" % what,
                 Tuple(
+                    # astrein: disable=localization-named-placeholder
                     title=_("%s Locks") % what.title().replace("_", " "),
                     elements=[
                         Integer(title=_("Warning at"), minvalue=0),

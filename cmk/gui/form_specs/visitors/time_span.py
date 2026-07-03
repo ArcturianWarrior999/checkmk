@@ -84,15 +84,18 @@ class TimeSpanVisitor(FormSpecVisitor[TimeSpan, _ParsedValueModel, _FallbackMode
                     min_value, max_value = validator.range
 
                     if max_value is not None and min_value is not None:
+                        # astrein: disable=localization-named-placeholder
                         message = Message("Allowed values range from %s to %s.") % (
                             _render_value(min_value),
                             _render_value(max_value),
                         )
                     elif min_value is None and max_value is not None:
+                        # astrein: disable=localization-named-placeholder
                         message = Message("The maximum allowed value is %s.") % _render_value(
                             max_value
                         )
                     elif min_value is not None and max_value is None:
+                        # astrein: disable=localization-named-placeholder
                         message = Message("The minimum allowed value is %s.") % _render_value(
                             min_value
                         )

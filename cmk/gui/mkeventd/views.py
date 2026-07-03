@@ -1302,6 +1302,7 @@ PermissionECUpdateContact = Permission(
 class ECCommand(Command):
     def affected(self, len_action_rows: int, cmdtag: Literal["HOST", "SVC"]) -> HTML:
         return HTML.with_escaping(
+            # astrein: disable=localization-named-placeholder
             _("Affected %s: %s")
             % (
                 ungettext(
@@ -1421,6 +1422,7 @@ def command_change_state_confirm_dialog_additions(
     return (
         HTMLWriter.render_br()
         + HTMLWriter.render_br()
+        # astrein: disable=localization-named-placeholder
         + _("New state: %s")
         % {
             0: _("OK"),
@@ -1516,6 +1518,7 @@ CommandECCustomAction = ECCommand(
     ident="ec_custom_actions",
     title=_l("Custom action"),
     confirm_title=lambda: (
+        # astrein: disable=localization-named-placeholder
         _l("Execute custom action '%s'?") % list(active_request.itervars(prefix="_action_"))[0][1]
     ),
     confirm_button=_l("Execute"),
@@ -1583,6 +1586,7 @@ def command_archive_events_of_host_confirm_dialog_additions(
     row: Row,
     action_rows: Rows,
 ) -> HTML:
+    # astrein: disable=localization-named-placeholder
     return HTML.empty() + _(
         "All events of the host '%s' will be removed from the open events list. You can still access them in the archive."
     ) % active_request.var("host")

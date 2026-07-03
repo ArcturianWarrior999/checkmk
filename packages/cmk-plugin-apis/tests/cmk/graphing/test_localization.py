@@ -28,6 +28,7 @@ def _localizer(string: str) -> str:
 class TestTitle:
     def test_mod_tuple(self) -> None:
         assert (
+            # astrein: disable=localization-named-placeholder
             Title("The ruleset '%s' has been replaced by '%s'")
             % (
                 Title("Old rule"),
@@ -36,6 +37,7 @@ class TestTitle:
         ).localize(_localizer) == "Raider heißt jetzt Twix"
 
     def test_mod_string(self) -> None:
+        # astrein: disable=localization-named-placeholder
         assert (Title("The host %r does not exist") % "horst").localize(
             _localizer
         ) == "'horst' gibbet nich"
@@ -51,13 +53,17 @@ class TestTitle:
             pytest.param(Title("same"), Title("same"), True, id="equal"),
             pytest.param(Title("same"), Title("different"), False, id="not equal"),
             pytest.param(
+                # astrein: disable=localization-named-placeholder
                 (Title("is %s") % "same").localize(_localizer),
+                # astrein: disable=localization-named-placeholder
                 (Title("is %s") % "same").localize(_localizer),
                 True,
                 id="localized equal",
             ),
             pytest.param(
+                # astrein: disable=localization-named-placeholder
                 (Title("is %s") % "same").localize(_localizer),
+                # astrein: disable=localization-named-placeholder
                 (Title("is %s") % "different").localize(_localizer),
                 False,
                 id="localized unequal",

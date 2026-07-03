@@ -25,11 +25,13 @@ def levels_absolute_or_dynamic(name: str, value: str) -> Alternative:
                     Percentage(
                         title=_("Warning at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% used"),
                     ),
                     Percentage(
                         title=_("Critical at"),
                         # xgettext: no-python-format
+                        # astrein: disable=localization-named-placeholder
                         unit=_("% used"),
                     ),
                 ],
@@ -56,11 +58,13 @@ def levels_absolute_or_dynamic(name: str, value: str) -> Alternative:
                                         Percentage(
                                             title=_("Warning at"),
                                             # xgettext: no-python-format
+                                            # astrein: disable=localization-named-placeholder
                                             unit=_("% used"),
                                         ),
                                         Percentage(
                                             title=_("Critical at"),
                                             # xgettext: no-python-format
+                                            # astrein: disable=localization-named-placeholder
                                             unit=_("% used"),
                                         ),
                                     ],

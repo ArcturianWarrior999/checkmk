@@ -105,6 +105,7 @@ def page_list(
     else:
         topic_entries.append(
             PageMenuEntry(
+                # astrein: disable=localization-named-placeholder
                 title=_("Add %s") % visual_type.title,
                 icon_name=StaticIcon(IconNames.new),
                 item=make_simple_link("create_%s.py" % what_s),
@@ -172,6 +173,7 @@ def page_list(
                 back_url=request.get_url_input("back", visual_type.show_url),
                 config=config,
             )
+            # astrein: disable=localization-named-placeholder
             flash(_("Your %s has been deleted.") % visual_type.title)
             html.final_javascript("cmk.utils.navigate_to_page(%s)" % json.dumps(html.request.path))
         except MKUserError as e:
@@ -286,6 +288,7 @@ def page_list(
                     html.icon_button(
                         make_confirm_delete_link(
                             url=makeactionuri(request, transactions, add_vars),
+                            # astrein: disable=localization-named-placeholder
                             title=_("Delete %s") % visual_type.title,
                             suffix=str(visual["title"]),
                             message=confirm_message,

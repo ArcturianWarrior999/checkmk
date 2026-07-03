@@ -26,6 +26,7 @@ def _parameter_valuespec_esx_vsphere_datastores() -> Dictionary:
                 "provisioning_levels",
                 Tuple(
                     title=_("Provisioning levels"),
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         # xgettext: no-python-format
                         "A provisioning of more than 100% is called "

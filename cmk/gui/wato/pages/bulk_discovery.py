@@ -167,7 +167,9 @@ class ModeBulkDiscovery(WatoMode):
                 raise
             logger.exception("Failed to start bulk discovery")
             raise MKUserError(
-                None, _("Failed to start discovery: %s") % ("%s" % e).replace("\n", "\n<br>")
+                None,
+                # astrein: disable=localization-named-placeholder
+                _("Failed to start discovery: %s") % ("%s" % e).replace("\n", "\n<br>"),
             )
 
         raise HTTPRedirect(self._job.detail_url())
@@ -178,6 +180,7 @@ class ModeBulkDiscovery(WatoMode):
 
         if self._job.is_active():
             html.show_message(
+                # astrein: disable=localization-named-placeholder
                 _('Bulk discovery currently running in <a href="%s">background</a>.')
                 % self._job.detail_url()
             )
@@ -198,6 +201,7 @@ class ModeBulkDiscovery(WatoMode):
                 #   imported/selected hosts can be executed
                 vs = vs_bulk_discovery(render_form=True, include_subfolders=False)
                 msgs.append(
+                    # astrein: disable=localization-named-placeholder
                     _("You have selected <b>%d</b> hosts for bulk discovery.")
                     % len(self._get_hosts_to_discover(site_configs))
                 )

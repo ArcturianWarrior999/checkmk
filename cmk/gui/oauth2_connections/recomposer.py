@@ -43,6 +43,7 @@ def _oauth2_elements_for_unprivileged_user() -> Sequence[SingleChoiceElementExte
     return [
         SingleChoiceElementExtended(
             name=ident,
+            # astrein: disable=localization-named-placeholder
             title=Title("%s") % entry["title"],
         )
         for ident, entry in load_oauth2_connections().items()

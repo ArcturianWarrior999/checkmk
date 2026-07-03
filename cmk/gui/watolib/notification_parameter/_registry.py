@@ -81,6 +81,7 @@ class NotificationParameterRegistry(Registry[NotificationParameter | Notificatio
             if self.register_form_spec_plugin is None:
                 return
             loaded_rulespec = NotificationParameters(
+                # astrein: disable=localization-named-placeholder
                 title=Title("%s") % notification_script_title(plugin.ident),
                 name=plugin.ident,
                 topic=Topic.NOTIFICATIONS,
@@ -223,6 +224,7 @@ class NotificationParameterRegistry(Registry[NotificationParameter | Notificatio
             else:
                 raise MKUserError(
                     None,
+                    # astrein: disable=localization-named-placeholder
                     _("No Dictionary ValueSpec within Migrate: %s") % valuespec._valuespec,
                 )
         else:

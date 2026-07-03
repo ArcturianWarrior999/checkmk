@@ -70,6 +70,7 @@ def _valuespec_inv_domino_tasks_rules() -> Dictionary:
                 TextInput(
                     title=_("Service name"),
                     allow_empty=False,
+                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "<p>The service name may contain one or more occurrences of <tt>%s</tt>. In this "
                         "case, the pattern must be a regular expression prefixed with ~. For each "

@@ -103,6 +103,7 @@ def page_menu_dropdown_add_to_visual(
 
         visual_topics.append(
             PageMenuTopic(
+                # astrein: disable=localization-named-placeholder
                 title=_("Add to %s") % visual_type.title,
                 entries=entries,
             )
@@ -220,6 +221,7 @@ def page_menu_topic_add_to(visual_type: str, name: str, source_type: str) -> lis
 
     return [
         PageMenuTopic(
+            # astrein: disable=localization-named-placeholder
             title=_("%s") % visual_type.title(),
             entries=entries,
         )

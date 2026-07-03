@@ -785,6 +785,7 @@ def _compute_graph_t_axis(
 
     elif start_time_local.tm_year == end_time_local.tm_year:
         # xgettext: no-python-format
+        # astrein: disable=localization-named-placeholder
         labelling = _("%m-%d")
         label_size = 5
     else:

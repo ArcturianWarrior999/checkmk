@@ -252,6 +252,7 @@ class ModeDiscovery(WatoMode):
         )
 
     def title(self) -> str:
+        # astrein: disable=localization-named-placeholder
         return _("Services of host %s") % self._host.name()
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -344,6 +345,7 @@ class AutomationServiceDiscoveryJob(AutomationCommand[_AutomationServiceDiscover
         host = tree.host(host_name)
         if host is None:
             raise MKGeneralException(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "Host %s does not exist on remote site %s. This "
                     "may be caused by a failed configuration synchronization. Have a look at "
@@ -740,6 +742,7 @@ class ModeAjaxServiceDiscovery(AjaxPage):
             }, "waiting"
 
         if discovery_result.job_status["state"] == JobStatusStates.EXCEPTION:
+            # astrein: disable=localization-named-placeholder
             return _(
                 "%s failed after %s: %s (see <tt>var/log/web.log</tt> for further information)"
             ) % (
@@ -907,6 +910,7 @@ class DiscoveryPageRenderer:
             else:
                 num_problem_states: int = len([s for s in states if s != 0])
                 html.h2(
+                    # astrein: disable=localization-named-placeholder
                     ungettext(
                         "Problems with %d datasource detected",
                         "Problems with %d datasources detected",
@@ -963,6 +967,7 @@ class DiscoveryPageRenderer:
 
         with table_element(
             table_id="host_labels",
+            # astrein: disable=localization-named-placeholder
             title=_("Discovered host labels (%s)") % len(discovery_result.host_labels),
             css="data",
             searchable=False,
@@ -1195,6 +1200,7 @@ class DiscoveryPageRenderer:
             request, [("mode", "edit_ruleset"), ("varname", "clustered_services")]
         )
         html.show_message(
+            # astrein: disable=localization-named-placeholder
             _(
                 "Could not find any service for your cluster. You first need to "
                 "specify which services of your nodes shall be added to the "
@@ -1510,23 +1516,27 @@ class DiscoveryPageRenderer:
     ) -> None:
         if changed_labels:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext("%d changed label", "%d changed labels", len(changed_labels))
                 % len(changed_labels)
             )
             self._show_discovered_labels(changed_labels, override_label_render_type="changed")
         if added_labels:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext("%d new label", "%d new labels", len(added_labels)) % len(added_labels)
             )
             self._show_discovered_labels(added_labels, override_label_render_type="added")
         if removed_labels:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext("%d removed label", "%d removed labels", len(removed_labels))
                 % len(removed_labels)
             )
             self._show_discovered_labels(removed_labels, override_label_render_type="removed")
         if changed_parameters:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext(
                     "%d discovery parameter changed",
                     "%d discovery parameters changed",
@@ -1535,6 +1545,7 @@ class DiscoveryPageRenderer:
                 % len(changed_parameters)
                 + html.render_static_icon(
                     StaticIcon(IconNames.search),  # TODO: new icon!
+                    # astrein: disable=localization-named-placeholder
                     title=_("Old: %r\nNew: %r")
                     % (
                         {k: v for k, v in old_parameters.items() if k in changed_parameters},
@@ -1546,6 +1557,7 @@ class DiscoveryPageRenderer:
 
         if added_parameters:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext(
                     "%d discovery parameter added",
                     "%d discovery parameters added",
@@ -1560,6 +1572,7 @@ class DiscoveryPageRenderer:
             )
         if removed_parameters:
             html.p(
+                # astrein: disable=localization-named-placeholder
                 ungettext(
                     "%d discovery parameter removed",
                     "%d discovery parameters removed",
@@ -1626,6 +1639,7 @@ class DiscoveryPageRenderer:
         try:
             if isinstance(params, dict) and "tp_computed_params" in params:
                 html.write_text_permissive(
+                    # astrein: disable=localization-named-placeholder
                     _("Time-specific parameters computed at %s")
                     % cmk.utils.render.date_and_time(params["tp_computed_params"]["computed_at"])
                 )
@@ -2040,6 +2054,7 @@ class DiscoveryPageRenderer:
                 DiscoveryState.CLUSTERED_VANISHED,
                 show_bulk_actions=False,
                 title=_("Vanished clustered services - located on cluster host"),
+                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
                     "<i>%s</i> or <i>%s</i>."
@@ -2113,6 +2128,7 @@ class DiscoveryPageRenderer:
                 table_group=DiscoveryState.CLUSTERED_OLD,
                 show_bulk_actions=False,
                 title=_("Monitored clustered services - located on cluster host"),
+                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
                     "<i>%s</i> or <i>%s</i>."
@@ -2126,6 +2142,7 @@ class DiscoveryPageRenderer:
                 table_group=DiscoveryState.CLUSTERED_NEW,
                 show_bulk_actions=False,
                 title=_("Undecided clustered services"),
+                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
                     "<i>%s</i> or <i>%s</i>."

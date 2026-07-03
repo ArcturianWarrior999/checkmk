@@ -33,12 +33,14 @@ def _bandwidth_alternatives() -> Sequence[Tuple]:
                     title=_("Warning at"),
                     maxvalue=1000,
                     # xgettext: no-python-format
+                    # astrein: disable=localization-named-placeholder
                     label=_("% of port speed"),
                 ),
                 Percentage(
                     title=_("Critical at"),
                     maxvalue=1000,
                     # xgettext: no-python-format
+                    # astrein: disable=localization-named-placeholder
                     label=_("% of port speed"),
                 ),
             ],

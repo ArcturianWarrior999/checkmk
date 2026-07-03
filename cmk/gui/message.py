@@ -496,12 +496,14 @@ def _process_message(msg: Message, multisite_user_ids: Set[str]) -> None:
                 + (
                     _(" for all recipients.")
                     if num_success[method] == num_recipients
+                    # astrein: disable=localization-named-placeholder
                     else _(" for %d of %d recipients.") % (num_success[method], num_recipients)
                 )
             )
         )
 
     message += HTMLWriter.render_ul(HTML.empty().join(parts))
+    # astrein: disable=localization-named-placeholder
     message += HTMLWriter.render_p(_("Recipients: %s") % ", ".join(recipients))
     html.show_message(message)
 
@@ -599,6 +601,7 @@ def _message_mail(user_id: UserId, msg: Message) -> bool:
     if not (sender_name := users[user.id].get("alias")):
         sender_name = user_id
 
+    # astrein: disable=localization-named-placeholder
     body = _("""Greetings %s,\n\n%s sent you a message: \n\n---\n%s\n---""") % (
         recipient_name,
         sender_name,
@@ -606,6 +609,7 @@ def _message_mail(user_id: UserId, msg: Message) -> bool:
     )
 
     if valid_till := msg["valid_till"]:
+        # astrein: disable=localization-named-placeholder
         body += _("This message has been created at %s and is valid till %s.") % (
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(msg["time"])),
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(valid_till)),

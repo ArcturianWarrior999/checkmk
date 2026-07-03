@@ -111,6 +111,7 @@ def edit_group(
             _add_group_change(
                 old_group_backup,
                 "edit-%sgroups" % group_type,
+                # astrein: disable=localization-named-placeholder
                 _l("Removed %sgroup %s from customer %s")
                 % (
                     group_type,
@@ -122,6 +123,7 @@ def edit_group(
             _add_group_change(
                 extra_info,
                 "edit-%sgroups" % group_type,
+                # astrein: disable=localization-named-placeholder
                 _l("Moved %sgroup %s to customer %s. Additional properties may have changed.")
                 % (
                     group_type,
@@ -176,6 +178,7 @@ def delete_group(
     if usages:
         raise GroupInUseException(
             None,
+            # astrein: disable=localization-named-placeholder
             _("Unable to delete group. It is still in use by: %s")
             % ", ".join([e[0] for e in usages]),
         )

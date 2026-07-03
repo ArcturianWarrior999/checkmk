@@ -28,12 +28,14 @@ def _parameter_valuespec_general_flash_usage() -> Migrate[dict[str, Any]]:
                                     Percentage(
                                         title=_("Warning at a usage of"),
                                         # xgettext: no-python-format
+                                        # astrein: disable=localization-named-placeholder
                                         label=_("% of flash"),
                                         maxvalue=None,
                                     ),
                                     Percentage(
                                         title=_("Critical at a usage of"),
                                         # xgettext: no-python-format
+                                        # astrein: disable=localization-named-placeholder
                                         label=_("% of flash"),
                                         maxvalue=None,
                                     ),

@@ -490,7 +490,9 @@ def _sections() -> Dictionary:
         elements={
             section.section: DictElement(
                 parameter_form=_section_options(
+                    # astrein: disable=localization-named-placeholder
                     title=Title("%s") % section.title,
+                    # astrein: disable=localization-named-placeholder
                     help_text=Help("%s") % section.help_text
                     if section.help_text is not None
                     else None,

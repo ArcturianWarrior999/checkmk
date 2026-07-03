@@ -134,6 +134,7 @@ class PageCrash(Page):
     @override
     def page(self, ctx: PageContext) -> None:
         report = CrashReport.build(ctx.request, CrashReportsRowTable())
+        # astrein: disable=localization-named-placeholder
         title = _("Crash report: %s") % report.crash_id
 
         permissions = UserPermissions.from_config(ctx.config, permission_registry)
@@ -472,6 +473,7 @@ class PageCrash(Page):
             time_text: str = first_seen
         else:
             last_seen = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(crash_time["last_seen"]))
+            # astrein: disable=localization-named-placeholder
             time_text = _("First: %s, last: %s (%d occurrences)") % (
                 first_seen,
                 last_seen,
@@ -547,6 +549,7 @@ class ReportRendererGeneric(ABCReportRenderer):
 
         html.h3(_("Details"), class_="table")
         html.p(
+            # astrein: disable=localization-named-placeholder
             _("No detail renderer for crash of type '%s' available. Details structure is:")
             % crash_info["crash_type"]
         )
@@ -689,6 +692,7 @@ class ReportRendererCheck(ABCReportRenderer):
 
         section_keys = [k for k in details if k == "section" or k.startswith("section_")]
         for key in section_keys:
+            # astrein: disable=localization-named-placeholder
             title = _("Section") if key == "section" else _("Section: %s") % key[len("section_") :]
             _crash_row(title, _format_log_output(pprint.pformat(details[key]).encode()))
 

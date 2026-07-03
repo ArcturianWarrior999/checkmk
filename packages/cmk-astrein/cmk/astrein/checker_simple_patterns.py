@@ -6,11 +6,11 @@
 from __future__ import annotations
 
 import ast
-import re
 from collections.abc import Sequence
 from pathlib import Path, PurePosixPath
 
 from cmk.astrein.framework import ASTVisitorChecker
+from cmk.astrein.placeholders import has_positional_placeholder
 
 
 class ABCMetaMetaclassChecker(ASTVisitorChecker):
@@ -60,31 +60,6 @@ class HTMLDebugChecker(ASTVisitorChecker):
 
 
 _LOGGING_METHODS = frozenset({"log", "debug", "info", "warning", "error", "exception", "critical"})
-
-#: A single printf-style conversion specifier, per the Python spec:
-#: https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
-#: The mapping key is captured to tell ``%(name)s`` from ``%s``.
-_PRINTF_SPEC = re.compile(
-    r"%"
-    r"(?:\((?P<key>[^)]*)\))?"  # optional mapping key
-    r"[#0\- +]*"  # conversion flags
-    r"(?:\*|\d+)?"  # minimum field width
-    r"(?:\.(?:\*|\d+))?"  # precision
-    r"[hlL]?"  # length modifier (accepted but ignored by Python)
-    r"(?P<type>[diouxXeEfFgGcrsa%])"  # conversion type
-)
-
-
-def _has_positional_placeholder(format_string: str) -> bool:
-    """Return True if ``format_string`` has a positional ``%s`` rather than ``%(name)s``.
-
-    The literal ``%%`` is ignored.
-    """
-    return any(
-        match.group("type") != "%" and match.group("key") is None
-        for match in _PRINTF_SPEC.finditer(format_string)
-    )
-
 
 #: Repo-relative path prefixes not yet migrated; the checker skips files below them.
 #: Transitional: shrink until empty, then remove this exclusion.
@@ -166,7 +141,7 @@ class LoggingNamedPlaceholderChecker(ASTVisitorChecker):
         if not isinstance(message, ast.Constant) or not isinstance(message.value, str):
             return
 
-        if _has_positional_placeholder(message.value):
+        if has_positional_placeholder(message.value):
             self.add_error(
                 "Logging calls must use named `%(name)s` placeholders with a mapping argument, "
                 "so each value is labelled in the template. Positional placeholders render as "

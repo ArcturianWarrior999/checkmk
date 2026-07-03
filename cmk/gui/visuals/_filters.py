@@ -1833,6 +1833,7 @@ class FilterCMKSiteStatisticsByCorePIDs(Filter):
                     + doc_ref
                 )
             raise MKMissingDataError(
+                # astrein: disable=localization-named-placeholder
                 _(
                     "As soon as you add your Checkmk server(s) to the "
                     "monitoring, a graph showing the history of your host "

@@ -94,6 +94,7 @@ class LegacyVarsMixin:
 
     def set_var(self, varname: str, value: str) -> None:
         if not isinstance(value, str):
+            # astrein: disable=localization-named-placeholder
             raise TypeError(_("Only str and unicode values are allowed, got %s") % type(value))
 
         self.legacy_vars[varname] = value
@@ -460,6 +461,7 @@ class Request(
     ) -> str:
         value = mandatory_parameter(varname, self.get_ascii_input(varname, deflt))
         if allowed_values is not None and value not in allowed_values:
+            # astrein: disable=localization-named-placeholder
             raise MKUserError(varname, _("Value must be one of '%s'") % "', '".join(allowed_values))
         return value
 

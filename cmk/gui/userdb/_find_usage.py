@@ -81,6 +81,7 @@ def find_timeperiod_usage_in_notification_rule(
             filename="wato.py",
         )
         if user_id:
+            # astrein: disable=localization-named-placeholder
             title = _("Notification rule of user '%s'") % user_id
         else:
             title = _("Notification rule")

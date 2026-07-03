@@ -14,6 +14,7 @@ def _valuespec_agent_config_fileinfo() -> ListOfStrings:
     return ListOfStrings(
         title=_("Count, size and age of files"),
         size=80,
+        # astrein: disable=localization-named-placeholder
         help=_(
             "<p>Here you can specify a list of file name patterns to be sent by the "
             "agent in the section <tt>fileinfo</tt>. Use globbing patterns like "

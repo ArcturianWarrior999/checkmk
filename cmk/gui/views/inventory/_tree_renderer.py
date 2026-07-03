@@ -166,6 +166,7 @@ class SDItem:
                 html_values=[
                     HTMLWriter.render_span(
                         html_value,
+                        # astrein: disable=localization-named-placeholder
                         title=_("Data was provided at %s and is considered valid until %s")
                         % (
                             cmk.utils.render.date_and_time(self.retention_interval.cached_at),
@@ -441,6 +442,7 @@ def ajax_inv_render_tree(ctx: PageContext) -> None:
             user_errors.add(
                 MKUserError(
                     "load_inventory_delta_tree",
+                    # astrein: disable=localization-named-placeholder
                     _(
                         "Cannot load HW/SW inventory history of %s. Please remove the corrupted files %s."
                     )

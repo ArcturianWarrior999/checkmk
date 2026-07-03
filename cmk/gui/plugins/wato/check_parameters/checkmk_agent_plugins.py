@@ -50,6 +50,7 @@ def _parameter_valuespec_checkmk_agent_plugins() -> Dictionary:
                 ),
             ),
         ],
+        # astrein: disable=localization-named-placeholder
         help=_('This rule set is deprecated. Please use the rule set <i>"%s"</i> instead.')
         % _("Checkmk agent installation auditing"),
     )

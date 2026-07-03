@@ -130,6 +130,7 @@ def create_snapshot(
     )
 
     data: SnapshotData = {}
+    # astrein: disable=localization-named-placeholder
     data["comment"] = _("Activated changes by %s.") % (created_by or "")
 
     if comment:
@@ -561,6 +562,7 @@ def extract_snapshot(
                 if os.access("/".join(path_tokens), os.W_OK):
                     return True  # exists and writable
 
+                # astrein: disable=localization-named-placeholder
                 errors.append(_("Permission problem: Path not writable %s") % "/".join(path_tokens))
                 return False  # not writable
 
@@ -578,6 +580,7 @@ def extract_snapshot(
             check=False,
         )
         if completed_process.stderr:
+            # astrein: disable=localization-named-placeholder
             errors.append(_("Contains corrupt file %s") % tar_member.name)
             return errors
 
@@ -701,6 +704,7 @@ def extract_snapshot(
                 )
             if abort_on_error:
                 raise MKGeneralException(
+                    # astrein: disable=localization-named-placeholder
                     _("%s - Unable to restore snapshot:<br>%s") % (what, "<br>".join(errors))
                 )
             total_errors.extend(errors)
@@ -710,6 +714,7 @@ def extract_snapshot(
 
     if total_errors:
         raise MKGeneralException(
+            # astrein: disable=localization-named-placeholder
             _("Errors on restoring snapshot:<br>%s") % "<br>".join(total_errors)
         )
 

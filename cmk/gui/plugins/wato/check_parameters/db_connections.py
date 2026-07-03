@@ -27,11 +27,13 @@ def _parameter_valuespec_db_connections() -> Dictionary:
                         Percentage(
                             title=_("Warning at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum active connections"),
                         ),
                         Percentage(
                             title=_("Critical at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum active connections"),
                         ),
                     ],
@@ -55,11 +57,13 @@ def _parameter_valuespec_db_connections() -> Dictionary:
                         Percentage(
                             title=_("Warning at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum idle connections"),
                         ),
                         Percentage(
                             title=_("Critical at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum idle connections"),
                         ),
                     ],
@@ -108,11 +112,13 @@ def _parameter_valuespec_db_connections_mongodb() -> Dictionary:
                         Percentage(
                             title=_("Warning at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum connections"),
                         ),
                         Percentage(
                             title=_("Critical at"),
                             # xgettext: no-python-format
+                            # astrein: disable=localization-named-placeholder
                             unit=_("% of maximum connections"),
                         ),
                     ],

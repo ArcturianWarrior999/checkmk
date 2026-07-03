@@ -5,7 +5,10 @@
 
 
 from cmk.astrein.checker_key_size import KeySizeUnitTestChecker
-from cmk.astrein.checker_localization import LocalizationChecker
+from cmk.astrein.checker_localization import (
+    LocalizationChecker,
+    LocalizationNamedPlaceholderChecker,
+)
 from cmk.astrein.checker_module_layers import ModuleLayersChecker
 from cmk.astrein.checker_request_input import RequestValidatedInputChecker
 from cmk.astrein.checker_simple_patterns import (
@@ -25,6 +28,7 @@ def all_checkers() -> dict[str, type[ASTVisitorChecker]]:
         "html-debug": HTMLDebugChecker,
         "key-size-unit-test": KeySizeUnitTestChecker,
         "localization": LocalizationChecker,
+        "localization-named-placeholder": LocalizationNamedPlaceholderChecker,
         "logging-named-placeholder": LoggingNamedPlaceholderChecker,
         "module-layers": ModuleLayersChecker,
         "pillow-import": PillowImportChecker,

@@ -109,6 +109,7 @@ def configure_attributes(
         )
 
         if topic_id == "management_board":
+            # astrein: disable=localization-named-placeholder
             message = _(
                 "<b>This feature will be deprecated in a future version of Checkmk.</b>"
                 "<br>Please do not configure management boards in here anymore. "

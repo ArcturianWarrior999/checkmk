@@ -23,11 +23,13 @@ def message(read_only_config: ReadOnlySpec) -> str:
 
     elif isinstance(read_only_config["enabled"], tuple):
         end_time = read_only_config["enabled"][1]
+        # astrein: disable=localization-named-placeholder
         text += _("The read only mode is enabled until %s. ") % render.date_and_time(end_time)
 
     if may_override(read_only_config):
         text += _("But you are allowed to make changes anyway. ")
 
+    # astrein: disable=localization-named-placeholder
     text += "<br><br>" + _("Reason: %s") % read_only_config["message"]
 
     return text

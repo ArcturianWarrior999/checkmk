@@ -178,6 +178,7 @@ def perform_rename_hosts(
             )
 
             for hook in rename_host_hook_registry.hooks_by_phase(RenamePhase.SETUP):
+                # astrein: disable=localization-named-placeholder
                 update_interface(_("Renaming host(s) in %s...") % hook.title)
                 actions += hook.func(oldname, newname)
 
@@ -212,6 +213,7 @@ def perform_rename_hosts(
 
     # 4. Trigger updates in decoupled (e.g. edition specific) features
     for hook in rename_host_hook_registry.hooks_by_phase(RenamePhase.POST_CMK_BASE):
+        # astrein: disable=localization-named-placeholder
         update_interface(_("Renaming host(s) in %s...") % hook.title)
         actions += hook.func(oldname, newname)
 
@@ -351,6 +353,7 @@ def _rename_host_in_rulesets(
             pending_changes.add(
                 Change(
                     action_name="edit-ruleset",
+                    # astrein: disable=localization-named-placeholder
                     text=_l("Renamed host in %d rule sets of folder %s")
                     % (len(changed_folder_rulesets), folder.title()),
                     object_ref=folder.object_ref(),
@@ -384,6 +387,7 @@ def _rename_hosts_in_check_mk(
 ) -> dict[str, int]:
     action_counts: dict[str, int] = {}
     for site_id, name_pairs in renamings_by_site.items():
+        # astrein: disable=localization-named-placeholder
         message = _l("Renamed host %s") % ", ".join(
             [f"{oldname} into {newname}" for (oldname, newname) in name_pairs]
         )
@@ -698,12 +702,14 @@ def rename_hosts_job_entry_point(
             ActivateChanges.confirm_site_changes(site_id)
 
         action_txt = "".join(["<li>%s</li>" % a for a in actions])
+        # astrein: disable=localization-named-placeholder
         message = _("Renamed %d %s at the following places:<br><ul>%s</ul>") % (
             len(renamings),
             ungettext("host", "hosts", len(renamings)),
             action_txt,
         )
         if auth_problems:
+            # astrein: disable=localization-named-placeholder
             message += _(
                 "The following hosts could not be renamed because of missing permissions: %s"
             ) % ", ".join([f"{host_name} ({reason})" for (host_name, reason) in auth_problems])
@@ -785,6 +791,7 @@ def render_renaming_actions(action_counts: Mapping[str, int]) -> list[str]:
     for what, count in sorted(action_counts.items()):
         if what.startswith("dnsfail-"):
             text = (
+                # astrein: disable=localization-named-placeholder
                 _(
                     "<b>Warning: </b> the IP address lookup of <b>%s</b> has failed. The core has been started by using the address <tt>0.0.0.0</tt> for the while. Please update your DNS or configure an IP address for the affected host."
                 )

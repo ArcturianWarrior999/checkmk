@@ -103,6 +103,7 @@ class AutomationCheckmkAutomationStart(AutomationCommand[AutomationCheckmkAutoma
                     ),
                 ),
                 InitialStatusArgs(
+                    # astrein: disable=localization-named-placeholder
                     title=_("Checkmk automation %s %s")
                     % (request.api_request.command, automation_id),
                     user=str(user.id) if user.id else None,
