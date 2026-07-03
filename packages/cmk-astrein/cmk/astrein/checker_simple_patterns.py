@@ -103,6 +103,7 @@ _INCLUDED_PATHS = (
     "cmk/base/notify.py",
     "packages/cmk-ec/cmk/ec/main.py",
     "non-free/packages/cmk-update-agent",
+    "tests/testlib/site.py",
 )
 
 

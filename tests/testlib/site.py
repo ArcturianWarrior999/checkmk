@@ -345,9 +345,19 @@ class Site:
         expected_state: int | None = None,
         wait_timeout: int | None = None,
     ) -> None:
-        logger.debug("%s;%s schedule check", hostname, service_description)
+        logger.debug(
+            "%(hostname)s;%(service_description)s schedule check",
+            {"hostname": hostname, "service_description": service_description},
+        )
         last_check_before = self._last_service_check(hostname, service_description)
-        logger.debug("%s;%s last check before %r", hostname, service_description, last_check_before)
+        logger.debug(
+            "%(hostname)s;%(service_description)s last check before %(last_check_before)r",
+            {
+                "hostname": hostname,
+                "service_description": service_description,
+                "last_check_before": last_check_before,
+            },
+        )
 
         command_timestamp = self._command_timestamp(last_check_before)
 
@@ -356,7 +366,14 @@ class Site:
             f"{service_description};{command_timestamp:.0f}"
         )
 
-        logger.debug("%s;%s: %r", hostname, service_description, command)
+        logger.debug(
+            "%(hostname)s;%(service_description)s: %(command)r",
+            {
+                "hostname": hostname,
+                "service_description": service_description,
+                "command": command,
+            },
+        )
 
         self.live.command(command)
 
@@ -392,10 +409,10 @@ class Site:
             and count < max_count
         ):
             logger.info(
-                "The following services in %s host are in pending state:\n%s\n"
+                "The following services in %(hostname)s host are in pending state:\n"
+                "%(pending_services)s\n"
                 "Rescheduling checks...",
-                hostname,
-                pformat(pending_services),
+                {"hostname": hostname, "pending_services": pformat(pending_services)},
             )
             self.schedule_check(hostname, "Check_MK", 0, wait_timeout)
             count += 1
@@ -407,10 +424,12 @@ class Site:
             )
         if pending_services:
             logger.info(
-                '%s pending service(s) found on host "%s": %s',
-                len(pending_services),
-                hostname,
-                ",".join(list(pending_services.keys())),
+                '%(pending_count)s pending service(s) found on host "%(hostname)s": %(services)s',
+                {
+                    "pending_count": len(pending_services),
+                    "hostname": hostname,
+                    "services": ",".join(list(pending_services.keys())),
+                },
             )
 
     def is_service_in_expected_state_after_rescheduling(
@@ -440,14 +459,19 @@ class Site:
             and count < max_count
         ):
             logger.info(
-                "The following services in %s host are in pending state:\n%s\n"
+                "The following services in %(hostname)s host are in pending state:\n"
+                "%(pending_services)s\n"
                 "Waiting for the next update...",
-                hostname,
-                pformat(pending_services),
+                {"hostname": hostname, "pending_services": pformat(pending_services)},
             )
             last_check_before = self._last_service_check(hostname, service_description)
             logger.debug(
-                "%s;%s last check before %r", hostname, service_description, last_check_before
+                "%(hostname)s;%(service_description)s last check before %(last_check_before)r",
+                {
+                    "hostname": hostname,
+                    "service_description": service_description,
+                    "last_check_before": last_check_before,
+                },
             )
 
             command_timestamp = self._command_timestamp(last_check_before)
@@ -595,7 +619,10 @@ class Site:
         plugin_output: str,
         wait_timeout: int | None = None,
     ) -> None:
-        logger.debug("processing check result took %0.2f seconds", time.time() - command_timestamp)
+        logger.debug(
+            "processing check result took %(duration)0.2f seconds",
+            {"duration": time.time() - command_timestamp},
+        )
         if not last_check > last_check_before:
             timeout_ = wait_timeout or self.check_wait_timeout
             exc_msg = [
@@ -778,27 +805,29 @@ class Site:
             CompletedProcess: the process object resulted from the "omd" command
         """
         cmd = ["omd", mode] + list(args)
-        logger.info("Executing: %s", subprocess.list2cmdline(cmd))
+        logger.info("Executing: %(cmd)s", {"cmd": subprocess.list2cmdline(cmd)})
         completed_process = self.run(cmd, check=check)
-        logger.info("Exit code: %d", completed_process.returncode)
+        logger.info("Exit code: %(returncode)d", {"returncode": completed_process.returncode})
         if completed_process.stdout:
             logger.debug("Stdout:")
             for line in completed_process.stdout.strip().split("\n"):
-                logger.debug("> %s", line)
+                logger.debug("> %(line)s", {"line": line})
         if completed_process.stderr:
             logger.info("Stderr:")
             for line in completed_process.stderr.strip().split("\n"):
-                logger.info("> %s", line)
+                logger.info("> %(line)s", {"line": line})
 
         if mode == "status":
             logger.info(
-                "OMD status: %d (%s)",
-                completed_process.returncode,
+                "OMD status: %(returncode)d (%(status)s)",
                 {
-                    0: "fully running",
-                    1: "fully stopped",
-                    2: "partially running",
-                }.get(completed_process.returncode, "unknown meaning"),
+                    "returncode": completed_process.returncode,
+                    "status": {
+                        0: "fully running",
+                        1: "fully stopped",
+                        2: "partially running",
+                    }.get(completed_process.returncode, "unknown meaning"),
+                },
             )
 
         return completed_process
@@ -951,7 +980,10 @@ class Site:
     def install_cmk(self) -> None:
         """Install the Checkmk version of the site if it is not installed already."""
         if not self._package.is_installed():
-            logger.info("Installing Checkmk version %s", self._package.version_directory())
+            logger.info(
+                "Installing Checkmk version %(version_directory)s",
+                {"version_directory": self._package.version_directory()},
+            )
             try:
                 _ = run(
                     [
@@ -961,9 +993,11 @@ class Site:
                     env=dict(os.environ, VERSION=self.version.version, EDITION=self.edition.short),
                 )
                 logger.info(
-                    "Checkmk package '%s' built using commit: '%s'",
-                    self._package.omd_version(),
-                    self._package.commit_hash,
+                    "Checkmk package '%(omd_version)s' built using commit: '%(commit_hash)s'",
+                    {
+                        "omd_version": self._package.omd_version(),
+                        "commit_hash": self._package.commit_hash,
+                    },
                 )
             except subprocess.CalledProcessError as excp:
                 excp.add_note("Execute 'tests/scripts/install-cmk.py' manually to debug the issue.")
@@ -989,7 +1023,10 @@ class Site:
                 f"uninstalling the cmk package."
             )
         if self._package.is_installed() and not self._package_was_preinstalled:
-            logger.info("Uninstalling Checkmk package %s", self._package.version_directory())
+            logger.info(
+                "Uninstalling Checkmk package %(version_directory)s",
+                {"version_directory": self._package.version_directory()},
+            )
             try:
                 _ = run(
                     [
@@ -1026,7 +1063,7 @@ class Site:
             raise Exception("The site %s already exists." % self.id)
 
         if not self.exists():
-            logger.info('Creating site "%s"', self.id)
+            logger.info('Creating site "%(site_id)s"', {"site_id": self.id})
             completed_process = run(
                 (
                     [
@@ -1232,7 +1269,7 @@ class Site:
     def rm(self, site_id: str | None = None) -> None:
         # Wait a bit to avoid unnecessarily stress testing the site.
         site_id = site_id or self.id
-        logger.info('Removing site "%s"...', site_id)
+        logger.info('Removing site "%(site_id)s"...', {"site_id": site_id})
         time.sleep(1)
 
         def _rm_successful() -> bool:
@@ -1274,9 +1311,14 @@ class Site:
                     # print("= BEGIN PROCESSES FAIL ==============================")
                     # self.execute(["ps", "aux"]).wait()
                     # print("= END PROCESSES FAIL ==============================")
-                    logger.warning("Could not start site %s. Stop waiting.", self.id)
+                    logger.warning(
+                        "Could not start site %(site_id)s. Stop waiting.", {"site_id": self.id}
+                    )
                     break
-                logger.warning("The site %s is not running yet, sleeping... (round %d)", self.id, i)
+                logger.warning(
+                    "The site %(site_id)s is not running yet, sleeping... (round %(round)d)",
+                    {"site_id": self.id, "round": i},
+                )
                 sys.stdout.flush()
                 time.sleep(0.2)
 
@@ -1304,7 +1346,7 @@ class Site:
 
         stop_exit_code = self.omd("stop").returncode
         if stop_exit_code != 0:
-            logger.error("omd stop exit code: %d", stop_exit_code)
+            logger.error("omd stop exit code: %(exit_code)d", {"exit_code": stop_exit_code})
 
         # logger.debug("= BEGIN PROCESSES AFTER STOP =======================================")
         # os.system("ps -fwwu %s" % self.id)  # nosec
@@ -1314,10 +1356,19 @@ class Site:
         while (status := self.omd("status")).returncode != 1:
             i += 1
             if i > 10:
-                logger.error("omd status %s stdout: %s", self.id, status.stdout)
-                logger.error("omd status %s stderr: %s", self.id, status.stderr)
+                logger.error(
+                    "omd status %(site_id)s stdout: %(stdout)s",
+                    {"site_id": self.id, "stdout": status.stdout},
+                )
+                logger.error(
+                    "omd status %(site_id)s stderr: %(stderr)s",
+                    {"site_id": self.id, "stderr": status.stderr},
+                )
                 raise Exception("Could not stop site %s" % self.id)
-            logger.warning("The site %s is still running, sleeping... (round %d)", self.id, i)
+            logger.warning(
+                "The site %(site_id)s is still running, sleeping... (round %(round)d)",
+                {"site_id": self.id, "round": i},
+            )
             sys.stdout.flush()
             time.sleep(0.2)
 
@@ -1326,10 +1377,18 @@ class Site:
         site_procs = get_processes_by_cmdline(f"omd/sites/{self.id}/")
         if site_procs:
             logger.warning(
-                "processes still running after stopping the site %s (only first 10):", self.id
+                "processes still running after stopping the site %(site_id)s (only first 10):",
+                {"site_id": self.id},
             )
             for proc in site_procs[:10]:
-                logger.warning("  [%s] %s: %s", proc.pid, proc.info["name"], proc.info["cmdline"])
+                logger.warning(
+                    "  [%(pid)s] %(name)s: %(cmdline)s",
+                    {
+                        "pid": proc.pid,
+                        "name": proc.info["name"],
+                        "cmdline": proc.info["cmdline"],
+                    },
+                )
             if "--ignore-running-procs" in sys.argv:
                 return
             raise AssertionError(
@@ -1407,13 +1466,16 @@ class Site:
             except UnexpectedResponse as e:
                 if e.status_code == 404:
                     logger.warning(
-                        "_get_activation_final_status: activation %r not found (404) "
+                        "_get_activation_final_status: activation %(activation_id)r not found (404) "
                         "— already cleaned up before final status could be read",
-                        activation_id,
+                        {"activation_id": activation_id},
                     )
                     return None
                 raise
-            logger.info("_get_activation_final_status: status for %r: %s", activation_id, status)
+            logger.info(
+                "_get_activation_final_status: status for %(activation_id)r: %(status)s",
+                {"activation_id": activation_id, "status": status},
+            )
             status_per_site = status["extensions"].get("status_per_site", [])
             if status_per_site and all(s["state"] is not None for s in status_per_site):
                 return status
@@ -1434,13 +1496,19 @@ class Site:
                 return False
             if response.status_code != 200:
                 logger.info(
-                    "wait_for_no_running_activations: unexpected status %d", response.status_code
+                    "wait_for_no_running_activations: unexpected status %(status_code)d",
+                    {"status_code": response.status_code},
                 )
                 return False
             running = response.json()["value"]
             logger.info(
-                "wait_for_no_running_activations: running entries: %s",
-                [{"id": e["id"], "is_running": e["extensions"]["is_running"]} for e in running],
+                "wait_for_no_running_activations: running entries: %(entries)s",
+                {
+                    "entries": [
+                        {"id": e["id"], "is_running": e["extensions"]["is_running"]}
+                        for e in running
+                    ]
+                },
             )
             seen_activation_ids.update(
                 entry["id"] for entry in running if entry["extensions"]["is_running"]
@@ -1456,7 +1524,10 @@ class Site:
             condition_name="no running activations",
         )
 
-        logger.info("wait_for_no_running_activations: seen activation IDs: %s", seen_activation_ids)
+        logger.info(
+            "wait_for_no_running_activations: seen activation IDs: %(activation_ids)s",
+            {"activation_ids": seen_activation_ids},
+        )
         assert len(seen_activation_ids) == 1, (
             f"Expected exactly one activation, got: {seen_activation_ids}"
         )
@@ -1465,9 +1536,8 @@ class Site:
         final_status = self._get_activation_final_status(activation_id, timeout, interval)
         if final_status is not None:
             logger.info(
-                "wait_for_no_running_activations: final status for %r: %s",
-                activation_id,
-                final_status,
+                "wait_for_no_running_activations: final status for %(activation_id)r: %(final_status)s",
+                {"activation_id": activation_id, "final_status": final_status},
             )
             not_succeeded_sites = [
                 status
@@ -1553,14 +1623,14 @@ class Site:
 
     def set_config(self, key: str, val: str, with_restart: bool = False) -> None:
         if self.get_config(key) == val:
-            logger.info("omd config: %s is already at %r", key, val)
+            logger.info("omd config: %(key)s is already at %(value)r", {"key": key, "value": val})
             return
 
         if with_restart:
             logger.debug("Stopping site")
             self.stop()
 
-        logger.info("omd config: Set %s to %r", key, val)
+        logger.info("omd config: Set %(key)s to %(value)r", {"key": key, "value": val})
         assert self.omd("config", "set", key, val).returncode == 0
 
         if with_restart:
@@ -1569,7 +1639,10 @@ class Site:
 
     def get_config(self, key: str, default: str = "") -> str:
         process = self.omd("config", "show", key, check=True)
-        logger.debug("omd config: %s is set to %r", key, stdout := process.stdout.strip())
+        logger.debug(
+            "omd config: %(key)s is set to %(value)r",
+            {"key": key, "value": (stdout := process.stdout.strip())},
+        )
         if stderr := process.stderr:
             logger.error(stderr)
         return stdout.strip() or default
@@ -1591,12 +1664,15 @@ class Site:
     def _create_automation_user(self, username: str) -> None:
         self._automation_secret = Password.random(24)
         if self.openapi.users.get(username):
-            logger.info("Reusing existing test-user: '%s' (REUSE=1); resetting password.", username)
+            logger.info(
+                "Reusing existing test-user: '%(username)s' (REUSE=1); resetting password.",
+                {"username": username},
+            )
             self.run(
                 ["bash", "-c", f'cmk-passwd "{username}" -i <<< "{self._automation_secret.raw}"']
             )
         else:
-            logger.info("Creating test-user: '%s'.", username)
+            logger.info("Creating test-user: '%(username)s'.", {"username": username})
             self.openapi.users.create(
                 username=username,
                 fullname="Automation user for tests",
@@ -1676,7 +1752,9 @@ class Site:
 
     def send_traces_to_central_collector(self, endpoint: str) -> None:
         """Configure the site to send traces to our central collector"""
-        logger.info("Send traces to central collector (collector: %s)", endpoint)
+        logger.info(
+            "Send traces to central collector (collector: %(endpoint)s)", {"endpoint": endpoint}
+        )
         self.set_config("TRACE_SEND", "on")
         self.set_config("TRACE_SEND_TARGET", endpoint)
 
@@ -1727,7 +1805,10 @@ class Site:
         while port in used_ports:
             port += 1
 
-        logger.debug("Livestatus ports already in use: %r, using port: %d", used_ports, port)
+        logger.debug(
+            "Livestatus ports already in use: %(used_ports)r, using port: %(port)d",
+            {"used_ports": used_ports, "port": port},
+        )
         return port
 
     def toggle_liveproxyd(self, enabled: bool = True) -> None:
@@ -1742,7 +1823,7 @@ class Site:
             logger.info("Not copying results (not containerized and undefined RESULT_PATH)")
             return
 
-        logger.info("Saving to %s", self.result_dir)
+        logger.info("Saving to %(result_dir)s", {"result_dir": self.result_dir})
         if self.path("junit.xml").exists():
             run(["cp", self.path("junit.xml").as_posix(), self.result_dir.as_posix()], sudo=True)
 
@@ -1817,7 +1898,7 @@ class Site:
         ]
 
     def report_crashes(self, ignore_bakery_crashes: bool = False) -> None:
-        logger.info("Checking crash reports for site %s", self.id)
+        logger.info("Checking crash reports for site %(site_id)s", {"site_id": self.id})
         for crash_dir in self.crash_reports_dirs():
             if crash_dir in self.known_crashes:
                 continue
@@ -1909,13 +1990,15 @@ class Site:
             logger.debug("Read replication changes of site")
             base_dir = site.path("var/check_mk/wato").as_posix()
             for path in glob.glob(base_dir + "/replication_*"):
-                logger.debug("Replication file: %r", path)
+                logger.debug("Replication file: %(path)r", {"path": path})
                 with suppress(FileNotFoundError):
                     logger.debug(site.read_file(base_dir + "/" + os.path.basename(path)))
 
             # Ensure no previous activation is still running
             for status_path in glob.glob(base_dir + "/replication_status_*"):
-                logger.debug("Replication status file: %r", status_path)
+                logger.debug(
+                    "Replication status file: %(status_path)r", {"status_path": status_path}
+                )
                 with suppress(FileNotFoundError):
                     changes = ast.literal_eval(
                         site.read_file(base_dir + "/" + os.path.basename(status_path))
@@ -1929,7 +2012,7 @@ class Site:
                 force_foreign_changes=allow_foreign_changes
             )
             if changed:
-                logger.info("Waiting for core reloads of: %s", site.id)
+                logger.info("Waiting for core reloads of: %(site_id)s", {"site_id": site.id})
                 site.wait_for_core_reloaded(old_t)
         finally:
             self.ensure_running()
@@ -2029,12 +2112,12 @@ class Site:
                 Files are assumed to be relative to the site's root directory.
         """
         list_of_files = ", ".join(map(str, files))
-        logger.info("Backup files: '%s'", list_of_files)
+        logger.info("Backup files: '%(files)s'", {"files": list_of_files})
         backup = {file: self.read_file(file) for file in files}
         try:
             yield
         finally:
-            logger.info("Restore files: '%s'", list_of_files)
+            logger.info("Restore files: '%(files)s'", {"files": list_of_files})
             for file, content in backup.items():
                 self.write_file(rel_path=file, content=content)
             self.openapi.changes.activate_and_wait_for_completion()
@@ -2045,8 +2128,14 @@ class Site:
         included into counts on central site.
         """
         host_names, services = self._get_existing_hosts_and_services()
-        logger.debug("Found %s hosts on %s site: %s", len(host_names), self.id, host_names)
-        logger.debug("Found %s services on %s site: %s", len(services), self.id, services)
+        logger.debug(
+            "Found %(host_count)s hosts on %(site_id)s site: %(host_names)s",
+            {"host_count": len(host_names), "site_id": self.id, "host_names": host_names},
+        )
+        logger.debug(
+            "Found %(service_count)s services on %(site_id)s site: %(services)s",
+            {"service_count": len(services), "site_id": self.id, "services": services},
+        )
         return len(host_names), len(services)
 
     def _get_existing_hosts_and_services(self) -> tuple[list[str], list[dict[str, Any]]]:
@@ -2058,21 +2147,28 @@ class Site:
         host_names = self.openapi.hosts.get_all_names()
         total_services = []
         if host_names:
-            logger.info("Found %d existing hosts on a site: %s", len(host_names), host_names)
+            logger.info(
+                "Found %(host_count)d existing hosts on a site: %(host_names)s",
+                {"host_count": len(host_names), "host_names": host_names},
+            )
             logger.info("Check how many services are configured on the existing hosts")
             for host_name in host_names:
                 services = self.openapi.services.get_host_services(host_name)
                 service_count = len(services)
                 total_services += services
-                logger.info("Host '%s' has %d services configured", host_name, service_count)
+                logger.info(
+                    "Host '%(host_name)s' has %(service_count)d services configured",
+                    {"host_name": host_name, "service_count": service_count},
+                )
         else:
-            logger.info("No existing hosts found on %s site", self.id)
+            logger.info("No existing hosts found on %(site_id)s site", {"site_id": self.id})
             host_names = []
         if not total_services:
-            logger.info("No existing services found on %s site", self.id)
+            logger.info("No existing services found on %(site_id)s site", {"site_id": self.id})
         else:
             logger.info(
-                "Found a total of %s existing services on %s site", len(total_services), self.id
+                "Found a total of %(service_count)s existing services on %(site_id)s site",
+                {"service_count": len(total_services), "site_id": self.id},
             )
         return host_names, total_services
 
@@ -2159,7 +2255,7 @@ class SiteFactory:
         if auto_restart_httpd:
             restart_httpd()
 
-        logger.debug("Created site %s", site.id)
+        logger.debug("Created site %(site_id)s", {"site_id": site.id})
         return site
 
     def setup_customers(self, site: Site, customers: Sequence[str]) -> None:
@@ -2187,7 +2283,7 @@ class SiteFactory:
 
         site.start()
 
-        logger.debug("Reused site %s", site.id)
+        logger.debug("Reused site %(site_id)s", {"site_id": site.id})
         return site
 
     def restore_site_from_backup(self, backup_path: Path, name: str, reuse: bool = False) -> Site:
@@ -2206,7 +2302,7 @@ class SiteFactory:
                 f"Base-version '{site.version.version}' is not available for distro "
                 f"{os.environ.get('DISTRO')}"
             )
-        logger.info("Creating %s site from backup...", name)
+        logger.info("Creating %(name)s site from backup...", {"name": name})
 
         omd_restore_cmd = (
             ["sudo", "omd", "restore", "--apache-reload"]
@@ -2241,7 +2337,10 @@ class SiteFactory:
             backup_path: Full path (including filename) where the save the backup.
             no_past: If True, the backup will be created with the '--no-past' flag.
         """
-        logger.info("Creating backup of site '%s' to '%s'...", site_id, backup_path)
+        logger.info(
+            "Creating backup of site '%(site_id)s' to '%(backup_path)s'...",
+            {"site_id": site_id, "backup_path": backup_path},
+        )
         backup_path.parent.mkdir(parents=True, exist_ok=True)
         cmd = [
             "omd",
@@ -2255,7 +2354,10 @@ class SiteFactory:
             check=True,
             sudo=True,
         )
-        logger.info("Backup of site '%s' created at '%s'.", site_id, backup_path)
+        logger.info(
+            "Backup of site '%(site_id)s' created at '%(backup_path)s'.",
+            {"site_id": site_id, "backup_path": backup_path},
+        )
 
     @contextmanager
     def copy_site(self, site: Site, copy_name: str) -> Iterator[Site]:
@@ -2266,7 +2368,10 @@ class SiteFactory:
         )
 
         site.stop()
-        logger.info("Copying site '%s' to site '%s'...", site.id, site_copy.id)
+        logger.info(
+            "Copying site '%(src_site_id)s' to site '%(dst_site_id)s'...",
+            {"src_site_id": site.id, "dst_site_id": site_copy.id},
+        )
         run(["omd", "cp", site.id, site_copy.id], sudo=True)
         site_copy = self.get_existing_site(copy_name)
         site_copy.start()
@@ -2278,7 +2383,7 @@ class SiteFactory:
 
         finally:
             if is_cleanup_enabled():
-                logger.info("Removing site '%s'...", site_copy.id)
+                logger.info("Removing site '%(site_id)s'...", {"site_id": site_copy.id})
                 site_copy.rm()
 
     def interactive_update(
@@ -2338,10 +2443,13 @@ class SiteFactory:
         site.stop()
 
         logger.info(
-            "Updating '%s' site from '%s' version to '%s' version...",
-            site.id,
-            base_package.omd_version(),
-            target_package.omd_version(),
+            "Updating '%(site_id)s' site from '%(base_version)s' version to "
+            "'%(target_version)s' version...",
+            {
+                "site_id": site.id,
+                "base_version": base_package.omd_version(),
+                "target_version": target_package.omd_version(),
+            },
         )
 
         pexpect_dialogs = []
@@ -2368,10 +2476,13 @@ class SiteFactory:
             )
         else:  # update-process not supported. Still, verify the correct message is displayed
             logger.info(
-                "Updating '%s' site from version '%s' to version '%s' is not supported",
-                site.id,
-                base_package.omd_version(),
-                target_package.omd_version(),
+                "Updating '%(site_id)s' site from version '%(base_version)s' to "
+                "version '%(target_version)s' is not supported",
+                {
+                    "site_id": site.id,
+                    "base_version": base_package.omd_version(),
+                    "target_version": target_package.omd_version(),
+                },
             )
 
             pexpect_dialogs.extend(
@@ -2458,7 +2569,7 @@ class SiteFactory:
             pytest.skip(f"{base_package} is not a supported version for {target_package}")
 
         with open(logfile_path) as logfile:
-            logger.debug("OMD automation logfile: %s", logfile.read())
+            logger.debug("OMD automation logfile: %(logfile)s", {"logfile": logfile.read()})
 
         test_site.package = target_package
         # refresh the site object after creating the site
@@ -2478,7 +2589,7 @@ class SiteFactory:
         site.start()
 
         assert site.is_running(), "Site is not running!"
-        logger.info("Site %s is up", site.id)
+        logger.info("Site %(site_id)s is up", {"site_id": site.id})
 
         restart_httpd()
 
@@ -2534,10 +2645,12 @@ class SiteFactory:
         site.stop()
 
         logger.info(
-            "Updating %s site from %s to %s ...",
-            site.id,
-            base_package.omd_version(),
-            target_package.omd_version(),
+            "Updating %(site_id)s site from %(base_version)s to %(target_version)s ...",
+            {
+                "site_id": site.id,
+                "base_version": base_package.omd_version(),
+                "target_version": target_package.omd_version(),
+            },
         )
 
         cmd = [
@@ -2578,7 +2691,7 @@ class SiteFactory:
             site.start()
 
             assert site.is_running(), "Site is not running!"
-            logger.info("Site %s is up", site.id)
+            logger.info("Site %(site_id)s is up", {"site_id": site.id})
 
             restart_httpd()
             site.openapi.changes.activate_and_wait_for_completion()
@@ -2637,17 +2750,17 @@ class SiteFactory:
         site = self.get_existing_site(name, start=reuse_site)
         if site.exists():
             if reuse_site:
-                logger.info('Reusing existing site "%s" (REUSE=1)', site.id)
+                logger.info('Reusing existing site "%(site_id)s" (REUSE=1)', {"site_id": site.id})
                 if site.version != self.version:
                     # issue a warning if the version and/or edition differ
                     # we will still continue, as the tester/user might have a good reason for this
                     logger.warning(
                         "REUSE was set, but versions and/or editions differ. May cause issues."
                     )
-                    logger.warning("  existing : version=%s).", site.version)
-                    logger.warning("  requested: version=%s).", self.version)
+                    logger.warning("  existing : version=%(version)s).", {"version": site.version})
+                    logger.warning("  requested: version=%(version)s).", {"version": self.version})
             else:
-                logger.info('Dropping existing site "%s" (REUSE=0)', site.id)
+                logger.info('Dropping existing site "%(site_id)s" (REUSE=0)', {"site_id": site.id})
                 site.rm()
         if not site.exists():
             site = self.get_site(name)
@@ -2671,9 +2784,11 @@ class SiteFactory:
                     auto_restart_httpd=auto_restart_httpd,
                 )
                 logger.info(
-                    'Site "%s" is ready!%s',
-                    site.id,
-                    f" [{description}]" if description else "",
+                    'Site "%(site_id)s" is ready!%(description)s',
+                    {
+                        "site_id": site.id,
+                        "description": f" [{description}]" if description else "",
+                    },
                 )
                 yield site
         finally:
@@ -2682,7 +2797,7 @@ class SiteFactory:
             if report_crashes:
                 site.report_crashes()
             if auto_cleanup and cleanup_site:
-                logger.info('Dropping site "%s" (CLEANUP=1)', site.id)
+                logger.info('Dropping site "%(site_id)s" (CLEANUP=1)', {"site_id": site.id})
                 site.stop()
                 site.rm()
 
@@ -2732,9 +2847,9 @@ class SiteFactory:
         elif name in self._sites:
             site_id = name
         else:
-            logger.debug("Found no site for name %s.", name)
+            logger.debug("Found no site for name %(name)s.", {"name": name})
             return
-        logger.info("Removing site %s", site_id)
+        logger.info("Removing site %(site_id)s", {"site_id": site_id})
         self._sites[site_id].rm()
         del self._sites[site_id]
 
@@ -2762,13 +2877,13 @@ class SiteFactory:
     def save_results(self) -> None:
         logger.info("Saving results")
         for _site_id, site in sorted(self._sites.items(), key=lambda x: x[0]):
-            logger.info("Saving results of site %s", site.id)
+            logger.info("Saving results of site %(site_id)s", {"site_id": site.id})
             site.save_results()
 
     def report_crashes(self, ignore_bakery_crashes: bool = False) -> None:
         logger.info("Reporting crashes")
         for _site_id, site in sorted(self._sites.items(), key=lambda x: x[0]):
-            logger.info("Reporting crashes of site %s", site.id)
+            logger.info("Reporting crashes of site %(site_id)s", {"site_id": site.id})
             site.report_crashes(ignore_bakery_crashes=ignore_bakery_crashes)
 
     def cleanup(self) -> None:
@@ -2797,10 +2912,12 @@ def get_site_factory(
         edition_from_env(),
     )
     logger.info(
-        "Version: %s, Edition: %s, Branch: %s",
-        package_info.version.version,
-        package_info.edition.long,
-        package_info.version.branch,
+        "Version: %(version)s, Edition: %(edition)s, Branch: %(branch)s",
+        {
+            "version": package_info.version.version,
+            "edition": package_info.edition.long,
+            "branch": package_info.version.branch,
+        },
     )
     return SiteFactory(
         package=package_info,
@@ -2982,12 +3099,18 @@ def connection(
         },
         "configuration_connection": configuration_connection,
     }
-    logger.info("Create site connection from '%s' to '%s'", central_site.id, remote_site.id)
+    logger.info(
+        "Create site connection from '%(central_site_id)s' to '%(remote_site_id)s'",
+        {"central_site_id": central_site.id, "remote_site_id": remote_site.id},
+    )
     central_site.openapi.sites.create(site_config)
     if configuration_connection.get("enable_replication"):
         # CMK-27517: login won't work when replication is disabled
         # CMK-27518: login won't work for the community edition (even if site URL is set via UI)
-        logger.info("Establish site login '%s' to '%s'", central_site.id, remote_site.id)
+        logger.info(
+            "Establish site login '%(central_site_id)s' to '%(remote_site_id)s'",
+            {"central_site_id": central_site.id, "remote_site_id": remote_site.id},
+        )
         central_site.openapi.sites.login(remote_site.id)
     logger.info("Activating site setup changes")
     central_site.openapi.changes.activate_and_wait_for_completion(
@@ -2995,13 +3118,24 @@ def connection(
         force_foreign_changes=True,
     )
     try:
-        logger.info("Connection from '%s' to '%s' established", central_site.id, remote_site.id)
+        logger.info(
+            "Connection from '%(central_site_id)s' to '%(remote_site_id)s' established",
+            {"central_site_id": central_site.id, "remote_site_id": remote_site.id},
+        )
         yield
     finally:
         if is_cleanup_enabled():
-            logger.info("Remove site connection from '%s' to '%s'", central_site.id, remote_site.id)
-            logger.info("Hosts left: %s", central_site.openapi.hosts.get_all_names())
-            logger.info("Delete remote site connection '%s'", remote_site.id)
+            logger.info(
+                "Remove site connection from '%(central_site_id)s' to '%(remote_site_id)s'",
+                {"central_site_id": central_site.id, "remote_site_id": remote_site.id},
+            )
+            logger.info(
+                "Hosts left: %(hosts)s", {"hosts": central_site.openapi.hosts.get_all_names()}
+            )
+            logger.info(
+                "Delete remote site connection '%(remote_site_id)s'",
+                {"remote_site_id": remote_site.id},
+            )
             central_site.openapi.sites.delete(remote_site.id)
             logger.info("Activating site removal changes")
             central_site.openapi.changes.activate_and_wait_for_completion(
