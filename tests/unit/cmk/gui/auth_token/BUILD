@@ -8,6 +8,8 @@ py_cmk_test(
     use_project_pytest_config = True,
     deps = [
         "//cmk/gui/token_auth",
+        "//cmk/utils",
+        "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:user",
         requirement("python-dateutil"),
     ],
