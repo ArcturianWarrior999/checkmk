@@ -57,7 +57,7 @@ def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     else:
         logging.basicConfig(level=logging.DEBUG, format=fmt % "(line %(lineno)3d) ")
 
-    LOGGER.debug("parsed args: %r", args)
+    LOGGER.debug("parsed args: %(args)r", {"args": args})
     return args
 
 
@@ -129,7 +129,9 @@ def load_cfg(cfg_file: Path = DEFAULT_CFG_FILE) -> Union[PodmanConfig, None]:
     config = configparser.ConfigParser(DEFAULT_CFG_SECTION)
 
     if not cfg_file.is_file():
-        LOGGER.debug("No config file found at %s, using defaults.", cfg_file)
+        LOGGER.debug(
+            "No config file found at %(cfg_file)s, using defaults.", {"cfg_file": cfg_file}
+        )
         return None
 
     try:
@@ -162,14 +164,20 @@ def load_cfg(cfg_file: Path = DEFAULT_CFG_FILE) -> Union[PodmanConfig, None]:
 
         if method == "manual" and socket_paths_str:
             socket_paths = [p.strip() for p in socket_paths_str.split(",") if p.strip()]
-            LOGGER.info("Config loaded from %s: manual socket paths: %s", cfg_file, socket_paths)
+            LOGGER.info(
+                "Config loaded from %(cfg_file)s: manual socket paths: %(socket_paths)s",
+                {"cfg_file": cfg_file, "socket_paths": socket_paths},
+            )
             return PodmanConfig(
                 connection_method=connection_method,
                 socket_detection=("manual", socket_paths),
                 piggyback_name_method=piggyback_name_method,
                 keep_non_zero_exit_containers=keep_non_zero_exit_containers,
             )
-        LOGGER.info("Config loaded from %s: socket detection method: %s", cfg_file, method)
+        LOGGER.info(
+            "Config loaded from %(cfg_file)s: socket detection method: %(method)s",
+            {"cfg_file": cfg_file, "method": method},
+        )
         return PodmanConfig(
             connection_method=connection_method,
             socket_detection=AutomaticSocketDetectionMethod(method),
@@ -205,7 +213,7 @@ def find_user_sockets() -> Sequence[str]:
         for entry in os.listdir(run_user_dir)
         if os.path.exists(os.path.join(run_user_dir, entry, "podman", "podman.sock"))
     ]
-    LOGGER.debug("Discovered user sockets: %s", sockets)
+    LOGGER.debug("Discovered user sockets: %(sockets)s", {"sockets": sockets})
     return sockets
 
 
@@ -223,9 +231,8 @@ def find_podman_users_from_conmon() -> Sequence[Union[str, None]]:
         )
         if result.returncode != 0:
             LOGGER.warning(
-                "'ps' command failed (rc=%d): %s. Falling back to root user only.",
-                result.returncode,
-                result.stderr.strip(),
+                "'ps' command failed (rc=%(returncode)d): %(stderr)s. Falling back to root user only.",
+                {"returncode": result.returncode, "stderr": result.stderr.strip()},
             )
             return [None]
 
@@ -242,14 +249,15 @@ def find_podman_users_from_conmon() -> Sequence[Union[str, None]]:
                     continue
     except Exception as e:
         LOGGER.warning(
-            "Failed to discover podman users from conmon: %s. Falling back to root user only.", e
+            "Failed to discover podman users from conmon: %(error)s. Falling back to root user only.",
+            {"error": e},
         )
         return [None]
 
     # Always include root/current user first
     result_list: list[Union[str, None]] = [None]
     result_list.extend(sorted(users))
-    LOGGER.debug("Discovered podman users from conmon: %s", result_list)
+    LOGGER.debug("Discovered podman users from conmon: %(users)s", {"users": result_list})
     return result_list
 
 
@@ -570,7 +578,7 @@ def run_cli_queries_for_user(
     run_as_user: Union[str, None] = None,
     keep_non_zero_exit_containers: bool = True,
 ) -> None:
-    LOGGER.info("Running CLI queries as user: %s", run_as_user or "root")
+    LOGGER.info("Running CLI queries as user: %(user)s", {"user": run_as_user or "root"})
     containers_section = query_containers_cli(run_as_user)
     engine_section = query_engine_cli(run_as_user)
 
@@ -842,7 +850,7 @@ def main() -> None:
         return
 
     for socket_path_str in available_sockets:
-        LOGGER.info("Querying podman via socket: %s", socket_path_str)
+        LOGGER.info("Querying podman via socket: %(socket_path)s", {"socket_path": socket_path_str})
         socket_path = Path(socket_path_str)
         with make_unixsocket_session(
             socket_path=socket_path,

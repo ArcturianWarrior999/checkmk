@@ -89,7 +89,6 @@ def _has_positional_placeholder(format_string: str) -> bool:
 #: Repo-relative path prefixes not yet migrated; the checker skips files below them.
 #: Transitional: shrink until empty, then remove this exclusion.
 _EXCLUDED_PREFIXES = (
-    "agents",
     "buildscripts",
     "cmk",
     "non-free",

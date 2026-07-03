@@ -126,15 +126,15 @@ def parse_arguments(argv=None):
     if args.verbose < 3:
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    LOGGER.debug("parsed args: %r", args)
+    LOGGER.debug("parsed args: %(args)r", {"args": args})
     return args
 
 
 def get_config(cfg_file):
     config = configparser.ConfigParser(DEFAULT_CFG_SECTION)
-    LOGGER.debug("trying to read %r", cfg_file)
+    LOGGER.debug("trying to read %(cfg_file)r", {"cfg_file": cfg_file})
     files_read = config.read(cfg_file)
-    LOGGER.info("read configration file(s): %r", files_read)
+    LOGGER.info("read configration file(s): %(files_read)r", {"files_read": files_read})
     section_name = "DOCKER" if config.sections() else "DEFAULT"
     conf_dict = dict(config.items(section_name))  # type: dict[str, str | tuple]
     skip_sections = conf_dict.get("skip_sections", "")
@@ -177,7 +177,7 @@ class Section(list):
 
 
 def report_exception_to_server(exc, location):
-    LOGGER.info("handling exception: %s", exc)
+    LOGGER.info("handling exception: %(exc)s", {"exc": exc})
     msg = "Plug-in exception in %s: %s" % (location, exc)
     sec = Section("docker_node_info")
     sec.append(json.dumps({"Unknown": msg}))
@@ -204,7 +204,7 @@ class ParallelDfCall:
             self._my_tmp_file.touch()
             data = self._new_df_result()
         except docker.errors.APIError as exc:
-            LOGGER.debug("df API call failed: %s", exc)
+            LOGGER.debug("df API call failed: %(exc)s", {"exc": exc})
             data = self._spool_df_result()
         else:
             # the API call succeeded, no need for any tmp files
@@ -316,7 +316,7 @@ class MKDockerClient(docker.DockerClient):
             while length:
                 data = docker.utils.socket.read(sock, length)
                 length -= len(data)
-                LOGGER.debug("Received data: %r", data)
+                LOGGER.debug("Received data: %(data)r", {"data": data})
                 if actual_descriptor == descriptor:
                     yield data.decode("UTF-8")
             header = docker.utils.socket.read(sock, 8)
@@ -377,7 +377,10 @@ def time_it(func):
         try:
             return func(*args, **kwargs)
         finally:
-            LOGGER.info("%r took %ss", func.__name__, time.time() - before)
+            LOGGER.info(
+                "%(func_name)r took %(duration)ss",
+                {"func_name": func.__name__, "duration": time.time() - before},
+            )
 
     return wrapped
 
@@ -405,7 +408,7 @@ def set_version_info(client):
 def is_disabled_section(config, section_name):
     """Skip the section, if configured to do so"""
     if section_name in config["skip_sections"]:
-        LOGGER.info("skipped section: %s", section_name)
+        LOGGER.info("skipped section: %(section_name)s", {"section_name": section_name})
         return True
     return False
 
@@ -596,12 +599,18 @@ def section_container_agent(client, container_id):
         raise e
     success = "<<<check_mk>>>" in result
     if success:
-        LOGGER.debug("running check_mk_agent in container %s: ok", container_id)
+        LOGGER.debug(
+            "running check_mk_agent in container %(container_id)s: ok",
+            {"container_id": container_id},
+        )
         section = Section(piggytarget=container_id)
         section.append(result)
         section.write()
     else:
-        LOGGER.warning("running check_mk_agent in container %s failed: %s", container_id, result)
+        LOGGER.warning(
+            "running check_mk_agent in container %(container_id)s failed: %(result)s",
+            {"container_id": container_id, "result": result},
+        )
     return success
 
 
@@ -691,7 +700,7 @@ def call_container_sections(client, config):
 
 
 def _call_single_containers_sections(client, config, container_id):
-    LOGGER.info("container id: %s", container_id)
+    LOGGER.info("container id: %(container_id)s", {"container_id": container_id})
     for name, section in CONTAINER_API_SECTIONS:
         if is_disabled_section(config, name):
             continue

@@ -216,7 +216,7 @@ def get_status_filename(cluster_config, remote):
     remote_hostname = remote.replace(":", "_")
     match = IPV4_REGEX.match(remote) or IPV6_REGEX.match(remote)
     if not match:
-        LOGGER.debug("REMOTE %r neither IPv4 nor IPv6 address.", remote)
+        LOGGER.debug("REMOTE %(remote)r neither IPv4 nor IPv6 address.", {"remote": remote})
         return os.path.join(MK_VARDIR, "logwatch.state.%s" % remote_hostname)
 
     remote_ip = match.group()
@@ -233,10 +233,12 @@ def get_status_filename(cluster_config, remote):
                 # Cluster name may not contain whitespaces (must be provided from
                 # the WATO config as type ID or hostname).
                 cluster_name = conf.name
-                LOGGER.info("Matching cluster ip %s", remote_ip)
-                LOGGER.info("Matching cluster name %s", cluster_name)
+                LOGGER.info("Matching cluster ip %(remote_ip)s", {"remote_ip": remote_ip})
+                LOGGER.info(
+                    "Matching cluster name %(cluster_name)s", {"cluster_name": cluster_name}
+                )
     status_filename = os.path.join(MK_VARDIR, "logwatch.state.%s" % cluster_name)
-    LOGGER.info("Status filename: %s", status_filename)
+    LOGGER.info("Status filename: %(status_filename)s", {"status_filename": status_filename})
     return status_filename
 
 
@@ -278,13 +280,13 @@ def get_config_files(directory, config_file_arg=None):
     # Add config file paths from a logwatch.d folder
     for config_file in glob.glob(os.path.join(directory, "logwatch.d", "*.cfg")):
         config_file_paths.append(config_file)
-    LOGGER.info("Configuration file paths: %r", config_file_paths)
+    LOGGER.info("Configuration file paths: %(paths)r", {"paths": config_file_paths})
     return config_file_paths
 
 
 def iter_config_lines(files):
     # type: (Iterable[str]) -> Iterator[str]
-    LOGGER.debug("Config files: %r", files)
+    LOGGER.debug("Config files: %(files)r", {"files": files})
 
     for file_ in files:
         try:
@@ -316,7 +318,7 @@ def consume_cluster_definition(config_lines):
     # type: (list[str]) -> ClusterConfigBlock
     cluster_name = config_lines.pop(0)[8:].strip()  # e.g.: CLUSTER duck
     ips_or_subnets = []
-    LOGGER.debug("new ClusterConfigBlock: %s", cluster_name)
+    LOGGER.debug("new ClusterConfigBlock: %(cluster_name)s", {"cluster_name": cluster_name})
 
     while config_lines and is_indented(config_lines[0]):
         ips_or_subnets.append(config_lines.pop(0).strip())
@@ -330,7 +332,7 @@ def consume_logfile_definition(config_lines):
     rewrite_list = []
     filenames = parse_filenames(config_lines.pop(0))
     patterns = []
-    LOGGER.debug("new PatternConfigBlock: %s", filenames)
+    LOGGER.debug("new PatternConfigBlock: %(filenames)s", {"filenames": filenames})
 
     while config_lines and is_indented(config_lines[0]):
         line = config_lines.pop(0)
@@ -348,7 +350,7 @@ def consume_logfile_definition(config_lines):
             rewrite_list = []
             pattern = (level, raw_pattern, cont_list, rewrite_list)
             patterns.append(pattern)
-            LOGGER.debug("pattern %s", pattern)
+            LOGGER.debug("pattern %(pattern)s", {"pattern": pattern})
 
         else:
             raise ValueError("Invalid level in pattern line %r" % line)
@@ -398,8 +400,8 @@ def read_config(config_lines, files, debug=False):
         else:
             logfiles_configs.append(consume_logfile_definition(config_lines))
 
-    LOGGER.info("Logfiles configurations: %r", logfiles_configs)
-    LOGGER.info("Optional cluster configurations: %r", cluster_configs)
+    LOGGER.info("Logfiles configurations: %(configs)r", {"configs": logfiles_configs})
+    LOGGER.info("Optional cluster configurations: %(configs)r", {"configs": cluster_configs})
     return global_options, logfiles_configs, cluster_configs
 
 
@@ -430,7 +432,7 @@ class State:
         Support state files with the following structure:
         {'file': b'/var/log/messages', 'offset': 7767698, 'inode': 32455445}
         """
-        LOGGER.debug("Reading state file: %r", self.filename)
+        LOGGER.debug("Reading state file: %(filename)r", {"filename": self.filename})
 
         if not os.path.exists(self.filename):
             return self
@@ -440,13 +442,13 @@ class State:
                 line_data = self._load_line(ensure_text_type(line))
                 self._data[line_data["file"]] = line_data
 
-        LOGGER.info("Read state: %r", self._data)
+        LOGGER.info("Read state: %(data)r", {"data": self._data})
         return self
 
     def write(self):
         # type: () -> None
-        LOGGER.debug("Writing state: %r", self._data)
-        LOGGER.debug("State filename: %r", self.filename)
+        LOGGER.debug("Writing state: %(data)r", {"data": self._data})
+        LOGGER.debug("State filename: %(filename)r", {"filename": self.filename})
 
         with open(self.filename, "wb") as stat_fh:
             for data in self._data.values():
@@ -500,14 +502,17 @@ class LogLinesIter:
         for bom, encoding in ENCODINGS:
             if self._buffer.startswith(bom):
                 self._buffer = self._buffer[len(bom) :]
-                LOGGER.debug("Detected %r encoding by BOM", encoding)
+                LOGGER.debug("Detected %(encoding)r encoding by BOM", {"encoding": encoding})
                 return encoding
 
         pref_encoding = locale.getpreferredencoding()
         encoding = (
             "utf_8" if not pref_encoding or pref_encoding == "ANSI_X3.4-1968" else pref_encoding
         )
-        LOGGER.debug("Locale Preferred encoding is %s, using %s", pref_encoding, encoding)
+        LOGGER.debug(
+            "Locale Preferred encoding is %(pref_encoding)s, using %(encoding)s",
+            {"pref_encoding": pref_encoding, "encoding": encoding},
+        )
         return encoding
 
     def _update_lines(self):
@@ -1267,7 +1272,7 @@ def main(argv=None):
         # Simply ignore errors in the status file.  In case of a corrupted status file we simply
         # begin with an empty status. That keeps the monitoring up and running - even if we might
         # lose a message in the extreme case of a corrupted status file.
-        LOGGER.warning("Exception reading status file: %s", str(exc))
+        LOGGER.warning("Exception reading status file: %(exc)s", {"exc": str(exc)})
 
     for section in found_sections:
         filestate = state.get(section.name_fs)
@@ -1277,7 +1282,10 @@ def main(argv=None):
         except Exception as exc:
             if args.debug:
                 raise
-            LOGGER.debug("Exception when processing %r: %s", section.name_fs, exc)
+            LOGGER.debug(
+                "Exception when processing %(name_fs)r: %(exc)s",
+                {"name_fs": section.name_fs, "exc": exc},
+            )
 
         output = itertools.chain(
             output,
