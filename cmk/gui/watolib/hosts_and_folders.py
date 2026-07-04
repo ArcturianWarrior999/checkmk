@@ -29,6 +29,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Any, cast, Final, Literal, NamedTuple, NotRequired, Self, TypedDict
 
+from redis import Redis
 from redis.client import Pipeline
 from redis.typing import EncodableT, FieldT
 
@@ -345,9 +346,9 @@ class _RedisHelper:
     - provides functions to compute the number of hosts and fetch the metadata for folders
     """
 
-    def __init__(self, tree: FolderTree) -> None:
+    def __init__(self, tree: FolderTree, client: Redis) -> None:
         self.tree = tree
-        self._client = get_redis_client()
+        self._client = client
         self._folder_metadata: dict[str, FolderMetaData] = {}
 
         self._loaded_wato_folders: Mapping[PathWithoutSlash, Folder] | None = None
@@ -1015,7 +1016,7 @@ class FolderTree:
     @property
     def redis_client(self) -> _RedisHelper:
         if self._redis_client is None:
-            self._redis_client = _RedisHelper(self)
+            self._redis_client = _RedisHelper(self, get_redis_client())
         return self._redis_client
 
     @cached_property
