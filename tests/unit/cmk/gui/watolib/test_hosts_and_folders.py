@@ -28,11 +28,14 @@ from pytest import MonkeyPatch
 
 from livestatus import SiteConfigurations
 
+import cmk.utils.paths
+import cmk.utils.tags
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui import userdb
+from cmk.gui.config import get_default_config, make_config_object
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.logged_in import user as logged_in_user
@@ -42,7 +45,12 @@ from cmk.gui.watolib import hosts_and_folders
 from cmk.gui.watolib.audit_log import AuditLogStore, make_audit_log_change_hook
 from cmk.gui.watolib.host_attributes import HostAttributes
 from cmk.gui.watolib.host_match_item_generator import MatchItemGeneratorHosts
-from cmk.gui.watolib.hosts_and_folders import EffectiveAttributes, Folder, folder_tree
+from cmk.gui.watolib.hosts_and_folders import (
+    EffectiveAttributes,
+    Folder,
+    FolderTree,
+    make_folder_tree,
+)
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 from cmk.utils.redis import disable_redis
 
@@ -77,12 +85,20 @@ def test_effective_attributes() -> None:
 
 
 @pytest.fixture(autouse=True)
-def test_env(request_context: None) -> Iterator[None]:
-    # Ensure we have clean folder/host caches
-    tree = folder_tree()
-    tree.invalidate_caches()
+def tree() -> Iterator[FolderTree]:
+    # Build the tree explicitly instead of using the request-global
+    # folder_tree(), so no Flask request context is needed at all.
+    # Computing effective attributes loads the users to determine the network
+    # scan "run_as" default. Ensure the profile dir exists (usually done by
+    # the load_config fixture).
+    cmk.utils.paths.profile_dir.mkdir(parents=True, exist_ok=True)
+    raw_config = get_default_config()
+    raw_config["tags"] = cmk.utils.tags.get_effective_tag_config(raw_config["wato_tags"])
+    tree = make_folder_tree(make_config_object(raw_config))
+    with disable_redis():  # tests may allow_redis, but our bookkeeping shall not use it
+        tree.invalidate_caches()
 
-    yield
+    yield tree
 
     # Cleanup WATO folders created by the test
     shutil.rmtree(tree.root_folder().filesystem_path(), ignore_errors=True)
@@ -147,8 +163,10 @@ def test_env(request_context: None) -> Iterator[None]:
         ),
     ],
 )
-def test_host_tags(attributes: HostAttributes, expected_tags: dict[str, str]) -> None:
-    folder = folder_tree().root_folder()
+def test_host_tags(
+    attributes: HostAttributes, expected_tags: dict[str, str], tree: FolderTree
+) -> None:
+    folder = tree.root_folder()
     host = hosts_and_folders.Host(folder, HostName("test-host"), attributes, cluster_nodes=None)
 
     assert host.tag_groups() == expected_tags
@@ -187,8 +205,8 @@ def test_host_tags(attributes: HostAttributes, expected_tags: dict[str, str]) ->
         ),
     ],
 )
-def test_host_is_ping_host(attributes: HostAttributes, result: bool) -> None:
-    folder = folder_tree().root_folder()
+def test_host_is_ping_host(attributes: HostAttributes, result: bool, tree: FolderTree) -> None:
+    folder = tree.root_folder()
     host = hosts_and_folders.Host(folder, HostName("test-host"), attributes, cluster_nodes=None)
 
     assert host.is_ping_host() == result
@@ -207,8 +225,7 @@ def test_host_is_ping_host(attributes: HostAttributes, result: bool) -> None:
         )
     ],
 )
-def test_write_and_read_host_attributes(attributes: HostAttributes) -> None:
-    tree = folder_tree()
+def test_write_and_read_host_attributes(attributes: HostAttributes, tree: FolderTree) -> None:
     # Used to write the data
     write_data_folder = hosts_and_folders.Folder.load(
         tree=tree, name="testfolder", parent_folder=tree.root_folder()
@@ -239,8 +256,8 @@ def test_write_and_read_host_attributes(attributes: HostAttributes) -> None:
         }
 
 
-def test_create_multiple_hosts() -> None:
-    root = folder_tree().root_folder()
+def test_create_multiple_hosts(tree: FolderTree) -> None:
+    root = tree.root_folder()
     subfolder = root.create_subfolder(
         "subfolder",
         "subfolder",
@@ -265,7 +282,7 @@ def test_create_multiple_hosts() -> None:
 
     all_hosts = root.all_hosts_recursively()
     # to ensure that new folder instances contain the new hosts
-    all_hosts_new = folder_tree().root_folder().all_hosts_recursively()
+    all_hosts_new = tree.root_folder().all_hosts_recursively()
 
     assert "host-1" in all_hosts
     assert "host-2" in all_hosts
@@ -283,9 +300,8 @@ def in_chdir(directory: str) -> Iterator[None]:
         os.chdir(cur)
 
 
-def test_create_nested_folders(request_context: None) -> None:
+def test_create_nested_folders(tree: FolderTree) -> None:
     with in_chdir("/"):
-        tree = folder_tree()
         root = tree.root_folder()
 
         folder1 = hosts_and_folders.Folder.new(tree=tree, name="folder1", parent_folder=root)
@@ -297,9 +313,8 @@ def test_create_nested_folders(request_context: None) -> None:
         shutil.rmtree(os.path.dirname(folder1.wato_info_path()))
 
 
-def test_eq_operation(request_context: None) -> None:
+def test_eq_operation(tree: FolderTree) -> None:
     with in_chdir("/"):
-        tree = folder_tree()
         root = tree.root_folder()
         folder1 = hosts_and_folders.Folder.new(tree=tree, name="folder1", parent_folder=root)
         folder1.save_folder_attributes()
@@ -321,8 +336,8 @@ def _not_in_latest_log(secret: str) -> bool:
     return secret not in (AuditLogStore().read()[-1].diff_text or "")
 
 
-def test_mgmt_inherit_credentials_explicit_host_snmp() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_credentials_explicit_host_snmp(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_snmp_community"] = "FOLDER"
 
     folder.create_hosts(
@@ -352,8 +367,8 @@ def test_mgmt_inherit_credentials_explicit_host_snmp() -> None:
     assert _not_in_latest_log("HOST")
 
 
-def test_mgmt_inherit_credentials_explicit_host_ipmi() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_credentials_explicit_host_ipmi(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_ipmi_credentials"] = {
         "username": "FOLDERUSER",
         "password": "FOLDERPASS",
@@ -392,8 +407,8 @@ def test_mgmt_inherit_credentials_explicit_host_ipmi() -> None:
     assert _not_in_latest_log("PASS")
 
 
-def test_mgmt_inherit_credentials_snmp() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_credentials_snmp(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_snmp_community"] = "FOLDER"
 
     folder.create_hosts(
@@ -420,8 +435,8 @@ def test_mgmt_inherit_credentials_snmp() -> None:
     assert _not_in_latest_log("FOLDER")
 
 
-def test_mgmt_inherit_credentials_ipmi() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_credentials_ipmi(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_ipmi_credentials"] = {
         "username": "FOLDERUSER",
         "password": "FOLDERPASS",
@@ -454,8 +469,8 @@ def test_mgmt_inherit_credentials_ipmi() -> None:
     assert _not_in_latest_log("FOLDERPASS")
 
 
-def test_mgmt_inherit_protocol_explicit_host_snmp() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_protocol_explicit_host_snmp(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_protocol"] = None
     folder.attributes["management_snmp_community"] = "FOLDER"
 
@@ -484,8 +499,8 @@ def test_mgmt_inherit_protocol_explicit_host_snmp() -> None:
     assert _not_in_latest_log("HOST")
 
 
-def test_mgmt_inherit_protocol_explicit_host_ipmi() -> None:
-    folder = folder_tree().root_folder()
+def test_mgmt_inherit_protocol_explicit_host_ipmi(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.attributes["management_protocol"] = None
     folder.attributes["management_ipmi_credentials"] = {
         "username": "FOLDERUSER",
@@ -536,14 +551,14 @@ def fixture_patch_may(mocker: MagicMock) -> None:
     mocker.patch.object(hosts_and_folders.PermissionChecker, "may", may)
 
 
-def only_root() -> hosts_and_folders.Folder:
-    root_folder = folder_tree().root_folder()
+def only_root(tree: FolderTree) -> hosts_and_folders.Folder:
+    root_folder = tree.root_folder()
     root_folder._loaded_subfolders = {}
     return root_folder
 
 
-def three_levels() -> hosts_and_folders.Folder:
-    main = folder_tree().root_folder()
+def three_levels(tree: FolderTree) -> hosts_and_folders.Folder:
+    main = tree.root_folder()
 
     a = main.create_subfolder(
         "a",
@@ -598,8 +613,8 @@ def three_levels() -> hosts_and_folders.Folder:
     return main
 
 
-def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
-    main = folder_tree().root_folder()
+def three_levels_leaf_permissions(tree: FolderTree) -> hosts_and_folders.Folder:
+    main = tree.root_folder()
 
     # Attribute only used for testing
     main.permissions._may_see = False  # type: ignore[attr-defined]
@@ -692,26 +707,27 @@ def three_levels_leaf_permissions() -> hosts_and_folders.Folder:
 )
 @pytest.mark.usefixtures("patch_may")
 def test_recursive_subfolder_choices(
-    actual_builder: Callable[[], hosts_and_folders.Folder],
+    actual_builder: Callable[[FolderTree], hosts_and_folders.Folder],
     expected: list[tuple[str, str]],
+    tree: FolderTree,
 ) -> None:
-    folder = actual_builder()
-    with hide_folders_without_permission(True):
+    folder = actual_builder(tree)
+    with hide_folders_without_permission(tree, True):
         assert folder.recursive_subfolder_choices(pretty=True, acting_user=_SUPERUSER) == expected
 
 
 @pytest.mark.usefixtures("patch_may")
-def test_recursive_subfolder_choices_function_calls(mocker: MagicMock) -> None:
+def test_recursive_subfolder_choices_function_calls(mocker: MagicMock, tree: FolderTree) -> None:
     """Every folder should only be visited once"""
     spy = mocker.spy(hosts_and_folders.Folder, "_walk_tree")
-    tree = three_levels_leaf_permissions()
-    with hide_folders_without_permission(True):
-        tree.recursive_subfolder_choices(pretty=True, acting_user=_SUPERUSER)
+    main = three_levels_leaf_permissions(tree)
+    with hide_folders_without_permission(tree, True):
+        main.recursive_subfolder_choices(pretty=True, acting_user=_SUPERUSER)
     assert spy.call_count == 7
 
 
-def test_subfolder_creation() -> None:
-    folder = folder_tree().root_folder()
+def test_subfolder_creation(tree: FolderTree) -> None:
+    folder = tree.root_folder()
     folder.create_subfolder(
         "foo",
         "Foo Folder",
@@ -722,7 +738,7 @@ def test_subfolder_creation() -> None:
     )
 
     # Upon instantiation, all the subfolders should be already known.
-    folder = folder_tree().root_folder()
+    folder = tree.root_folder()
     assert len(folder._subfolders) == 1
 
 
@@ -761,9 +777,8 @@ class _TreeStructure:
 
 
 def make_monkeyfree_folder(
-    tree_structure: _TreeStructure, parent: hosts_and_folders.Folder | None = None
+    tree: FolderTree, tree_structure: _TreeStructure, parent: hosts_and_folders.Folder | None = None
 ) -> hosts_and_folders.Folder:
-    tree = hosts_and_folders.folder_tree()
     if parent is None:
         new_folder = tree.root_folder()
         new_folder.attributes = tree_structure.attributes
@@ -782,7 +797,7 @@ def make_monkeyfree_folder(
 
     for subtree_structure in tree_structure.subfolders:
         new_folder._subfolders[subtree_structure.path] = make_monkeyfree_folder(
-            subtree_structure, new_folder
+            tree, subtree_structure, new_folder
         )
         new_folder._path = tree_structure.path
 
@@ -926,10 +941,10 @@ def dump_wato_folder_structure(wato_folder: hosts_and_folders.Folder) -> None:
     ],
 )
 def test_folder_permissions(
-    structure: _TreeStructure, testfolder_expected_groups: set[str]
+    structure: _TreeStructure, testfolder_expected_groups: set[str], tree: FolderTree
 ) -> None:
     with disable_redis():
-        wato_folder = make_monkeyfree_folder(structure)
+        wato_folder = make_monkeyfree_folder(tree, structure)
         # dump_wato_folder_structure(wato_folder)
         testfolder = wato_folder._subfolders["sub1"]._subfolders["testfolder"]
         permitted_groups_cre_folder, _host_contact_groups, _use_for_service = testfolder.groups()
@@ -963,8 +978,7 @@ class _UserTest:
 
 
 @contextmanager
-def hide_folders_without_permission(do_hide: bool) -> Iterator[None]:
-    tree = folder_tree()
+def hide_folders_without_permission(tree: FolderTree, do_hide: bool) -> Iterator[None]:
     old_config = tree.config
     try:
         tree.config = replace(old_config, wato_hide_folders_without_read_permissions=do_hide)
@@ -1038,11 +1052,15 @@ group_tree_test = (
     [group_tree_test],
 )
 def test_num_hosts_normal_user(
-    structure: _TreeStructure, user_tests: list[_UserTest], monkeypatch: MonkeyPatch
+    structure: _TreeStructure,
+    user_tests: list[_UserTest],
+    monkeypatch: MonkeyPatch,
+    tree: FolderTree,
 ) -> None:
     with disable_redis():
         for user_test in user_tests:
             _run_num_host_test(
+                tree,
                 structure,
                 user_test,
                 user_test.expected_num_hosts,
@@ -1057,22 +1075,26 @@ def test_num_hosts_normal_user(
     [group_tree_test],
 )
 def test_num_hosts_admin_user(
-    structure: _TreeStructure, user_tests: list[_UserTest], monkeypatch: MonkeyPatch
+    structure: _TreeStructure,
+    user_tests: list[_UserTest],
+    monkeypatch: MonkeyPatch,
+    tree: FolderTree,
 ) -> None:
     with disable_redis():
         for user_test in user_tests:
-            _run_num_host_test(structure, user_test, 117, True, monkeypatch)
+            _run_num_host_test(tree, structure, user_test, 117, True, monkeypatch)
 
 
 def _run_num_host_test(
+    tree: FolderTree,
     structure: _TreeStructure,
     user_test: _UserTest,
     expected_host_count: int,
     is_admin: bool,
     monkeypatch: MonkeyPatch,
 ) -> None:
-    wato_folder = make_monkeyfree_folder(structure)
-    with hide_folders_without_permission(user_test.hide_folders_without_permission):
+    wato_folder = make_monkeyfree_folder(tree, structure)
+    with hide_folders_without_permission(tree, user_test.hide_folders_without_permission):
         # The algorithm implemented in Folder actually computes the num_hosts_recursively wrong.
         # It does not exclude hosts in the questioned base folder, even when it should adhere
         # the visibility permissions. This error is not visible in the GUI since another(..)
@@ -1093,6 +1115,7 @@ def _run_num_host_test(
         # New mechanism
         monkeypatch.setattr(userdb, "contactgroups_of_user", lambda u: user_test.contactgroups)
         with get_fake_setup_redis_client(
+            tree,
             monkeypatch,
             _convert_folder_tree_to_all_folders(wato_folder),
             [_fake_redis_num_hosts_answer(wato_folder)],
@@ -1131,6 +1154,7 @@ class MockRedisClient:
 
 @contextmanager
 def get_fake_setup_redis_client(
+    tree: FolderTree,
     monkeypatch: MonkeyPatch,
     all_folders: dict[hosts_and_folders.PathWithoutSlash, hosts_and_folders.Folder],
     redis_answers: list[list[list[str]]],
@@ -1138,8 +1162,8 @@ def get_fake_setup_redis_client(
     try:
         monkeypatch.setattr(hosts_and_folders, "may_use_redis", lambda: True)
         mock_redis_client = MockRedisClient(redis_answers)
+        monkeypatch.setattr(hosts_and_folders, "get_redis_client", lambda: mock_redis_client)
         monkeypatch.setattr(hosts_and_folders._RedisHelper, "_cache_integrity_ok", lambda x: True)
-        tree = folder_tree()
         redis_helper = tree.redis_client
         monkeypatch.setattr(redis_helper, "_client", mock_redis_client)
         monkeypatch.setattr(redis_helper, "_folder_paths", [f"{x}/" for x in all_folders])
@@ -1159,13 +1183,13 @@ def get_fake_setup_redis_client(
 
 
 @pytest.mark.usefixtures("with_admin_login", "allow_redis")
-def test_load_redis_folders_on_demand(monkeypatch: MonkeyPatch) -> None:
-    wato_folder = make_monkeyfree_folder(group_tree_structure)
-    folder_tree().invalidate_caches()
+def test_load_redis_folders_on_demand(monkeypatch: MonkeyPatch, tree: FolderTree) -> None:
+    wato_folder = make_monkeyfree_folder(tree, group_tree_structure)
+    tree.invalidate_caches()
     with get_fake_setup_redis_client(
-        monkeypatch, _convert_folder_tree_to_all_folders(wato_folder), []
+        tree, monkeypatch, _convert_folder_tree_to_all_folders(wato_folder), []
     ):
-        wato_folders = folder_tree().all_folders()
+        wato_folders = tree.all_folders()
         # Check if wato_folders class matches
         assert isinstance(wato_folders, hosts_and_folders.WATOFoldersOnDemand)
         # Check if item is None
@@ -1181,8 +1205,7 @@ def test_load_redis_folders_on_demand(monkeypatch: MonkeyPatch) -> None:
         assert isinstance(wato_folders._raw_dict[""], hosts_and_folders.Folder)
 
 
-def test_folder_exists() -> None:
-    tree = folder_tree()
+def test_folder_exists(tree: FolderTree) -> None:
     tree.root_folder().create_subfolder(
         "foo",
         "foo",
@@ -1206,8 +1229,7 @@ def test_folder_exists() -> None:
         tree.folder_exists("../wato")
 
 
-def test_folder_access() -> None:
-    tree = folder_tree()
+def test_folder_access(tree: FolderTree) -> None:
     tree.root_folder().create_subfolder(
         "foo",
         "foo",
@@ -1229,9 +1251,8 @@ def test_folder_access() -> None:
         tree.folder("unknown_folder")
 
 
-def test_new_empty_folder(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_new_empty_folder(monkeypatch: pytest.MonkeyPatch, tree: FolderTree) -> None:
     monkeypatch.setattr(uuid, "uuid4", lambda: uuid.UUID("a8098c1a-f86e-11da-bd1a-00112444be1e"))
-    tree = folder_tree()
     with time_machine.travel(datetime.datetime(2018, 1, 10, 2, tzinfo=ZoneInfo("UTC")), tick=False):
         folder = Folder.new(
             tree=tree,
@@ -1252,10 +1273,9 @@ def test_new_empty_folder(monkeypatch: pytest.MonkeyPatch) -> None:
     }
 
 
-def test_new_loaded_folder(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_new_loaded_folder(monkeypatch: pytest.MonkeyPatch, tree: FolderTree) -> None:
     monkeypatch.setattr(uuid, "uuid4", lambda: uuid.UUID("c6bda767ae5c47038f73d8906fb91bb4"))
 
-    tree = folder_tree()
     with time_machine.travel(datetime.datetime(2018, 1, 10, 2, tzinfo=ZoneInfo("UTC")), tick=False):
         folder1 = Folder.new(tree=tree, name="folder1", parent_folder=tree.root_folder())
         folder1.save_folder_attributes()
@@ -1292,8 +1312,8 @@ def test_next_network_scan_at(
     allowed: Sequence[tuple[tuple[int, int], tuple[int, int]]],
     last_end: float | None,
     next_time: float,
+    tree: FolderTree,
 ) -> None:
-    tree = folder_tree()
     folder = Folder.new(
         tree=tree,
         parent_folder=tree.root_folder(),
@@ -1324,18 +1344,16 @@ def test_next_network_scan_at(
         assert folder.next_network_scan_at() == next_time
 
 
-@pytest.mark.usefixtures("request_context")
-def test_folder_times() -> None:
-    tree = folder_tree()
+def test_folder_times(tree: FolderTree) -> None:
     root = tree.root_folder()
 
     with time_machine.travel(datetime.datetime(2020, 2, 2, 2, 2, 2)):
         current = time.time()
         Folder.new(tree=tree, name="test", parent_folder=root).save_folder_attributes()
-        folder_tree().invalidate_caches()
+        tree.invalidate_caches()
         folder = Folder.load(tree=tree, name="test", parent_folder=root)
         folder.save_folder_attributes()
-        folder_tree().invalidate_caches()
+        tree.invalidate_caches()
 
     meta_data = folder.attributes["meta_data"]
     assert int(meta_data["created_at"]) == int(current)
@@ -1345,9 +1363,9 @@ def test_folder_times() -> None:
     assert int(meta_data["updated_at"]) > int(current)
 
 
-def test_subfolder_attributes_are_cached() -> None:
+def test_subfolder_attributes_are_cached(tree: FolderTree) -> None:
     # GIVEN folder with cached attributes
-    root = folder_tree().root_folder()
+    root = tree.root_folder()
     subfolder = root.create_subfolder(
         "sub1",
         "sub1",
@@ -1365,24 +1383,20 @@ def test_subfolder_attributes_are_cached() -> None:
     assert subfolder.effective_attributes()["alias"] == "sub1"
 
 
-def test_subfolder_cache_invalidated() -> None:
+def test_subfolder_cache_invalidated(tree: FolderTree) -> None:
     # GIVEN folder with cached attributes
-    subfolder = (
-        folder_tree()
-        .root_folder()
-        .create_subfolder(
-            "sub1",
-            "sub1",
-            {"alias": "sub1"},
-            pprint_value=False,
-            pending_changes=_noop_pending_changes(),
-            acting_user=_SUPERUSER,
-        )
+    subfolder = tree.root_folder().create_subfolder(
+        "sub1",
+        "sub1",
+        {"alias": "sub1"},
+        pprint_value=False,
+        pending_changes=_noop_pending_changes(),
+        acting_user=_SUPERUSER,
     )
     subfolder.effective_attributes()
 
     # WHEN cache is invalidated from folder_tree and attribute is updated
-    folder_tree().invalidate_caches()
+    tree.invalidate_caches()
     subfolder.attributes["alias"] = "other_alias"
 
     # THEN we read updated attribute
