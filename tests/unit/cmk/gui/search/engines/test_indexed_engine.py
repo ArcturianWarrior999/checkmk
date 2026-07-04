@@ -427,7 +427,7 @@ class TestPermissionHandler:
 
 
 class TestIndexSearcher:
-    @pytest.mark.usefixtures("with_admin_login", "inline_background_jobs")
+    @pytest.mark.usefixtures("with_admin_login", "inline_background_jobs", "allow_redis")
     def test_search_no_index(
         self,
         config: Config,
