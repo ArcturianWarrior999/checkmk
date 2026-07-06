@@ -269,6 +269,41 @@ def check_aws_metrics(metric_infos: Sequence[AWSMetric]) -> CheckResult:
         )
 
 
+def check_aws_elb_summary_generic(
+    load_balancers: Sequence[Mapping[str, Any]],
+) -> CheckResult:
+    yield Result(state=State.OK, summary=f"Balancers: {len(load_balancers)}")
+
+    balancers_by_avail_zone: dict[str, list[str]] = {}
+    long_output = []
+    for row in load_balancers:
+        balancer_name = row["LoadBalancerName"]
+        avail_zones_txt = []
+        for avail_zone in row["AvailabilityZones"]:
+            if isinstance(avail_zone, dict):
+                # elb vs. elbv2
+                # elb provides a list of zones, elbv2 a list of dicts
+                # including zone name
+                avail_zone = avail_zone["ZoneName"]
+
+            try:
+                avail_zone_readable = f"{AWS_REGIONS[avail_zone[:-1]]} ({avail_zone[-1]})"
+            except KeyError:
+                avail_zone_readable = f"unknown ({avail_zone})"
+
+            balancers_by_avail_zone.setdefault(avail_zone_readable, []).append(balancer_name)
+            avail_zones_txt.append(avail_zone_readable)
+        long_output.append(
+            f"Balancer: {balancer_name}, Availability zones: {', '.join(avail_zones_txt)}"
+        )
+
+    for avail_zone, balancers in sorted(balancers_by_avail_zone.items()):
+        yield Result(state=State.OK, summary=f"{avail_zone}: {len(balancers)}")
+
+    if long_output:
+        yield Result(state=State.OK, notice="\n".join(long_output))
+
+
 def is_expected_metric(row_id: str, expected_metric_name: str) -> bool:
     expected_metric_name_lower = expected_metric_name.lower()
     row_id_lower = row_id.lower()
