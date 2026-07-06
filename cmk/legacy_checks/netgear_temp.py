@@ -3,17 +3,24 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 
-
-# mypy: disable-error-code="var-annotated"
-
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import OIDEnd, SNMPTree
-from cmk.legacy_includes.temperature import check_temperature
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    get_value_store,
+    OIDEnd,
+    Result,
+    Service,
+    SNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
+from cmk.plugins.lib.temperature import check_temperature, TempParamType
 from cmk.plugins.netgear.lib import DETECT_NETGEAR
-
-check_info = {}
 
 # .1.3.6.1.4.1.4526.10.43.1.8.1.2.1.0 0 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesTempSensorType.1.0
 # .1.3.6.1.4.1.4526.10.43.1.8.1.2.1.1 0 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesTempSensorType.1.1
@@ -51,14 +58,21 @@ check_info = {}
 # .1.3.6.1.4.1.4526.10.43.1.8.1.5.2.0 37 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesTempSensorsEntry.5.2.0
 
 
-def parse_netgear_temp(string_table):
+@dataclass(frozen=True)
+class TempSensor:
+    type: str | None
+    state: str
+    reading: float
+
+
+def parse_netgear_temp(string_table: Sequence[StringTable]) -> Mapping[str, TempSensor]:
     map_types = {
         "1": "fixed",
         "2": "removable",
     }
 
     versioninfo, sensorinfo = string_table
-    parsed = {}
+    parsed: dict[str, TempSensor] = {}
     for oid_end, sensor_ty, sstate, reading_str, reading_str_10 in sensorinfo:
         if versioninfo[0][0].startswith("10."):
             reading = float(reading_str_10)
@@ -66,25 +80,27 @@ def parse_netgear_temp(string_table):
             reading = float(reading_str)
 
         parsed.setdefault(
-            "Sensor %s" % oid_end.replace(".", "/"),
-            {
-                "type": map_types.get(sensor_ty),
-                "state": sstate,
-                "reading": reading,
-            },
+            f"Sensor {oid_end.replace('.', '/')}",
+            TempSensor(
+                type=map_types.get(sensor_ty),
+                state=sstate,
+                reading=reading,
+            ),
         )
     return parsed
 
 
-def discover_netgear_temp(parsed):
-    return [
-        (sensorname, {})
-        for sensorname, info in parsed.items()
-        if info["state"] not in ["4", "5", "6"]
-    ]
+def discover_netgear_temp(section: Mapping[str, TempSensor]) -> DiscoveryResult:
+    yield from (
+        Service(item=sensorname)
+        for sensorname, info in section.items()
+        if info.state not in ("4", "5", "6")
+    )
 
 
-def check_netgear_temp(item, params, parsed):
+def check_netgear_temp(
+    item: str, params: TempParamType, section: Mapping[str, TempSensor]
+) -> CheckResult:
     map_states = {
         "1": (0, "normal"),
         "2": (1, "warning"),
@@ -93,22 +109,22 @@ def check_netgear_temp(item, params, parsed):
         "5": (1, "not present"),
         "6": (1, "not operational"),
     }
-    if item in parsed:
-        data = parsed[item]
-        if data["type"]:
-            yield 0, "Type: %s" % data["type"]
+    if data := section.get(item):
+        if data.type:
+            yield Result(state=State.OK, summary=f"Type: {data.type}")
 
-        dev_status, dev_status_name = map_states[data["state"]]
-        yield check_temperature(
-            data["reading"],
+        dev_status, dev_status_name = map_states[data.state]
+        yield from check_temperature(
+            data.reading,
             params,
-            "netgear_temp.%s" % item,
+            unique_name=f"netgear_temp.{item}",
+            value_store=get_value_store(),
             dev_status=dev_status,
             dev_status_name=dev_status_name,
         )
 
 
-check_info["netgear_temp"] = LegacyCheckDefinition(
+snmp_section_netgear_temp = SNMPSection(
     name="netgear_temp",
     detect=DETECT_NETGEAR,
     fetch=[
@@ -122,8 +138,14 @@ check_info["netgear_temp"] = LegacyCheckDefinition(
         ),
     ],
     parse_function=parse_netgear_temp,
+)
+
+
+check_plugin_netgear_temp = CheckPlugin(
+    name="netgear_temp",
     service_name="Temperature %s",
     discovery_function=discover_netgear_temp,
     check_function=check_netgear_temp,
     check_ruleset_name="temperature",
+    check_default_parameters={},
 )
