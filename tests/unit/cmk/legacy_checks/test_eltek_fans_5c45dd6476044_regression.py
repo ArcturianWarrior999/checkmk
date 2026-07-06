@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 # mypy: disable-error-code="misc"
-# mypy: disable-error-code="no-untyped-call"
 
 # NOTE: This file has been created by an LLM (from something that was worse).
 # It mostly serves as test to ensure we don't accidentally break anything.
@@ -15,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from cmk.agent_based.v2 import StringTable
+from cmk.agent_based.v2 import Result, Service, State, StringTable
 from cmk.legacy_checks.eltek_fans import (
     check_eltek_fans,
     discover_eltek_fans,
@@ -51,7 +50,7 @@ class TestEltekFansRegression:
         parsed = parse_eltek_fans(eltek_fans_regression_data)
         # The legacy check function fails when trying to convert empty strings to float
         with pytest.raises(ValueError, match="could not convert string to float"):
-            check_eltek_fans("1/1", {"levels": (90.0, 95.0)}, parsed)
+            list(check_eltek_fans("1/1", {"levels": (90.0, 95.0)}, parsed))
 
     def test_check_function_empty_string_error_fan2(
         self, eltek_fans_regression_data: StringTable
@@ -60,7 +59,7 @@ class TestEltekFansRegression:
         parsed = parse_eltek_fans(eltek_fans_regression_data)
         # The legacy check function fails when trying to convert empty strings to float
         with pytest.raises(ValueError, match="could not convert string to float"):
-            check_eltek_fans("2/1", {"levels": (90.0, 95.0)}, parsed)
+            list(check_eltek_fans("2/1", {"levels": (90.0, 95.0)}, parsed))
 
 
 @pytest.mark.parametrize(
@@ -69,40 +68,52 @@ class TestEltekFansRegression:
         # Regression case: empty fan values
         ([["1", "", ""]], []),
         # Working fans for comparison
-        ([["1", "50", "75"]], [("1/1", {}), ("2/1", {})]),
-        ([["2", "0", "45"]], [("2/2", {})]),
+        ([["1", "50", "75"]], [Service(item="1/1"), Service(item="2/1")]),
+        ([["2", "0", "45"]], [Service(item="2/2")]),
         # Multiple units
-        ([["1", "60", "0"], ["2", "0", "80"]], [("1/1", {}), ("2/2", {})]),
+        ([["1", "60", "0"], ["2", "0", "80"]], [Service(item="1/1"), Service(item="2/2")]),
     ],
 )
 def test_eltek_fans_discovery_scenarios(
-    test_data: StringTable, expected_discoveries: list[tuple[str, dict[str, Any]]]
+    test_data: StringTable, expected_discoveries: list[Service]
 ) -> None:
     """Test discovery function with various scenarios."""
     parsed = parse_eltek_fans(test_data)
     result = list(discover_eltek_fans(parsed))
-    assert sorted(result) == sorted(expected_discoveries)
+    assert sorted(result, key=lambda s: s.item or "") == sorted(
+        expected_discoveries, key=lambda s: s.item or ""
+    )
 
 
 @pytest.mark.parametrize(
     "test_data, item, params, expected_result",
     [
         # Working fan scenarios for validation
-        ([["1", "50", "75"]], "1/1", {"levels": (90.0, 95.0)}, (0, "50.0% of max RPM")),
-        ([["1", "50", "75"]], "2/1", {"levels": (90.0, 95.0)}, (0, "75.0% of max RPM")),
+        (
+            [["1", "50", "75"]],
+            "1/1",
+            {"levels": (90.0, 95.0)},
+            [Result(state=State.OK, summary="50.0% of max RPM")],
+        ),
+        (
+            [["1", "50", "75"]],
+            "2/1",
+            {"levels": (90.0, 95.0)},
+            [Result(state=State.OK, summary="75.0% of max RPM")],
+        ),
         # Warning threshold
         (
             [["1", "92", "75"]],
             "1/1",
             {"levels": (90.0, 95.0)},
-            (1, "92.0% of max RPM (warn/crit at 90.0%/95.0%)"),
+            [Result(state=State.WARN, summary="92.0% of max RPM (warn/crit at 90.0%/95.0%)")],
         ),
         # Critical threshold
         (
             [["1", "96", "75"]],
             "1/1",
             {"levels": (90.0, 95.0)},
-            (2, "96.0% of max RPM (warn/crit at 90.0%/95.0%)"),
+            [Result(state=State.CRIT, summary="96.0% of max RPM (warn/crit at 90.0%/95.0%)")],
         ),
     ],
 )
@@ -111,7 +122,7 @@ def test_eltek_fans_check_scenarios(
 ) -> None:
     """Test check function with various scenarios."""
     parsed = parse_eltek_fans(test_data)
-    result = check_eltek_fans(item, params, parsed)
+    result = list(check_eltek_fans(item, params, parsed))
     assert result == expected_result
 
 
@@ -121,10 +132,10 @@ def test_eltek_fans_regression_empty_strings() -> None:
     parsed = parse_eltek_fans(test_data)
     # The legacy check function fails when trying to convert empty strings to float
     with pytest.raises(ValueError, match="could not convert string to float"):
-        check_eltek_fans("1/1", {"levels": (90.0, 95.0)}, parsed)
+        list(check_eltek_fans("1/1", {"levels": (90.0, 95.0)}, parsed))
 
     with pytest.raises(ValueError, match="could not convert string to float"):
-        check_eltek_fans("2/1", {"levels": (90.0, 95.0)}, parsed)
+        list(check_eltek_fans("2/1", {"levels": (90.0, 95.0)}, parsed))
 
 
 def test_eltek_fans_empty_string_handling() -> None:
@@ -133,7 +144,7 @@ def test_eltek_fans_empty_string_handling() -> None:
     parsed = parse_eltek_fans(test_data)
     result = list(discover_eltek_fans(parsed))
     # Only fan 2/3 should be discovered since it has value 50
-    assert result == [("2/3", {})]
+    assert result == [Service(item="2/3")]
 
 
 def test_eltek_fans_zero_value_handling() -> None:
@@ -142,7 +153,9 @@ def test_eltek_fans_zero_value_handling() -> None:
     parsed = parse_eltek_fans(test_data)
     result = list(discover_eltek_fans(parsed))
     # Only fans with non-zero values should be discovered
-    assert sorted(result) == sorted([("1/2", {}), ("2/3", {})])
+    assert sorted(result, key=lambda s: s.item or "") == sorted(
+        [Service(item="1/2"), Service(item="2/3")], key=lambda s: s.item or ""
+    )
 
 
 def test_eltek_fans_lower_levels() -> None:
@@ -150,9 +163,11 @@ def test_eltek_fans_lower_levels() -> None:
     test_data = [["1", "15", "75"]]
     parsed = parse_eltek_fans(test_data)
     params = {"levels": (90.0, 95.0), "levels_lower": (30.0, 20.0)}
-    result = check_eltek_fans("1/1", params, parsed)
+    result = list(check_eltek_fans("1/1", params, parsed))
     # Fan at 15% should trigger critical since it's below 20%
-    assert result == (2, "15.0% of max RPM (warn/crit below 90.0%/95.0%)")
+    assert result == [
+        Result(state=State.CRIT, summary="15.0% of max RPM (warn/crit below 90.0%/95.0%)")
+    ]
 
 
 def test_eltek_fans_lower_levels_warning() -> None:
@@ -160,7 +175,9 @@ def test_eltek_fans_lower_levels_warning() -> None:
     test_data = [["1", "25", "75"]]
     parsed = parse_eltek_fans(test_data)
     params = {"levels": (90.0, 95.0), "levels_lower": (30.0, 20.0)}
-    result = check_eltek_fans("1/1", params, parsed)
+    result = list(check_eltek_fans("1/1", params, parsed))
     # NOTE: Legacy check has a bug - it compares against main levels (90.0, 95.0) instead of levels_lower (30.0, 20.0)
     # Fan at 25% should trigger critical since it's below 90% (main warn level)
-    assert result == (2, "25.0% of max RPM (warn/crit below 90.0%/95.0%)")
+    assert result == [
+        Result(state=State.CRIT, summary="25.0% of max RPM (warn/crit below 90.0%/95.0%)")
+    ]

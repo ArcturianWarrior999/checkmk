@@ -3,8 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
 # .1.3.6.1.4.1.12148.9.1.17.3.1.1.0 1 --> ELTEK-DISTRIBUTED-MIB::ioUnitID.0
 # .1.3.6.1.4.1.12148.9.1.17.3.1.1.1 2 --> ELTEK-DISTRIBUTED-MIB::ioUnitID.1
 # .1.3.6.1.4.1.12148.9.1.17.3.1.1.2 3 --> ELTEK-DISTRIBUTED-MIB::ioUnitID.2
@@ -50,65 +48,76 @@
 
 # suggested by customer
 
-# mypy: disable-error-code="var-annotated"
+from collections.abc import Mapping
+from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import SNMPTree, StringTable
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
+)
 from cmk.plugins.eltek.lib import DETECT_ELTEK
 
-check_info = {}
 
-
-def discover_eltek_fans(info):
-    inventory = []
-    for index, fan1, fan2 in info:
+def discover_eltek_fans(section: StringTable) -> DiscoveryResult:
+    for index, fan1, fan2 in section:
         if fan1 and int(fan1) > 0:
-            inventory.append(("1/%s" % index, {}))
+            yield Service(item=f"1/{index}")
         if fan2 and int(fan2) > 0:
-            inventory.append(("2/%s" % index, {}))
-    return inventory
+            yield Service(item=f"2/{index}")
 
 
-def check_eltek_fans(item, params, info):
-    for index, fan1, fan2 in info:
+def check_eltek_fans(item: str, params: Mapping[str, Any], section: StringTable) -> CheckResult:
+    for index, fan1, fan2 in section:
         for fan_id, reading in [("1", float(fan1)), ("2", float(fan2))]:
             if f"{fan_id}/{index}" == item:
-                state = 0
-                infotext = "%.1f%% of max RPM" % reading
+                state = State.OK
+                infotext = f"{reading:.1f}% of max RPM"
                 levelstext = "at"
                 warn, crit = params["levels"]
                 if reading >= crit:
-                    state = 2
+                    state = State.CRIT
                 elif reading >= warn:
-                    state = 1
+                    state = State.WARN
 
                 if params.get("levels_lower", ""):
                     if reading < crit:
-                        state = 2
+                        state = State.CRIT
                         levelstext = "below"
                     elif reading < warn:
-                        state = 1
+                        state = State.WARN
                         levelstext = "below"
 
-                if state > 0:
+                if state is not State.OK:
                     infotext += f" (warn/crit {levelstext} {warn:.1f}%/{crit:.1f}%)"
 
-                return state, infotext
-    return None
+                yield Result(state=state, summary=infotext)
+                return
 
 
 def parse_eltek_fans(string_table: StringTable) -> StringTable:
     return string_table
 
 
-check_info["eltek_fans"] = LegacyCheckDefinition(
+snmp_section_eltek_fans = SimpleSNMPSection(
     name="eltek_fans",
-    parse_function=parse_eltek_fans,
     detect=DETECT_ELTEK,
     fetch=SNMPTree(
         base=".1.3.6.1.4.1.12148.9.1.17.3.1",
         oids=["1", "4", "6"],
     ),
+    parse_function=parse_eltek_fans,
+)
+
+
+check_plugin_eltek_fans = CheckPlugin(
+    name="eltek_fans",
     service_name="Fan %s",
     discovery_function=discover_eltek_fans,
     check_function=check_eltek_fans,
