@@ -30,7 +30,6 @@ from cmk.graphing_engine import (
     Rule,
     ScalarOf,
     ScalarType,
-    Service,
     ServiceName,
     Stack,
     Sum,
@@ -42,17 +41,6 @@ from cmk.graphing_engine import (
 from cmk.graphing_engine._evaluate import _evaluate_graph
 from cmk.graphing_engine._perfdata import PerformanceData
 from cmk.graphing_engine._quantities import EvaluationContext, Quantity
-
-
-def _perf(
-    metric_data: Mapping[RRDMetric, PerformanceData],
-) -> Mapping[Service, Mapping[MetricName, PerformanceData]]:
-    result: dict[Service, dict[MetricName, PerformanceData]] = {}
-    for metric, data in metric_data.items():
-        service = Service(host_name=metric.host_name, service_name=metric.service_name)
-        result.setdefault(service, {})[metric.metric_name] = data
-    return result
-
 
 _UNIT = Unit(notation=DecimalNotation(""), precision=AutoPrecision(2))
 _TR = TimeRange(start=0, end=30, step=10)  # three data points
@@ -81,7 +69,7 @@ def _time_series(*values: float | None) -> TimeSeries:
 
 
 def _context(
-    performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]],
+    performance_data: Mapping[RRDMetric, PerformanceData],
     time_series: Mapping[RRDMetric, TimeSeries],
     time_range: TimeRange = _TR,
 ) -> EvaluationContext:
@@ -95,7 +83,7 @@ def _evaluate_value(
     metric_data: Mapping[RRDMetric, PerformanceData],
 ) -> float | None:
     evaluated = quantity.evaluate(
-        EvaluationContext(performance_data=_perf(metric_data), time_series={}, time_range=_TR)
+        EvaluationContext(performance_data=metric_data, time_series={}, time_range=_TR)
     )
     return None if evaluated is None else evaluated.value
 
@@ -108,7 +96,7 @@ def _evaluate_time_series(
 ) -> TimeSeries | None:
     evaluated = quantity.evaluate(
         EvaluationContext(
-            performance_data=_perf(metric_data), time_series=time_series, time_range=time_range
+            performance_data=metric_data, time_series=time_series, time_range=time_range
         )
     )
     return None if evaluated is None else evaluated.time_series
@@ -261,7 +249,7 @@ def test_evaluate_graph_keeps_stacks_and_lines_with_their_direction() -> None:
 
     # Stacks (filled areas) and lines stay separate, each keeping its direction; curves carry
     # their definition title/unit/colour.
-    assert _evaluate_graph(graph, _context(_perf(metric_data), time_series)) == EvaluatedGraph(
+    assert _evaluate_graph(graph, _context(metric_data, time_series)) == EvaluatedGraph(
         name="g",
         title="g",
         vertical_range=None,
@@ -309,7 +297,7 @@ def test_evaluate_graph_evaluates_the_stack_reference_baseline() -> None:
     # The reference baseline is part of the graph's metrics (so it gets fetched) ...
     assert floor in graph.metrics()
     # ... and is evaluated onto EvaluatedStack.reference, separate from the drawn members.
-    [stack] = _evaluate_graph(graph, _context(_perf(metric_data), time_series)).stacks
+    [stack] = _evaluate_graph(graph, _context(metric_data, time_series)).stacks
     assert [member.attributes.title for member in stack.members] == ["band"]
     assert stack.reference is not None and stack.reference.attributes.title == "floor"
 
@@ -325,7 +313,7 @@ def test_evaluate_graph_drops_curves_of_missing_metrics() -> None:
     )
     # "gone" has no metric data, so its stack is dropped; only the line for "a" remains.
     result = _evaluate_graph(
-        graph, _context(_perf({a: _data(value=3.0)}), {a: _time_series(1.0, 2.0, 3.0)})
+        graph, _context({a: _data(value=3.0)}, {a: _time_series(1.0, 2.0, 3.0)})
     )
     assert result.stacks == []
     assert [line.curve.attributes.title for line in result.lines] == ["a"]
@@ -356,7 +344,7 @@ def test_evaluate_graph_builds_rules_from_thresholds_and_constants() -> None:
             ),
         ],
     )
-    result = _evaluate_graph(graph, _context(_perf({a: _data(value=3.0, warning=80.0)}), {}))
+    result = _evaluate_graph(graph, _context({a: _data(value=3.0, warning=80.0)}, {}))
     assert result.rules == [
         EvaluatedRule(
             id="warning:metric:h/svc/a",
@@ -398,7 +386,7 @@ def test_evaluate_graph_drops_rules_without_a_value() -> None:
             ),
         ],
     )
-    result = _evaluate_graph(graph, _context(_perf({a: _data(value=3.0)}), {}))
+    result = _evaluate_graph(graph, _context({a: _data(value=3.0)}, {}))
     assert result.rules == []
 
 
@@ -432,7 +420,7 @@ def test_evaluate_graph_resolves_a_minimal_range_bound_expression() -> None:
     graph = Graph(
         name="g", title="g", graph_type="test", vertical_range=MinimalRange(lower=0, upper=a)
     )
-    result = _evaluate_graph(graph, _context(_perf({a: _data(value=42.0)}), {}))
+    result = _evaluate_graph(graph, _context({a: _data(value=42.0)}, {}))
     assert result.vertical_range == EvaluatedVerticalRange(
         range_type=VerticalRangeType.MINIMAL, lower=0.0, upper=42.0
     )
@@ -466,7 +454,7 @@ def test_evaluate_graph_disambiguates_repeated_curves() -> None:
         ],
     )
     result = _evaluate_graph(
-        graph, _context(_perf({a: _data(value=1.0)}), {a: _time_series(1.0, 2.0, 3.0)})
+        graph, _context({a: _data(value=1.0)}, {a: _time_series(1.0, 2.0, 3.0)})
     )
     # The same metric drawn twice gets distinct ids: the base, then the base with a "#n" suffix.
     assert [line.curve.id for line in result.lines] == ["metric:h/svc/a", "metric:h/svc/a#2"]
@@ -482,7 +470,7 @@ def test_evaluate_graph_folds_direction_into_the_id() -> None:
         lines=[Line(curve=_curve(a, "a"), inverse=False)],
     )
     result = _evaluate_graph(
-        graph, _context(_perf({a: _data(value=1.0)}), {a: _time_series(1.0, 2.0, 3.0)})
+        graph, _context({a: _data(value=1.0)}, {a: _time_series(1.0, 2.0, 3.0)})
     )
     # The inverted (lower) half of a bidirectional graph and the upright half share a metric but not
     # an id: direction is folded into the base, so no "#n" disambiguation is needed.
@@ -506,7 +494,7 @@ def test_evaluate_graph_rule_id_reflects_the_scalar_and_metric() -> None:
             )
         ],
     )
-    result = _evaluate_graph(graph, _context(_perf({a: _data(value=1.0, warning=80.0)}), {}))
+    result = _evaluate_graph(graph, _context({a: _data(value=1.0, warning=80.0)}, {}))
     assert result.rules[0].id == "warning:metric:h/svc/a"
 
 
@@ -524,7 +512,7 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
     first = _evaluate_graph(
         graph,
         _context(
-            _perf({a: _data(value=1.0), b: _data(value=2.0)}),
+            {a: _data(value=1.0), b: _data(value=2.0)},
             {a: _time_series(1.0, 2.0, 3.0), b: _time_series(4.0, 5.0, 6.0)},
         ),
     )
@@ -534,7 +522,7 @@ def test_evaluate_graph_preserves_ids_across_recalculation() -> None:
     second = _evaluate_graph(
         graph,
         _context(
-            _perf({b: _data(value=9.0)}),
+            {b: _data(value=9.0)},
             {b: TimeSeries(time_range=other_tr, values=[9.0] * 6)},
             other_tr,
         ),

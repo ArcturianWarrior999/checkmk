@@ -102,28 +102,29 @@ def fetch_evaluation_context(
         dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
     )
     raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
-    performance_data = {
-        service: dict(translate_performance_data(raw, parsed_translations))
+    translated = {
+        service: translate_performance_data(raw, parsed_translations)
         for service, raw in raw_performance_data.items()
     }
+    performance_data: dict[RRDMetric, PerformanceData] = {}
     for metric in rrd_metrics:
         service = Service(host_name=metric.host_name, service_name=metric.service_name)
         if (raw := raw_performance_data.get(service)) is None:
             continue
-        if metric.metric_name not in performance_data[service]:
-            performance_data[service][metric.metric_name] = PerformanceData(
+        if (data := translated[service].get(metric.metric_name)) is None:
+            data = PerformanceData(
                 value=None,
                 originals=originals_for_metric_name(
                     metric.metric_name, parsed_translations, raw.check_command
                 ),
             )
+        performance_data[metric] = data
 
     originals_per_function: dict[
         ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
     ] = {}
     for metric in rrd_metrics:
-        service = Service(host_name=metric.host_name, service_name=metric.service_name)
-        if (data := performance_data.get(service, {}).get(metric.metric_name)) is None:
+        if (data := performance_data.get(metric)) is None:
             continue
         function = _consolidation_function(metric, consolidation_function)
         originals_per_function.setdefault(function, {})[metric] = [

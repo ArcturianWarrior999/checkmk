@@ -21,7 +21,6 @@ from cmk.graphing_engine import (
     Line,
     MetricName,
     RRDMetric,
-    Service,
     ServiceName,
     TimeRange,
     TimeSeries,
@@ -91,11 +90,7 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
     result = _evaluate_graph(
         graph,
         EvaluationContext(
-            performance_data={
-                Service(host_name=HostName("h"), service_name=ServiceName("svc")): {
-                    MetricName("a"): _data(value=3.0)
-                }
-            },
+            performance_data={a: _data(value=3.0)},
             time_series={a: TimeSeries(time_range=_TR, values=[1.0, None, 3.0])},
             time_range=_TR,
         ),

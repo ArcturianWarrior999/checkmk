@@ -12,19 +12,18 @@ from dataclasses import dataclass, KW_ONLY
 from typing import Protocol
 
 from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import HostName, MetricName, PerformanceData, Service, ServiceName, TimeSeries
+from ._perfdata import HostName, MetricName, PerformanceData, ServiceName, TimeSeries
 from ._units import CurveAttributes
 
 
 @dataclass(frozen=True, kw_only=True)
 class EvaluationContext:
-    performance_data: Mapping[Service, Mapping[MetricName, PerformanceData]]
+    performance_data: Mapping[RRDMetric, PerformanceData]
     time_series: Mapping[RRDMetric, TimeSeries]
     time_range: TimeRange
 
     def data_of(self, metric: RRDMetric) -> PerformanceData | None:
-        service = Service(host_name=metric.host_name, service_name=metric.service_name)
-        return self.performance_data.get(service, {}).get(metric.metric_name)
+        return self.performance_data.get(metric)
 
 
 @dataclass(frozen=True, kw_only=True)
