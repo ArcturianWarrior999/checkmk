@@ -39,6 +39,7 @@ class LiveStatusHostRepository:
         sorters: Sequence[HostSort],
         filters: HostFilter,
     ) -> Sequence[Host]:
+        query_ = _sanitize_query(query)
         q = Query(
             [
                 Hosts.name,
@@ -52,7 +53,7 @@ class LiveStatusHostRepository:
                 Hosts.num_services_unknown,
                 Hosts.num_services_pending,
             ],
-            _build_query_filter(query),
+            _build_query_filter(query_),
             extra_headers=[
                 *filters.splitlines(),
                 _build_primary_sort(sorters),
@@ -94,7 +95,8 @@ class LiveStatusHostRepository:
         # can't emit ``Stats`` headers yet, so the query is assembled by hand from the shared filter.
         # The ``Stats`` count is the trailing column of each returned row; summing it across rows
         # adds up the per-site counts.
-        query_filter = (": ".join(line) for line in _build_query_filter(query).render())
+        query_ = _sanitize_query(query)
+        query_filter = (": ".join(line) for line in _build_query_filter(query_).render())
         stats_query = "\n".join(
             [
                 f"GET {Hosts.__tablename__}",
@@ -120,6 +122,12 @@ class LiveStatusHostActions:
                 ),
                 SiteId(target.site_id),
             )
+
+
+def _sanitize_query(q: str) -> str:
+    # TODO: decide on how we want to handle invalid regex? This will likely require coordinating
+    # with frontend implementation to pass down errors to the response.
+    return q.replace("*", ".*")
 
 
 def _build_query_filter(query: str) -> QueryExpression:
