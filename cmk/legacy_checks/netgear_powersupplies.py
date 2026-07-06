@@ -10,49 +10,46 @@
 # .1.3.6.1.4.1.4526.10.43.1.7.1.3.2.1 1 --> FASTPATH-BOXSERVICES-PRIVATE-MIB::boxServicesPowSupplyItemState.2.1
 
 
-# mypy: disable-error-code="var-annotated"
-
 from collections.abc import Mapping
-from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import (
-    LegacyCheckDefinition,
-    LegacyCheckResult,
-    LegacyDiscoveryResult,
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    OIDEnd,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    State,
+    StringTable,
 )
-from cmk.agent_based.v2 import OIDEnd, SNMPTree, StringTable
 from cmk.plugins.netgear.lib import DETECT_NETGEAR
 
-check_info = {}
 
-
-def parse_netgear_powersupplies(string_table: StringTable) -> dict[str, str]:
-    parsed = {}
+def parse_netgear_powersupplies(string_table: StringTable) -> Mapping[str, str]:
+    parsed: dict[str, str] = {}
     for oid_end, sstate in string_table:
-        parsed.setdefault("%s" % oid_end.replace(".", "/"), sstate)
+        parsed.setdefault(oid_end.replace(".", "/"), sstate)
     return parsed
 
 
-def discover_netgear_powersupplies(parsed: dict[str, str]) -> LegacyDiscoveryResult:
-    return [
-        (sensorname, {}) for sensorname, sensorinfo in parsed.items() if sensorinfo not in ["1"]
-    ]
+def discover_netgear_powersupplies(section: Mapping[str, str]) -> DiscoveryResult:
+    yield from (Service(item=item) for item, state in section.items() if state != "1")
 
 
-def check_netgear_powersupplies(
-    item: str, params: Mapping[str, Any], parsed: dict[str, str]
-) -> LegacyCheckResult:
+def check_netgear_powersupplies(item: str, section: Mapping[str, str]) -> CheckResult:
     map_states = {
-        "1": (1, "not present"),
-        "2": (0, "operational"),
-        "3": (2, "failed"),
+        "1": (State.WARN, "not present"),
+        "2": (State.OK, "operational"),
+        "3": (State.CRIT, "failed"),
     }
-    if item in parsed:
-        state, state_readable = map_states[parsed[item]]
-        yield state, "Status: %s" % state_readable
+    if item in section:
+        state, state_readable = map_states[section[item]]
+        yield Result(state=state, summary=f"Status: {state_readable}")
 
 
-check_info["netgear_powersupplies"] = LegacyCheckDefinition(
+snmp_section_netgear_powersupplies = SimpleSNMPSection(
     name="netgear_powersupplies",
     detect=DETECT_NETGEAR,
     fetch=SNMPTree(
@@ -60,6 +57,11 @@ check_info["netgear_powersupplies"] = LegacyCheckDefinition(
         oids=[OIDEnd(), "3"],
     ),
     parse_function=parse_netgear_powersupplies,
+)
+
+
+check_plugin_netgear_powersupplies = CheckPlugin(
+    name="netgear_powersupplies",
     service_name="Power Supply %s",
     discovery_function=discover_netgear_powersupplies,
     check_function=check_netgear_powersupplies,
