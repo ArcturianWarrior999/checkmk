@@ -40,6 +40,13 @@ py_library(
 )
 
 py_library(
+    name = "subclass-discovery",
+    srcs = ["cmk/checkengine/subclass_discovery.py"],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
     name = "snmp-backends",
     srcs = [
         "cmk/checkengine/snmp_backend.py",
@@ -52,6 +59,7 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         ":snmplib",
+        ":subclass-discovery",
         "//packages/cmk-ccc:exceptions",
         "//packages/cmk-ccc:tty",
     ],

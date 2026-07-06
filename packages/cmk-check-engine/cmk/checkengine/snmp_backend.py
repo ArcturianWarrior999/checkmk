@@ -4,14 +4,12 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 """Home of our open source SNMP backends."""
 
-import importlib
-import inspect
 import logging
-import pkgutil
 from collections.abc import Mapping
 
 import cmk.checkengine.snmp_backends
 from cmk.checkengine.snmplib import SNMPBackend, SNMPBackendEnum, SNMPHostConfig
+from cmk.checkengine.subclass_discovery import discover
 
 
 def discover_backends() -> Mapping[SNMPBackendEnum, type[SNMPBackend]]:
@@ -23,26 +21,7 @@ def discover_backends() -> Mapping[SNMPBackendEnum, type[SNMPBackend]]:
     static `get_type()` method, which is also the dispatch key used by
     `make_backend`.
     """
-    backends: dict[SNMPBackendEnum, type[SNMPBackend]] = {}
-    for mod_info in pkgutil.iter_modules(
-        cmk.checkengine.snmp_backends.__path__, f"{cmk.checkengine.snmp_backends.__name__}."
-    ):
-        if mod_info.name.rsplit(".", 1)[-1].startswith("_"):
-            # Private submodules are expected to not expose a backend!
-            continue
-        try:
-            module = importlib.import_module(mod_info.name)
-        except ImportError:
-            continue
-        for value in vars(module).values():
-            if (
-                isinstance(value, type)
-                and issubclass(value, SNMPBackend)
-                and value is not SNMPBackend
-                and not inspect.isabstract(value)
-            ):
-                backends[value.get_type()] = value
-    return backends
+    return discover(cmk.checkengine.snmp_backends, SNMPBackend, lambda backend: backend.get_type())
 
 
 # TODO: Remove global variable so that BackendError can be moved into this file
