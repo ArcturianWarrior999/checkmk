@@ -1256,6 +1256,18 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def resolve_color(
+        self,
+        metric_name: str,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/resolve_color/invoke",
+            body={"metric_name": metric_name},
+            expect_ok=expect_ok,
+        )
+
 
 class SidebarElementClient(RestApiClient):
     domain: DomainType = "sidebar_element"

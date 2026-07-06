@@ -197,6 +197,7 @@ CmkEndpointName = Literal[
     "cmk/get_graph",
     "cmk/get_custom_graph",
     "cmk/filter_graph",
+    "cmk/resolve_color",
     "cmk/site_logout",
     "cmk/site_login",
     "cmk/update",
