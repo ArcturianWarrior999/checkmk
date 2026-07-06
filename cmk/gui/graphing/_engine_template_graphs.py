@@ -68,16 +68,16 @@ def build_template_graphs(
 ) -> Sequence[Graph]:
     metric_names = fetch_metric_names(
         services=[service],
-        translations=registered_translations,
+        registered_translations=registered_translations,
         fetch_raw_metric_names=fetch_raw_metric_names,
     ).get(service, frozenset())
     graphs = build_matched_graphs(
         service=service,
-        registered_graphs=registered_graphs,
-        metrics=registered_metrics,
         localizer=translate_to_current_language,
         metric_names=metric_names,
         graph_type="template",
+        registered_graphs=registered_graphs,
+        registered_metrics=registered_metrics,
     )
     for graph in graphs:
         _assert_uniform_unit(graph)
@@ -103,10 +103,10 @@ def evaluate_template_graphs(
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
-        graphs=graphs,
-        translations=registered_translations,
         consolidation_function=consolidation_function,
         time_range=time_range,
+        registered_graphs=graphs,
+        registered_translations=registered_translations,
         rrd=rrd,
     )
 

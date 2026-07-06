@@ -143,10 +143,10 @@ _RULE_DISPLAY: Mapping[ScalarType, tuple[str, str | None]] = {
 
 def _metric_display_attributes(
     metric_name: str,
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> CurveAttributes:
-    if (definition := metrics.get(metric_name)) is None:
+    if (definition := registered_metrics.get(metric_name)) is None:
         return CurveAttributes(title=metric_name, unit=_FALLBACK_UNIT, color=_FALLBACK_COLOR)
     return CurveAttributes(
         title=definition.title.localize(localizer),
@@ -158,8 +158,8 @@ def _metric_display_attributes(
 @dataclass(frozen=True)
 class _ParseContext:
     service: Service
-    metrics: Mapping[str, metrics_v1.Metric]
     localizer: Callable[[str], str]
+    registered_metrics: Mapping[str, metrics_v1.Metric]
 
     def rrd_metric(self, metric_name: str) -> RRDMetric:
         return RRDMetric(
@@ -169,7 +169,7 @@ class _ParseContext:
         )
 
     def metric_color(self, metric_name: str) -> str:
-        if (definition := self.metrics.get(metric_name)) is None:
+        if (definition := self.registered_metrics.get(metric_name)) is None:
             return _FALLBACK_COLOR
         return _parse_color(definition.color)
 
@@ -177,7 +177,9 @@ class _ParseContext:
 def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttributes:
     match quantity:
         case str():
-            return _metric_display_attributes(quantity, context.metrics, context.localizer)
+            return _metric_display_attributes(
+                quantity, context.localizer, context.registered_metrics
+            )
         case metrics_v1.Constant():
             return CurveAttributes(
                 title=quantity.title.localize(context.localizer),
@@ -191,7 +193,7 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
             | metrics_v1.CriticalOf()
         ):
             metric = _metric_display_attributes(
-                quantity.metric_name, context.metrics, context.localizer
+                quantity.metric_name, context.localizer, context.registered_metrics
             )
             return CurveAttributes(
                 title=metric.title,
@@ -200,7 +202,7 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
             )
         case metrics_v1.MinimumOf() | metrics_v1.MaximumOf():
             metric = _metric_display_attributes(
-                quantity.metric_name, context.metrics, context.localizer
+                quantity.metric_name, context.localizer, context.registered_metrics
             )
             return CurveAttributes(
                 title=metric.title, unit=metric.unit, color=_parse_color(quantity.color)
@@ -415,14 +417,16 @@ def _bidirectional_range(
 
 def _attributes_for(
     quantity: Quantity,
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> CurveAttributes:
     match quantity:
         case RRDMetric():
-            return _metric_display_attributes(quantity.metric_name, metrics, localizer)
+            return _metric_display_attributes(quantity.metric_name, localizer, registered_metrics)
         case ScalarOf():
-            metric = _metric_display_attributes(quantity.metric.metric_name, metrics, localizer)
+            metric = _metric_display_attributes(
+                quantity.metric.metric_name, localizer, registered_metrics
+            )
             label, type_color = _RULE_DISPLAY[quantity.scalar_type]
             return CurveAttributes(
                 title=localizer(label),
@@ -431,7 +435,7 @@ def _attributes_for(
             )
         case _:
             if (display_of := getattr(quantity, "display_of", None)) is not None:
-                return _attributes_for(display_of(), metrics, localizer)
+                return _attributes_for(display_of(), localizer, registered_metrics)
             display = getattr(quantity, "display", None)
             return (
                 display
@@ -442,10 +446,12 @@ def _attributes_for(
 
 def build_curve(
     quantity: Quantity,
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> Curve:
-    return Curve(quantity=quantity, attributes=_attributes_for(quantity, metrics, localizer))
+    return Curve(
+        quantity=quantity, attributes=_attributes_for(quantity, localizer, registered_metrics)
+    )
 
 
 def _parse_lines(
@@ -455,7 +461,9 @@ def _parse_lines(
     inverse: bool,
 ) -> tuple[Sequence[Stack], Sequence[Line], Sequence[Rule]]:
     def _curve(q: _ApiQuantity) -> Curve:
-        return build_curve(_parse_quantity(q, context), context.metrics, context.localizer)
+        return build_curve(
+            _parse_quantity(q, context), context.localizer, context.registered_metrics
+        )
 
     stack_members = [_curve(q) for q in graph.compound_lines if not _is_scalar(q)]
     stacks = [Stack(members=stack_members, inverse=inverse)] if stack_members else []
@@ -478,15 +486,15 @@ def parse_graph_from_api(
         | graphs_v2_unstable.Bidirectional
     ),
     service: Service,
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
     *,
     graph_type: str,
 ) -> Graph:
     context = _ParseContext(
         service=service,
-        metrics=metrics,
         localizer=localizer,
+        registered_metrics=registered_metrics,
     )
     match graph:
         case graphs_v1.Graph() | graphs_v2_unstable.Graph():
@@ -569,10 +577,10 @@ def _parse_metric_translation(
 
 
 def parse_translations_from_api(
-    translations: Iterable[translations_v1.Translation],
+    registered_translations: Iterable[translations_v1.Translation],
 ) -> Mapping[str, Mapping[MetricName, MetricTranslation]]:
     result: dict[str, Mapping[MetricName, MetricTranslation]] = {}
-    for translation in translations:
+    for translation in registered_translations:
         parsed = {
             MetricName(old_name): _parse_metric_translation(MetricName(old_name), spec)
             for old_name, spec in translation.translations.items()

@@ -124,10 +124,10 @@ def _update(
     translations: Sequence[translations_v1.Translation] | None = None,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
-        graphs=graphs,
-        translations=translations or [],
         consolidation_function=consolidation_function,
         time_range=_time_range(),
+        registered_graphs=graphs,
+        registered_translations=translations or [],
         rrd=rrd,
     )
 

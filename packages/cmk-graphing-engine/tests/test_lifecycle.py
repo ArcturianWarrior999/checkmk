@@ -133,16 +133,16 @@ def _discover(
 ) -> Sequence[Graph]:
     available = fetch_metric_names(
         services=[_SERVICE],
-        translations=translations,
+        registered_translations=translations,
         fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_data),
     )
     return build_matched_graphs(
         service=_SERVICE,
-        registered_graphs=registered_graphs,
-        metrics=_METRICS,
         localizer=_id,
         metric_names=available.get(_SERVICE, frozenset()),
         graph_type="test",
+        registered_graphs=registered_graphs,
+        registered_metrics=_METRICS,
     )
 
 
@@ -154,10 +154,10 @@ def _refresh(
 ) -> Sequence[EvaluatedGraph]:
     # Evaluate every discovered graph through the sole update entry point (display already resolved).
     return evaluate_graphs(
-        graphs=list(discovered),
-        translations=translations,
         consolidation_function=ConsolidationFunction.AVERAGE,
         time_range=_TIME_RANGE,
+        registered_graphs=list(discovered),
+        registered_translations=translations,
         rrd=rrd,
     )
 

@@ -226,13 +226,17 @@ def evaluate_graph(
 
 def evaluate_graphs(
     *,
-    graphs: Sequence[Graph],
-    translations: Iterable[translations_v1.Translation],
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
+    registered_graphs: Sequence[Graph],
+    registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
-    performance_data = fetch_performance_data(graphs=graphs, translations=translations, rrd=rrd)
+    performance_data = fetch_performance_data(
+        registered_graphs=registered_graphs,
+        registered_translations=registered_translations,
+        rrd=rrd,
+    )
     return [
         evaluate_graph(
             graph,
@@ -246,5 +250,5 @@ def evaluate_graphs(
             ),
             time_range,
         )
-        for graph in graphs
+        for graph in registered_graphs
     ]

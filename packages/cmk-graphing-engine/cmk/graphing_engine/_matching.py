@@ -68,8 +68,8 @@ def _add_predictive_lines(
     graph: Graph,
     service: Service,
     available: Container[MetricName],
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> tuple[Graph, set[MetricName]]:
     inverse_by_metric: dict[MetricName, bool] = {}
     for group in graph.stacks:
@@ -96,8 +96,8 @@ def _add_predictive_lines(
                                 service_name=service.service_name,
                                 metric_name=predictive,
                             ),
-                            metrics,
                             localizer,
+                            registered_metrics,
                         ),
                         inverse=inverse,
                     )
@@ -130,10 +130,10 @@ def build_matched_graphs_per_service(
     *,
     services: Sequence[Service],
     graph: _GraphPlugin,
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
     metric_names: Mapping[Service, Container[MetricName]],
     graph_type: str,
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> Sequence[Graph]:
     matched_graphs: list[Graph] = []
     for service in services:
@@ -141,11 +141,13 @@ def build_matched_graphs_per_service(
         if not _walk(graph, metric_names_of_service).matched:
             continue
         with_predictive, _names = _add_predictive_lines(
-            parse_graph_from_api(graph, service, metrics, localizer, graph_type=graph_type),
+            parse_graph_from_api(
+                graph, service, localizer, registered_metrics, graph_type=graph_type
+            ),
             service,
             metric_names_of_service,
-            metrics,
             localizer,
+            registered_metrics,
         )
         matched_graphs.append(with_predictive)
     return matched_graphs
@@ -154,18 +156,18 @@ def build_matched_graphs_per_service(
 def build_matched_graphs(
     *,
     service: Service,
-    registered_graphs: Sequence[_GraphPlugin],
-    metrics: Mapping[str, metrics_v1.Metric],
     localizer: Callable[[str], str],
     metric_names: Collection[MetricName],
     graph_type: str,
+    registered_graphs: Sequence[_GraphPlugin],
+    registered_metrics: Mapping[str, metrics_v1.Metric],
 ) -> Sequence[Graph]:
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
 
     def _collect(base: Graph) -> None:
         graph, predictive_names = _add_predictive_lines(
-            base, service, metric_names, metrics, localizer
+            base, service, metric_names, localizer, registered_metrics
         )
         claimed.update(predictive_names)
         matched_graphs.append(graph)
@@ -175,7 +177,11 @@ def build_matched_graphs(
         if not walk.matched:
             continue
         claimed.update(walk.metric_names)
-        _collect(parse_graph_from_api(plugin, service, metrics, localizer, graph_type=graph_type))
+        _collect(
+            parse_graph_from_api(
+                plugin, service, localizer, registered_metrics, graph_type=graph_type
+            )
+        )
 
     for name in metric_names:
         if name in claimed or name.startswith(_PREDICT_PREFIX):
@@ -191,12 +197,17 @@ def build_matched_graphs(
                 title=name,
                 graph_type=graph_type,
                 stacks=[
-                    Stack(members=[build_curve(rrd_metric, metrics, localizer)], inverse=False)
+                    Stack(
+                        members=[build_curve(rrd_metric, localizer, registered_metrics)],
+                        inverse=False,
+                    )
                 ],
                 rules=[
                     Rule(
                         curve=build_curve(
-                            ScalarOf(metric=rrd_metric, scalar_type=scalar_type), metrics, localizer
+                            ScalarOf(metric=rrd_metric, scalar_type=scalar_type),
+                            localizer,
+                            registered_metrics,
                         ),
                         inverse=False,
                     )

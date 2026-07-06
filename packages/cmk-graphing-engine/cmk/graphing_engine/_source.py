@@ -49,10 +49,10 @@ class RRDDataSource(Protocol):
 def fetch_metric_names(
     *,
     services: Iterable[Service],
-    translations: Iterable[translations_v1.Translation],
+    registered_translations: Iterable[translations_v1.Translation],
     fetch_raw_metric_names: RRDFetchRawMetricNames,
 ) -> Mapping[Service, frozenset[MetricName]]:
-    parsed_translations = parse_translations_from_api(translations)
+    parsed_translations = parse_translations_from_api(registered_translations)
     raw_metric_names = fetch_raw_metric_names(list(dict.fromkeys(services)))
     return {
         service: translate_metric_names(raw_metrics, parsed_translations)
@@ -62,12 +62,14 @@ def fetch_metric_names(
 
 def fetch_performance_data(
     *,
-    graphs: Sequence[Graph],
-    translations: Iterable[translations_v1.Translation],
+    registered_graphs: Sequence[Graph],
+    registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Mapping[Service, Mapping[MetricName, PerformanceData]]:
-    parsed_translations = parse_translations_from_api(translations)
-    rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
+    parsed_translations = parse_translations_from_api(registered_translations)
+    rrd_metrics = list(
+        dict.fromkeys(metric for graph in registered_graphs for metric in graph.metrics())
+    )
     raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
     performance_data = {
         service: dict(translate_performance_data(raw, parsed_translations))

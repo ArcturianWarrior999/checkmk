@@ -77,11 +77,11 @@ def _rrd(name: MetricName) -> RRDMetric:
 
 
 def _dstack(*quantities: Quantity) -> Stack:
-    return Stack(members=[build_curve(q, _METRICS, _id) for q in quantities], inverse=False)
+    return Stack(members=[build_curve(q, _id, _METRICS) for q in quantities], inverse=False)
 
 
 def _dline(quantity: Quantity) -> Line:
-    return Line(curve=build_curve(quantity, _METRICS, _id), inverse=False)
+    return Line(curve=build_curve(quantity, _id, _METRICS), inverse=False)
 
 
 _FALLBACK_RULE_TYPES = (
@@ -104,7 +104,7 @@ def _fallback(name: MetricName) -> Graph:
         rules=[
             Rule(
                 curve=build_curve(
-                    ScalarOf(metric=_rrd(name), scalar_type=scalar_type), _METRICS, _id
+                    ScalarOf(metric=_rrd(name), scalar_type=scalar_type), _id, _METRICS
                 ),
                 inverse=False,
             )
@@ -197,26 +197,26 @@ def _discover(
 ) -> Sequence[Graph]:
     available = fetch_metric_names(
         services=[service],
-        translations=[],
+        registered_translations=[],
         fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
     )
     return build_matched_graphs(
         service=service,
-        registered_graphs=registered_graphs,
-        metrics=_METRICS,
         localizer=_id,
-        graph_type=_KIND,
         metric_names=available.get(service, frozenset()),
+        graph_type=_KIND,
+        registered_graphs=registered_graphs,
+        registered_metrics=_METRICS,
     )
 
 
 def _evaluate(discovered: Graph, rrd: _FakeRRDDataSource) -> EvaluatedGraph:
     # Resolve the structure's display, then run the sole update entry point over a fresh fetch.
     [evaluated] = evaluate_graphs(
-        graphs=[discovered],
-        translations=[],
         consolidation_function=ConsolidationFunction.AVERAGE,
         time_range=_time_range(),
+        registered_graphs=[discovered],
+        registered_translations=[],
         rrd=rrd,
     )
     return evaluated
@@ -263,7 +263,7 @@ def test_discover_template_graphs_matching_plugin_claims_its_metrics() -> None:
     discovered = _discover(service, registered_graphs, rrd=rrd)
 
     assert len(discovered) == 1
-    assert discovered[0] == parse_graph_from_api(plugin, service, _METRICS, _id, graph_type=_KIND)
+    assert discovered[0] == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
     # A plain title without expressions is carried through unchanged.
     assert _evaluate(discovered[0], rrd).title == "CPU"
     assert [line.curve.value for line in _evaluate(discovered[0], rrd).lines] == [1.0, 1.0]
@@ -281,7 +281,7 @@ def test_discover_template_graphs_emits_default_graph_for_unclaimed_metrics() ->
 
     [matched, fallback] = _discover(service, registered_graphs, rrd=rrd)
 
-    assert matched == parse_graph_from_api(plugin, service, _METRICS, _id, graph_type=_KIND)
+    assert matched == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
     assert fallback == _fallback(extra)
 
 
@@ -313,7 +313,7 @@ def test_discover_template_graphs_optional_missing_metric_still_matches() -> Non
 
     [discovered] = _discover(service, registered_graphs, rrd=rrd)
 
-    assert discovered == parse_graph_from_api(plugin, service, _METRICS, _id, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_conflicting_metric_present_rejects_plugin() -> None:
@@ -350,7 +350,7 @@ def test_discover_template_graphs_matches_v2_unstable_graph() -> None:
 
     [discovered] = _discover(service, registered_graphs, rrd=rrd)
 
-    assert discovered == parse_graph_from_api(plugin, service, _METRICS, _id, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
@@ -368,7 +368,7 @@ def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
 
     [discovered] = _discover(service, registered_graphs, rrd=rrd)
 
-    assert discovered == parse_graph_from_api(plugin, service, _METRICS, _id, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_carries_scalars_for_v2_unstable_scalar_quantity() -> None:
@@ -559,10 +559,10 @@ def test_build_matched_graphs_per_service_adds_predictive_lines() -> None:
     graphs = build_matched_graphs_per_service(
         services=[with_predict, without_predict],
         graph=plugin,
-        metrics=_METRICS,
         localizer=_id,
-        graph_type=_KIND,
         metric_names={with_predict: {cpu_user, predict}, without_predict: {cpu_user}},
+        graph_type=_KIND,
+        registered_metrics=_METRICS,
     )
 
     assert len(graphs) == 2
@@ -572,8 +572,8 @@ def test_build_matched_graphs_per_service_adds_predictive_lines() -> None:
                 RRDMetric(
                     host_name=HostName("h1"), service_name=ServiceName("svc"), metric_name=predict
                 ),
-                _METRICS,
                 _id,
+                _METRICS,
             ),
             inverse=False,
         )
@@ -596,17 +596,17 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
     )
     available = fetch_metric_names(
         services=[service],
-        translations=[],
+        registered_translations=[],
         fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
     ).get(service, frozenset())
 
     graphs = build_matched_graphs(
         service=service,
-        registered_graphs=[],
-        metrics=_METRICS,
         localizer=_id,
-        graph_type=_KIND,
         metric_names=available,
+        graph_type=_KIND,
+        registered_graphs=[],
+        registered_metrics=_METRICS,
     )
     # The fallback single-metric graph carries the four warn / crit (and lower) threshold rules as
     # ScalarOf quantities, their labels / colours resolved from the scalar type.
