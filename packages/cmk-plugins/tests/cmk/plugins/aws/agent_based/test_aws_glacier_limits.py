@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
-from cmk.legacy_checks.aws_glacier_limits import (
+from cmk.plugins.aws.agent_based.aws_glacier_limits import (
     check_aws_glacier_limits,
     discover_aws_glacier_limits,
 )
