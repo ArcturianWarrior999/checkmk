@@ -349,31 +349,35 @@ def _anonymize_metrics_association(
     anon_interface: AnonInterface,
     value: dict[str, Any],
 ) -> object:
-    anonymized: dict[str, Any] = {
-        "attribute_filters": {
-            "resource_attributes": [
-                _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
-                for attribute_filter in value["attribute_filters"]["resource_attributes"]
-            ],
-            "scope_attributes": [
-                _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
-                for attribute_filter in value["attribute_filters"]["scope_attributes"]
-            ],
-            "data_point_attributes": [
-                _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
-                for attribute_filter in value["attribute_filters"]["data_point_attributes"]
-            ],
-        },
+    return {
+        "host_name_lookup_rules": [
+            _anonymize_metrics_association_lookup_rule(anon_interface, rule)
+            for rule in value["host_name_lookup_rules"]
+        ],
     }
-    if "host_name_template" in value:
+
+
+def _anonymize_metrics_association_lookup_rule(
+    anon_interface: AnonInterface,
+    rule: dict[str, Any],
+) -> object:
+    anonymized: dict[str, Any] = {
+        "resource_attributes": [
+            _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
+            for attribute_filter in rule["resource_attributes"]
+        ],
+        "scope_attributes": [
+            _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
+            for attribute_filter in rule["scope_attributes"]
+        ],
+        "data_point_attributes": [
+            _anonymize_metrics_association_attribute_filter(anon_interface, attribute_filter)
+            for attribute_filter in rule["data_point_attributes"]
+        ],
+    }
+    if "host_name_template" in rule:
         anonymized["host_name_template"] = anon_interface.get_generic_mapping(
-            value["host_name_template"],
-            "metrics_association",
-        )
-    # Backward compatibility: anonymize the legacy single-key field on un-migrated configs too.
-    if "host_name_resource_attribute_key" in value:
-        anonymized["host_name_resource_attribute_key"] = anon_interface.get_generic_mapping(
-            value["host_name_resource_attribute_key"],
+            rule["host_name_template"],
             "metrics_association",
         )
     return anonymized
@@ -384,13 +388,13 @@ def _anonymize_metrics_association_attribute_filter(
     value: dict[str, Any],
 ) -> object:
     return {
-        "attribute_value": anon_interface.get_generic_mapping(
-            value["attribute_value"],
-            "metric_association_attr_value",
-        ),
-        "attribute_key": anon_interface.get_generic_mapping(
-            value["attribute_key"],
+        "key": anon_interface.get_generic_mapping(
+            value["key"],
             "metric_association_attr_key",
+        ),
+        "value": anon_interface.get_generic_mapping(
+            value["value"],
+            "metric_association_attr_value",
         ),
     }
 
