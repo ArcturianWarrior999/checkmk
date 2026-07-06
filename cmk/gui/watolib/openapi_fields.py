@@ -433,6 +433,7 @@ class IPAddressRange(BaseSchema, CheckmkTuple):
     type = Constant(
         description="A range of addresses.",
         constant="ip_range",
+        required=True,
     )
     from_address = String(
         description="The first IPv4 address of this range.",
@@ -505,6 +506,7 @@ class IPNetwork(BaseSchema, CheckmkTuple):
     type = Constant(
         description="A single IPv4 network in CIDR notation.",
         constant="ip_network",
+        required=True,
     )
     network = IPNetworkCIDR(
         description=(
@@ -536,6 +538,7 @@ class IPAddresses(BaseSchema, CheckmkTuple):
     type = Constant(
         description="A list of single IPv4 addresses.",
         constant="ip_list",
+        required=True,
     )
     addresses = List(
         String(
@@ -560,6 +563,7 @@ class IPRegexp(BaseSchema, CheckmkTuple):
     type = Constant(
         description="IPv4 addresses which match a regexp pattern",
         constant="ip_regex_list",
+        required=True,
     )
     regexp_list = List(
         String(validate=IsValidRegexp()),
@@ -1042,7 +1046,7 @@ PrivacyProtocolConverter = MappingConverter(PRIV_PROT_MAP)
 class SNMPCommunity(BaseSchema):
     cast_to_dict = True
 
-    type = Constant(constant="v1_v2_community")
+    type = Constant(constant="v1_v2_community", required=True)
     community = String(
         description="SNMP community (SNMP Versions 1 and 2c)",
         required=True,
@@ -1084,6 +1088,7 @@ class SNMPv3NoAuthNoPrivacy(BaseSchema, CheckmkTuple):
     type = Constant(
         description="The type of credentials to use.",
         constant="noAuthNoPriv",
+        required=True,
     )
     security_name = String(
         description="Security name",
@@ -1099,6 +1104,7 @@ class SNMPv3AuthNoPrivacy(BaseSchema, CheckmkTuple):
     type = Constant(
         description="The type of credentials to use.",
         constant="authNoPriv",
+        required=True,
     )
     auth_protocol = String(
         description="Authentication protocol.",
@@ -1139,6 +1145,7 @@ class SNMPv3AuthPrivacy(BaseSchema, CheckmkTuple):
     type = Constant(
         description="SNMPv3 with authentication and privacy.",
         constant="authPriv",
+        required=True,
     )
     auth_protocol = String(
         description="Authentication protocol.",
