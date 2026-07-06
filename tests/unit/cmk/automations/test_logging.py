@@ -9,12 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from cmk.automations.logging import LoggingManager, VERBOSE
-
-
-def test_verbose_level_is_registered() -> None:
-    assert VERBOSE == 15
-    assert logging.getLevelName(VERBOSE) == "VERBOSE"
+from cmk.automations.logging import LoggingManager
 
 
 def test_init_sets_level_on_cmk_logger() -> None:

@@ -13,9 +13,7 @@ from logging.handlers import WatchedFileHandler
 from pathlib import Path
 from typing import TextIO
 
-VERBOSE = 15
 ROOT_LOGGER_NAME = "cmk"
-logging.addLevelName(VERBOSE, "VERBOSE")
 
 
 class LoggingManager:
@@ -80,3 +78,10 @@ class LoggingManager:
         self._logger.setLevel(log_level)
         yield
         self._logger.setLevel(previous_level)
+
+    @staticmethod
+    def verbosity_to_level(verbosity: int) -> int:
+        if verbosity > 0:
+            return logging.DEBUG
+
+        return logging.INFO
