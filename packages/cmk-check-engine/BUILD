@@ -88,7 +88,6 @@ py_library(
     name = "fetchers",
     srcs = [
         "cmk/checkengine/fetchers/ipmi.py",
-        "cmk/checkengine/fetchers/metric_backend.py",
         "cmk/checkengine/fetchers/nofetcher.py",
         "cmk/checkengine/fetchers/piggyback.py",
         "cmk/checkengine/fetchers/program.py",
