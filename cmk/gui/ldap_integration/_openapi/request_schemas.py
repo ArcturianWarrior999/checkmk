@@ -29,7 +29,7 @@ class LDAPCheckboxDisabledRequest(BaseSchema):
         "disabled",
         description="This config parameter is disabled.",
         example="disabled",
-        load_default="disabled",
+        required=True,
     )
 
 

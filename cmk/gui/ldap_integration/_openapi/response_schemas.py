@@ -476,6 +476,7 @@ class LDAPGroupsToSyncBase(BaseSchema):
         example="group_cn_example",
     )
     attribute_to_set = fields.String(
+        required=True,
         description="The name of the attribute to set.",
     )
 
