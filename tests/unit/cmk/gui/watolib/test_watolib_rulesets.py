@@ -65,7 +65,7 @@ def fixture_allrulesets_with_rules_in_multiple_files() -> AllRulesets:
     root_folder = tree.root_folder()
     sub_folder = Folder(
         tree=tree,
-        name="Sub",
+        name="sub",
         folder_id="sub",
         folder_path="sub",
         parent_folder=root_folder,

@@ -1032,7 +1032,7 @@ group_tree_test = (
 )
 
 
-@pytest.mark.usefixtures("with_user_login")
+@pytest.mark.usefixtures("with_user_login", "allow_redis")
 @pytest.mark.parametrize(
     "structure, user_tests",
     [group_tree_test],
@@ -1051,7 +1051,7 @@ def test_num_hosts_normal_user(
             )
 
 
-@pytest.mark.usefixtures("with_admin_login")
+@pytest.mark.usefixtures("with_admin_login", "allow_redis")
 @pytest.mark.parametrize(
     "structure, user_tests",
     [group_tree_test],
@@ -1158,7 +1158,7 @@ def get_fake_setup_redis_client(
         monkeypatch.undo()
 
 
-@pytest.mark.usefixtures("with_admin_login")
+@pytest.mark.usefixtures("with_admin_login", "allow_redis")
 def test_load_redis_folders_on_demand(monkeypatch: MonkeyPatch) -> None:
     wato_folder = make_monkeyfree_folder(group_tree_structure)
     folder_tree().invalidate_caches()

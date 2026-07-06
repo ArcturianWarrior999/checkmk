@@ -27,6 +27,7 @@ from cmk.gui.config import Config
 from cmk.gui.permissions import permission_registry
 from cmk.gui.utils.roles import UserPermissions
 from cmk.livestatus_client.testing import mock_livestatus_communication, MockLiveStatusConnection
+from cmk.utils.redis import disable_redis
 from tests.testlib.gui.common_fixtures import (
     create_aut_user_auth_wsgi_app,
     create_flask_app,
@@ -58,6 +59,31 @@ def mock_password_file_regeneration(monkeypatch: pytest.MonkeyPatch) -> None:
         cmk.gui.watolib.password_store.update_passwords_merged_file.__name__,
         lambda: None,
     )
+
+
+@pytest.fixture(autouse=True)
+def deactivate_redis(request: pytest.FixtureRequest) -> Iterator[None]:
+    """Disable redis for all GUI unit tests by default
+
+    The flask_app fixture patches the redis client with a reachable fakeredis
+    instance. This makes may_use_redis() return True, which lets e.g. the
+    hosts_and_folders code build its redis folder caches from disk over and
+    over again in each test, slowing down the tests significantly without any
+    functional benefit.
+
+    Tests that really want to exercise redis code paths (against fakeredis)
+    can request the allow_redis fixture.
+    """
+    if "allow_redis" in request.fixturenames:
+        yield
+        return
+    with disable_redis():
+        yield
+
+
+@pytest.fixture()
+def allow_redis() -> None:
+    """Opt-out of the deactivate_redis fixture (see there)"""
 
 
 @pytest.fixture(autouse=True)
