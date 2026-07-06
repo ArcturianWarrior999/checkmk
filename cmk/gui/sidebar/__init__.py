@@ -1056,8 +1056,7 @@ class AjaxGetAvialableSnapins(AjaxPage):
                         e_message,
                         traceback.format_exc(),
                     )
-                finally:
-                    return output_funnel.drain()
+                return output_funnel.drain()
 
         return [
             asdict(
