@@ -24,17 +24,11 @@ from cmk.checkengine import agent_protocol
 from cmk.checkengine.fetcher import Fetcher, FetcherError, Mode
 from cmk.checkengine.fetcher_utils.secrets import ActivatedSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
-from cmk.checkengine.fetchers import (
-    IPMIFetcher,
-    PiggybackFetcher,
-    ProgramFetcher,
-    SNMPFetcher,
-    SNMPScanConfig,
-    SNMPSectionMeta,
-    TCPFetcher,
-    TLSConfig,
-)
-from cmk.checkengine.fetchers.ipmi import IPMISensor
+from cmk.checkengine.fetchers.ipmi import IPMIFetcher, IPMISensor
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.snmp import SNMPFetcher, SNMPScanConfig, SNMPSectionMeta
+from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import (
     AgentFileCache,
     FileCache,

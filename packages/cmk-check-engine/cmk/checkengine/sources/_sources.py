@@ -12,17 +12,12 @@ from typing import Final, Literal
 
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.fetcher import Fetcher
-from cmk.checkengine.fetchers import (
-    IPMIFetcher,
-    NoFetcher,
-    NoFetcherError,
-    PiggybackFetcher,
-    ProgramFetcher,
-    SNMPFetcher,
-    SNMPScanConfig,
-    TCPFetcher,
-    TLSConfig,
-)
+from cmk.checkengine.fetchers.ipmi import IPMIFetcher
+from cmk.checkengine.fetchers.nofetcher import NoFetcher, NoFetcherError
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.snmp import SNMPFetcher, SNMPScanConfig
+from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import (
     AgentFileCache,
     FileCache,

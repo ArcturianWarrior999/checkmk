@@ -72,11 +72,8 @@ from cmk.checkengine.discovery import (
     DiscoveryCheckParameters,
     merge_cluster_autochecks,
 )
-from cmk.checkengine.fetchers import (
-    IPMICredentials,
-    NoSelectedSNMPSections,
-    SNMPFetcherConfig,
-)
+from cmk.checkengine.fetchers.ipmi import IPMICredentials
+from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcherConfig
 from cmk.checkengine.filecache import MaxAge
 from cmk.checkengine.helper_interface import SourceType
 from cmk.checkengine.inventory import HWSWInventoryParameters

@@ -10,7 +10,7 @@ from typing import Any, Final, Literal, SupportsInt, TypedDict
 
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.discovery import RediscoveryParameters
-from cmk.checkengine.fetchers import IPMICredentials
+from cmk.checkengine.fetchers.ipmi import IPMICredentials
 from cmk.checkengine.snmplib import SNMPCredentials, SNMPTiming
 from cmk.checkengine.specs.exitspec import ExitSpec
 from cmk.inventory.structured_data import RawIntervalFromConfig

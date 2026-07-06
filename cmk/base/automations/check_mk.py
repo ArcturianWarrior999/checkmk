@@ -152,13 +152,9 @@ from cmk.checkengine.discovery import (
 from cmk.checkengine.fetcher import FetcherError, FetcherFunction, Mode
 from cmk.checkengine.fetcher_utils.secrets import ActivatedSecrets, AdHocSecrets, StoredSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
-from cmk.checkengine.fetchers import (
-    NoSelectedSNMPSections,
-    ProgramFetcher,
-    SNMPFetcherConfig,
-    TCPFetcher,
-    TLSConfig,
-)
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcherConfig
+from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge, NoCache
 from cmk.checkengine.helper_interface import AgentRawData, FetcherType, SourceType
 from cmk.checkengine.parser import make_parser, NO_SELECTION, parse_raw_data, SectionStore

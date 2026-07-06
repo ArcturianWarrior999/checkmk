@@ -53,10 +53,8 @@ from cmk.checkengine.discovery import (
 from cmk.checkengine.fetcher import Fetcher, FetcherFunction, Mode
 from cmk.checkengine.fetcher_utils.secrets import AdHocSecrets, FetcherSecrets, StoredSecrets
 from cmk.checkengine.fetcher_utils.trigger import FetcherTrigger
-from cmk.checkengine.fetchers import (
-    ProgramFetcher,
-    TLSConfig,
-)
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.tcp import TLSConfig
 from cmk.checkengine.filecache import FileCache, FileCacheOptions, MaxAge, NoCache
 from cmk.checkengine.helper_interface import (
     AgentRawData,

@@ -79,7 +79,7 @@ from cmk.checkengine.discovery.types import DiscoveredItem
 from cmk.checkengine.fetcher import Mode
 from cmk.checkengine.fetcher_utils.secrets import AdHocSecrets, StoredSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
-from cmk.checkengine.fetchers import (
+from cmk.checkengine.fetchers.snmp import (
     NoSelectedSNMPSections,
     SNMPFetcherConfig,
 )

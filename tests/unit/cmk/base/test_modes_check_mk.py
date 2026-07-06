@@ -23,7 +23,7 @@ from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.fetcher import Fetcher, Mode
 from cmk.checkengine.fetcher_utils.secrets import FetcherSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
-from cmk.checkengine.fetchers import PiggybackFetcher
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
 from cmk.checkengine.snmp_backend import make_backend
 from cmk.checkengine.snmp_backends.classic import ClassicSNMPBackend
 from cmk.checkengine.snmp_backends.stored_walk import StoredWalkSNMPBackend

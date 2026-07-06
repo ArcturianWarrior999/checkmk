@@ -19,15 +19,10 @@ from cmk.base.community_app import make_app
 from cmk.base.config import ConfigCache, make_host_tags, make_hosts_config
 from cmk.ccc.exceptions import OnError
 from cmk.ccc.hostaddress import HostAddress, HostName
-from cmk.checkengine.fetchers import (
-    NoSelectedSNMPSections,
-    PiggybackFetcher,
-    ProgramFetcher,
-    SNMPFetcher,
-    SNMPFetcherConfig,
-    TCPFetcher,
-    TLSConfig,
-)
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcher, SNMPFetcherConfig
+from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.sources import Source, SourceBuilder

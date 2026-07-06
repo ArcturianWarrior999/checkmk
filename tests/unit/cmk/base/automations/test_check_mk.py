@@ -34,7 +34,7 @@ from cmk.checkengine.discovery import CheckPreview, CheckPreviewEntry, Qualified
 from cmk.checkengine.fetcher import Fetcher, Mode
 from cmk.checkengine.fetcher_utils.secrets import FetcherSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
-from cmk.checkengine.fetchers import PiggybackFetcher
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import oids_to_walk, SNMPContextConfig
 from cmk.discover_plugins import PluginLocation

@@ -27,16 +27,11 @@ from cmk.ccc.hostaddress import HostAddress, HostName, Hosts
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.fetcher import Fetcher
 from cmk.checkengine.fetcher_utils.secrets import StoredSecrets
-from cmk.checkengine.fetchers import (
-    IPMIFetcher,
-    NoSelectedSNMPSections,
-    PiggybackFetcher,
-    ProgramFetcher,
-    SNMPFetcher,
-    SNMPFetcherConfig,
-    TCPFetcher,
-    TLSConfig,
-)
+from cmk.checkengine.fetchers.ipmi import IPMIFetcher
+from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
+from cmk.checkengine.fetchers.program import ProgramFetcher
+from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcher, SNMPFetcherConfig
+from cmk.checkengine.fetchers.tcp import TCPFetcher, TLSConfig
 from cmk.checkengine.filecache import FileCacheOptions, MaxAge
 from cmk.checkengine.helper_interface import AgentRawData, SourceType
 from cmk.checkengine.plugins import AgentBasedPlugins, ServiceID

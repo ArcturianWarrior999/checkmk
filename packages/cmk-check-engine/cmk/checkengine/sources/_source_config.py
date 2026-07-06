@@ -9,12 +9,9 @@ from pathlib import Path
 from typing import Final, Literal
 
 from cmk.ccc.hostaddress import HostAddress, HostName
-from cmk.checkengine.fetchers import (
-    IPMICredentials,
-    SNMPFetcherConfig,
-    SNMPSectionMeta,
-    TCPFetcherConfig,
-)
+from cmk.checkengine.fetchers.ipmi import IPMICredentials
+from cmk.checkengine.fetchers.snmp import SNMPFetcherConfig, SNMPSectionMeta
+from cmk.checkengine.fetchers.tcp import TCPFetcherConfig
 from cmk.checkengine.helper_interface import SourceType
 from cmk.checkengine.plugin_backend import sections_needing_redetection
 from cmk.checkengine.plugins import AgentBasedPlugins, make_plugin_store

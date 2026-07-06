@@ -24,7 +24,7 @@ from cmk.base.default_config.cmc import (
     SmartPingTuning,
 )
 from cmk.ccc.hostaddress import HostAddress, HostName
-from cmk.checkengine.fetchers import IPMICredentials
+from cmk.checkengine.fetchers.ipmi import IPMICredentials
 from cmk.checkengine.snmplib import SNMPCredentials, SNMPTiming
 from cmk.inventory.structured_data import RawIntervalFromConfig
 from cmk.rrd import RRDObjectConfig
