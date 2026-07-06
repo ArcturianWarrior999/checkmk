@@ -3,59 +3,64 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import time
-from collections.abc import Mapping, Sequence
-from typing import Any
+# mypy: disable-error-code="no-untyped-call"
+# mypy: disable-error-code="no-untyped-def"
+# mypy: disable-error-code="type-arg"
 
-from cmk.agent_based.v2 import (
-    CheckPlugin,
-    CheckResult,
-    DiscoveryResult,
-    get_value_store,
-    OIDEnd,
-    Service,
-    SNMPSection,
-    SNMPTree,
-    StringTable,
-)
+import time
+from collections.abc import Iterable, Sequence
+
+from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
+from cmk.agent_based.v2 import get_value_store, OIDEnd, SNMPTree, StringTable
 from cmk.plugins.casa.lib import DETECT_CASA
 from cmk.plugins.lib.cpu_util import check_cpu_util
 
-Section = Mapping[str, str]
+check_info = {}
 
 
-def parse_casa_cpu_util(string_table: Sequence[StringTable]) -> Section:
-    entity_names = {int(k): v for k, v in string_table[0]}
-    data: dict[str, str] = {}
-    for entry in string_table[1]:
+def parse_casa_info_util(info):
+    entity_names = {int(k): v for k, v in (x for x in info[0])}
+    data = {}
+    for entry in info[1]:
         entry_nr = int(entry[0])
         name = entity_names[entry_nr]  # e.g. "Module 1 QEM".
         # Drop "QEM" in order to be consistent with other DTCS checks...
         if name.startswith("Module "):
             name = name.rsplit(None, 1)[0]
-        data[name] = entry[1]
+        data[name] = {
+            "cpu_util": entry[1],
+        }
     return data
 
 
-def discover_casa_cpu_util(section: Section) -> DiscoveryResult:
-    for key, value in section.items():
-        if value:
-            yield Service(item=key)
+def discover_casa_cpu_util(string_table: StringTable) -> Iterable[tuple[str, dict]]:
+    for key, value in parse_casa_info_util(string_table).items():
+        if value.get("cpu_util"):
+            yield key, {}
 
 
-def check_casa_cpu_util(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
-    if (value := section.get(item)) is None:
+def check_casa_cpu_util(item, params, info):
+    data = parse_casa_info_util(info)
+    if (values := data.get(item)) is None:
         return
+
+    value = float(values["cpu_util"])
+
     yield from check_cpu_util(
-        util=float(value),
+        util=value,
         params=params,
         value_store=get_value_store(),
         this_time=time.time(),
     )
 
 
-snmp_section_casa_cpu_util = SNMPSection(
+def parse_casa_cpu_util(string_table: Sequence[StringTable]) -> Sequence[StringTable]:
+    return string_table
+
+
+check_info["casa_cpu_util"] = LegacyCheckDefinition(
     name="casa_cpu_util",
+    parse_function=parse_casa_cpu_util,
     detect=DETECT_CASA,
     fetch=[
         SNMPTree(
@@ -67,13 +72,8 @@ snmp_section_casa_cpu_util = SNMPSection(
             oids=[OIDEnd(), "4"],
         ),
     ],
-    parse_function=parse_casa_cpu_util,
-)
-check_plugin_casa_cpu_util = CheckPlugin(
-    name="casa_cpu_util",
     service_name="CPU utilization %s",
     discovery_function=discover_casa_cpu_util,
     check_function=check_casa_cpu_util,
     check_ruleset_name="cpu_utilization_multiitem",
-    check_default_parameters={},
 )

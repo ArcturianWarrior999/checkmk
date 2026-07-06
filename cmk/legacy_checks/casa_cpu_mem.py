@@ -3,28 +3,24 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+# mypy: disable-error-code="no-untyped-def"
+# mypy: disable-error-code="type-arg"
 
-from cmk.agent_based.v2 import (
-    CheckPlugin,
-    CheckResult,
-    DiscoveryResult,
-    OIDEnd,
-    Service,
-    SNMPSection,
-    SNMPTree,
-    StringTable,
-)
+from collections.abc import Iterable, Mapping
+
+from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
+from cmk.agent_based.v2 import OIDEnd, SNMPTree, StringTable
+from cmk.legacy_includes.mem import check_memory_element
 from cmk.plugins.casa.lib import DETECT_CASA
-from cmk.plugins.lib.memory import check_element
 
-Section = Mapping[str, Mapping[str, int]]
+check_info = {}
+
+Section = Mapping[str, Mapping[str, object]]
 
 
-def parse_casa_cpu_mem(string_table: Sequence[StringTable]) -> Section:
-    entity_names = {int(k): v for k, v in string_table[0]}
-    data: dict[str, Mapping[str, int]] = {}
+def parse_casa_cpu_mem(string_table: list[StringTable]) -> Section:
+    entity_names = {int(k): v for k, v in (x for x in string_table[0])}
+    data = {}
     for idx, entry in enumerate(string_table[1]):
         entry_nr = int(entry[0])
         data[entity_names[entry_nr]] = {
@@ -34,17 +30,17 @@ def parse_casa_cpu_mem(string_table: Sequence[StringTable]) -> Section:
     return data
 
 
-def discover_casa_cpu_mem(section: Section) -> DiscoveryResult:
-    for key, value in section.items():
-        if value.get("mem_total"):
-            yield Service(item=key)
+def discover_casa_cpu_mem(section: Section) -> Iterable[tuple[str, dict]]:
+    for k, v in section.items():
+        if v.get("mem_total"):
+            yield k, {}
 
 
-def check_casa_cpu_mem(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
-    if not (data := section.get(item)):
+def check_casa_cpu_mem(item, params, parsed):
+    if not (data := parsed.get(item)):
         return
     levels = params.get("levels", (None, None))
-    yield from check_element(
+    yield check_memory_element(
         "Usage",
         data["mem_used"],
         data["mem_total"],
@@ -56,7 +52,7 @@ def check_casa_cpu_mem(item: str, params: Mapping[str, Any], section: Section) -
     )
 
 
-snmp_section_casa_cpu_mem = SNMPSection(
+check_info["casa_cpu_mem"] = LegacyCheckDefinition(
     name="casa_cpu_mem",
     detect=DETECT_CASA,
     fetch=[
@@ -78,9 +74,6 @@ snmp_section_casa_cpu_mem = SNMPSection(
         ),
     ],
     parse_function=parse_casa_cpu_mem,
-)
-check_plugin_casa_cpu_mem = CheckPlugin(
-    name="casa_cpu_mem",
     service_name="Memory %s",
     discovery_function=discover_casa_cpu_mem,
     check_function=check_casa_cpu_mem,
