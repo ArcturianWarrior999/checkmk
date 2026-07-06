@@ -3,11 +3,12 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Callable, Collection, Container, Mapping, Sequence
+from collections.abc import Callable, Container, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 
 from cmk.graphing.v1 import graphs as graphs_v1
 from cmk.graphing.v1 import metrics as metrics_v1
+from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing.v2_unstable import graphs as graphs_v2_unstable
 
 from ._from_api import (
@@ -18,6 +19,7 @@ from ._from_api import (
 from ._graph import Graph, Line, Rule, Stack
 from ._perfdata import MetricName, Service
 from ._quantities import RRDMetric, ScalarOf, ScalarType
+from ._source import fetch_metric_names, RRDFetchRawMetricNames
 
 _PREDICT_PREFIX = "predict_"
 
@@ -157,11 +159,17 @@ def build_matched_graphs(
     *,
     service: Service,
     localizer: Callable[[str], str],
-    metric_names: Collection[MetricName],
+    fetch_raw_metric_names: RRDFetchRawMetricNames,
     graph_type: str,
     registered_graphs: Sequence[_GraphPlugin],
     registered_metrics: Mapping[str, metrics_v1.Metric],
+    registered_translations: Iterable[translations_v1.Translation],
 ) -> Sequence[Graph]:
+    metric_names = fetch_metric_names(
+        services=[service],
+        registered_translations=registered_translations,
+        fetch_raw_metric_names=fetch_raw_metric_names,
+    ).get(service, frozenset())
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
 

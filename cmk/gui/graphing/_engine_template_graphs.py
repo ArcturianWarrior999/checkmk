@@ -16,7 +16,6 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
-    fetch_metric_names,
     Graph,
     RRDDataSource,
     RRDFetchRawMetricNames,
@@ -67,18 +66,14 @@ def build_template_graphs(
     registered_translations: Sequence[translations_v1.Translation],
     fetch_raw_metric_names: RRDFetchRawMetricNames,
 ) -> Sequence[Graph]:
-    metric_names = fetch_metric_names(
-        services=[service],
-        registered_translations=registered_translations,
-        fetch_raw_metric_names=fetch_raw_metric_names,
-    ).get(service, frozenset())
     graphs = build_matched_graphs(
         service=service,
         localizer=translate_to_current_language,
-        metric_names=metric_names,
+        fetch_raw_metric_names=fetch_raw_metric_names,
         graph_type="template",
         registered_graphs=registered_graphs,
         registered_metrics=registered_metrics,
+        registered_translations=registered_translations,
     )
     for graph in graphs:
         _assert_uniform_unit(graph)

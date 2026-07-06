@@ -18,7 +18,6 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
-    fetch_metric_names,
     Graph,
     HostName,
     Line,
@@ -196,18 +195,14 @@ def _discover(
     *,
     rrd: _FakeRRDDataSource,
 ) -> Sequence[Graph]:
-    available = fetch_metric_names(
-        services=[service],
-        registered_translations=[],
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
-    )
     return build_matched_graphs(
         service=service,
         localizer=_id,
-        metric_names=available.get(service, frozenset()),
+        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
         graph_type=_KIND,
         registered_graphs=registered_graphs,
         registered_metrics=_METRICS,
+        registered_translations=[],
     )
 
 
@@ -614,19 +609,14 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
     rrd = _FakeRRDDataSource(
         performance_response={service: _perf_data(_perf(cpu_user, warning=80.0))}
     )
-    available = fetch_metric_names(
-        services=[service],
-        registered_translations=[],
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
-    ).get(service, frozenset())
-
     graphs = build_matched_graphs(
         service=service,
         localizer=_id,
-        metric_names=available,
+        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
         graph_type=_KIND,
         registered_graphs=[],
         registered_metrics=_METRICS,
+        registered_translations=[],
     )
     # The fallback single-metric graph carries the four warn / crit (and lower) threshold rules as
     # ScalarOf quantities, their labels / colours resolved from the scalar type.

@@ -25,7 +25,6 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
-    fetch_metric_names,
     Graph,
     HostName,
     MetricName,
@@ -132,18 +131,14 @@ def _discover(
     *,
     translations: Sequence[translations_v1.Translation] = (),
 ) -> Sequence[Graph]:
-    available = fetch_metric_names(
-        services=[_SERVICE],
-        registered_translations=translations,
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_data),
-    )
     return build_matched_graphs(
         service=_SERVICE,
         localizer=_id,
-        metric_names=available.get(_SERVICE, frozenset()),
+        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_data),
         graph_type="test",
         registered_graphs=registered_graphs,
         registered_metrics=_METRICS,
+        registered_translations=translations,
     )
 
 
