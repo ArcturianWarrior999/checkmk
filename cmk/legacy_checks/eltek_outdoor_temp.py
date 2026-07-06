@@ -3,17 +3,18 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
-
-# mypy: disable-error-code="var-annotated"
-
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import SNMPTree, StringTable
-from cmk.legacy_includes.temperature import check_temperature
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    get_value_store,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    StringTable,
+)
 from cmk.plugins.eltek.lib import DETECT_ELTEK
-
-check_info = {}
+from cmk.plugins.lib.temperature import check_temperature, TempParamType
 
 # .1.3.6.1.4.1.12148.9.1.17.3.1.1.0 1 --> ELTEK-DISTRIBUTED-MIB::ioUnitID.0
 # .1.3.6.1.4.1.12148.9.1.17.3.1.1.1 2 --> ELTEK-DISTRIBUTED-MIB::ioUnitID.1
@@ -61,36 +62,44 @@ check_info = {}
 # suggested by customer
 
 
-def discover_eltek_outdoor_temp(info):
-    inventory = []
-    for index, temp1, temp2 in info:
+def discover_eltek_outdoor_temp(section: StringTable) -> DiscoveryResult:
+    for index, temp1, temp2 in section:
         if int(temp1) > 0:
-            inventory.append(("1/%s" % index, {}))
+            yield Service(item=f"1/{index}")
         if int(temp2) > 0:
-            inventory.append(("2/%s" % index, {}))
-    return inventory
+            yield Service(item=f"2/{index}")
 
 
-def check_eltek_outdoor_temp(item, params, info):
-    for index, temp1, temp2 in info:
+def check_eltek_outdoor_temp(item: str, params: TempParamType, section: StringTable) -> CheckResult:
+    for index, temp1, temp2 in section:
         for temp_id, reading in [("1", float(temp1)), ("2", float(temp2))]:
             if f"{temp_id}/{index}" == item:
-                return check_temperature(reading, params, "eltek_outdoor_temp_%s" % item)
-    return None
+                yield from check_temperature(
+                    reading,
+                    params,
+                    unique_name=f"eltek_outdoor_temp_{item}",
+                    value_store=get_value_store(),
+                )
+                return
 
 
 def parse_eltek_outdoor_temp(string_table: StringTable) -> StringTable:
     return string_table
 
 
-check_info["eltek_outdoor_temp"] = LegacyCheckDefinition(
+snmp_section_eltek_outdoor_temp = SimpleSNMPSection(
     name="eltek_outdoor_temp",
-    parse_function=parse_eltek_outdoor_temp,
     detect=DETECT_ELTEK,
     fetch=SNMPTree(
         base=".1.3.6.1.4.1.12148.9.1.17.3.1",
         oids=["1", "2", "3"],
     ),
+    parse_function=parse_eltek_outdoor_temp,
+)
+
+
+check_plugin_eltek_outdoor_temp = CheckPlugin(
+    name="eltek_outdoor_temp",
     service_name="Temperature Outdoor %s",
     discovery_function=discover_eltek_outdoor_temp,
     check_function=check_eltek_outdoor_temp,
