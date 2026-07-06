@@ -23,7 +23,6 @@ from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.checkengine.snmplib import SNMPBackendEnum
 from cmk.checkengine.sources._sources import (
     IPMISource,
-    MetricBackendSource,
     MgmtSNMPSource,
     MissingIPSource,
     MissingSourceSource,
@@ -39,6 +38,14 @@ from cmk.checkengine.sources.api._config import SourceConfig
 from cmk.server_side_calls_backend import SpecialAgentCommandLine
 from cmk.utils.ip_lookup import IPStackConfig
 from cmk.utils.tags import ComputedDataSources, TagID
+
+# TODO: Remove temporary conditional import
+try:
+    from cmk.checkengine.sources.metric_backend import (  # type: ignore[import-not-found, unused-ignore]
+        MetricBackendSource,
+    )
+except ImportError:
+    MetricBackendSource = None
 
 
 class SourceBuilder:
@@ -189,7 +196,7 @@ class SourceBuilder:
             if not special_agents:
                 self._add_agent()
 
-        if self.metric_backend_fetcher is not None:
+        if self.metric_backend_fetcher is not None and MetricBackendSource is not None:
             self._add(
                 MetricBackendSource(
                     self.metric_backend_fetcher,
