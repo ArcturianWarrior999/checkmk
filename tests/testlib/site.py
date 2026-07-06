@@ -3164,6 +3164,5 @@ def replace_package_ca_certificate(package_root: Path, ca_cert: Certificate) -> 
         write_file(ca_cert_file, ca_cert.dump_pem().bytes, sudo=True)
         yield
     finally:
-        if not backup_and_restore:
-            return
-        run(["mv", ca_cert_backup.as_posix(), ca_cert_file.as_posix()], sudo=True)
+        if backup_and_restore:
+            run(["mv", ca_cert_backup.as_posix(), ca_cert_file.as_posix()], sudo=True)
