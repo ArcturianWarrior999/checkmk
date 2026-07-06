@@ -31,7 +31,6 @@ sh_library(
         "fake-artifacts",
         "find-python-files",
         "find-shell-files",
-        "run-groovy-lint",
         "run-in-docker.sh",
         "run-mypy",
         "run-unittests",
