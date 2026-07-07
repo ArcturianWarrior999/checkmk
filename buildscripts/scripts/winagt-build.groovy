@@ -39,7 +39,9 @@ void main() {
 
         def sign_creds = use_azure ? [
             string(credentialsId: "azure_artifact_signing_client_secret",   variable: "AZURE_ARTIFACT_SIGNING_CLIENT_SECRET"),
-        ] : [];
+        ] : [
+            string(credentialsId: "sectigo_2023_pin",   variable: "SECTIGO_2023_PIN")
+        ];
 
         withCredentials(common_creds + sign_creds) {
             // The windows.build function will create stages.

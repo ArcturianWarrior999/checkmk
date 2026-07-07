@@ -507,7 +507,7 @@ function Start-BazelSigning {
         # YubiKey signing runs inside Bazel genrules (scsigntool.exe via signer.bat).
         Write-Host "Bazel signing..." -ForegroundColor White
         try {
-            &bazel build //agents/windows/plugins:all
+            &bazel build //agents/windows/plugins:all --action_env=SECTIGO_2023_PIN
             if ($LASTEXITCODE -eq 0) {
                 $env:SignedPluginsFolder = Join-Path (Get-Item -Force ..\..\bazel-bin).Target "\agents\windows\plugins\signed"
                 Write-Host "Signed files are located in $env:SignedPluginsFolder"
@@ -520,7 +520,10 @@ function Start-BazelSigning {
         catch {
             Write-Host "Exception during Bazel signing: $_" -ForegroundColor Red
         }
-        &bazel build //agents/windows/plugins:signed_plugins
+        # Must pass the same --action_env as the :all build above; otherwise Bazel
+        # sees a changed action env, discards the analysis cache, and re-runs the
+        # sign genrules without %SECTIGO_2023_PIN% in the environment.
+        &bazel build //agents/windows/plugins:signed_plugins --action_env=SECTIGO_2023_PIN
     }
 
     # Invalidate the MSI object cache when the signed-files folder changed since the
