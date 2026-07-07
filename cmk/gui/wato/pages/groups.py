@@ -79,19 +79,19 @@ class ModeGroups(WatoMode, abc.ABC):
     @property
     @abc.abstractmethod
     def type_name(self) -> GroupType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _load_groups(self) -> dict[GroupName, GroupSpec]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _page_menu_entries_related(self) -> Iterator[PageMenuEntry]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _rules_url(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __init__(self, edition: Edition) -> None:
         super().__init__(edition)
@@ -243,11 +243,11 @@ class ABCModeEditGroup(WatoMode, abc.ABC):
     @property
     @abc.abstractmethod
     def type_name(self) -> GroupType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _load_groups(self) -> dict[GroupName, GroupSpec]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __init__(self, edition: Edition) -> None:
         self._name: GroupName | None = None

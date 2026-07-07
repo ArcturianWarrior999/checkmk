@@ -155,7 +155,7 @@ NOTES:
                 continue
 
             if option.handler_function is None:
-                raise TypeError()
+                raise TypeError
 
             if option.takes_argument():
                 option.handler_function(a)
@@ -197,7 +197,7 @@ def call(
 
     handler = mode.handler_function
     if handler is None:
-        raise TypeError()
+        raise TypeError
 
     with tracer.span(
         f"mode[{mode.name}]",
@@ -420,7 +420,7 @@ class Mode(Option):
                     if option.count:
                         value = options.setdefault(option.name, 0)
                         if not isinstance(value, int):
-                            raise TypeError()
+                            raise TypeError
                         options[option.name] = value + 1
                         continue
                     val = True

@@ -79,7 +79,7 @@ def _validate_inventory_tree_uniqueness(row: Row) -> None:
             _("Cannot display inventory tree of host '%s': Found this host on multiple sites: %s")
             % (raw_hostname, ", ".join(sites_with_same_named_hosts))
         )
-        raise MultipleInventoryTreesError()
+        raise MultipleInventoryTreesError
 
 
 class PainterOptionShowInternalTreePaths(PainterOption):
@@ -144,7 +144,7 @@ class PainterInventoryTree(Painter):
         return serialize_tree(self._compute_data(row, cell, user))
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> SDRawTree:
         return serialize_tree(self._compute_data(row, cell, user))
@@ -226,7 +226,7 @@ class PainterInvhistDelta(Painter):
         return serialize_delta_tree(self._compute_data(row, cell, user))
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> SDRawDeltaTree:
         return serialize_delta_tree(self._compute_data(row, cell, user))
@@ -493,7 +493,7 @@ def _paint_host_inventory_tree(row: Row, path: SDPath, painter_options: PainterO
 
 
 def _export_node_for_csv() -> str | HTML:
-    raise CSVExportError()
+    raise CSVExportError
 
 
 def node_painter_from_hint(

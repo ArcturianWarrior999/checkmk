@@ -16,13 +16,13 @@ class Layout(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a layout. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """Short human readable title of the layout"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def render(
@@ -36,13 +36,13 @@ class Layout(abc.ABC):
         user_permissions: UserPermissions,
     ) -> None:
         """Render the given data in this layout"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def can_display_checkboxes(self) -> bool:
         """Whether this layout can display checkboxes for selecting rows"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def painter_options(self) -> list[str]:

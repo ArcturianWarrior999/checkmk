@@ -268,7 +268,7 @@ class ValueSpec[T](abc.ABC):
     def canonical_value(self) -> T:
         """Create a canonical, minimal, default value that matches the datatype
         of the value specification and fulfills also data validation."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def default_value(self) -> T:
         """Return a default value for this variable
@@ -299,15 +299,15 @@ class ValueSpec[T](abc.ABC):
         Container-like ValueSpecs must recurse over their items, allow these to mask their
         values. Other ValueSpecs that don't have a need for masking sensitive information
         can simply return the input value."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def value_to_json(self, value: T) -> JSONValue:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def value_from_json(self, json_value: JSONValue) -> T:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def from_html_vars(self, varprefix: str) -> T:
@@ -315,7 +315,7 @@ class ValueSpec[T](abc.ABC):
 
         This function must also check the validity and may raise a MKUserError
         in case of invalid set variables."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def validate_value(self, value: T, varprefix: str) -> None:
         """Check if a given value is a valid structure for the current valuespec
@@ -2429,7 +2429,7 @@ class ListOf[T](ValueSpec[ListOfModel[T]]):
             html.close_table()
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def _list_buttons(self, varprefix: str) -> None:
         onclick: str = f"cmk.valuespecs.listof_add({json.dumps(varprefix)}, {json.dumps(self._magic)}, {json.dumps(self._style.value)})"
@@ -2488,7 +2488,7 @@ class ListOf[T](ValueSpec[ListOfModel[T]]):
             html.close_div()
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def _show_current_entries(self, varprefix: str, value: ListOfModel[T]) -> None:
         if self._style == ListOf.Style.REGULAR:
@@ -2513,7 +2513,7 @@ class ListOf[T](ValueSpec[ListOfModel[T]]):
             html.close_div()
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def _show_entry(self, varprefix: str, index: str, value: T) -> None:
         entry_id = f"{varprefix}_entry_{index}"
@@ -2533,7 +2533,7 @@ class ListOf[T](ValueSpec[ListOfModel[T]]):
             html.close_table()
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def _show_entry_cell(self, varprefix: str, index: str, value: T) -> None:
         html.open_td(class_="vlof_buttons")
@@ -3452,7 +3452,7 @@ class DropdownChoiceWithHostAndServiceHints(AjaxDropdownChoice):
         self._hint_label = hint_label
 
     def _choices_from_value(self, value: str | None) -> Choices:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def render_input(self, varprefix: str, value: str | None) -> None:
         if self._label:
@@ -4079,7 +4079,7 @@ class ListChoice(ValueSpec[ListChoiceModel]):
             raise ValueError("illegal type for choices")
 
     def get_elements(self) -> Sequence[ListChoiceChoice]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def canonical_value(self) -> ListChoiceModel:
         return []
@@ -5427,7 +5427,7 @@ class Timerange(CascadingDropdown):
             if isinstance(rangespec, tuple) and (rangespec[0] == "date" or rangespec[0] == "time"):
                 return _fixed_dates(rangespec)
 
-            raise NotImplementedError()
+            raise NotImplementedError
 
         if not isinstance(rangespec, str):
             raise TypeError(rangespec)
@@ -6546,7 +6546,7 @@ class ElementSelection(ValueSpec[None | str]):
 
     @abc.abstractmethod
     def get_elements(self) -> Mapping[str, str]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def canonical_value(self) -> str | None:
         self.load_elements()
@@ -7563,7 +7563,7 @@ class Labels(ValueSpec[LabelsModel]):
         if world is cls.World.CORE:
             return get_labels_from_core(label_type, search_label, _query_livestatus)
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 type AndOrNotDropdownValue[T] = tuple[AndOrNotLiteral, T | None]

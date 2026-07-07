@@ -827,7 +827,7 @@ def test_ruleset_matcher_get_host_values_compute_labels_lazily() -> None:
     ]
 
     def labels_of_host(host_name: HostName) -> Mapping[str, str]:
-        raise RuntimeError()
+        raise RuntimeError
 
     # host labels don't matter for this host
     assert not _make_new_matcher(HostName("host1")).get_host_values_all(

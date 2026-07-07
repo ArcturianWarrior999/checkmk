@@ -34,7 +34,7 @@ class ABCAppendStore[VT](abc.ABC):
             either be a free function or on `entry : _VT`.
 
         Override this to execute some logic before repr()"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     @abc.abstractmethod
@@ -46,7 +46,7 @@ class ABCAppendStore[VT](abc.ABC):
             either be a free function or on `entry : _VT`.
 
         Override this to execute some logic after literal_eval() to produce _VT objects"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __init__(self, path: Path) -> None:
         self._path = path

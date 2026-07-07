@@ -905,7 +905,7 @@ class ModeEditTimeperiod(WatoMode):
         period_type, exceptions_details = vs_spec["weekdays"]
 
         if period_type not in ["whole_week", "day_specific"]:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         # produce a data structure equal to the "day_specific" structure
         if period_type == "whole_week":

@@ -36,7 +36,7 @@ class ABCResourceObserver(abc.ABC):
     def check_resources(self, hint: str | None) -> None:
         """hint should provide reasonable additional information useful for analysis.
         Good examples are hostname, service name or raw command."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def config_has_changed(self) -> None:
         pass

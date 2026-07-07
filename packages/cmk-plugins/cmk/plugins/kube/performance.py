@@ -156,7 +156,7 @@ def _group_metric_types(metrics: Sequence[_AllSamples]) -> Samples:
         elif isinstance(metric, UnusedSample):
             continue
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
     return Samples(memory=memory_metrics, cpu=cpu_metrics, swap=swap_metrics)
 
 

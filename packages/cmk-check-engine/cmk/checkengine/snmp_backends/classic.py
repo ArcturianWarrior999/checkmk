@@ -252,7 +252,7 @@ class ClassicSNMPBackend(SNMPBackend):
         if self.config.snmp_version is not SNMPVersion.V3:
             # Handle V1 and V2C
             if not isinstance(self.config.credentials, str):
-                raise TypeError()
+                raise TypeError
             options += ["-c", self.config.credentials]
 
         else:

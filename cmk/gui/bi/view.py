@@ -776,7 +776,7 @@ def _paint_aggregated_tree_state(
     elif treetype == "top-down":
         cls = FoldableTreeRendererTopDown
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     if show_frozen_difference and row["aggr_compiled_aggregation"].frozen_info:
         row, aggregations_are_equal = convert_tree_to_frozen_diff_tree(row)
@@ -827,7 +827,7 @@ class PainterAggrTreestate(Painter):
         return _render_tree_json(row, user=user, request=self.request)
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> dict:
         return _render_tree_json(row, user=user, request=self.request)
@@ -868,7 +868,7 @@ class PainterAggrTreestateFrozenDiff(Painter):
         return _render_tree_json(row, user=user, request=self.request)
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> dict:
         return _render_tree_json(row, user=user, request=self.request)
@@ -1000,7 +1000,7 @@ class PainterAggrTreestateBoxed(Painter):
         return _render_tree_json(row, user=user, request=self.request)
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> dict:
         return _render_tree_json(row, user=user, request=self.request)

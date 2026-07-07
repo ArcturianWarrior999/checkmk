@@ -110,22 +110,22 @@ class Dashlet[T: DashletConfig](abc.ABC):
     @classmethod
     @abc.abstractmethod
     def type_name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def title(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def description(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def sort_index(cls) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def has_context(cls) -> bool:

@@ -490,7 +490,7 @@ class MetricometerRenderer(abc.ABC):
 
     @classmethod
     def type_name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_stack(self, temperature_unit: TemperatureUnit) -> MetricRendererStack:
@@ -499,7 +499,7 @@ class MetricometerRenderer(abc.ABC):
         Each element is represented by a 2 element tuple where the first element is
         the width in px and the second element the hex color code of this element.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_label(self, temperature_unit: TemperatureUnit) -> str:
@@ -507,13 +507,13 @@ class MetricometerRenderer(abc.ABC):
 
         When the perfometer type definition has a "label" element, this will be used.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_sort_value(self) -> float:
         """Returns the number to sort this perfometer with compared to the other
         performeters in the current performeter sort group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def _render_value(

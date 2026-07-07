@@ -617,7 +617,7 @@ def _process_queries(inst, queries):
         try:
             yield from fetch_metric(inst, mbean_path, title, itemspec)
         except (TimeoutError, OSError):
-            raise SkipInstance()
+            raise SkipInstance
         except SkipMBean:
             continue
         except Exception:
@@ -698,7 +698,7 @@ def generate_json(inst, mbeans):
             obj = inst.post(data)
             yield inst.name, mbean, json.dumps(obj["value"])
         except (TimeoutError, OSError):
-            raise SkipInstance()
+            raise SkipInstance
         except SkipMBean:
             pass
         except Exception:

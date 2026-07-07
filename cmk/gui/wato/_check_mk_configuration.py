@@ -1544,7 +1544,7 @@ def _custom_service_attributes_custom_service_attribute_choices() -> list[
         if attr_spec["type"] == "TextAscii":
             vs = TextInput()
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
         choices.append((ident, attr_spec["title"], vs))
     return sorted(choices, key=lambda x: x[1])
 

@@ -193,7 +193,7 @@ class DictHostTagCondition(Transform):
         if isinstance(tag_condition, dict):
             if "$ne" in tag_condition:
                 return ("is_not", tag_condition["$ne"])
-            raise NotImplementedError()
+            raise NotImplementedError
         return ("is", tag_condition)
 
     def _from_valuespec(self, valuespec_value: Mapping[str, tuple[str, Any]]) -> dict[str, Any]:
@@ -206,7 +206,7 @@ class DictHostTagCondition(Transform):
                     "$%s" % operator: operand,
                 }
             else:
-                raise NotImplementedError()
+                raise NotImplementedError
 
             tag_conditions[tag_group_id] = tag_group_value
         return tag_conditions
@@ -216,7 +216,7 @@ class DictHostTagCondition(Transform):
             return tag_id
         if operator == "is_not":
             return {"$ne": tag_id}
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class PageAjaxDictHostTagConditionGetChoice(ABCPageListOfMultipleGetChoice):

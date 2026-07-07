@@ -612,7 +612,7 @@ def _view_editor_spec(
         if value[0] == "join_inv_column":
             return _from_vs_join_inv_column(*value)
 
-        raise ValueError()
+        raise ValueError
 
     def _from_vs_join_inv_column(
         column_type: Literal["join_inv_column"],
@@ -700,7 +700,7 @@ def _view_editor_spec(
                 raw_inv_vs["tooltip"] = column_spec.tooltip
             return column_type, raw_inv_vs
 
-        raise ValueError()
+        raise ValueError
 
     def _get_painter_spec(
         column_spec: ColumnSpec,
@@ -825,7 +825,7 @@ class PageAjaxCascadingRenderPainterParameters(AjaxPage):
         elif api_request["painter_type"] == "join_painter":
             painters = join_painters_of_datasource(api_request["ds_name"], user_permissions)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         vs = CascadingDropdown(choices=_painter_choices_with_params(painters, user_permissions))
         sub_vs = self._get_sub_vs(vs, ast.literal_eval(api_request["choice_id"]))

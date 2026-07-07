@@ -43,7 +43,7 @@ class BackgroundJob:
     def gui_title(cls) -> str:
         # FIXME: This method cannot be made abstract since GUIBackgroundJob is
         # instantiated in various places.
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def on_scheduler_start(cls, executor: JobExecutor, *, debug: bool) -> None:

@@ -125,48 +125,48 @@ class ABCMainModule(MenuItem, abc.ABC):
     @property
     @abc.abstractmethod
     def topic(self) -> MainModuleTopic:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def mode_or_url(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def icon(self) -> StaticIcon | DynamicIcon:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def permission(self) -> None | str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def description(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     @override
     def sort_index(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def is_show_more(self) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def additional_breadcrumb_items(cls) -> Iterable[BreadcrumbItem]:

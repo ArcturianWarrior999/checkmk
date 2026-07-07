@@ -130,11 +130,11 @@ class _Connection(abc.ABC):
 
     @abc.abstractmethod
     def _connect(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _disconnect(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class EWS(_Connection):

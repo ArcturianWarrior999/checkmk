@@ -91,7 +91,7 @@ def test_try_update_license_usage(omd_root: Path) -> None:
 
 def test_try_update_license_usage_livestatus_socket_error(omd_root: Path) -> None:
     def _mock_livestatus() -> LicenseUsageSample:
-        raise livestatus.MKLivestatusSocketError()
+        raise livestatus.MKLivestatusSocketError
 
     instance_id = UUID("937495cb-78f7-40d4-9b5f-f2c5a81e66b8")
     site_hash = "site-hash"
@@ -117,7 +117,7 @@ def test_try_update_license_usage_livestatus_socket_error(omd_root: Path) -> Non
 
 def test_try_update_license_usage_livestatus_not_found_error(omd_root: Path) -> None:
     def _mock_livestatus() -> LicenseUsageSample:
-        raise livestatus.MKLivestatusNotFoundError()
+        raise livestatus.MKLivestatusNotFoundError
 
     instance_id = UUID("937495cb-78f7-40d4-9b5f-f2c5a81e66b8")
     site_hash = "site-hash"

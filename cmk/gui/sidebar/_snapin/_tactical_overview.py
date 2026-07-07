@@ -345,7 +345,7 @@ class TacticalOverviewSnapin(CustomizableSidebarSnapin):
                 stale=None,
             )
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_stats(
         self,
@@ -375,7 +375,7 @@ class TacticalOverviewSnapin(CustomizableSidebarSnapin):
 
             query = self._get_event_stats_query(context_filters)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         return self._execute_stats_query(
             query,

@@ -147,7 +147,7 @@ class GraphWidgetTokenAuthPage(DashboardTokenAuthenticatedPage):
                 ProblemGraphContent.internal_type(),
                 SingleTimeseriesContent.internal_type(),
             ):
-                raise InvalidWidgetError()
+                raise InvalidWidgetError
 
             # NOTE: We go through the api model loop here to ensure we get the same result as the
             #       non-token case. This mostly matters for graph render option defaults.

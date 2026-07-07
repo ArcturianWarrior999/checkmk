@@ -468,7 +468,7 @@ class ViewWidgetIFrameTokenPage(DashboardTokenAuthenticatedPage):
                 dashboard, cast(EmbeddedViewDashletConfig, widget_config), unique_widget_name
             )
         else:
-            raise InvalidWidgetError()
+            raise InvalidWidgetError
 
         widget_type = dashlet_registry[widget_config["type"]]
         widget = widget_type(widget_config, dashboard.get("context"))

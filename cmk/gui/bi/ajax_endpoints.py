@@ -140,7 +140,7 @@ def ajax_render_tree(ctx: PageContext) -> None:
         case "FoldableTreeRendererTopDown":
             renderer_cls = FoldableTreeRendererTopDown
         case _:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     renderer = renderer_cls(
         row,

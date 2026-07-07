@@ -117,7 +117,7 @@ def _get_rrd_conf(
 def _read_existing_metrics(info_file_path: Path) -> list[MetricName]:
     metrics = _parse_cmc_rrd_info(info_file_path)["metrics"]
     if not isinstance(metrics, list):
-        raise TypeError()
+        raise TypeError
     return metrics
 
 
@@ -382,7 +382,7 @@ class RRDConverter:
             if info_file.endswith(".info"):
                 service = _parse_cmc_rrd_info(host_dir / info_file)["service"]
                 if not isinstance(service, str):
-                    raise TypeError()
+                    raise TypeError
                 yield service
 
     def _convert_pnp_to_cmc(self, config: RRDConfig, servicedesc: _RRDServiceName) -> None:
@@ -659,7 +659,7 @@ class RRDConverter:
 
 def _parse_pnp_xml_file(xml_path: Path) -> RRDXMLInfo:
     if (root := ET.parse(xml_path).getroot()) is None:
-        raise TypeError()
+        raise TypeError
     return RRDXMLInfo(
         ds=[
             DataSource(
@@ -678,7 +678,7 @@ def _parse_pnp_xml_file(xml_path: Path) -> RRDXMLInfo:
 
 def _text_attr(node: ET.Element, attr_name: str) -> str:
     if (attr := node.find(attr_name)) is None:
-        raise AttributeError()
+        raise AttributeError
     return "" if attr.text is None else attr.text
 
 
@@ -717,7 +717,7 @@ def _write_xml(element: ET.Element, filepath: Path) -> None:
 def _set_text_attr(node: ET.Element, attr_name: str, value: str | None) -> None:
     attr = node.find(attr_name)
     if attr is None:
-        raise AttributeError()
+        raise AttributeError
     attr.text = value
 
 

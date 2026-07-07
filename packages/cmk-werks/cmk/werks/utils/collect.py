@@ -93,7 +93,7 @@ def config_from_flavor(flavor: Literal["cma", "cmk", "checkmk_kube_agent", "clou
         return CmkConfig(flavor)
     if flavor == "cloudmk":
         return CloudmkConfig(flavor)
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def main(

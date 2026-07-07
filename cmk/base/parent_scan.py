@@ -87,7 +87,7 @@ def scan_parents_of(
                 socket.AddressFamily.AF_INET,
             )
             if ip is None:
-                raise RuntimeError()
+                raise RuntimeError
             command = [
                 "traceroute",
                 "-w",
@@ -136,7 +136,7 @@ def scan_parents_of(
         else:
             exitstatus = proc_or_error.wait()
             if proc_or_error.stdout is None:
-                raise RuntimeError()
+                raise RuntimeError
             lines = [l.strip() for l in proc_or_error.stdout.readlines()]
 
         if exitstatus:

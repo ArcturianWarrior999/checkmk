@@ -22,21 +22,21 @@ class SidebarSnapin(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def type_name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def title(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def description(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def show(self, config: Config) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def has_show_more_items(cls) -> bool:
@@ -98,10 +98,10 @@ class CustomizableSidebarSnapin(SidebarSnapin, abc.ABC):
     @abc.abstractmethod
     def vs_parameters(cls) -> list[tuple[str, ValueSpec[object]]]:
         """The Dictionary() elements to be used for configuring the parameters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def parameters(cls) -> object:
         """Default set of parameters to be used for the uncustomized snap-in"""
-        raise NotImplementedError()
+        raise NotImplementedError

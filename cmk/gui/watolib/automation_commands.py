@@ -26,7 +26,7 @@ class AutomationCommand[T](ABC):
 
     @abstractmethod
     def command_name(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_request(self, config: Config, request: Request) -> T:
@@ -35,11 +35,11 @@ class AutomationCommand[T](ABC):
         In case an automation command needs to read variables from the HTTP request this has to be done
         in this method. The request produced by this function is 1:1 handed over to the execute() method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def execute(self, api_request: T) -> object:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class AutomationCommandRegistry(cmk.ccc.plugin_registry.Registry[type[AutomationCommand]]):

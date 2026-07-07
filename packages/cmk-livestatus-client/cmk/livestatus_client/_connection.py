@@ -327,7 +327,7 @@ def intercept_queries() -> Iterator[list[str]]:
 
 class Helpers:
     def query(self, query: QueryTypes, add_headers: str = "") -> LivestatusResponse:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def query_value(self, query: QueryTypes, deflt: Any = no_default) -> LivestatusColumn:
         """Issues a query that returns exactly one line and one columns and returns

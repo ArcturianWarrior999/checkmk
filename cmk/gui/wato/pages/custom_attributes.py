@@ -105,7 +105,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
     @property
     @abc.abstractmethod
     def _type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -114,7 +114,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
     @property
     @abc.abstractmethod
     def _topics(self) -> Choices:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -123,21 +123,21 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
     @property
     @abc.abstractmethod
     def _macro_help(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def _macro_label(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _update_config(self, custom_attributes: Sequence[T], *, pprint_value: bool) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _show_in_table_option(self) -> None:
         """Option to show the custom attribute in overview tables of the setup menu."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _render_table_option(self, section_title: str, label: str, help_text: str) -> None:
         """Helper method to implement _show_in_table_option."""
@@ -147,7 +147,7 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
 
     @abc.abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return make_simple_form_page_menu(
@@ -482,7 +482,7 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
     @property
     @abc.abstractmethod
     def _type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -490,13 +490,13 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
 
     @abc.abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _update_config(
         self, custom_attributes: Sequence[T_CustomAttrSpec], *, pprint_value: bool
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return PageMenu(
@@ -541,7 +541,7 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
 
     @abc.abstractmethod
     def _page_menu_entries_related(self) -> Iterable[PageMenuEntry]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def action(self, config: Config) -> ActionResult:
         if not transactions.check_transaction():

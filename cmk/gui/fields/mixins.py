@@ -18,10 +18,10 @@ class Converter(abc.ABC):
     """A converter class to map values from and to Checkmk"""
 
     def to_checkmk(self, data: Any) -> object:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def from_checkmk(self, data: Any) -> object:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 type _TupleFields = tuple[str | _TupleFields, ...]

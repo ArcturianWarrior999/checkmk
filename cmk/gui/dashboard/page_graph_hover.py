@@ -77,7 +77,7 @@ class GraphHoverTokenAuthPage(DashboardTokenAuthenticatedJsonPage):
 
             # Only graph-type widgets are permitted
             if widget_config["type"] not in _ALLOWED_GRAPH_TYPES:
-                raise InvalidWidgetError()
+                raise InvalidWidgetError
 
             # Build dashlet config from the stored widget (server-side), same as
             # GraphWidgetTokenAuthPage — ensures graph render option defaults are applied.
@@ -105,7 +105,7 @@ class GraphHoverTokenAuthPage(DashboardTokenAuthenticatedJsonPage):
             recipes = dashlet.recipes()
 
             if not recipes:
-                raise InvalidWidgetError()
+                raise InvalidWidgetError
 
             # Time range and step both come from the stored widget config (server-side).
             # Zoom/pan is disabled on shared dashboards so the step never changes after render.

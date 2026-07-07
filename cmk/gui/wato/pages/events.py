@@ -48,7 +48,7 @@ class ABCEventsMode[T_EventSpec: EventRule | dict](WatoMode, abc.ABC):
         sites: SiteConfigurations,
         service_levels: Sequence[tuple[int, str]],
     ) -> list[DictionaryEntry | tuple[str, ListChoice]]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def _event_rule_match_conditions(

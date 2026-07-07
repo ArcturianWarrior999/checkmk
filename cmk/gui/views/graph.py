@@ -397,13 +397,13 @@ class PainterServiceGraphs(Painter):
         )
 
     def export_for_python(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise PythonExportError()
+        raise PythonExportError
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise JSONExportError()
+        raise JSONExportError
 
 
 class PainterHostGraphs(Painter):
@@ -454,13 +454,13 @@ class PainterHostGraphs(Painter):
         )
 
     def export_for_python(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise PythonExportError()
+        raise PythonExportError
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise JSONExportError()
+        raise JSONExportError
 
 
 class PainterOptionGraphRenderOptions(PainterOption):
@@ -530,13 +530,13 @@ class PainterSvcPnpgraph(Painter):
         )
 
     def export_for_python(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise PythonExportError()
+        raise PythonExportError
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise JSONExportError()
+        raise JSONExportError
 
 
 class PainterHostPnpgraph(Painter):
@@ -586,13 +586,13 @@ class PainterHostPnpgraph(Painter):
         )
 
     def export_for_python(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise PythonExportError()
+        raise PythonExportError
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
     def export_for_json(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
-        raise JSONExportError()
+        raise JSONExportError
 
 
 def cmk_graph_url(row: Row, what: str, *, request: Request) -> str:

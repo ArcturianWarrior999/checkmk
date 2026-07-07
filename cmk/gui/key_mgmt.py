@@ -61,11 +61,11 @@ class ModeKeyManagement(WatoMode[object]):
         self.key_store = key_store
 
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         if not self._may_edit_config():
@@ -130,7 +130,7 @@ class ModeKeyManagement(WatoMode[object]):
 
     @property
     def component_name(self) -> CertManagementEvent.ComponentType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _log_delete_action(self, key_id: KeyId, key: Key, *, use_git: bool) -> None:
         log_security_event(
@@ -143,16 +143,16 @@ class ModeKeyManagement(WatoMode[object]):
         )
 
     def _delete_confirm_msg(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _delete_confirm_title(self, nr: int) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _key_in_use(self, key: Key) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _table_title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def page(self, config: Config) -> None:
         with table_element(
@@ -250,7 +250,7 @@ class ModeEditKey(WatoMode[object]):
 
     @property
     def component_name(self) -> CertManagementEvent.ComponentType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _log_create_key(self, cert: Certificate) -> None:
         log_security_event(
@@ -299,7 +299,7 @@ class ModeEditKey(WatoMode[object]):
         )
 
     def _passphrase_help(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ModeUploadKey(WatoMode[object]):
@@ -379,7 +379,7 @@ class ModeUploadKey(WatoMode[object]):
 
     @property
     def component_name(self) -> CertManagementEvent.ComponentType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _log_upload_key(self, cert: Certificate) -> None:
         log_security_event(
@@ -467,7 +467,7 @@ class ModeUploadKey(WatoMode[object]):
         )
 
     def _passphrase_help(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ModeDownloadKey(WatoMode[object]):
@@ -517,7 +517,7 @@ class ModeDownloadKey(WatoMode[object]):
         response.set_data(key.private_key + key.certificate)
 
     def _file_name(self, key_id: KeyId, key: Key) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def page(self, config: Config) -> None:
         html.p(

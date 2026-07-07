@@ -26,25 +26,25 @@ class LicensingHandlerMock(LicensingHandler):
 
     @classmethod
     def make(cls) -> LicensingHandler:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def message(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def effect_core(self, num_services: int, num_hosts_shadow: int) -> UserEffect:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def effect(self, licensing_settings_link: str | None = None) -> UserEffect:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def notification_handler(self) -> NotificationHandler:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def remaining_trial_time_rounded(self) -> RemainingTrialTime:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @pytest.mark.parametrize(

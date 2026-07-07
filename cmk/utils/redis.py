@@ -73,7 +73,7 @@ def query_redis[QueryData](
             return query_callback()
 
         if integrity_result == IntegrityCheckResponse.UNAVAILABLE:
-            raise DataUnavailableException()
+            raise DataUnavailableException
 
         blocking = integrity_result == IntegrityCheckResponse.UPDATE
         update_lock.acquire(blocking=blocking, blocking_timeout=timeout)

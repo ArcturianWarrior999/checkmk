@@ -49,7 +49,7 @@ class ApiOmitted:
     def __get_pydantic_json_schema__(
         cls, core_schema: CoreSchema, handler: GetJsonSchemaHandler
     ) -> NoReturn:
-        raise PydanticOmit()
+        raise PydanticOmit
 
     def __new__(cls, *args: object, **kwargs: object) -> "ApiOmitted":
         # Singleton pattern to ensure only one instance of ApiOmitted exists

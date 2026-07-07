@@ -617,22 +617,22 @@ class ManPageRenderer:
         return self._get_value()
 
     def _get_value(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_header(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_manpage_title(self, title: str) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_info_line(self, left: str, right: str) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_subheader(self, line: str) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_line(self, line: str, *, color: str | None = None, no_markup: bool = False) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_begin_splitlines(self) -> None:
         pass
@@ -641,10 +641,10 @@ class ManPageRenderer:
         pass
 
     def _print_empty_line(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _print_textbody(self, text: str) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def _format_distribution(distr: str) -> str:

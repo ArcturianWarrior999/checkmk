@@ -206,7 +206,7 @@ def _format_item_with_template(template: str, item: Item) -> str:
 # Cleanup! .. some day
 def _get_old_cmciii_temp_description(item: Item) -> tuple[ServiceName, None]:
     if item is None:
-        raise TypeError()
+        raise TypeError
 
     if "Temperature" in item:
         return item, None  # old item format, no conversion
@@ -225,7 +225,7 @@ def _get_old_cmciii_temp_description(item: Item) -> tuple[ServiceName, None]:
 
 def _get_old_netapp_volume_item(item: Item) -> Item:
     if item is None:
-        raise TypeError()
+        raise TypeError
 
     # In the old item format svm_name and volume name are separated by dots, now by colons.
     # This replacement is not correct if the names itself contain colons. According to

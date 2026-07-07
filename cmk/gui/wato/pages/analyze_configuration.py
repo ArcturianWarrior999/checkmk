@@ -132,7 +132,7 @@ class ModeAnalyzeConfig(WatoMode):
             self._enable_test(test_id)
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         return None
 

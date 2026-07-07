@@ -131,32 +131,32 @@ class ABCQuicksearchConductor(abc.ABC):
     @abc.abstractmethod
     def do_query(self) -> None:
         """Execute the lookup of the data using the given query"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def num_rows(self) -> int:
         """Returns the number of matching results"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def remove_rows_from_end(self, num: int) -> None:
         """Strips off some rows from the end of the results"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def row_limit_exceeded(self) -> bool:
         """Whether or not the results exceeded the row limit."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_search_url_params(self) -> HTTPVariables:
         """Returns the HTTP variables to link to to show the results on a content page"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def create_results(self, build_url: UrlBuilder) -> list[SearchResult]:
         """Returns the results for the given query"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_match_topic(self) -> str:
         if len(self._used_filters.keys()) > 1:
@@ -168,7 +168,7 @@ class ABCQuicksearchConductor(abc.ABC):
         try:
             return match_plugin_registry[name]
         except KeyError:
-            raise NotImplementedError()
+            raise NotImplementedError
 
 
 class BasicPluginQuicksearchConductor(ABCQuicksearchConductor):
@@ -218,7 +218,7 @@ class BasicPluginQuicksearchConductor(ABCQuicksearchConductor):
     @override
     def get_search_url_params(self) -> HTTPVariables:
         """Returns the HTTP variables to link to to show the results on a content page"""
-        raise NotImplementedError()  # TODO: Implement this
+        raise NotImplementedError  # TODO: Implement this
 
     @override
     def create_results(self, build_url: UrlBuilder) -> list[SearchResult]:
@@ -484,7 +484,7 @@ class LivestatusQuicksearchConductor(ABCQuicksearchConductor):
             if self.livestatus_table == "servicegroups":
                 return "svcgroups"
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _generate_display_texts(self, elements: list[LivestatusResult]) -> list[SearchResult]:
         """Creates the text displayed to the user
@@ -765,7 +765,7 @@ class ABCMatchPlugin(abc.ABC):
 
     @abc.abstractmethod
     def get_match_topic(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCBasicMatchPlugin(ABCMatchPlugin):
@@ -773,7 +773,7 @@ class ABCBasicMatchPlugin(ABCMatchPlugin):
 
     @abc.abstractmethod
     def get_results(self, query: str, user_permissions: UserPermissions) -> list[SearchResult]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCLivestatusMatchPlugin(ABCMatchPlugin):
@@ -806,13 +806,13 @@ class ABCLivestatusMatchPlugin(ABCMatchPlugin):
 
     @abc.abstractmethod
     def get_livestatus_columns(self, livestatus_table: LivestatusTable) -> list[LivestatusColumn]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_livestatus_filters(
         self, livestatus_table: LivestatusTable, used_filters: UsedFilters
     ) -> LivestatusFilterHeaders:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def is_group_match(self) -> bool:
         return False
@@ -832,7 +832,7 @@ class ABCLivestatusMatchPlugin(ABCMatchPlugin):
         used_filters: UsedFilters,
         rows: Rows,
     ) -> Matches:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class MatchPluginRegistry(cmk.ccc.plugin_registry.Registry[ABCMatchPlugin]):

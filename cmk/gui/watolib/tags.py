@@ -224,7 +224,7 @@ class ABCOperation(abc.ABC):
 
     @abc.abstractmethod
     def confirm_title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCTagGroupOperation(ABCOperation, abc.ABC):
@@ -392,7 +392,7 @@ def _change_host_tags_in_host_or_folder[T: (Folder, Host)](
         return affected
 
     if not isinstance(operation, OperationReplaceGroupedTags):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # Deletion or replacement of a tag choice
     # Mypy can not help here with the dynamic key access
@@ -408,7 +408,7 @@ def _change_host_tags_in_host_or_folder[T: (Folder, Host)](
                 # Mypy can not help here with the dynamic key access
                 attributes[attrname] = new_tag  # type: ignore[literal-required]
             else:
-                raise NotImplementedError()
+                raise NotImplementedError
 
     return affected
 
@@ -444,12 +444,12 @@ def _change_host_tags_in_rule(
             _remove_tag_group_condition(rule, operation.tag_group_id)
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         return affected_rulesets
 
     if not isinstance(operation, OperationReplaceGroupedTags):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     tag_map: list[tuple[str | None, Any]] = list(operation.replace_tag_ids.items())
     tag_map += [(tag_id, False) for tag_id in operation.remove_tag_ids]

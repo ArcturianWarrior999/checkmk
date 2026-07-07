@@ -448,7 +448,7 @@ def encode_socket_for_livestatus(site_id: SiteId, site_spec: SiteConfiguration) 
             f"{tcp_family_spec}:{tcp_address_spec['address'][0]}:{tcp_address_spec['address'][1]}"
         )
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def update_site_states_from_dead_sites() -> None:

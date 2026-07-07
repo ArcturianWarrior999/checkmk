@@ -1388,7 +1388,7 @@ def _build_children_hierarchy(
         parent_node.children.append(child_node)
         assigned_node_ids.add(processed_id)
         if len(assigned_node_ids) > max_nodes:
-            raise MKGrowthExceeded()
+            raise MKGrowthExceeded
 
     # Depth 0 nodes are always automatically assigned to the topology_central node
     assigned_node_ids.update(list(nodes_by_depth[0].keys()))

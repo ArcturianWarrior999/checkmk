@@ -246,7 +246,7 @@ def filter_groups_of_entries(
             only_groups.add(group_name)
 
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     for span in spans:
         match group_by:

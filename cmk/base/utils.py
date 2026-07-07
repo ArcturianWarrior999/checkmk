@@ -26,7 +26,7 @@ from cmk.ccc.exceptions import MKTerminate
 
 # register SIGINT handler for consistent CTRL+C handling
 def _handle_keepalive_interrupt(signum: int, frame: FrameType | None) -> NoReturn:
-    raise MKTerminate()
+    raise MKTerminate
 
 
 def register_sigint_handler() -> None:

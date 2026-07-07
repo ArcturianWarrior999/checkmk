@@ -289,17 +289,17 @@ class StatsDashletDataGenerator[S: HostStats | ServiceStats | EventStats](abc.AB
     @classmethod
     @abc.abstractmethod
     def _livestatus_table(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def _view_name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def _named_stats(cls, stats: Sequence[int]) -> S:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def _collect_data(
@@ -354,7 +354,7 @@ class StatsDashletDataGenerator[S: HostStats | ServiceStats | EventStats](abc.AB
     @classmethod
     @abc.abstractmethod
     def _stats_query(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def _general_url_vars(cls, context: VisualContext) -> HTTPVariables:

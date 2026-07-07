@@ -720,7 +720,7 @@ class CheckmkRESTAPI(AbstractWSGIApp):
             )
 
         except ValueError:
-            raise NotFound()
+            raise NotFound
 
         if self._versioned_url_map.get(requested_version) is None:
             with tracer.span(f"Building url map for version {requested_version}"):

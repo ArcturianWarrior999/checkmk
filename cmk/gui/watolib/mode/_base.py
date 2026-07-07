@@ -42,7 +42,7 @@ class WatoMode[RequestOK](abc.ABC):
         are checked by the mode itself. Otherwise the user needs at
         least wato.use and - if he makes actions - wato.edit. Plus wato.*
         for each permission in the list."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def ensure_permissions(self) -> None:
         """Overwrite this method to additionally check request-specific permissions if needed."""
@@ -165,7 +165,7 @@ class WatoMode[RequestOK](abc.ABC):
 
     @abc.abstractmethod
     def page(self, config: Config) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def handle_page(self, config: Config) -> None:
         return self.page(config)

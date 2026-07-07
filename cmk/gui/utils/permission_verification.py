@@ -50,7 +50,7 @@ class BasePerm(abc.ABC):
     @abc.abstractmethod
     def has_permission(self, user: UserLike) -> bool:
         """Verify that this user fulfils the requirements."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def iter_perms(self) -> Iterable[Perm]:

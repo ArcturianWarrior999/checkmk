@@ -426,7 +426,7 @@ def _render_tag_group(
         type_filter_vars = list(filter_vars_dict.items())
 
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     url_vars: HTTPVariables = [
         ("filled_in", "filter"),

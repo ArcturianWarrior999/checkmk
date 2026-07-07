@@ -40,7 +40,7 @@ from tests.testlib.common.utils import reset_registries
 
 
 def spec() -> ValueSpecDictionary:
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def form_spec() -> DictionaryExtended:

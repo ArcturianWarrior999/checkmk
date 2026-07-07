@@ -258,7 +258,7 @@ class TestIPMISensor:
 
 class IPMIFetcherStub(IPMIFetcher):
     def open(self) -> None:
-        raise IpmiException()  # type: ignore[no-untyped-call,unused-ignore]
+        raise IpmiException  # type: ignore[no-untyped-call,unused-ignore]
 
 
 class TestIPMIFetcher:
@@ -936,11 +936,11 @@ class TestFetcherCaching:
                 return AgentRawData(b"fetched_section")
 
             def serialized_params(self) -> Mapping[str, Any]:
-                raise NotImplementedError()
+                raise NotImplementedError
 
             @classmethod
             def from_params(cls, _params: Mapping[str, Any], _ctx: object) -> Self:
-                raise NotImplementedError()
+                raise NotImplementedError
 
         return _Fetcher()
 
@@ -988,14 +988,14 @@ class TestFetcherTimeout:
             pass
 
         def _fetch_from_io(self, *_args: object, **_kw: object) -> NoReturn:
-            raise MKTimeout()
+            raise MKTimeout
 
         def serialized_params(self) -> Mapping[str, Any]:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         @classmethod
         def from_params(cls, _params: Mapping[str, Any], _ctx: object) -> Self:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     with pytest.raises(MKTimeout):
         PlainFetcherTrigger(Path("/")).get_raw_data(

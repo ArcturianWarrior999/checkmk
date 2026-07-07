@@ -269,7 +269,7 @@ class _BaseTimerangeValue(ABC):
     @abstractmethod
     def to_internal(self) -> TimerangeValue:
         """Convert the timerange value to an internal representation."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @api_model

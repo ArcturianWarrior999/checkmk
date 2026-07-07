@@ -49,7 +49,7 @@ class Registry(Mapping[str, _VT]):
 
     @abstractmethod
     def plugin_name(self, instance: _VT) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def registration_hook(self, instance: _VT) -> None:
         pass

@@ -1928,16 +1928,16 @@ class ABCPainterCustomVariable(Painter, abc.ABC):
     @property
     @abc.abstractmethod
     def _default_title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def _object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _custom_attribute_choices(self) -> DropdownChoiceEntries:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def parameters(self) -> Dictionary:
@@ -5259,7 +5259,7 @@ class ABCPainterTagsWithTitles(Painter, abc.ABC):
     @property
     @abc.abstractmethod
     def object_type(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def render(self, row: Row, cell: Cell, user: LoggedInUser) -> CellSpec:
         entries = self._get_entries(row)
@@ -5508,7 +5508,7 @@ def _get_docker_container_status_outputs() -> dict[str, str]:
 class AbstractColumnSpecificMetric(Painter):
     @property
     def ident(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title(self, cell: Cell) -> str:
         return self._title_with_parameters(cell.painter_parameters(), metrics_from_api)
@@ -5534,7 +5534,7 @@ class AbstractColumnSpecificMetric(Painter):
 
     @property
     def columns(self) -> Sequence[ColumnName]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def parameters(self) -> Dictionary:

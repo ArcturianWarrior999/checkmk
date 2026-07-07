@@ -127,7 +127,7 @@ class ABCCrashReport[TDetails](abc.ABC):
     @classmethod
     @abc.abstractmethod
     def type(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def make_crash_info(

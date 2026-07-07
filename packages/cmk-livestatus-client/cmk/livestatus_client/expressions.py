@@ -130,7 +130,7 @@ class QueryExpression(abc.ABC):
 
     @abc.abstractmethod
     def render(self) -> RenderIntermediary:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class NothingExpression(QueryExpression):
@@ -195,7 +195,7 @@ class UnaryExpression(abc.ABC):
     @abc.abstractmethod
     @override
     def __eq__(self, other: Primitives | LqSafe) -> BinaryExpression:  # type: ignore[override]
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __lt__(self, other: Primitives | LqSafe) -> BinaryExpression:
         return self.op("<", other)
@@ -215,19 +215,19 @@ class UnaryExpression(abc.ABC):
 
     @abc.abstractmethod
     def equals(self, other: Primitives | LqSafe, ignore_case: bool = False) -> BinaryExpression:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def contains(self, other: Primitives | LqSafe, ignore_case: bool = False) -> BinaryExpression:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def disparity(self, other: Primitives | LqSafe, ignore_case: bool = False) -> BinaryExpression:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def empty(self) -> BinaryExpression:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ScalarExpression(UnaryExpression):

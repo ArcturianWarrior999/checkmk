@@ -125,12 +125,12 @@ def host_check_command(
 
     if isinstance(value, tuple) and value[0] == "tcp":
         if value[1] is None:
-            raise TypeError()
+            raise TypeError
         return _wrap("check-mk-host-tcp!" + str(value[1]))
 
     if isinstance(value, tuple) and value[0] == "custom":
         if not isinstance(value[1], str):
-            raise TypeError()
+            raise TypeError
         return _wrap(
             host_check_via_custom_check(
                 "check-mk-custom", "check-mk-custom!" + autodetect_plugin(value[1])
@@ -174,19 +174,19 @@ def check_icmp_arguments_of(
     for key, value in levels.items():
         if key == "timeout":
             if not isinstance(value, int):
-                raise TypeError()
+                raise TypeError
             args.append("-t %d" % value)
         elif key == "packets":
             if not isinstance(value, int):
-                raise TypeError()
+                raise TypeError
             args.append("-n %d" % value)
         elif key == "rta":
             if not isinstance(value, tuple):
-                raise TypeError()
+                raise TypeError
             rta = value
         elif key == "loss":
             if not isinstance(value, tuple):
-                raise TypeError()
+                raise TypeError
             loss = value
     args.append(f"-w {rta[0]:.2f},{loss[0]:.2f}%")
     args.append(f"-c {rta[1]:.2f},{loss[1]:.2f}%")

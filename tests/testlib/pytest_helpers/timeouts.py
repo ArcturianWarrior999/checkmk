@@ -58,7 +58,7 @@ class MonitorTimeout:
         if self.timeout_detected:
             raise SessionTimeoutError(f"Run duration exceeds {self._timeout} seconds!")
         # default behaviour
-        raise KeyboardInterrupt()
+        raise KeyboardInterrupt
 
     def _timeout_and_interrupt(self) -> None:
         """Interrupt pytest run with `SIGINT` when a timeout is detected.

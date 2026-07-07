@@ -210,7 +210,7 @@ class _AzureEntity(ABC):
 
     @abstractmethod
     def _unique_name(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def dumpinfo(self) -> Sequence[tuple]:
         # TODO: Hmmm, should the variable-length tuples actually be lists?

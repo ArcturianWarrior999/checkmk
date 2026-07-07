@@ -112,13 +112,13 @@ class VisualFilter(ValueSpec[FilterHTTPVariables]):
         return value
 
     def value_to_html(self, value: FilterHTTPVariables) -> ValueSpecText:
-        raise NotImplementedError()  # FIXME! Violates LSP!
+        raise NotImplementedError  # FIXME! Violates LSP!
 
     def value_to_json(self, value: FilterHTTPVariables) -> JSONValue:
-        raise NotImplementedError()  # FIXME! Violates LSP!
+        raise NotImplementedError  # FIXME! Violates LSP!
 
     def value_from_json(self, json_value: JSONValue) -> FilterHTTPVariables:
-        raise NotImplementedError()  # FIXME! Violates LSP!
+        raise NotImplementedError  # FIXME! Violates LSP!
 
 
 def show_filter(f: Filter, value: FilterHTTPVariables) -> None:

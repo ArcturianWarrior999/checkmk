@@ -553,7 +553,7 @@ class ABCHostMode(WatoMode, abc.ABC):
 
     @abc.abstractmethod
     def _vs_host_name(self) -> ValueSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 # TODO: Split this into two classes ModeEditHost / ModeEditCluster. The problem with this is that
@@ -944,17 +944,17 @@ class CreateHostMode(ABCHostMode):
     @classmethod
     @abc.abstractmethod
     def _init_new_host_object(cls) -> Host:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def _host_type_name(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def _verify_host_type(cls, host: Host) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _from_vars(self) -> None:
         if request.var("clone"):

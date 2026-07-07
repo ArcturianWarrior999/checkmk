@@ -410,7 +410,7 @@ class ParentScanBackgroundJob(BackgroundJob):
                 raise MKUserError(None, _("Expected specific gateway folder"))
             return gateway_folder
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _determine_gateway_host_name(self, task: ParentScanTask, gateway: Gateway) -> HostName:
         if gateway.dns_name:

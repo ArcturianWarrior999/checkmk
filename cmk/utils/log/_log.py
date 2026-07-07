@@ -73,4 +73,4 @@ def verbosity_to_log_level(verbosity: int) -> int:
         return VERBOSE
     if verbosity >= 2:
         return logging.DEBUG
-    raise NotImplementedError()
+    raise NotImplementedError

@@ -578,7 +578,7 @@ class AnonHostsStorage(StandardHostsStorage):
         )
 
     def _read(self, file_path: Path) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class AnonFolderAttributesStorage(StandardWATOInfoStorage):
@@ -595,7 +595,7 @@ class AnonFolderAttributesStorage(StandardWATOInfoStorage):
         super().write(anon_wato_file_path, _anonymize_folder_attributes(self.anon_interface, data))
 
     def read(self, file_path: Path) -> WATOFolderInfo:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class HostsSteps(AnonymizeStep):

@@ -326,7 +326,7 @@ class AbstractNumericFilter:
         self._matches_value = lambda actual: comp(int(actual), reference)
 
     def matches(self, filestat):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SizeFilter(AbstractNumericFilter):

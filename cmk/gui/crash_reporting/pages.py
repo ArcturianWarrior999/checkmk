@@ -515,17 +515,17 @@ class ABCReportRenderer(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def type(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def page_menu_entries_related_monitoring(
         self, crash_info: AggregatedCrashInfo, site_id: SiteId
     ) -> Iterator[PageMenuEntry]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def show_details(self, crash_info: AggregatedCrashInfo, row: CrashReportRow) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ReportRendererRegistry(Registry[type[ABCReportRenderer]]):

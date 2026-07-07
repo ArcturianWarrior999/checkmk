@@ -89,7 +89,7 @@ class CommandType(Enum):
         if self in [CommandType.restore_as_new_site, CommandType.restore_existing_site]:
             return "restore"
 
-        raise TypeError()
+        raise TypeError
 
 
 class FinalizeOutcome(enum.Enum):

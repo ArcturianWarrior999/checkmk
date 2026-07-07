@@ -89,7 +89,7 @@ class NagVisMaps(SidebarSnapin):
         elif api_request["type"] == "error":
             html.show_error(api_request["message"])
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         self._show_footnote_links()
 

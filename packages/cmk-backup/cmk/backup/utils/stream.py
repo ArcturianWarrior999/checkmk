@@ -64,7 +64,7 @@ class MKBackupStream:
         )
 
     def _init_processing(self) -> bytes | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _read_from_stream(self, size: int) -> bytes:
         try:
@@ -79,7 +79,7 @@ class MKBackupStream:
         return chunk, chunk == b""
 
     def _get_encrypted_chunk(self) -> tuple[bytes, bool]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_key_spec(self, key_id: bytes) -> dict[str, bytes]:
         keys = self._load_backup_keys()

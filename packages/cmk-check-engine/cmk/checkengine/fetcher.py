@@ -95,11 +95,11 @@ class Fetcher[TRawData, TParams: Mapping[str, object] = Any](
 
     @abc.abstractmethod
     def open(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def close(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @final
     def fetch(self, mode: Mode) -> result.Result[TRawData, Exception]:
@@ -117,7 +117,7 @@ class Fetcher[TRawData, TParams: Mapping[str, object] = Any](
     @abc.abstractmethod
     def _fetch_from_io(self, mode: Mode) -> TRawData:
         """Override this method to contact the source and return the raw data."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class FetcherError(Exception):

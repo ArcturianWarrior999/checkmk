@@ -25,24 +25,24 @@ class UserConnector[T_Config: UserConnectionConfig](abc.ABC):
     @classmethod
     @abc.abstractmethod
     def type(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def title(cls) -> str:
         """The string representing this connector to humans"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def id(self) -> str:
         """The unique identifier of the connection"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def short_title(cls) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def config_changed(cls) -> None:
@@ -54,7 +54,7 @@ class UserConnector[T_Config: UserConnectionConfig](abc.ABC):
 
     @abc.abstractmethod
     def is_enabled(self) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # Optional: Hook function can be registered here to be executed
     # to validate a login issued by a user.

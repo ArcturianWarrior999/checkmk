@@ -493,7 +493,7 @@ class ABCMainModuleQuickSetup(ABCMainModule, ABC):
     @override
     def permission(self) -> None | str:
         # this should've only been used within `may_see`, which we've overridden...
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     def may_see(self) -> bool:

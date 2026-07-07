@@ -21,7 +21,7 @@ class ConnectorObject[HostT: str](abc.ABC):
     @classmethod
     def deserialize_attributes(cls, serialized: dict) -> Self:  # type: ignore[type-arg]
         """Construct an object from the serialized attributes"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def serialize(self) -> dict:  # type: ignore[type-arg]
         """Serialize the object for transport
@@ -45,7 +45,7 @@ class ConnectorObject[HostT: str](abc.ABC):
         | Mapping[str, Mapping[str, Mapping[str, str]]],
     ]:
         """Serialize object type specific attributes for transport"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def is_empty(self) -> bool:
         return True

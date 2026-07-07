@@ -54,7 +54,7 @@ class ABCPageListOfMultipleGetChoice(AjaxPage, abc.ABC):
     def _get_choices(
         self, config: Config, api_request: Mapping[str, str]
     ) -> GroupedListOfMultipleChoices | ListOfMultipleChoices:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     def page(self, ctx: PageContext) -> dict:

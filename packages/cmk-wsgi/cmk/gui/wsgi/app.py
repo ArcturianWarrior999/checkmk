@@ -100,7 +100,7 @@ def make_wsgi_app(edition: Edition, debug: bool = False, testing: bool = False) 
     def redirect_doc(site: str) -> werkzeug.Response:
         dest = safe_join("/", site, "check_mk/api/doc")
         if dest is None:
-            raise BadRequest()
+            raise BadRequest
         return redirect(dest)
 
     return app

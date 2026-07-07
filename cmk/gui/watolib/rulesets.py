@@ -369,7 +369,7 @@ class RuleConditions:
         for entry in object_list:
             if isinstance(entry, dict):
                 if "$regex" not in entry:
-                    raise NotImplementedError()
+                    raise NotImplementedError
 
                 if is_service:
                     pattern_list.append("%s" % entry["$regex"])
@@ -1357,7 +1357,7 @@ class Rule:
                     ruleset,
                     rule_config,
                 )
-            raise NotImplementedError()
+            raise NotImplementedError
         except Exception:
             logger.exception("error parsing rule")
             raise InvalidRuleException(

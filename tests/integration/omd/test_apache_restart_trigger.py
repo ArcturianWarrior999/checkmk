@@ -42,7 +42,7 @@ def _reinstall_command(distro: str, specific_version: str = "") -> list[str]:
         # However, although this will re-install the same version of apache2
         # it will not trigger a restart of apache2 and by that not triggering
         # the checkmk postinstall hook adding the expected lines to the log file
-        raise NotImplementedError()
+        raise NotImplementedError
     return [
         "sudo",
         "apt",

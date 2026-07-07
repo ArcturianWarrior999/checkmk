@@ -513,7 +513,7 @@ class ABCEditTagMode(ABCTagMode, abc.ABC):
 
     @abc.abstractmethod
     def _get_id(self) -> str | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _is_new_tag(self) -> bool:
         return request.var("edit") is None

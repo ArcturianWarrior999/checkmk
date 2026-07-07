@@ -682,7 +682,7 @@ class RulesetOptimizer:
             for h in hostlist:
                 if isinstance(h, dict):
                     if "$regex" not in h:
-                        raise NotImplementedError()
+                        raise NotImplementedError
                     host_parts.append("~%s" % h["$regex"])
                     continue
 
@@ -726,7 +726,7 @@ class RulesetOptimizer:
                 if "$nor" in tag_condition:
                     return None  # Can not be optimized, makes _all_matching_hosts proceed
 
-                raise NotImplementedError()
+                raise NotImplementedError
 
             positive_match_tags.add((taggroup_id, tag_condition))
 
@@ -972,7 +972,7 @@ def matches_tag_condition(
                 {(taggroup_id, opt_tag_id) for opt_tag_id in tag_condition["$nor"]}
             )
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
     return (
         taggroup_id,

@@ -87,7 +87,7 @@ def remove(root: Path, relpath: Path | str) -> None:
         case ManagedTypes.directory:
             target.rmdir()
         case _:
-            raise NotImplementedError()
+            raise NotImplementedError
 
 
 ####
@@ -312,7 +312,7 @@ def test_backup_remove(tmp_path: Path) -> None:
                 with contextlib.suppress(OSError):
                     remove(site_dir, relpath)
             assert save != _list_non_backup_files(site_dir)
-            raise TBaseException()
+            raise TBaseException
     assert save == _list_non_backup_files(site_dir)
 
 
@@ -336,7 +336,7 @@ def test_backup_add(tmp_path: Path) -> None:
             assert save != [
                 read_all(p) for p in walk_in_DFS_order(site_dir) if ".update_backup" not in str(p)
             ]
-            raise TBaseException()
+            raise TBaseException
     assert save == [
         read_all(p) for p in walk_in_DFS_order(site_dir) if ".update_backup" not in str(p)
     ]
@@ -367,7 +367,7 @@ def test_backup_modify(tmp_path: Path) -> None:
             assert save != [
                 read_all(p) for p in walk_in_DFS_order(site_dir) if ".update_backup" not in str(p)
             ]
-            raise TBaseException()
+            raise TBaseException
     assert save == [
         read_all(p) for p in walk_in_DFS_order(site_dir) if ".update_backup" not in str(p)
     ]

@@ -108,7 +108,7 @@ class View:
                     )
                 )
             else:
-                raise NotImplementedError()
+                raise NotImplementedError
 
         return cells
 

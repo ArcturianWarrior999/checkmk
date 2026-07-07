@@ -68,7 +68,7 @@ def config_based_custom_user_attributes(
     custom_attributes: list[tuple[str, type[GenericUserAttribute]]] = []
     for attr in attributes:
         if attr["type"] != "TextAscii":
-            raise NotImplementedError()
+            raise NotImplementedError
 
         class CustomUserAttribute(GenericUserAttribute):
             # Play safe: Grab all necessary data at class construction time,

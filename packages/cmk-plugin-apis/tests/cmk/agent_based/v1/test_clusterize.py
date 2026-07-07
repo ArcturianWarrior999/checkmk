@@ -28,7 +28,7 @@ def test_node_returns_nothing() -> None:
 def test_node_raises() -> None:
     def _check_node_raises() -> Iterable[IgnoreResults]:
         yield from ()
-        raise IgnoreResultsError()
+        raise IgnoreResultsError
 
     assert not list(make_node_notice_results("test_node", _check_node_raises()))
 

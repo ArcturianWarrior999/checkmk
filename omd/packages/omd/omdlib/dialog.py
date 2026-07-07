@@ -229,7 +229,7 @@ def _getch() -> str:
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     if ord(ch) == 3:
-        raise KeyboardInterrupt()
+        raise KeyboardInterrupt
     return ch
 
 

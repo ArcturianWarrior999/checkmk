@@ -204,7 +204,7 @@ class TestChannel:
 
         # make sure that we're called at all
         def _on_message(*_args: object, **_kw: Mapping[str, object]) -> None:
-            raise RuntimeError()
+            raise RuntimeError
 
         with pytest.raises(RuntimeError):
             channel.consume(QueueName("ignored-by-this-test"), _on_message)
@@ -220,7 +220,7 @@ class TestChannel:
             _channel: Channel[Message], _delivery_tag: DeliveryTag, received: Message
         ) -> None:
             assert received == message
-            raise _ConsumedSuccesfully()
+            raise _ConsumedSuccesfully
 
         with pytest.raises(_ConsumedSuccesfully):
             channel.consume(QueueName("ignored-by-this-test"), _on_message)

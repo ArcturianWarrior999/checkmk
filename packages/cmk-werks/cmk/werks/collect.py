@@ -168,7 +168,7 @@ def main(config: Config, repo_path: Path, branches: Mapping[str, str]) -> None:
                 **werk_dict,  # type: ignore[arg-type]
             )
         else:
-            raise RuntimeError()
+            raise RuntimeError
         all_werks_by_id[str(werk_id)] = website_werk
 
     sys.stdout.write(AllWerks.dump_json(all_werks_by_id, by_alias=True).decode("utf-8") + "\n")

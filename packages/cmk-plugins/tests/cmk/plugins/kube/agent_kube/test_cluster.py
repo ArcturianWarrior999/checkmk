@@ -432,7 +432,7 @@ def test_create_correct_number_pod_names_for_cluster_host(
     )
 
     def _raise_error() -> NoReturn:
-        raise ValueError()
+        raise ValueError
 
     pods_to_host = agent.determine_pods_to_host(
         monitored_objects=[],

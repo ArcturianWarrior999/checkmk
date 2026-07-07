@@ -1744,10 +1744,10 @@ class NodeVisualizationLayoutStyle(ValueSpec[dict[str, Any]]):
         return {"type": "none", "style_config": {}}
 
     def value_to_json(self, value: dict[str, Any]) -> JSONValue:
-        raise NotImplementedError()  # FIXME! Violates LSP!
+        raise NotImplementedError  # FIXME! Violates LSP!
 
     def value_from_json(self, json_value: JSONValue) -> dict[str, Any]:
-        raise NotImplementedError()  # FIXME! Violates LSP!
+        raise NotImplementedError  # FIXME! Violates LSP!
 
 
 # .

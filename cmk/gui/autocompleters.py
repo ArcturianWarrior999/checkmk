@@ -26,7 +26,7 @@ class AutocompleterRegistry(Registry[AutocompleterFunc]):
 
     def register_autocompleter(self, ident: str, func: AutocompleterFunc) -> None:
         if not callable(func):
-            raise TypeError()
+            raise TypeError
         func._ident = ident  # type: ignore[attr-defined]
         self.register(func)
 

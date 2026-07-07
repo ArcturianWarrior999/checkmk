@@ -38,7 +38,7 @@ def format_as_markdown_werk(werk: WerkV2ParseResult | WerkV3ParseResult) -> str:
         elif isinstance(werk, WerkV3ParseResult):
             yield "[//]: # (werk v3)"
         else:
-            raise RuntimeError()
+            raise RuntimeError
         yield f"# {title}"
         yield ""
         yield f"{'key': <{len_key}} | value"

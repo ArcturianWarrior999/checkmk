@@ -21,7 +21,7 @@ class SampleConfigGeneratorABCGroups(SampleConfigGenerator):
 
     @abc.abstractmethod
     def _all_group_spec(self) -> GroupSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def generate(self) -> None:
         # A contact group for all hosts and services

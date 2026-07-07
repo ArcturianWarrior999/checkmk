@@ -138,7 +138,7 @@ class LayoutSingleDataset(Layout):
 class GroupedBoxesLayout(Layout):
     @abc.abstractmethod
     def _css_class(self) -> str | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     def render(

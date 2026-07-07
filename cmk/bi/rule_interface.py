@@ -79,46 +79,46 @@ class ABCBIRule(ABCWithSchema):
     @property
     @abstractmethod
     def params(self) -> BIParams:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def properties(self) -> BIRuleProperties:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     @classmethod
     @abstractmethod
     def schema(cls) -> type[Schema]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def clone(self, existing_rule_ids: Sequence[str]) -> "ABCBIRule":
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_nodes(self) -> Sequence[ABCBINodeGenerator]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def num_nodes(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def compile(
         self, extern_arguments: ActionArgument, bi_searcher: ABCBISearcher
     ) -> list[ABCBICompiledNode]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def create_tree_from_schema(cls, schema_config: dict[str, Any]) -> Any:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIRuleIDRegistry(Registry[ABCBIRule]):

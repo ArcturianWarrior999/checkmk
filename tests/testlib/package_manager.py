@@ -179,19 +179,19 @@ class ABCPackageManager(abc.ABC):
 
     @abc.abstractmethod
     def package_name(self, edition: TypeCMKEditions, version: str) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def installed_package_name(self, edition: TypeCMKEditions, version: str) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_edition(self, package_path: Path) -> TypeCMKEdition:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_version(self, package_path: Path) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _build_system_package_path(self, version: str, package_name: str) -> Path:
         """On Jenkins inside a container the previous built packages get mounted into /packages."""
@@ -231,11 +231,11 @@ class ABCPackageManager(abc.ABC):
 
     @abc.abstractmethod
     def _install_package(self, package_path: Path) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _uninstall_package(self, package_name: str) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _execute(self, cmd: list[str | Path]) -> None:
         # Workaround to fix package installation issues
@@ -447,7 +447,7 @@ def code_name(distro_name: str) -> str:
 
 def _get_omd_distro_name() -> str:
     if os.path.exists("/etc/cma"):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     rh = Path("/etc/redhat-release")
     if rh.exists():
@@ -459,11 +459,11 @@ def _get_omd_distro_name() -> str:
         if content.startswith("AlmaLinux release 8"):
             return "el8"
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
     os_spec = _read_os_release()
     if not os_spec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     if os_spec["NAME"] == "SLES":
         return "sles%s" % os_spec["VERSION"].lower().replace("-", "")
@@ -475,7 +475,7 @@ def _get_omd_distro_name() -> str:
             return "jessie"
         return os_spec["VERSION_CODENAME"]
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def _read_os_release() -> dict[str, str] | None:

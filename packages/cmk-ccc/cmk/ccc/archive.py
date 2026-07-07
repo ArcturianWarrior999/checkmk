@@ -254,7 +254,7 @@ class CheckmkTarArchive:
                     yield SafeIndexedTarFile(tar, self)
 
         except tarfile.ReadError as exc:
-            raise NotAValidArchive() from exc
+            raise NotAValidArchive from exc
 
     @contextmanager
     def open_path(
@@ -271,7 +271,7 @@ class CheckmkTarArchive:
                 else:
                     yield SafeIndexedTarFile(tar, self)
         except tarfile.ReadError as exc:
-            raise NotAValidArchive() from exc
+            raise NotAValidArchive from exc
 
     def _check_compressed_size(self, source: IO[bytes] | Path | str) -> None:
         """

@@ -315,16 +315,16 @@ class ABCHostAttribute(abc.ABC):
     @abc.abstractmethod
     def name(self) -> str:
         """Return the name (= identifier) of the attribute"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def title(self) -> str:
         """Return the title to be displayed to the user"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def topic(self) -> HostAttributeTopic:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def render_input(self, varprefix: str, value: Any) -> None:
@@ -332,12 +332,12 @@ class ABCHostAttribute(abc.ABC):
         make it editable. If filter == True, then the field
         is to be displayed in filter mode (as part of the
         search filter)"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def from_html_vars(self, varprefix: str) -> Any:
         """Create value from HTML variables."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def nagios_name(self) -> str | None:
         """Return the name of the Nagios configuration variable
@@ -520,7 +520,7 @@ class ABCHostAttribute(abc.ABC):
 
     @abc.abstractmethod
     def openapi_field(self) -> fields.Field:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class HostAttributeRegistry(cmk.ccc.plugin_registry.Registry[type[ABCHostAttribute]]):
@@ -632,7 +632,7 @@ def declare_host_attribute(
     elif isinstance(topic, HostAttributeTopic):
         attrs["_topic"] = topic
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
     attrs["topic"] = lambda self: self._topic
 
     if may_edit is not None:
@@ -970,10 +970,10 @@ class ABCHostAttributeValueSpec(ABCHostAttribute):
 
     @abc.abstractmethod
     def valuespec(self) -> ValueSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def form_spec(self) -> FormSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title(self) -> str:
         title = self.valuespec().title()
@@ -1023,7 +1023,7 @@ class ABCHostAttributeNagiosText(ABCHostAttributeText):
 
     @abc.abstractmethod
     def nagios_name(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def to_nagios(self, value: str) -> str | None:
         if value:
@@ -1041,7 +1041,7 @@ class ABCHostAttributeEnum(ABCHostAttribute):
     @property
     @abc.abstractmethod
     def _enumlist(self) -> Sequence[tuple[str, str]]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def paint(self, value: Any, hostname: HostName) -> tuple[str, str | HTML]:
         return "", dict(self._enumlist).get(value, self.default_value())
@@ -1057,12 +1057,12 @@ class ABCHostAttributeTag(ABCHostAttributeValueSpec, abc.ABC):
     @property
     @abc.abstractmethod
     def is_checkbox_tag(self) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def _tag_group(self) -> TagGroup:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def name(self) -> str:
         return "tag_%s" % self._tag_group.id
@@ -1177,7 +1177,7 @@ class ABCHostAttributeHostTagCheckbox(ABCHostAttributeTag, abc.ABC):
 class ABCHostAttributeNagiosValueSpec(ABCHostAttributeValueSpec):
     @abc.abstractmethod
     def nagios_name(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def to_nagios(self, value: str) -> str | None:
         rendered = self.valuespec().value_to_html(value)

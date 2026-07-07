@@ -74,7 +74,7 @@ class ABCFoldableTreeRenderer(abc.ABC):
 
     @abc.abstractmethod
     def css_class(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def render(self) -> HTML:
         with output_funnel.plugged():
@@ -117,7 +117,7 @@ class ABCFoldableTreeRenderer(abc.ABC):
         show_host: bool,
         frozen_marker_set: bool = False,
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_tree(self) -> BIAggrTreeState:
         tree = self._row["aggr_treestate"]
@@ -176,7 +176,7 @@ class ABCFoldableTreeRenderer(abc.ABC):
 
     @abc.abstractmethod
     def _toggle_js_function(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _show_leaf(self, tree: BILeafTreeState, show_host: bool) -> None:
         site, host = tree[2]["host"]
@@ -222,7 +222,7 @@ class ABCFoldableTreeRenderer(abc.ABC):
         mousecode: str | None = None,
         img_class: str | None = None,
     ) -> AbstractContextManager[None]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _assume_icon(self, site: str, host: str, service: str | None) -> None:
         ass = user.bi_assumptions.get(get_state_assumption_key(site, host, service))

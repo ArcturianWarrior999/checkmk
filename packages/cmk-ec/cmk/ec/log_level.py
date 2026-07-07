@@ -20,4 +20,4 @@ def verbosity_to_log_level(verbosity: int) -> int:
         case _ if verbosity >= 2:
             return logging.DEBUG
         case _:
-            raise NotImplementedError()
+            raise NotImplementedError

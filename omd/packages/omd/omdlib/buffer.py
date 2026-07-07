@@ -17,7 +17,7 @@ class BufferWithCopy(IO[bytes]):
 
     def read(self, size: int = -1) -> bytes:
         if self._reset_called:
-            raise NotImplementedError()
+            raise NotImplementedError
         chunk = self._buffer.read(size)
         self._seen.extend(chunk)
         return chunk
@@ -31,7 +31,7 @@ class BufferWithCopy(IO[bytes]):
 
     def stream_content(self) -> Iterator[bytes | bytearray]:
         if self._reset_called:
-            raise NotImplementedError()
+            raise NotImplementedError
         self._reset_called = True
         if self._seen:
             yield self._seen

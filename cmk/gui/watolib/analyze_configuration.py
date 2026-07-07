@@ -155,19 +155,19 @@ class ACTest:
 
     def category(self) -> str:
         """Return the internal name of the category the BP test is associated with"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def help(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def is_relevant(self) -> bool:
         """A test can check whether or not is relevant for the current evnironment.
         In case this method returns False, the check will not be executed and not
         be shown to the user."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def execute(self, site_id: SiteId, config: Config) -> Iterator[ACSingleResult]:
         """Implement the test logic here. The method needs to add one or more test
@@ -175,7 +175,7 @@ class ACTest:
 
         yield ACResultOK(_("it's fine"))
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def run(self, site_id: SiteId, config: Config) -> Iterator[ACTestResult]:
         try:
@@ -405,7 +405,7 @@ def perform_tests(
                     results_by_site_id[site_id] = ac_test_results
 
                 else:
-                    raise NotImplementedError()
+                    raise NotImplementedError
 
             except Exception as e:
                 if categories and "connectivity" in categories:

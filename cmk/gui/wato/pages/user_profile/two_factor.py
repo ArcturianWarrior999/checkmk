@@ -1204,7 +1204,7 @@ class JsonPage(Page, abc.ABC):
     @abc.abstractmethod
     def page(self, ctx: PageContext) -> JsonSerializable:
         """Override this to implement the page functionality"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def _serialize_webauthn_state(state: dict) -> WebAuthnActionState:

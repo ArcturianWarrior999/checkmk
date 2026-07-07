@@ -42,7 +42,7 @@ def call(
 
     handler = mode.handler_function
     if handler is None:
-        raise TypeError()
+        raise TypeError
 
     with tracer.span(
         f"mode[{mode.name}]",

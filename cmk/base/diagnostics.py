@@ -679,12 +679,12 @@ class ABCDiagnosticsElement(abc.ABC):
     @property
     @abc.abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def description(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def add_or_get_files(
@@ -694,7 +694,7 @@ class ABCDiagnosticsElement(abc.ABC):
         # is executed until the first raise. Then it will be stopped and all generator states
         # are gone. Correctly calculated filepaths till then are yielded.
         # (Example: CheckmkConfigFilesDiagnosticsElement: collect errors and raise at the end)
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCDiagnosticsElementTextDump(ABCDiagnosticsElement):
@@ -711,11 +711,11 @@ class ABCDiagnosticsElementTextDump(ABCDiagnosticsElement):
     @property
     @abc.abstractmethod
     def filename(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def contents(self, omd_root: Path) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 #   ---text dumps-----------------------------------------------------------
@@ -1374,7 +1374,7 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
     @property
     @abc.abstractmethod
     def _file_map_config(self) -> FileMapConfig:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _copy_and_decrypt(
         self, *, omd_root: Path, rel_filepath: Path, tmp_dump_folder: Path

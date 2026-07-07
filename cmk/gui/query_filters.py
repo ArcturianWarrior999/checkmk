@@ -633,7 +633,7 @@ def address_families(family: str) -> FilterHeader:
         case "6_only":
             return f"Filter: tags = {v6_key_val_str}\nFilter: tags != {v4_key_val_str}\n"
         case _:
-            raise ValueError()
+            raise ValueError
 
 
 def ip_address_families_options() -> SitesOptions:

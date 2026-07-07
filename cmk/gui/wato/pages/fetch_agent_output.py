@@ -461,8 +461,8 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
 
                 job_interface.send_result_message(result)
 
-                raise BackgroundJobTimedOut()
-            raise BackgroundJobFailure()
+                raise BackgroundJobTimedOut
+            raise BackgroundJobFailure
 
         preview_filepath = Path(job_interface.get_work_dir()) / AgentOutputPage.file_name(
             self._site_id, self._host_name, self._agent_type

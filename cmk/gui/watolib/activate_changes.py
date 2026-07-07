@@ -2459,7 +2459,7 @@ def _get_config_sync_file_infos_per_inode(
                 inode_sync_states, replication_path_full, replication_path.is_excluded
             )
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     return inode_sync_states
 

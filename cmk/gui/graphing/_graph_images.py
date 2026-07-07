@@ -246,7 +246,7 @@ def graph_recipes_from_request(
         )
 
     except MKGraphNotFound:
-        raise MKNotFound()
+        raise MKNotFound
 
     except livestatus.MKLivestatusNotFoundError as e:
         raise MKUserError(None, _("Cannot calculate graph recipes: %(e)s") % {"e": e})
@@ -308,7 +308,7 @@ def graph_spec_from_request(
         recipe = recipes[0].recipe
 
     except MKGraphNotFound:
-        raise MKNotFound()
+        raise MKNotFound
 
     except IndexError:
         raise MKUserError(None, _("The requested graph does not exist"))

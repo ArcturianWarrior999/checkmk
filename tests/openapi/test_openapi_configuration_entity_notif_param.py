@@ -37,7 +37,7 @@ from tests.testlib.rest_api_client import ClientRegistry
 
 
 def spec() -> ValueSpecDictionary:
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def form_spec() -> DictionaryExtended:

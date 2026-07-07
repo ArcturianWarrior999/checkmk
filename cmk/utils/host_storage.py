@@ -179,11 +179,11 @@ class ABCHostsStorage[THostsReadData]:
     def _write(
         self, file_path: Path, data: HostsStorageData, value_formatter: Callable[[Any], str]
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _read(self, file_path: Path) -> THostsReadData:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class StandardHostsStorage(ABCHostsStorage[str]):
@@ -343,7 +343,7 @@ class ABCHostsStorageLoader[THostsReadData](abc.ABC):
 
     @abc.abstractmethod
     def apply(self, data: THostsReadData, global_dict: dict[str, Any]) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class StandardStorageLoader(ABCHostsStorageLoader[str]):

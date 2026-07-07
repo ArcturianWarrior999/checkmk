@@ -122,7 +122,7 @@ class KeypairStore:
         for key_id, key in self.load().items():
             if key.fingerprint(HashAlgorithm.MD5) == digest:
                 return key_id, key
-        raise KeyError()
+        raise KeyError
 
     def add(self, key: Key) -> None:
         keys = self.load()

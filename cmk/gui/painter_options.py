@@ -45,7 +45,7 @@ class PainterOption(abc.ABC):
     def valuespec(self) -> ValueSpec:
         """Use this getter when active_config is required for valuespecs, else use the init paramater"""
         if not self._valuespec:
-            raise NotImplementedError()
+            raise NotImplementedError
         return self._valuespec
 
 

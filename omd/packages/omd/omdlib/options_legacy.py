@@ -670,4 +670,4 @@ def parse_arguments_dispatcher(
                 ],
             )
         case _:
-            raise NotImplementedError()
+            raise NotImplementedError

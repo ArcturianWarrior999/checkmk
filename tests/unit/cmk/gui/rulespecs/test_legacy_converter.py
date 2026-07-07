@@ -1703,7 +1703,7 @@ def _compare_rulespec_groups(actual: object, expected: legacy_rulespecs.Rulespec
         assert expected.name == actual.name
         assert expected.title == actual.title
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def test_generated_rulespec_group_single_registration():

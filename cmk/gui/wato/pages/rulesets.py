@@ -300,7 +300,7 @@ class ABCRulesetMode(WatoMode):
 
     @abc.abstractmethod
     def _set_title_help_and_doc_reference(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _from_vars(self) -> None:
         #  Explicitly hide deprecated rulesets by default
@@ -343,11 +343,11 @@ class ABCRulesetMode(WatoMode):
 
     @abc.abstractmethod
     def _get_page_type(self, search_options: SearchOptions) -> PageType:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _rulesets(self) -> RulesetCollection:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title(self) -> str:
         return self._title
@@ -509,7 +509,7 @@ class ModeRuleSearch(ABCRulesetMode):
             }
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         menu = PageMenu(
@@ -2265,7 +2265,7 @@ class ABCEditRuleMode(WatoMode):
                     _("You are trying to edit a rule which does not exist anymore."),
                 )
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         self._orig_rule = self._rule
         self._rule = self._orig_rule.clone(preserve_id=True)
@@ -3067,7 +3067,7 @@ class RuleConditionRenderer:
                 negate = True
                 tag_id = tag_spec["$ne"]
             else:
-                raise NotImplementedError()
+                raise NotImplementedError
         else:
             tag_id = tag_spec
 

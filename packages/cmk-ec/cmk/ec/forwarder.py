@@ -205,7 +205,7 @@ class MessageForwarder:
         elif protocol == "tcp":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         sock.settimeout(_EC_CONNECTION_TIMEOUT)
         sock.connect((method_params["address"], method_params["port"]))

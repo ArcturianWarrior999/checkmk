@@ -30,7 +30,7 @@ def _vs_cisco_dom(which_levels: str) -> tuple[str, Alternative]:
         elif which_levels == "lower":
             text = _("Warning below")
         else:
-            raise ValueError()
+            raise ValueError
         return text
 
     def _button_text_crit(which_levels: str) -> str:
@@ -39,7 +39,7 @@ def _vs_cisco_dom(which_levels: str) -> tuple[str, Alternative]:
         elif which_levels == "lower":
             text = _("Critical below")
         else:
-            raise ValueError()
+            raise ValueError
         return text
 
     return (

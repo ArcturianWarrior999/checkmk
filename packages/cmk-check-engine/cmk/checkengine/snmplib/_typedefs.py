@@ -227,7 +227,7 @@ class SNMPBackend(abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def get_type() -> SNMPBackendEnum:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get(self, /, oid: OID, *, context: SNMPContext) -> SNMPRawValue | None:
@@ -235,7 +235,7 @@ class SNMPBackend(abc.ABC):
         The OID may end with .* to perform a GETNEXT request. Otherwise a GET
         request is sent to the given host.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def walk(

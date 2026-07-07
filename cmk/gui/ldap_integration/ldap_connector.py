@@ -2230,7 +2230,7 @@ class LDAPAttributePlugin:
         """List of user attributes to lock
 
         Normally the attributes that are modified by the sync_func()"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def needed_attributes(
         self,
@@ -2238,7 +2238,7 @@ class LDAPAttributePlugin:
         _params: dict[str, Any],
     ) -> list[str]:
         """Gathers the LDAP user attributes that are needed by this plug-in"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def sync_func(
         self,
@@ -2250,7 +2250,7 @@ class LDAPAttributePlugin:
         user_attributes: Sequence[tuple[str, UserAttribute]],
     ) -> dict:
         """Executed during user synchronization to modify the "user" structure"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def parameters(self, _connection: LDAPUserConnector | None) -> FixedValue | Dictionary:
         return FixedValue(

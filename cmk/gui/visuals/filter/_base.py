@@ -130,7 +130,7 @@ class Filter(abc.ABC):
     def components(self) -> Iterable[FilterComponent]:
         """Return the components of this filter. These will be used to render the filter and
         to provide the filter's API representation."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def filter(self, value: FilterHTTPVariables) -> FilterHeader:
         return ""

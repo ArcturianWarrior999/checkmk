@@ -747,10 +747,10 @@ def _get_fully_loaded_wato_folders(
 
 class ABCWATOInfoStorage:
     def read(self, file_path: Path) -> WATOFolderInfo | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def write(self, file_path: Path, data: WATOFolderInfo) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class StandardWATOInfoStorage(ABCWATOInfoStorage):

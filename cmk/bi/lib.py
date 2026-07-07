@@ -173,7 +173,7 @@ class ABCWithSchema(ABC):
     @classmethod
     @abstractmethod
     def schema(cls) -> type[Schema]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def create_nested_schema_for_class(
@@ -424,29 +424,29 @@ class ABCBISearcher(ABC):
 
     @abstractmethod
     def search_hosts(self, conditions: HostConditions) -> list[BIHostSearchMatch]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def search_services(self, conditions: HostServiceConditions) -> list[BIServiceSearchMatch]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_host_name_matches(
         self, hosts: list[BIHostData], pattern: str
     ) -> tuple[list[BIHostData], HostRegexMatches]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def get_service_description_matches(
         self, host_matches: list[BIHostSearchMatch], pattern: str
     ) -> list[BIServiceSearchMatch]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def filter_host_choice(
         self, hosts: list[BIHostData], condition: HostChoice
     ) -> tuple[Iterable[BIHostData], HostRegexMatches]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def filter_host_tags(
@@ -476,7 +476,7 @@ class ABCBIStatusFetcher(ABC):
 
     @abstractmethod
     def entity_exists(self, element: RequiredBIElement) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 CompiledNodeKind = Literal[
@@ -517,18 +517,18 @@ class ABCBICompiledNode(ABC):
     @classmethod
     @abstractmethod
     def kind(cls) -> CompiledNodeKind:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __lt__(self, other: ABCBICompiledNode) -> bool:
         return self._get_comparable_name() < other._get_comparable_name()
 
     @abstractmethod
     def _get_comparable_name(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def services_of_host(self, host_name: HostName) -> set[ServiceName]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def compile_postprocess(
@@ -537,7 +537,7 @@ class ABCBICompiledNode(ABC):
         services_of_host: dict[HostName, set[ServiceName]],
         bi_searcher: ABCBISearcher,
     ) -> list[ABCBICompiledNode]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def compute(
@@ -546,15 +546,15 @@ class ABCBICompiledNode(ABC):
         bi_status_fetcher: ABCBIStatusFetcher,
         use_assumed: bool = False,
     ) -> NodeResultBundle | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def required_elements(self) -> set[RequiredBIElement]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def serialize(self) -> dict[str, Any]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 #   .--Action--------------------------------------------------------------.
@@ -574,21 +574,21 @@ class ABCBIAction(ABC):
     @classmethod
     @abstractmethod
     def kind(cls) -> ActionKind:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def schema(cls) -> type[Schema]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def serialize(self) -> ActionSerialized:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _generate_action_arguments(
         self, search_results: list[dict[str, str]], macros: Mapping[str, str]
     ) -> list[ActionArgument]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def execute_search_results(
         self, search_results: list[dict], macros: Mapping[str, str], bi_searcher: ABCBISearcher
@@ -606,7 +606,7 @@ class ABCBIAction(ABC):
     def execute(
         self, argument: ActionArgument, bi_searcher: ABCBISearcher
     ) -> list[ABCBICompiledNode]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIActionRegistry(plugin_registry.Registry[type[ABCBIAction]]):
@@ -637,25 +637,25 @@ class ABCBISearch(ABC):
     @classmethod
     @abstractmethod
     def kind(cls) -> SearchKind:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def schema(cls) -> type[Schema]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def serialize(self) -> SearchSerialized:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def metadata(self) -> SearchMetadata:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def execute(self, macros: Mapping[str, str], bi_searcher: ABCBISearcher) -> list[dict]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BISearchRegistry(plugin_registry.Registry[type[ABCBISearch]]):
@@ -686,20 +686,20 @@ class ABCBIAggregationFunction(ABC):
     @classmethod
     @abstractmethod
     def kind(cls) -> AggregationFunctionKind:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def aggregate(self, states: list[int]) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def schema(cls) -> type[Schema]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abstractmethod
     def serialize(self) -> AggregationFunctionSerialized:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIAggregationFunctionRegistry(plugin_registry.Registry[type[ABCBIAggregationFunction]]):

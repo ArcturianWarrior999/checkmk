@@ -82,7 +82,7 @@ def store(site_home: Path, relpath: Path | str, backup_dir: Path) -> None:
         case ManagedTypes.missing:
             pass
         case ManagedTypes.unknown:
-            raise NotImplementedError()
+            raise NotImplementedError
 
 
 def restore(site_home: Path, relpath: Path | str, backup_dir: Path) -> None:
@@ -103,7 +103,7 @@ def restore(site_home: Path, relpath: Path | str, backup_dir: Path) -> None:
             elif destination.is_file() or destination.is_symlink():
                 destination.unlink(missing_ok=True)
         case ManagedTypes.unknown:
-            raise Exception()
+            raise Exception
 
 
 class ManagedTypes(enum.Enum):
@@ -302,7 +302,7 @@ def get_conflict_mode_update(options: CommandOptions) -> tuple[Skeleton, PreFlig
             case "ignore":
                 return Skeleton.INSTALL, PreFlight.IGNORE
             case None:  # mismatch between our yanky argument parsing and reading the result.
-                raise NotImplementedError()
+                raise NotImplementedError
             case _:
                 sys.exit(
                     "Argument to --conflict must be one of ask, install, keepold, ignore and abort."
@@ -320,7 +320,7 @@ def get_conflict_mode_update(options: CommandOptions) -> tuple[Skeleton, PreFlig
         case str(_):
             sys.exit("Argument to --skeleton must be one of ask, install, keepold and abort.")
         case None:  # mismatch between our yanky argument parsing and reading the result.
-            raise NotImplementedError()
+            raise NotImplementedError
         case never:
             assert_never(never)
 
@@ -334,7 +334,7 @@ def get_conflict_mode_update(options: CommandOptions) -> tuple[Skeleton, PreFlig
         case str(_):
             sys.exit("Argument to --pre-flight must be one of ask, ignore and abort.")
         case None:  # mismatch between our yanky argument parsing and reading the result.
-            raise NotImplementedError()
+            raise NotImplementedError
         case never:
             assert_never(never)
 

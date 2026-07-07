@@ -32,6 +32,7 @@ select = [
   "PIE",    # flake8: misc lints
   "PL",     # pylint
   "RET",    # flake8: return
+  "RSE",    # flake8: raise
   "RUF100", # ruff: unused noqa
   "SIM101", # flake8-simplify: duplicate-isinstance-call
   "SIM110", # flake8-simplify: reimplemented-builtin

@@ -1090,7 +1090,7 @@ class ModeFolder(WatoMode):
             ident = obj.path()
             style = "display:none"
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         html.popup_trigger(
             html.render_static_icon(
@@ -1459,7 +1459,7 @@ class PageAjaxPopupMoveToFolder(AjaxPage):
     def _handle_http_request(self) -> None:
         self._what = request.var("what")
         if self._what not in ["host", "folder"]:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         self._ident = request.var("ident")
 
@@ -1512,7 +1512,7 @@ class PageAjaxPopupMoveToFolder(AjaxPage):
             choices += folder.choices_for_moving_folder(user)
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         return choices
 
@@ -1543,7 +1543,7 @@ class ABCFolderMode(WatoMode, abc.ABC):
         show_file_names: bool,
         pending_changes: PendingChanges,
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:

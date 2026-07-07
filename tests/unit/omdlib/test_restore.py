@@ -99,7 +99,7 @@ def _recursive_from_disk(folder: Path) -> tuple[Dirs, Files]:
                 files.add(FIFO(name=entry.name))
             else:
                 # Sockets, block devices, char devices
-                raise NotImplementedError()
+                raise NotImplementedError
     return frozenset(directories), frozenset(files)
 
 

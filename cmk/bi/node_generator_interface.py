@@ -41,4 +41,4 @@ class ABCBINodeGenerator(ABCWithSchema):
     def compile(
         self, macros: Mapping[str, str], bi_searcher: ABCBISearcher
     ) -> list[ABCBICompiledNode]:
-        raise NotImplementedError()
+        raise NotImplementedError

@@ -78,7 +78,7 @@ class PasswordStoreModeType(SimpleModeType[PasswordConfig]):
 
     def affected_config_domains(self) -> list[ABCConfigDomain]:
         # handled in _add_change
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ModePasswords(SimpleListMode[PasswordConfig]):

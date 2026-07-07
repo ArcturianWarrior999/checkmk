@@ -108,19 +108,19 @@ class SimpleModeType[T: Mapping[str, Any]](abc.ABC):
     @abc.abstractmethod
     def type_name(self) -> str:
         """A GUI globally unique identifier (in singular form) for the managed type of object"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def name_singular(self) -> str:
         """Name of the object used. This is used in user visible messages, buttons and titles."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def is_site_specific(self) -> bool:
         """Whether or not an object of this type is site specific
         It has a mandatory "site" attribute in case it is.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def site_valuespec(self) -> DualListChoice | VSSetupSiteChoice:
         return VSSetupSiteChoice()
@@ -136,12 +136,12 @@ class SimpleModeType[T: Mapping[str, Any]](abc.ABC):
 
         If True the user can set an attribute named "disabled" for each object.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def affected_config_domains(self) -> list[ABCConfigDomain]:
         """List of config domains that are affected by changes to objects of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def mode_ident(self) -> str:
         """A GUI wide unique identifier which is used to create the Setup mode identifiers"""
@@ -218,12 +218,12 @@ class SimpleListMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
     @abc.abstractmethod
     def _table_title(self) -> str:
         """The user visible title shown on top of the list table"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _show_entry_cells(self, table: Table, ident: str, entry: T) -> None:
         """Shows the HTML code for the cells of an object row"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _handle_custom_action(self, action: str) -> ActionResult:
         """Gives the mode the option to implement custom actions
@@ -426,10 +426,10 @@ class SimpleEditMode[T: Mapping[str, Any]](_SimpleWatoModeBase[T]):
         super().__init__(edition, mode_type, store)
 
     def _vs_individual_elements(self) -> list[DictionaryEntry]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _fs_individual_elements(self) -> dict[str, DictElement]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _individual_elements(self) -> dict[str, DictElement]:
         return self._fs_individual_elements()

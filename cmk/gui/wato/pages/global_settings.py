@@ -488,14 +488,14 @@ class ABCEditGlobalSettingMode(WatoMode):
 
     @abc.abstractmethod
     def _back_url(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _save(self, *, pprint_value: bool, use_git: bool) -> None:
         save_global_settings(self._current_settings)
 
     @abc.abstractmethod
     def _affected_sites(self) -> Sequence[SiteId] | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _is_configured(self) -> bool:
         return self._varname in self._current_settings

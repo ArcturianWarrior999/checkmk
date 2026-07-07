@@ -1441,7 +1441,7 @@ def _make_contact_spec(name: str, contact: Contact, contact_groups: Sequence[str
         elif what == "service":
             no = contact.get("service_notification_options", "")
         else:
-            raise ValueError()
+            raise ValueError
 
         if not no:
             contact_spec["%s_notifications_enabled" % what] = 0

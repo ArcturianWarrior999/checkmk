@@ -245,7 +245,7 @@ class _SDDeltaItem:
                 html_values_separator=" → ",
             )
 
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -14,17 +14,17 @@ class CommandGroup(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a command group. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def sort_index(self) -> int:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def teleport_to_menu(self) -> str | None:

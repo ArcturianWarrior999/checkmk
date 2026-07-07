@@ -181,12 +181,12 @@ class FileCache[TRawData: Sized](
     @staticmethod
     @abc.abstractmethod
     def _from_cache_file(raw_data: bytes) -> TRawData:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     @abc.abstractmethod
     def _to_cache_file(raw_data: TRawData) -> bytes:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _do_cache(self, mode: Mode) -> bool:
         if self.simulation:

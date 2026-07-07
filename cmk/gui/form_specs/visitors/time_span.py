@@ -38,7 +38,7 @@ def magnitude_translator(magnitude: TimeMagnitude) -> shared_type_defs.TimeSpanT
         case TimeMagnitude.DAY:
             return shared_type_defs.TimeSpanTimeMagnitude.day
         case _:
-            raise RuntimeError()
+            raise RuntimeError
 
 
 def _render_value(value: float) -> str:
@@ -100,7 +100,7 @@ class TimeSpanVisitor(FormSpecVisitor[TimeSpan, _ParsedValueModel, _FallbackMode
                             min_value
                         )
                     else:
-                        raise RuntimeError()  # is impossible because of NumberInRange init function
+                        raise RuntimeError  # is impossible because of NumberInRange init function
 
                     yield cast(
                         Callable[[object], object],

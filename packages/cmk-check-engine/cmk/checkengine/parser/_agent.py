@@ -101,23 +101,23 @@ class ParserState(abc.ABC):
 
     @abc.abstractmethod
     def do_action(self, line: bytes) -> ParserState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def on_section_header(self, section_header: SectionMarker) -> ParserState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def on_section_footer(self) -> ParserState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def on_piggyback_header(self, piggyback_header: PiggybackMarker) -> ParserState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def on_piggyback_footer(self) -> ParserState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def to_noop_parser(self) -> NOOPParser:
         self._logger.debug(

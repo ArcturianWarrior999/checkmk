@@ -273,12 +273,12 @@ class ABCBIConfigSearch(ABCBISearch):
     @classmethod
     @abc.abstractmethod
     def cascading_dropdown_choice_element(cls) -> tuple[SearchKind, str, ValueSpec]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def valuespec(cls) -> ValueSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIConfigSearchRegistry(plugin_registry.Registry[type[ABCBIConfigSearch]]):
@@ -551,12 +551,12 @@ class ABCBIConfigAction(ABCBIAction):
     @classmethod
     @abc.abstractmethod
     def cascading_dropdown_choice_element(cls) -> tuple[ActionKind, str, ValueSpec]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def valuespec(cls) -> ValueSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIConfigActionRegistry(plugin_registry.Registry[type[ABCBIConfigAction]]):
@@ -791,11 +791,11 @@ def get_aggregation_function_choices() -> Transform:
 class ABCBIConfigAggregationFunction(ABCBIAggregationFunction):
     @classmethod
     def title(cls):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def valuespec(cls) -> ValueSpec:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIConfigAggregationFunctionRegistry(

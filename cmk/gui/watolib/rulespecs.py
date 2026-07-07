@@ -108,24 +108,24 @@ class RulespecBaseGroup(abc.ABC):
     @abc.abstractmethod
     def name(self) -> str:
         """Unique internal key of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """Human readable title of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def help(self) -> str | None:
         """Helpful description of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def choice_title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class RulespecGroup(RulespecBaseGroup):
@@ -133,19 +133,19 @@ class RulespecGroup(RulespecBaseGroup):
     @abc.abstractmethod
     def name(self) -> str:
         """Unique internal key of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """Human readable title of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def help(self) -> str:
         """Helpful description of this group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def doc_references(self) -> dict[DocReference, str]:
@@ -162,13 +162,13 @@ class RulespecSubGroup(RulespecBaseGroup, abc.ABC):
     @abc.abstractmethod
     def main_group(self) -> type[RulespecGroup]:
         """A reference to the main group class"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def sub_group_name(self) -> str:
         """The internal name of the sub group"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def name(self) -> str:
@@ -471,13 +471,13 @@ class Rulespec(abc.ABC):
     @property
     def form_spec(self) -> FormSpec:
         if self._form_spec_definition is None:
-            raise FormSpecNotImplementedError()
+            raise FormSpecNotImplementedError
         return self._form_spec_definition.value()
 
     @property
     def item_form_spec(self) -> FormSpec | None:
         if self._form_spec_definition is None:
-            raise FormSpecNotImplementedError()
+            raise FormSpecNotImplementedError
         if self._form_spec_definition.item is None:
             return None
         return self._form_spec_definition.item()
@@ -1252,7 +1252,7 @@ class RulespecRegistry(cmk.ccc.plugin_registry.Registry[Rulespec]):
         rulespecs = []
 
         if group_name not in self._group_registry:
-            raise KeyError()
+            raise KeyError
 
         for rulespec_instance in self.values():
             if rulespec_instance.group_name == group_name:

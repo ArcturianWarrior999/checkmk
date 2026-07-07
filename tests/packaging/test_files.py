@@ -200,13 +200,13 @@ def _file_exists_in_package(package_path: str, version_rel_path: str) -> bool:
 
     if package_path.endswith(".tar.gz"):
         if "-docker-" in package_path:
-            raise NotImplementedError()
+            raise NotImplementedError
         return (
             f"check-mk-{_edition_from_pkg_path(package_path)}-{_version_from_pkg_path(package_path)}/{version_rel_path}"
             in file_list
         )
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def _get_file_from_package(package_path: str, version_rel_path: str) -> bytes:
@@ -250,7 +250,7 @@ def _get_file_from_package(package_path: str, version_rel_path: str) -> bytes:
             ]
         )
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 # In case packages grow/shrink this check has to be changed.
@@ -330,7 +330,7 @@ def test_files_not_in_version_path(package_path: str) -> None:
             "etc/init.d/check-mk-(community|pro|ultimatemt|ultimate|cloud)-.*$",
         ] + version_allowed_patterns
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     LOGGER.info("Testing %s", package_path)
 
@@ -405,7 +405,7 @@ def _get_paths_from_package(path_to_package: str) -> list[str]:
             subprocess.check_output(["tar", "tzf", path_to_package], encoding="utf-8").splitlines()
         )
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def test_cma_only_contains_version_paths(package_path: str) -> None:
@@ -1182,7 +1182,7 @@ def _get_paths_with_modes_from_package(path_to_package: str) -> Mapping[str, Fil
             ).splitlines()
         }
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 EXECUTABLE_DIRS = [

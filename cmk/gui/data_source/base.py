@@ -28,7 +28,7 @@ class RowTable(abc.ABC):
         limit: int | None,
         all_active_filters: list[Filter],
     ) -> Rows | tuple[Rows, int]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCDataSource(abc.ABC):
@@ -38,20 +38,20 @@ class ABCDataSource(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a data source. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """Used as display-string for the datasource in the GUI (e.g. view editor)"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def table(self) -> RowTable:
         """Returns a table object that can provide a list of rows for the provided
         query using the query() method."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -62,7 +62,7 @@ class ABCDataSource(abc.ABC):
         e.g. 'host' groups all painters and filters which begin with "host_".
         Out of this declaration multisite knows which filters or painters are
         available for the single datasources."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def merge_by(self) -> str | None:
@@ -97,14 +97,14 @@ class ABCDataSource(abc.ABC):
         the items (= in order to identify the items and gather all information
         needed for constructing Nagios commands)
         those columns are always fetched from the datasource for each item"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def id_keys(self) -> list[ColumnName]:
         """These are used to generate a key which is unique for each data row
         is used to identify an item between http requests"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def join(self) -> tuple[str, str] | None:

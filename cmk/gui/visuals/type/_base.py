@@ -22,37 +22,37 @@ class VisualType(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a visual type. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """The human readable GUI title"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def ident_attr(self) -> str:
         """The name of the attribute that is used to identify a visual of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def multicontext_links(self) -> bool:
         """Whether or not to show context buttons even if not single infos present"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def plural_title(self) -> str:
         """The plural title to use in the GUI"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def show_url(self) -> str:
         """The URL filename that can be used to show visuals of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def add_visual_handler(
@@ -65,24 +65,24 @@ class VisualType(abc.ABC):
         user_permissions: UserPermissions,
     ) -> None:
         """The function to handle adding the given visual to the given visual of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def page_menu_add_to_entries(
         self, add_type: str, user_permissions: UserPermissions
     ) -> Iterator[PageMenuEntry]:
         """List of visual choices another visual of the given type can be added to"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def visuals(self) -> dict:
         """Get all visuals of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def permitted_visuals(self, visuals: dict, user_permissions: UserPermissions) -> dict:
         """Get the permitted visuals of this type"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def choices(self, visuals: dict, user_permissions: UserPermissions) -> Choices:
         return [
@@ -130,7 +130,7 @@ class VisualType(abc.ABC):
         # Currently implemented very specific for the cases we need at the moment. Build something
         # more generic once we need it.
         if single_info_condition != ["host"]:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         if not linking_view_rows:
             return False  # Unknown host, no linking

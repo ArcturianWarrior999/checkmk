@@ -226,7 +226,7 @@ class PureStorageFlashArray:
             )
         except requests.exceptions.ConnectionError:
             _LOGGER.exception("Login failed")
-            raise AuthError()
+            raise AuthError
 
         if login_response.status_code != 200:
             _LOGGER.error(
@@ -234,7 +234,7 @@ class PureStorageFlashArray:
                 login_response.reason,
                 login_response.status_code,
             )
-            raise AuthError()
+            raise AuthError
 
         self._x_auth_token = login_response.headers["x-auth-token"]
 
@@ -243,7 +243,7 @@ class PureStorageFlashArray:
             api_version_response = self._session.get("api_version", {})
         except requests.exceptions.ConnectionError:
             _LOGGER.exception("Getting API version failed")
-            raise APIVersionError()
+            raise APIVersionError
 
         if api_version_response.status_code != 200:
             _LOGGER.error(
@@ -251,7 +251,7 @@ class PureStorageFlashArray:
                 api_version_response.reason,
                 api_version_response.status_code,
             )
-            raise APIVersionError()
+            raise APIVersionError
 
         return max(
             v
@@ -274,7 +274,7 @@ class PureStorageFlashArray:
             )
         except requests.exceptions.ConnectionError:
             _LOGGER.exception("Collecting '%s' failed", spec.name)
-            raise SectionError()
+            raise SectionError
 
         if section_response.status_code != 200:
             _LOGGER.error(
@@ -283,7 +283,7 @@ class PureStorageFlashArray:
                 section_response.reason,
                 section_response.status_code,
             )
-            raise SectionError()
+            raise SectionError
 
         return section_response.json()
 

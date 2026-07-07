@@ -111,7 +111,7 @@ def delete_timeperiod(
     pending_changes: PendingChanges,
 ) -> None:
     if is_builtin_timeperiod(name):
-        raise TimePeriodBuiltInError()
+        raise TimePeriodBuiltInError
     time_periods = TimePeriodsConfigFile().load_timeperiod_specs_for_modification()
     if name not in time_periods:
         raise TimePeriodNotFoundError
@@ -137,11 +137,11 @@ def modify_timeperiod(
     pending_changes: PendingChanges,
 ) -> None:
     if is_builtin_timeperiod(name):
-        raise TimePeriodBuiltInError()
+        raise TimePeriodBuiltInError
 
     existing_timeperiods = TimePeriodsConfigFile().load_timeperiod_specs_for_modification()
     if name not in existing_timeperiods:
-        raise TimePeriodNotFoundError()
+        raise TimePeriodNotFoundError
 
     existing_timeperiods[name] = timeperiod
     save_timeperiods(existing_timeperiods, pprint_value)
@@ -163,11 +163,11 @@ def create_timeperiod(
     pending_changes: PendingChanges,
 ) -> None:
     if is_builtin_timeperiod(name):
-        raise TimePeriodBuiltInError()
+        raise TimePeriodBuiltInError
 
     existing_timeperiods = TimePeriodsConfigFile().load_timeperiod_specs_for_modification()
     if name in existing_timeperiods:
-        raise TimePeriodAlreadyExistsError()
+        raise TimePeriodAlreadyExistsError
 
     existing_timeperiods[name] = timeperiod
     save_timeperiods(existing_timeperiods, pprint_value)

@@ -161,12 +161,12 @@ class Painter(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a painter. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def title(self, cell: Cell) -> str:
         """Used as display string for the painter in the GUI (e.g. views using this painter)"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title_classes(self) -> list[str]:
         """Additional css classes used to render the title"""
@@ -176,7 +176,7 @@ class Painter(abc.ABC):
     @abc.abstractmethod
     def columns(self) -> Sequence[ColumnName]:
         """Livestatus columns needed for this painter"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def dynamic_columns(self, cell: Cell) -> list[ColumnName]:
         """Return list of dynamically generated column as specified by Cell
@@ -296,7 +296,7 @@ class Painter(abc.ABC):
         That class is optional and set to "" in most cases. Currently CSS
         styles are not modular and all defined in check_mk.css. This will
         change in future."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def export_for_python(self, row: Row, cell: Cell, user: LoggedInUser) -> object:
         """Render the content of the painter for Pyton export based on the given row.
@@ -734,7 +734,7 @@ class JoinCell(Cell):
     ) -> None:
         super().__init__(column_spec, sort_url_parameter, registered_painters, user_permissions)
         if (join_value := column_spec.join_value) is None:
-            raise ValueError()
+            raise ValueError
 
         self.join_value = join_value
 

@@ -75,7 +75,7 @@ class Page(abc.ABC):
     @abc.abstractmethod
     def page(self, ctx: PageContext) -> PageResult:
         """Override this to implement the page functionality"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 # TODO: Clean up implicit _from_vars() procotocol

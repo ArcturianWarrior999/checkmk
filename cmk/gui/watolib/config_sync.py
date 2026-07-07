@@ -181,14 +181,14 @@ class ABCSnapshotDataCollector(abc.ABC):
         """Site independent preparation of files to be used for the sync snapshots
         This will be called once before iterating over all sites.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_generic_components(self) -> list[ReplicationPath]:
         """Return the site independent snapshot components
         These will be collected by the SnapshotManager once when entering the context manager
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_site_components(
@@ -198,7 +198,7 @@ class ABCSnapshotDataCollector(abc.ABC):
 
         The generic components have the advantage that they only need to be created once for all
         sites and can be shared between the sites to optimize processing."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 def is_user_file(filepath: str) -> bool:

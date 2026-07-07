@@ -34,7 +34,7 @@ class ABCDataSourceInventory(ABCDataSource):
     @property
     @abc.abstractmethod
     def inventory_path(self) -> InventoryPath:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class ABCRowTable(RowTable):
@@ -98,7 +98,7 @@ class ABCRowTable(RowTable):
 
     @abc.abstractmethod
     def _get_rows(self, hostrow: Row) -> Iterable[Row]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _add_declaration_errors(self) -> None:
         pass

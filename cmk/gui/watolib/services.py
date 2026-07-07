@@ -1362,7 +1362,7 @@ class ServiceDiscoveryBackgroundJob(BackgroundJob):
             self._perform_automatic_refresh(debug=debug)
 
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
         sys.stdout.write("Completed.\n")
 
     def _perform_service_scan(self, *, raise_errors: bool, debug: bool) -> None:

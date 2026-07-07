@@ -34,7 +34,7 @@ class LicenseState(Enum):
             return "licensed"
         if self is LicenseState.UNLICENSED:
             return "unlicensed"
-        raise ValueError()
+        raise ValueError
 
 
 class LicenseStateError(Exception):
@@ -104,7 +104,7 @@ class NotificationHandler(abc.ABC):
 
     @abc.abstractmethod
     def manage_notification(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class RemainingTrialTime(NamedTuple):
@@ -117,34 +117,34 @@ class LicensingHandler(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def make(cls) -> LicensingHandler:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def state(self) -> LicenseState:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def message(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def effect_core(self, num_services: int, num_hosts_shadow: int) -> UserEffect:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def effect(self, licensing_settings_link: str | None = None) -> UserEffect:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def notification_handler(self) -> NotificationHandler:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def remaining_trial_time_rounded(self) -> RemainingTrialTime:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def persist_licensed_state(self, file_path: Path) -> None:
         write_licensed_state(file_path, self.state)

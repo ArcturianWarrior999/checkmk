@@ -67,7 +67,7 @@ def test_parse_command_line() -> None:
             mode_parameter="param",
         )
     except Exception as _:
-        raise AssertionError() from _
+        raise AssertionError from _
 
     try:
         params = msi_patch.parse_command_line(["/path/to/executable", "code", "msi"])
@@ -77,7 +77,7 @@ def test_parse_command_line() -> None:
             mode_parameter="",
         )
     except Exception as _:
-        raise AssertionError() from _
+        raise AssertionError from _
 
 
 def test_parse_command_line_invalid() -> None:

@@ -41,13 +41,13 @@ def join_service_row_post_processor(
         return
 
     if not (isinstance(join := view.datasource.join, tuple) and len(join) == 2):
-        raise ValueError()
+        raise ValueError
 
     join_table, join_master_column = join
     slave_ds = data_source_registry[join_table]()
 
     if slave_ds.join_key is None:
-        raise ValueError()
+        raise ValueError
 
     inventory_join_macros = dict(view.spec.get("inventory_join_macros", {}).get("macros", []))
     parents: Mapping[tuple[SiteId, HostName], Sequence[HostName]] = (

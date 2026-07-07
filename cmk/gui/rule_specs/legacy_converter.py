@@ -2036,7 +2036,7 @@ def _make_levels_default_value[NumberT: (int, float)](
             },
         )
 
-    raise NotImplementedError()  # should never happen.
+    raise NotImplementedError  # should never happen.
 
 
 def _transform_proxy_forth(value: object) -> tuple[str, str | None]:

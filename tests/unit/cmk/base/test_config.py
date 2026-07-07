@@ -554,7 +554,7 @@ def test_host_config_management_credentials(
         elif protocol == "ipmi":
             ts.set_option("management_ipmi_credentials", {hostname: credentials})
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     ts.set_ruleset("management_board_config", ruleset)
 

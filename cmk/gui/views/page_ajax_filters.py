@@ -21,7 +21,7 @@ from .store import get_permitted_views
 class ABCAjaxInitialFilters(AjaxPage):
     @abc.abstractmethod
     def _get_context(self, page_name: str) -> VisualContext:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @override
     def page(self, ctx: PageContext) -> dict[str, str]:

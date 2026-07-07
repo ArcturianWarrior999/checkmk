@@ -53,7 +53,7 @@ def _forward_message(
             elif tcp_result == "raise exception":
                 raise FakeTcpErrorRaised("rise and shine")
             else:
-                raise NotImplementedError()
+                raise NotImplementedError
 
     result = TestForwardTcpMessageForwarder(
         item=item,

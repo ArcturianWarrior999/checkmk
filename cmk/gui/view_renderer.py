@@ -110,7 +110,7 @@ class ABCViewRenderer(abc.ABC):
         sounds: Sequence[tuple[str, str]],
         sound_url: str,
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class GUIViewRenderer(ABCViewRenderer):

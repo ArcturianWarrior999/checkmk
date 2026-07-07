@@ -24,7 +24,7 @@ class RegisterRelayHandler:
         self, authorization: SecretStr, request: relay_protocols.RelayRegistrationRequest
     ) -> relay_protocols.RelayRegistrationResponse:
         if get_config().is_remote_site:
-            raise RemoteSiteError()
+            raise RemoteSiteError
         relay_id = RelayID(request.relay_id)
         # Important: First authenticate
         auth = parse_authorization(authorization)

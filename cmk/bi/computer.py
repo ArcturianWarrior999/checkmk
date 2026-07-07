@@ -30,7 +30,7 @@ class ABCPostprocessComputeResult:
     def postprocess(
         self, bi_aggregation: BICompiledAggregation, node_result_bundle: NodeResultBundle
     ) -> NodeResultBundle:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BIComputerPostprocessingRegistry(Registry[ABCPostprocessComputeResult]):

@@ -18,30 +18,30 @@ class VisualInfo(abc.ABC):
     @abc.abstractmethod
     def ident(self) -> str:
         """The identity of a visual type. One word, may contain alpha numeric characters"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title(self) -> str:
         """The human readable GUI title"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def title_plural(self) -> str:
         """The human readable GUI title for multiple items"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def single_spec(self) -> list[tuple[str, ValueSpec]]:
         """The key / valuespec pairs (choices) to identify a single row"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def single_spec_components(self) -> list[FilterComponent]:
         """The filter components to identify a single row"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def multiple_site_filters(self) -> list[str]:

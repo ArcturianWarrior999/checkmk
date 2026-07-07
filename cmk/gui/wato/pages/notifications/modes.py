@@ -2813,7 +2813,7 @@ class ABCUserNotificationsMode(ABCNotificationsMode):
 
     @abc.abstractmethod
     def _user_id(self) -> UserId:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def title(self) -> str:
         # astrein: disable=localization-named-placeholder
@@ -3085,7 +3085,7 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
 
     @abc.abstractmethod
     def _load_rules(self) -> list[EventRule]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _save_rules(
@@ -3094,23 +3094,23 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
         user_attributes: Sequence[tuple[str, UserAttribute]],
         pprint_value: bool,
     ) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _user_id(self) -> UserId | None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _back_mode(self) -> ActionResult:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _log_text(self, edit_nr: int) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _rule_from_valuespec(self, rule: EventRule) -> EventRule:
         """Optional method to update the rule after editing with the valuespec"""
@@ -4028,10 +4028,10 @@ class ABCNotificationParameterMode(WatoMode):
         return ["notifications"]
 
     def title(self) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _back_mode(self) -> ActionResult:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _search_vars(self) -> HTTPVariables:
         if search := request.get_str_input("search"):
@@ -4075,7 +4075,7 @@ class ABCNotificationParameterMode(WatoMode):
         )
 
     def _log_text(self, edit_nr: int) -> str:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _from_vars(self) -> None:
         self._edit_nr = request.get_integer_input_mandatory("edit", -1)

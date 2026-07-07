@@ -79,7 +79,7 @@ class FetcherTrigger(JsonSerializable[Mapping[str, str], DeserializationContext]
     def _trigger(
         self, fetcher: Fetcher[_TRawData], mode: Mode, secrets: FetcherSecrets
     ) -> result.Result[_TRawData, Exception]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class FetcherTriggerFactory(Protocol):

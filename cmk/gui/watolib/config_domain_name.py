@@ -115,7 +115,7 @@ class ABCConfigDomain(abc.ABC):
 
     @abc.abstractmethod
     def config_dir(self) -> Path:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def config_file(self, site_specific: bool) -> Path:
         return self.config_dir() / ("sitespecific.mk" if site_specific else "global.mk")
@@ -178,7 +178,7 @@ class ABCConfigDomain(abc.ABC):
     def default_globals(self) -> GlobalSettings:
         """Returns a dictionary that contains the default settings
         of all configuration variables of this config domain."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _get_global_config_var_names(self) -> list[str]:
         """Returns a list of all global config variable names
@@ -234,18 +234,18 @@ class SampleConfigGenerator(abc.ABC):
     @classmethod
     def ident(cls) -> str:
         """Unique key which can be used to identify a generator"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # TODO: @abc.abstractmethod
     @classmethod
     def sort_index(cls) -> int:
         """The generators are executed in this order (low to high)"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def generate(self) -> None:
         """Execute the sample configuration creation step"""
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SampleConfigGeneratorRegistry(cmk.ccc.plugin_registry.Registry[type[SampleConfigGenerator]]):

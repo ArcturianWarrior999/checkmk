@@ -117,7 +117,7 @@ def ensure_valid_docker_header(string_table: StringTable) -> dict:
     """
     version = get_version(string_table)
     if version is None:
-        raise AgentOutputMalformatted()
+        raise AgentOutputMalformatted
     return version
 
 

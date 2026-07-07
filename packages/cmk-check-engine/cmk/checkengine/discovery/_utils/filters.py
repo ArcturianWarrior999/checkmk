@@ -166,7 +166,7 @@ def _get_service_filter_lists(rediscovery_parameters: RediscoveryParameters) -> 
             service_filter_lists.get("changed_service_params_blacklist"),
         )
 
-    raise NotImplementedError()
+    raise NotImplementedError
 
 
 def _get_service_filter_func(

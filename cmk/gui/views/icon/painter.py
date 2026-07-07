@@ -94,7 +94,7 @@ class PainterServiceIcons(Painter):
         ]
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
 
 class PainterHostIcons(Painter):
@@ -138,7 +138,7 @@ class PainterHostIcons(Painter):
         ]
 
     def export_for_csv(self, row: Row, cell: Cell, user: LoggedInUser) -> str | HTML:
-        raise CSVExportError()
+        raise CSVExportError
 
 
 def _handle_icon(icon: StaticIcon | DynamicIcon) -> DynamicIcon:
@@ -347,7 +347,7 @@ def _process_icon(
     elif len(result) == 3:
         icon_name, title, url = result  # type: ignore[assignment]
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     yield IconEntry(
         sort_index=icon.sort_index,

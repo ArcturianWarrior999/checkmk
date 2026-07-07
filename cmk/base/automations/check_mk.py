@@ -2321,11 +2321,11 @@ class ABCDeleteHosts:
 
     @abc.abstractmethod
     def _single_file_paths(self, hostname: HostName) -> Iterable[str]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _delete_host_files(self, hostname: HostName) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _delete_datasource_dirs(self, hostname: HostName) -> None:
         try:
@@ -3565,12 +3565,12 @@ class AutomationDiagHost:
                     or not isinstance(snmpv3_security_name, str)
                     or not isinstance(snmpv3_security_password, str)
                 ):
-                    raise TypeError()
+                    raise TypeError
                 if snmpv3_use == "authPriv":
                     if not isinstance(snmpv3_privacy_proto, str) or not isinstance(
                         snmpv3_privacy_password, str
                     ):
-                        raise TypeError()
+                        raise TypeError
                     credentials = (
                         snmpv3_use,
                         snmpv3_auth_proto,
@@ -3588,11 +3588,11 @@ class AutomationDiagHost:
                     )
             elif snmpv3_use is not None and snmpv3_use != "":
                 if not isinstance(snmpv3_security_name, str):
-                    raise TypeError()
+                    raise TypeError
                 credentials = (snmpv3_use, snmpv3_security_name)
             else:
                 if not isinstance(credentials, str):
-                    raise TypeError()
+                    raise TypeError
                 credentials = ("noAuthNoPriv", credentials)
         else:
             credentials = snmp_community or (

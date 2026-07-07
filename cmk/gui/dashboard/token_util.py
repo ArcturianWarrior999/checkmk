@@ -118,7 +118,7 @@ def edit_dashboard_auth_token(
             yield token, token.details
             return
 
-    raise InvalidDashboardTokenReference()
+    raise InvalidDashboardTokenReference
 
 
 def get_dashboard_auth_token(
@@ -447,7 +447,7 @@ def get_dashboard_widget_by_id(dashboard_config: DashboardConfig, widget_id: str
     if widget := dashboard_config["widgets"].get(widget_id):
         return widget
 
-    raise InvalidWidgetError()
+    raise InvalidWidgetError
 
 
 def get_shared_dashboard_url(token_id: TokenId) -> str:
