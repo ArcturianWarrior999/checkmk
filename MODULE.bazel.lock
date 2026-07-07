@@ -4720,8 +4720,8 @@
             "https://files.pythonhosted.org/packages/ca/eb/f8dcd4e3c596733f872732b43836df6486fa09966ce5586443d4e9e288fb/google_cloud_access_context_manager-0.3.0.tar.gz": "f3aa35c9225b7aaef85ecdacedcc1577789be8d458b7a41b6ad23b504786e5f9"
           },
           "google-cloud-asset": {
-            "https://files.pythonhosted.org/packages/01/10/d4b47be9ebbc4aeb6f951af91a1af0991245715f4c5ecdfa8015a58b6272/google_cloud_asset-4.1.0-py3-none-any.whl": "2ce567bf002ad5099e173f6106393a7abc4782598c5d0d27de7d86ac26736e06",
-            "https://files.pythonhosted.org/packages/90/4b/ea523f677cf7dcfeeee85e6186c35b0500d53aa68711ec103bb1f90871f5/google_cloud_asset-4.1.0.tar.gz": "00ba110085ff9f284b49961bcb9d2da5b5863fb91643c16d173ed38d73bfe35c"
+            "https://files.pythonhosted.org/packages/4c/d4/92b37789e99dc416b2d17f6d3be5a32a50049ffe6c350953abda85c4a0fd/google_cloud_asset-4.4.0.tar.gz": "350d564db6edb2d9521d4776fc44d559765fecd06bdb7284017cf24261039c8d",
+            "https://files.pythonhosted.org/packages/fe/be/0b5e6e4b0b9622380a0f2b2e4e8c577c52fe1047e4ecbaabd9398459ad14/google_cloud_asset-4.4.0-py3-none-any.whl": "8b1c5916939995ad3e42210b189785056d80fa6fa3c2109fece3ba2b462ae49d"
           },
           "google-cloud-monitoring": {
             "https://files.pythonhosted.org/packages/97/06/9fc0a34bed4221a68eef3e0373ae054de367dc42c0b689d5d917587ef61b/google_cloud_monitoring-2.29.1.tar.gz": "86cac55cdd2608561819d19544fb3c129bbb7dcecc445d8de426e34cd6fa8e49",

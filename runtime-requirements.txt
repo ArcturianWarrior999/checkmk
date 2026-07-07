@@ -993,11 +993,10 @@ google-cloud-access-context-manager==0.3.0 \
     # via
     #   -c requirements.txt
     #   google-cloud-asset
-google-cloud-asset==4.1.0 \
-    --hash=sha256:00ba110085ff9f284b49961bcb9d2da5b5863fb91643c16d173ed38d73bfe35c \
-    --hash=sha256:2ce567bf002ad5099e173f6106393a7abc4782598c5d0d27de7d86ac26736e06
+google-cloud-asset==4.4.0 \
+    --hash=sha256:350d564db6edb2d9521d4776fc44d559765fecd06bdb7284017cf24261039c8d \
+    --hash=sha256:8b1c5916939995ad3e42210b189785056d80fa6fa3c2109fece3ba2b462ae49d
     # via
-    #   -c constraints.txt
     #   -c requirements.txt
     #   -r packages/cmk-plugins/requirements.in
 google-cloud-monitoring==2.29.1 \

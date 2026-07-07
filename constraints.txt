@@ -1,3 +1,2 @@
 marshmallow<4 # breaking changes CMK-25251
 datamodel-code-generator==0.42.0 #CMK-29509
-google-cloud-asset==4.1.0  # CMK-29107

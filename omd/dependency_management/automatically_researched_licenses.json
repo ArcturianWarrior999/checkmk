@@ -1784,6 +1784,7 @@
   "pkg:pypi/google-auth@2.48.0": "Apache-2.0",
   "pkg:pypi/google-cloud-access-context-manager@0.3.0": "Apache-2.0",
   "pkg:pypi/google-cloud-asset@4.1.0": "Apache-2.0",
+  "pkg:pypi/google-cloud-asset@4.4.0": "Apache-2.0",
   "pkg:pypi/google-cloud-monitoring@2.29.1": "Apache-2.0",
   "pkg:pypi/google-cloud-org-policy@1.16.1": "Apache-2.0",
   "pkg:pypi/googleapis-common-protos@1.72.0": "Apache-2.0",
