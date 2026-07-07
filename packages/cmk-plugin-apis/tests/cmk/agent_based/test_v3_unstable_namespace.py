@@ -33,7 +33,7 @@ def test_v3_unstable() -> None:
         "SNMPSection",
         "CheckPlugin",
         "InventoryPlugin",
-        "MetricBackendSection",
+        "MetricsSection",
         "MetricSelector",
         "Aggregation",
         "GaugeAggregation",

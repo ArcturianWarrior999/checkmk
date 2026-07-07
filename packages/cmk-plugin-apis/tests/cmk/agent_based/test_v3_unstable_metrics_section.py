@@ -9,8 +9,8 @@ import pytest
 from cmk.agent_based.v2 import AgentSection, RuleSetType, StringTable
 from cmk.agent_based.v3_unstable import (
     GaugeAggregation,
-    MetricBackendSection,
     MetricSelector,
+    MetricsSection,
 )
 
 HOST_LABEL_PARAMS = {"level": "all"}
@@ -33,8 +33,8 @@ def test_metric_backend_section_instantiation() -> None:
     my_filter2 = MetricSelector(metric_name="cpu.temperature", aggregation=GaugeAggregation())
 
     # 2. Create the section with *all* possible arguments
-    section = MetricBackendSection(  # type: ignore[call-overload]
-        # MetricBackendSection specific args
+    section = MetricsSection(  # type: ignore[call-overload]
+        # MetricsSection specific args
         name="test_section",
         selectors=[my_filter, my_filter2],
         # AgentSection args passed via **kwargs
@@ -81,4 +81,4 @@ def test_missing_required_arguments(kwargs: dict[str, object]) -> None:
     """
     # Test missing metric_filter
     with pytest.raises(TypeError):
-        MetricBackendSection(**kwargs)  # type: ignore[call-overload]
+        MetricsSection(**kwargs)  # type: ignore[call-overload]

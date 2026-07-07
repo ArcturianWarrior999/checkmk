@@ -124,7 +124,7 @@ class MetricSelector:
 
 
 @dataclass(kw_only=True)
-class MetricBackendSection(AgentSection[Mapping[str, object]]):
+class MetricsSection(AgentSection[Mapping[str, object]]):
     """
     A specialized AgentSection that pre-filters raw agent data
     fom the metric backend as a data source.
@@ -136,7 +136,7 @@ class MetricBackendSection(AgentSection[Mapping[str, object]]):
     Example:
         Get all data points for the cpu.aggregated metric. If the data points returned are
         of metric type Gauge, only the latest value will be returned
-        >>> agent_section_metric_backend_example = MetricBackendSection(
+        >>> agent_section_metric_backend_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_gauge",
@@ -147,7 +147,7 @@ class MetricBackendSection(AgentSection[Mapping[str, object]]):
 
         Get all aggregated data points for the http.server.requests.duration metric
         produced by a (made-up) http-collector exporter for the last minute
-        >>> agent_section_metric_backend_example = MetricBackendSection(
+        >>> agent_section_metric_backend_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_1",
@@ -165,7 +165,7 @@ class MetricBackendSection(AgentSection[Mapping[str, object]]):
         Get all aggregated data points for the http.server.requests.duration metric
         (which is a histogram metric), aggregated over the last 60 minutes with
         precalculated percentiles for the 50th (mean) and 99th percentile
-        >>> agent_section_metric_backend_example = MetricBackendSection(
+        >>> agent_section_metric_backend_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_60",
@@ -183,7 +183,7 @@ class MetricBackendSection(AgentSection[Mapping[str, object]]):
         precalculated percentiles for the 50th (mean) and 99th percentile
         as well as all aggregated data points over the last 60 minutes with
         precalculated percentiles for the 75th and 99th percentile
-        >>> agent_section_metric_backend_example = MetricBackendSection(
+        >>> agent_section_metric_backend_example = MetricsSection(
         ...     name="example_check_plugin",
         ...     selectors=[MetricSelector(
         ...         name="filter_15",
