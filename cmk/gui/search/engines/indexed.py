@@ -9,7 +9,7 @@ from collections import defaultdict
 from collections.abc import Awaitable, Collection, Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from itertools import chain
-from typing import override
+from typing import cast, override
 
 import redis
 from pydantic import BaseModel
@@ -436,9 +436,11 @@ class IndexSearcher:
         allowed_categories: frozenset[str] | None = None,
     ) -> defaultdict[str, list[_SearchResultWithVisibilityCheck]]:
         results = defaultdict(list)
+        # NOTE: We always have decode_responses=True, but redis' typing is too weak to reflect that:
+        # It assumes a set[bytes|str] here.
         categories = self._redis_client.smembers(key_categories)
         assert not isinstance(categories, Awaitable)
-        for category in categories:
+        for category in cast(set[str], categories):
             if allowed_categories is not None and category not in allowed_categories:
                 continue
             if not self._permissions_handler.may_see_category(category):
@@ -454,10 +456,13 @@ class IndexSearcher:
                 IndexBuilder.key_match_texts(prefix_category),
                 match=query,
             ):
-                match_item_dict = self._redis_client.hgetall(
+                match_item_dict_raw = self._redis_client.hgetall(
                     IndexBuilder.add_to_prefix(prefix_category, idx_matched_item)
                 )
-                assert not isinstance(match_item_dict, Awaitable)
+                assert not isinstance(match_item_dict_raw, Awaitable)
+                # NOTE: We always have decode_responses=True, but redis' typing is too weak to
+                # reflect that: It assumes a dict[bytes|str, bytes|str] here.
+                match_item_dict = cast(Mapping[str, str], match_item_dict_raw)
 
                 # We translate the topics of our search results. For localization-dependent search
                 # results, such as rulesets, they are already localized anyway. However, for

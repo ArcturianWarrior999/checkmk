@@ -27,9 +27,10 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Final, Literal, NamedTuple, NotRequired, Self, TypedDict
+from typing import Any, cast, Final, Literal, NamedTuple, NotRequired, Self, TypedDict
 
 from redis.client import Pipeline
+from redis.typing import EncodableT, FieldT
 
 from livestatus import SiteConfiguration
 
@@ -373,7 +374,9 @@ class _RedisHelper:
         if self._folder_paths is None:
             lst = self._client.smembers("wato:folder_list")
             assert not isinstance(lst, Awaitable)
-            self._folder_paths = tuple(lst)
+            # NOTE: We always have decode_responses=True, but redis' typing is too weak to reflect
+            # that: It assumes a set[bytes|str] here.
+            self._folder_paths = tuple(cast(set[str], lst))
         return self._folder_paths
 
     def recursive_subfolders_for_path(self, path: PathWithSlash) -> list[PathWithSlash]:
@@ -425,7 +428,7 @@ class _RedisHelper:
     def folder_metadata(self, path: PathWithoutSlash) -> FolderMetaData | None:
         path_with_slash = f"{path}/"
         if path_with_slash not in self._folder_metadata:
-            results = self._client.hmget(
+            raw_results = self._client.hmget(
                 f"wato:folders:{path_with_slash}",
                 [
                     "title",
@@ -433,9 +436,12 @@ class _RedisHelper:
                     "permitted_contact_groups",
                 ],
             )
-            if not results:
+            if not raw_results:
                 return None
-            assert not isinstance(results, Awaitable)
+            assert not isinstance(raw_results, Awaitable)
+            # NOTE: We always have decode_responses=True, but redis' typing is too weak to reflect
+            # that: It assumes a list[bytes|str|None] here.
+            results = cast(list[str | None], raw_results)
 
             # Redis hmget typing states that the field can be None
             # It won't happen if the key is found, adding fallbacks anyway.
@@ -559,7 +565,7 @@ class _RedisHelper:
         permitted_contact_groups: set[_ContactgroupName],
     ) -> None:
         folder_key = f"wato:folders:{path}/"
-        mapping = {
+        mapping: Mapping[FieldT, EncodableT] = {
             "num_hosts": num_hosts,
             "title": title,
             "title_path_without_root": title_path_without_root,
@@ -731,6 +737,9 @@ class _RedisHelper:
         try:
             if (value := self._client.get("wato:folder_list:last_update")) is not None:
                 assert not isinstance(value, Awaitable)
+                # NOTE: We always have decode_responses=True, but redis' typing is too weak to reflect
+                # that: It assumes a bytes|str here.
+                assert isinstance(value, str)
                 return value
         except ValueError:
             pass
