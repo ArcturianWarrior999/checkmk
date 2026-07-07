@@ -21,7 +21,6 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     MetricName,
     PerformanceData,
-    RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
     RRDMetric,
@@ -37,6 +36,7 @@ from cmk.gui.log import logger
 from ._engine_rrd_resample import merge_series, resample, scaled_series
 from ._engine_rrd_translate import (
     originals_for_metric_name,
+    translate_metric_names,
     translate_performance_data,
 )
 
@@ -174,11 +174,12 @@ def parse_performance_data(
 
 
 @dataclass(frozen=True)
-class EngineRRDFetchRawMetricNames:
+class EngineRRDFetchMetricNames:
     site_id: SiteId | None
     debug: bool
+    registered_translations: Sequence[translations_v1.Translation] = ()
 
-    def __call__(self, services: Sequence[Service]) -> Mapping[Service, RawMetricNames]:
+    def __call__(self, services: Sequence[Service]) -> Mapping[Service, frozenset[MetricName]]:
         unique = list(dict.fromkeys(services))
         if not unique:
             return {}
@@ -186,7 +187,7 @@ class EngineRRDFetchRawMetricNames:
             "GET services\nColumns: host_name description perf_data metrics check_command\n"
             + _service_or_filter(unique)
         )
-        result: dict[Service, RawMetricNames] = {}
+        result: dict[Service, frozenset[MetricName]] = {}
         with sites.only_sites(self.site_id):
             for (
                 host_name,
@@ -198,9 +199,10 @@ class EngineRRDFetchRawMetricNames:
                 raw = parse_performance_data(
                     perf_data_string, check_command, rrd_metrics, debug=self.debug
                 )
-                result[Service(host_name=host_name, service_name=description)] = RawMetricNames(
-                    check_command=raw.check_command,
-                    metric_names=list(raw.values),
+                result[Service(host_name=host_name, service_name=description)] = (
+                    translate_metric_names(
+                        raw.check_command, list(raw.values), self.registered_translations
+                    )
                 )
         return {service: result[service] for service in unique if service in result}
 

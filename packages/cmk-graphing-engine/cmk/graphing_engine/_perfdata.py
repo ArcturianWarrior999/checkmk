@@ -69,15 +69,3 @@ class RawPerformanceValue:
 class RawPerformanceData:
     check_command: CheckCommand
     values: Mapping[MetricName, RawPerformanceValue]
-
-
-@dataclass(frozen=True, kw_only=True)
-class RawMetricNames:
-    check_command: CheckCommand
-    metric_names: Sequence[MetricName]
-
-
-@dataclass(frozen=True, kw_only=True)
-class MetricTranslation:
-    name: MetricName
-    scale: float = 1.0

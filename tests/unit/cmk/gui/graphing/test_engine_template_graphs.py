@@ -18,7 +18,6 @@ from cmk.graphing_engine import (
     HostName,
     MetricName,
     PerformanceData,
-    RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
     RRDMetric,
@@ -40,15 +39,12 @@ _DISCOVERY_RANGE = TimeRange(start=0, end=60, step=10)
 
 
 @dataclass
-class _FakeRRDFetchRawMetricNames:
+class _FakeRRDFetchMetricNames:
     metric_names: Sequence[str] = (_METRIC,)
 
-    def __call__(self, services: Sequence[Service]) -> Mapping[Service, RawMetricNames]:
+    def __call__(self, services: Sequence[Service]) -> Mapping[Service, frozenset[MetricName]]:
         return {
-            service: RawMetricNames(
-                check_command=CheckCommand("check_mk-foo"),
-                metric_names=[MetricName(name) for name in self.metric_names],
-            )
+            service: frozenset(MetricName(name) for name in self.metric_names)
             for service in services
         }
 
@@ -134,8 +130,7 @@ def test_template_lifecycle_discover_and_update() -> None:
         service=_SERVICE,
         registered_graphs=[],
         registered_metrics={},
-        registered_translations=[],
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(),
+        fetch_metric_names=_FakeRRDFetchMetricNames(),
     )
     [fallback] = [graph for graph in graphs if graph.name == _METRIC]
     assert [
@@ -189,6 +184,5 @@ def test_template_lifecycle_discover_and_update() -> None:
                     color=metrics_v1.Color.GREEN,
                 ),
             },
-            registered_translations=[],
-            fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(("bytes_metric", "seconds_metric")),
+            fetch_metric_names=_FakeRRDFetchMetricNames(("bytes_metric", "seconds_metric")),
         )

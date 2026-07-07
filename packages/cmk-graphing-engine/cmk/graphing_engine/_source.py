@@ -3,27 +3,22 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from typing import Protocol
 
-from cmk.graphing.v1 import translations as translations_v1
-
-from ._from_api import parse_translations_from_api
 from ._graph import Graph
 from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import (
     MetricName,
     PerformanceData,
-    RawMetricNames,
     Service,
     TimeSeries,
 )
 from ._quantities import EvaluationContext, RRDMetric
-from ._translate import translate_metric_names
 
 
-class RRDFetchRawMetricNames(Protocol):
-    def __call__(self, services: Sequence[Service]) -> Mapping[Service, RawMetricNames]: ...
+class RRDFetchMetricNames(Protocol):
+    def __call__(self, services: Sequence[Service]) -> Mapping[Service, frozenset[MetricName]]: ...
 
 
 class RRDDataSource(Protocol):
@@ -38,20 +33,6 @@ class RRDDataSource(Protocol):
         consolidation_function: ConsolidationFunction,
         time_range: TimeRange,
     ) -> Mapping[RRDMetric, TimeSeries]: ...
-
-
-def fetch_metric_names(
-    *,
-    services: Iterable[Service],
-    registered_translations: Iterable[translations_v1.Translation],
-    fetch_raw_metric_names: RRDFetchRawMetricNames,
-) -> Mapping[Service, frozenset[MetricName]]:
-    parsed_translations = parse_translations_from_api(registered_translations)
-    raw_metric_names = fetch_raw_metric_names(list(dict.fromkeys(services)))
-    return {
-        service: translate_metric_names(raw_metrics, parsed_translations)
-        for service, raw_metrics in raw_metric_names.items()
-    }
 
 
 def fetch_evaluation_context(

@@ -37,7 +37,6 @@ from ._perfdata import (
     HostName,
     MetricName,
     PerformanceData,
-    RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
     Service,
@@ -59,7 +58,7 @@ from ._quantities import (
 )
 from ._source import (
     RRDDataSource,
-    RRDFetchRawMetricNames,
+    RRDFetchMetricNames,
 )
 from ._units import (
     AutoPrecision,
@@ -92,7 +91,7 @@ __all__ = [
     "EvaluatedStack",
     "EvaluatedVerticalRange",
     "EvaluationContext",
-    "RRDFetchRawMetricNames",
+    "RRDFetchMetricNames",
     "FixedRange",
     "Fraction",
     "HostName",
@@ -100,7 +99,6 @@ __all__ = [
     "Line",
     "MetricName",
     "MinimalRange",
-    "RawMetricNames",
     "RawPerformanceData",
     "RawPerformanceValue",
     "Product",

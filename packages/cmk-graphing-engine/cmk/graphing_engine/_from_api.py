@@ -9,12 +9,11 @@ from typing import assert_never
 
 from cmk.graphing.v1 import graphs as graphs_v1
 from cmk.graphing.v1 import metrics as metrics_v1
-from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing.v2_unstable import graphs as graphs_v2_unstable
 from cmk.graphing.v2_unstable import metrics as metrics_v2_unstable
 
 from ._graph import Bound, Curve, Graph, Line, MinimalRange, Rule, Stack
-from ._perfdata import CheckCommand, MetricName, MetricTranslation, Service
+from ._perfdata import MetricName, Service
 from ._quantities import (
     Constant,
     Difference,
@@ -526,67 +525,3 @@ def parse_graph_from_api(
             )
         case _:
             assert_never(graph)
-
-
-def _parse_check_command(
-    check_command: (
-        translations_v1.PassiveCheck
-        | translations_v1.ActiveCheck
-        | translations_v1.HostCheckCommand
-        | translations_v1.NagiosPlugin
-    ),
-) -> CheckCommand:
-    match check_command:
-        case translations_v1.PassiveCheck():
-            name = check_command.name
-            return CheckCommand(name if name.startswith("check_mk-") else f"check_mk-{name}")
-        case translations_v1.ActiveCheck():
-            name = check_command.name
-            return CheckCommand(
-                name if name.startswith("check_mk_active-") else f"check_mk_active-{name}"
-            )
-        case translations_v1.HostCheckCommand():
-            name = check_command.name
-            return CheckCommand(name if name.startswith("check-mk-") else f"check-mk-{name}")
-        case translations_v1.NagiosPlugin():
-            name = (
-                check_command.name
-                if check_command.name.startswith("check_")
-                else (f"check_{check_command.name}")
-            )
-            return CheckCommand(name.replace(".", "_"))
-        case _:
-            assert_never(check_command)
-
-
-def _parse_metric_translation(
-    old_name: MetricName,
-    translation: (
-        translations_v1.RenameTo | translations_v1.ScaleBy | translations_v1.RenameToAndScaleBy
-    ),
-) -> MetricTranslation:
-    match translation:
-        case translations_v1.RenameTo():
-            return MetricTranslation(name=MetricName(translation.metric_name))
-        case translations_v1.ScaleBy():
-            return MetricTranslation(name=old_name, scale=translation.factor)
-        case translations_v1.RenameToAndScaleBy():
-            return MetricTranslation(
-                name=MetricName(translation.metric_name), scale=translation.factor
-            )
-        case _:
-            assert_never(translation)
-
-
-def parse_translations_from_api(
-    registered_translations: Iterable[translations_v1.Translation],
-) -> Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]]:
-    result: dict[CheckCommand, Mapping[MetricName, MetricTranslation]] = {}
-    for translation in registered_translations:
-        parsed = {
-            MetricName(old_name): _parse_metric_translation(MetricName(old_name), spec)
-            for old_name, spec in translation.translations.items()
-        }
-        for check_command in translation.check_commands:
-            result[_parse_check_command(check_command)] = parsed
-    return result

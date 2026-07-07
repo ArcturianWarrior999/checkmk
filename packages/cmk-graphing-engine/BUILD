@@ -24,7 +24,6 @@ py_library(
         "cmk/graphing_engine/_quantities.py",
         "cmk/graphing_engine/_source.py",
         "cmk/graphing_engine/_title.py",
-        "cmk/graphing_engine/_translate.py",
         "cmk/graphing_engine/_units.py",
     ],
     data = [":py_typed"],

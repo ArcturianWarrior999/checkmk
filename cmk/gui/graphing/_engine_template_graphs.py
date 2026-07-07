@@ -10,7 +10,6 @@ from collections.abc import Mapping, Sequence
 
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.graphing.v1 import metrics as metrics_v1
-from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
     build_matched_graphs,
     ConsolidationFunction,
@@ -18,7 +17,7 @@ from cmk.graphing_engine import (
     EvaluatedGraph,
     Graph,
     RRDDataSource,
-    RRDFetchRawMetricNames,
+    RRDFetchMetricNames,
     Service,
     TimeRange,
 )
@@ -63,17 +62,15 @@ def build_template_graphs(
     service: Service,
     registered_graphs: Sequence[GraphFromAPI],
     registered_metrics: Mapping[str, metrics_v1.Metric],
-    registered_translations: Sequence[translations_v1.Translation],
-    fetch_raw_metric_names: RRDFetchRawMetricNames,
+    fetch_metric_names: RRDFetchMetricNames,
 ) -> Sequence[Graph]:
     graphs = build_matched_graphs(
         service=service,
         localizer=translate_to_current_language,
-        fetch_raw_metric_names=fetch_raw_metric_names,
+        fetch_metric_names=fetch_metric_names,
         graph_type="template",
         registered_graphs=registered_graphs,
         registered_metrics=registered_metrics,
-        registered_translations=registered_translations,
     )
     for graph in graphs:
         _assert_uniform_unit(graph)

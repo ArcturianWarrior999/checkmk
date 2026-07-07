@@ -24,7 +24,6 @@ from cmk.graphing_engine import (
     MetricName,
     PerformanceData,
     Quantity,
-    RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
     RRDMetric,
@@ -139,20 +138,16 @@ def _perf_data(*values: tuple[MetricName, RawPerformanceValue]) -> RawPerformanc
     return RawPerformanceData(check_command=CheckCommand(""), values=dict(values))
 
 
-class _FakeRRDFetchRawMetricNames:
+class _FakeRRDFetchMetricNames:
     def __init__(self, performance_response: Mapping[Service, RawPerformanceData]) -> None:
         self._performance_response = performance_response
 
     def __call__(
         self,
         services: Sequence[Service],  # noqa: ARG002
-    ) -> Mapping[Service, RawMetricNames]:
+    ) -> Mapping[Service, frozenset[MetricName]]:
         return {
-            service: RawMetricNames(
-                check_command=raw.check_command,
-                metric_names=list(raw.values),
-            )
-            for service, raw in self._performance_response.items()
+            service: frozenset(raw.values) for service, raw in self._performance_response.items()
         }
 
 
@@ -214,11 +209,10 @@ def _discover(
     return build_matched_graphs(
         service=service,
         localizer=_id,
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
+        fetch_metric_names=_FakeRRDFetchMetricNames(rrd.performance_response),
         graph_type=_KIND,
         registered_graphs=registered_graphs,
         registered_metrics=_METRICS,
-        registered_translations=[],
     )
 
 
@@ -627,11 +621,10 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
     graphs = build_matched_graphs(
         service=service,
         localizer=_id,
-        fetch_raw_metric_names=_FakeRRDFetchRawMetricNames(rrd.performance_response),
+        fetch_metric_names=_FakeRRDFetchMetricNames(rrd.performance_response),
         graph_type=_KIND,
         registered_graphs=[],
         registered_metrics=_METRICS,
-        registered_translations=[],
     )
     # The fallback single-metric graph carries the four warn / crit (and lower) threshold rules as
     # ScalarOf quantities, their labels / colours resolved from the scalar type.

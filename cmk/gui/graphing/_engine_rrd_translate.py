@@ -142,6 +142,20 @@ def originals_for_metric_name(
     ]
 
 
+def translate_metric_names(
+    check_command: str,
+    raw_metric_names: Sequence[MetricName],
+    translations: Sequence[translations_v1.Translation],
+) -> frozenset[MetricName]:
+    specs = _specs_for_command(check_command, translations)
+    names: set[MetricName] = set()
+    for metric_name in raw_metric_names:
+        prefix, bare_name = _split_predict_prefix(metric_name)
+        name, _scale = _find_name_and_scale(MetricName(bare_name), specs)
+        names.add(MetricName(f"{prefix}{name}"))
+    return frozenset(names)
+
+
 def _scaled(value: float | None, scale: float) -> float | None:
     return None if value is None else value * scale
 
