@@ -22,6 +22,7 @@ from cmk.graphing_engine import (
     HostName,
     Line,
     MetricName,
+    PerformanceData,
     Quantity,
     RawMetricNames,
     RawPerformanceData,
@@ -164,13 +165,28 @@ class _FakeRRDDataSource:
         self.performance_response = performance_response or {}
         self._time_series_response = time_series_response or {}
 
-    def fetch_raw_performance_data(
-        self,
-        rrd_metrics: Sequence[RRDMetric],  # noqa: ARG002
-    ) -> Mapping[Service, RawPerformanceData]:
-        return self.performance_response
+    def fetch_performance_data(
+        self, rrd_metrics: Sequence[RRDMetric]
+    ) -> Mapping[RRDMetric, PerformanceData]:
+        result: dict[RRDMetric, PerformanceData] = {}
+        for metric in rrd_metrics:
+            service = Service(host_name=metric.host_name, service_name=metric.service_name)
+            raw = self.performance_response.get(service)
+            raw_value = None if raw is None else raw.values.get(metric.metric_name)
+            if raw_value is None:
+                continue
+            result[metric] = PerformanceData(
+                value=raw_value.value,
+                lower_warning=raw_value.lower_warning,
+                lower_critical=raw_value.lower_critical,
+                warning=raw_value.warning,
+                critical=raw_value.critical,
+                minimum=raw_value.minimum,
+                maximum=raw_value.maximum,
+            )
+        return result
 
-    def fetch_raw_time_series(
+    def fetch_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,
@@ -212,7 +228,6 @@ def _evaluate(discovered: Graph, rrd: _FakeRRDDataSource) -> EvaluatedGraph:
         consolidation_function=ConsolidationFunction.AVERAGE,
         time_range=_time_range(),
         graphs=[discovered],
-        registered_translations=[],
         rrd=rrd,
     )
     return evaluated

@@ -38,15 +38,8 @@ class Service:
 
 
 @dataclass(frozen=True, kw_only=True)
-class RRDOriginal:
-    metric_name: MetricName
-    scale: float
-
-
-@dataclass(frozen=True, kw_only=True)
 class PerformanceData:
     value: float | None
-    originals: Sequence[RRDOriginal]
     lower_warning: float | None = None
     lower_critical: float | None = None
     warning: float | None = None

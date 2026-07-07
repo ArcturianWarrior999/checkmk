@@ -22,7 +22,6 @@ py_library(
         "cmk/graphing_engine/_options.py",
         "cmk/graphing_engine/_perfdata.py",
         "cmk/graphing_engine/_quantities.py",
-        "cmk/graphing_engine/_resample.py",
         "cmk/graphing_engine/_source.py",
         "cmk/graphing_engine/_title.py",
         "cmk/graphing_engine/_translate.py",

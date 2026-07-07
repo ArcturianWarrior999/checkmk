@@ -4,17 +4,13 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import re
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Mapping
 
 from ._perfdata import (
     CheckCommand,
     MetricName,
     MetricTranslation,
-    PerformanceData,
     RawMetricNames,
-    RawPerformanceData,
-    RawPerformanceValue,
-    RRDOriginal,
 )
 
 _PREDICT_PREFIXES = ("predict_lower_", "predict_")
@@ -54,40 +50,6 @@ def _find_translation(
     return MetricTranslation(name=metric_name)
 
 
-def _reverse_translations(
-    canonical_name: MetricName,
-    translations: Mapping[MetricName, MetricTranslation],
-) -> Mapping[MetricName, float]:
-    return {
-        old_name: translation.scale
-        for old_name, translation in translations.items()
-        if not old_name.startswith("~") and translation.name == canonical_name
-    }
-
-
-def _deprecated_originals(
-    metric_name: MetricName,
-    translations: Mapping[MetricName, MetricTranslation],
-    present: Collection[MetricName],
-) -> Iterator[RRDOriginal]:
-    prefix, bare_name = _split_predict_prefix(metric_name)
-    for old_name, scale in _reverse_translations(MetricName(bare_name), translations).items():
-        if (column := MetricName(f"{prefix}{old_name}")) not in present:
-            yield RRDOriginal(metric_name=column, scale=scale)
-
-
-def originals_for_metric_name(
-    metric_name: MetricName,
-    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
-    check_command: CheckCommand,
-) -> Sequence[RRDOriginal]:
-    command_translations = _translations_for_command(check_command, translations)
-    return [
-        RRDOriginal(metric_name=metric_name, scale=1.0),
-        *_deprecated_originals(metric_name, command_translations, {metric_name}),
-    ]
-
-
 def translate_metric_names(
     raw_metrics: RawMetricNames,
     translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
@@ -99,42 +61,3 @@ def translate_metric_names(
         translation = _find_translation(MetricName(bare_name), command_translations)
         names.add(MetricName(f"{prefix}{translation.name}"))
     return frozenset(names)
-
-
-def translate_performance_data(
-    raw_performance_data: RawPerformanceData,
-    translations: Mapping[CheckCommand, Mapping[MetricName, MetricTranslation]],
-) -> Mapping[MetricName, PerformanceData]:
-    command_translations = _translations_for_command(
-        raw_performance_data.check_command, translations
-    )
-    originals_by_name: dict[MetricName, list[RRDOriginal]] = {}
-    raw_value_by_name: dict[MetricName, tuple[RawPerformanceValue, float]] = {}
-    for original_name, raw_perf_value in raw_performance_data.values.items():
-        prefix, bare_name = _split_predict_prefix(original_name)
-        translation = _find_translation(MetricName(bare_name), command_translations)
-        name = MetricName(f"{prefix}{translation.name}")
-        originals_by_name.setdefault(name, []).append(
-            RRDOriginal(metric_name=original_name, scale=translation.scale)
-        )
-        raw_value_by_name[name] = (raw_perf_value, translation.scale)
-
-    result: dict[MetricName, PerformanceData] = {}
-    for name, (raw_perf_value, scale) in raw_value_by_name.items():
-        present = {original.metric_name for original in originals_by_name[name]}
-        deprecated = _deprecated_originals(name, command_translations, present)
-
-        def _scaled(value: float | None, scale: float = scale) -> float | None:
-            return None if value is None else value * scale
-
-        result[name] = PerformanceData(
-            value=_scaled(raw_perf_value.value),
-            originals=[*originals_by_name[name], *deprecated],
-            lower_warning=_scaled(raw_perf_value.lower_warning),
-            lower_critical=_scaled(raw_perf_value.lower_critical),
-            warning=_scaled(raw_perf_value.warning),
-            critical=_scaled(raw_perf_value.critical),
-            minimum=_scaled(raw_perf_value.minimum),
-            maximum=_scaled(raw_perf_value.maximum),
-        )
-    return result

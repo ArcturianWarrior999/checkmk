@@ -5,11 +5,9 @@
 
 import enum
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import assert_never
-
-from cmk.graphing.v1 import translations as translations_v1
 
 from ._graph import Bound, Curve, FixedRange, Graph, MinimalRange, Rule, VerticalRange
 from ._options import ConsolidationFunction, TimeRange
@@ -200,14 +198,12 @@ def evaluate_graphs(
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
     graphs: Sequence[Graph],
-    registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
     context = fetch_evaluation_context(
         consolidation_function=consolidation_function,
         time_range=time_range,
         graphs=graphs,
-        registered_translations=registered_translations,
         rrd=rrd,
     )
     return [_evaluate_graph(graph, context) for graph in graphs]

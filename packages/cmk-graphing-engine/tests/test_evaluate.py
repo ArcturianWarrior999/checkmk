@@ -53,7 +53,7 @@ def _metric(name: str) -> RRDMetric:
 
 
 def _data(*, value: float | None, warning: float | None = None) -> PerformanceData:
-    return PerformanceData(value=value, originals=[], warning=warning)
+    return PerformanceData(value=value, warning=warning)
 
 
 def _attrs(title: str, *, color: str = "#28a2f3") -> CurveAttributes:

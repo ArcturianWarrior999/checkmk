@@ -95,14 +95,12 @@ def evaluate_template_graphs(
     graphs: Sequence[Graph],
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
-    registered_translations: Sequence[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> Sequence[EvaluatedGraph]:
     return evaluate_graphs(
         consolidation_function=consolidation_function,
         time_range=time_range,
         graphs=graphs,
-        registered_translations=registered_translations,
         rrd=rrd,
     )
 
@@ -112,8 +110,11 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Sequence[
         graphs=_deserialize_template_graphs(request.definition),
         consolidation_function=consolidation_function_of(request.options),
         time_range=time_range_of(request.options),
-        registered_translations=registered_translations(),
-        rrd=EngineRRDDataSource(site_id=None, debug=active_config.debug),
+        rrd=EngineRRDDataSource(
+            site_id=None,
+            debug=active_config.debug,
+            registered_translations=registered_translations(),
+        ),
     )
 
 

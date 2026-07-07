@@ -6,8 +6,7 @@
 from collections.abc import Sequence
 from statistics import fmean
 
-from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import TimeSeries
+from cmk.graphing_engine import ConsolidationFunction, TimeRange, TimeSeries
 
 
 def _timestamps(time_range: TimeRange) -> Sequence[int]:
@@ -76,3 +75,22 @@ def resample(
         else _forward_fill(time_series, time_range)
     )
     return TimeSeries(time_range=time_range, values=values)
+
+
+def scaled_series(time_series: TimeSeries, scale: float) -> TimeSeries:
+    if scale == 1.0:
+        return time_series
+    return TimeSeries(
+        time_range=time_series.time_range,
+        values=[None if value is None else value * scale for value in time_series.values],
+    )
+
+
+def merge_series(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeries:
+    return TimeSeries(
+        time_range=time_range,
+        values=[
+            next((value for value in point if value is not None), None)
+            for point in zip(*(member.values for member in time_series))
+        ],
+    )

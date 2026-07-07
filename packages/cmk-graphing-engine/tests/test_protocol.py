@@ -41,7 +41,7 @@ def _metric(name: str) -> RRDMetric:
 
 
 def _data(*, value: float | None) -> PerformanceData:
-    return PerformanceData(value=value, originals=[])
+    return PerformanceData(value=value)
 
 
 @dataclass(frozen=True)

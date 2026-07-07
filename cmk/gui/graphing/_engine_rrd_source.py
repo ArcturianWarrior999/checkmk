@@ -10,15 +10,17 @@ import contextlib
 import re
 import shlex
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from livestatus import lqencode, MKLivestatusNotFoundError
 
 from cmk.ccc.site import SiteId
+from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
     CheckCommand,
     ConsolidationFunction,
     MetricName,
+    PerformanceData,
     RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
@@ -31,6 +33,12 @@ from cmk.graphing_engine import (
 )
 from cmk.gui import sites
 from cmk.gui.log import logger
+
+from ._engine_rrd_resample import merge_series, resample, scaled_series
+from ._engine_rrd_translate import (
+    originals_for_metric_name,
+    translate_performance_data,
+)
 
 _VALUE_AND_UNIT = re.compile(r"([0-9.,-]*)(.*)")
 
@@ -201,33 +209,112 @@ class EngineRRDFetchRawMetricNames:
 class EngineRRDDataSource:
     site_id: SiteId | None
     debug: bool
+    registered_translations: Sequence[translations_v1.Translation] = ()
+    _raw_perf_cache: dict[tuple[Service, ...], Mapping[Service, RawPerformanceData]] = field(
+        default_factory=dict, compare=False, repr=False
+    )
 
-    def fetch_raw_performance_data(
+    def fetch_performance_data(
+        self, rrd_metrics: Sequence[RRDMetric]
+    ) -> Mapping[RRDMetric, PerformanceData]:
+        raw_performance_data = self._fetch_performance_data(rrd_metrics)
+        translated = {
+            service: translate_performance_data(
+                raw.check_command, raw.values, self.registered_translations
+            )
+            for service, raw in raw_performance_data.items()
+        }
+        performance_data: dict[RRDMetric, PerformanceData] = {}
+        for metric in rrd_metrics:
+            service = Service(host_name=metric.host_name, service_name=metric.service_name)
+            if service not in translated:
+                continue
+            if (data := translated[service].get(metric.metric_name)) is not None:
+                performance_data[metric] = data
+        return performance_data
+
+    def fetch_time_series(
+        self,
+        rrd_metrics: Sequence[RRDMetric],
+        *,
+        consolidation_function: ConsolidationFunction,
+        time_range: TimeRange,
+    ) -> Mapping[RRDMetric, EngineTimeSeries]:
+        raw_performance_data = self._fetch_performance_data(rrd_metrics)
+        originals_per_function: dict[
+            ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
+        ] = {}
+        for metric in rrd_metrics:
+            service = Service(host_name=metric.host_name, service_name=metric.service_name)
+            if (raw := raw_performance_data.get(service)) is None:
+                continue
+            function = metric.consolidation_function or consolidation_function
+            originals_per_function.setdefault(function, {})[metric] = [
+                (
+                    RRDMetric(
+                        host_name=metric.host_name,
+                        service_name=metric.service_name,
+                        metric_name=original.metric_name,
+                    ),
+                    original.scale,
+                )
+                for original in originals_for_metric_name(
+                    metric.metric_name, raw.check_command, self.registered_translations
+                )
+            ]
+
+        time_series: dict[RRDMetric, EngineTimeSeries] = {}
+        for function, originals_per_metric in originals_per_function.items():
+            raw_time_series = self._fetch_time_series(
+                list(
+                    dict.fromkeys(
+                        rrd_metric
+                        for originals in originals_per_metric.values()
+                        for rrd_metric, _scale in originals
+                    )
+                ),
+                consolidation_function=function,
+                time_range=time_range,
+            )
+            for metric, originals in originals_per_metric.items():
+                scaled = [
+                    scaled_series(resample(ts, time_range, function), scale)
+                    for rrd_metric, scale in originals
+                    if (ts := raw_time_series.get(rrd_metric)) is not None
+                ]
+                if scaled:
+                    time_series[metric] = merge_series(scaled, time_range)
+        return time_series
+
+    def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]
     ) -> Mapping[Service, RawPerformanceData]:
-        services = list(
+        services = tuple(
             dict.fromkeys(
                 Service(host_name=metric.host_name, service_name=metric.service_name)
                 for metric in rrd_metrics
             )
         )
-        if not services:
-            return {}
-        query = (
-            "GET services\nColumns: host_name description perf_data check_command\n"
-            + _service_or_filter(services)
-        )
+        if services in self._raw_perf_cache:
+            return self._raw_perf_cache[services]
         result: dict[Service, RawPerformanceData] = {}
-        with sites.only_sites(self.site_id):
-            for host_name, description, perf_data_string, check_command in sites.live().query(
-                query
-            ):
-                result[Service(host_name=host_name, service_name=description)] = (
-                    parse_performance_data(perf_data_string, check_command, debug=self.debug)
-                )
-        return {service: result[service] for service in services if service in result}
+        if services:
+            query = (
+                "GET services\nColumns: host_name description perf_data check_command\n"
+                + _service_or_filter(services)
+            )
+            with sites.only_sites(self.site_id):
+                for host_name, description, perf_data_string, check_command in sites.live().query(
+                    query
+                ):
+                    result[Service(host_name=host_name, service_name=description)] = (
+                        parse_performance_data(perf_data_string, check_command, debug=self.debug)
+                    )
+        fetched = {service: result[service] for service in services if service in result}
+        self._raw_perf_cache[services] = fetched
+        return fetched
 
-    def fetch_raw_time_series(
+    def _fetch_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,

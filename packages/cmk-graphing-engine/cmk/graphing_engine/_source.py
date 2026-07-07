@@ -15,17 +15,11 @@ from ._perfdata import (
     MetricName,
     PerformanceData,
     RawMetricNames,
-    RawPerformanceData,
     Service,
     TimeSeries,
 )
 from ._quantities import EvaluationContext, RRDMetric
-from ._resample import resample
-from ._translate import (
-    originals_for_metric_name,
-    translate_metric_names,
-    translate_performance_data,
-)
+from ._translate import translate_metric_names
 
 
 class RRDFetchRawMetricNames(Protocol):
@@ -33,11 +27,11 @@ class RRDFetchRawMetricNames(Protocol):
 
 
 class RRDDataSource(Protocol):
-    def fetch_raw_performance_data(
+    def fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[Service, RawPerformanceData]: ...
+    ) -> Mapping[RRDMetric, PerformanceData]: ...
 
-    def fetch_raw_time_series(
+    def fetch_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,
@@ -60,92 +54,20 @@ def fetch_metric_names(
     }
 
 
-def _scaled(time_series: TimeSeries, scale: float) -> TimeSeries:
-    if scale == 1.0:
-        return time_series
-    return TimeSeries(
-        time_range=time_series.time_range,
-        values=[None if value is None else value * scale for value in time_series.values],
-    )
-
-
-def _merge(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeries:
-    return TimeSeries(
-        time_range=time_range,
-        values=[
-            next((value for value in point if value is not None), None)
-            for point in zip(*(member.values for member in time_series))
-        ],
-    )
-
-
 def fetch_evaluation_context(
     *,
     consolidation_function: ConsolidationFunction,
     time_range: TimeRange,
     graphs: Sequence[Graph],
-    registered_translations: Iterable[translations_v1.Translation],
     rrd: RRDDataSource,
 ) -> EvaluationContext:
-    parsed_translations = parse_translations_from_api(registered_translations)
     rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
-    raw_performance_data = rrd.fetch_raw_performance_data(rrd_metrics)
-    translated = {
-        service: translate_performance_data(raw, parsed_translations)
-        for service, raw in raw_performance_data.items()
-    }
-    performance_data: dict[RRDMetric, PerformanceData] = {}
-    originals_per_function: dict[
-        ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
-    ] = {}
-    for metric in rrd_metrics:
-        service = Service(host_name=metric.host_name, service_name=metric.service_name)
-        if (raw := raw_performance_data.get(service)) is None:
-            continue
-        if (data := translated[service].get(metric.metric_name)) is None:
-            data = PerformanceData(
-                value=None,
-                originals=originals_for_metric_name(
-                    metric.metric_name, parsed_translations, raw.check_command
-                ),
-            )
-        performance_data[metric] = data
-        function = metric.consolidation_function or consolidation_function
-        originals_per_function.setdefault(function, {})[metric] = [
-            (
-                RRDMetric(
-                    host_name=metric.host_name,
-                    service_name=metric.service_name,
-                    metric_name=original.metric_name,
-                ),
-                original.scale,
-            )
-            for original in data.originals
-        ]
-
-    time_series: dict[RRDMetric, TimeSeries] = {}
-    for function, originals_per_metric in originals_per_function.items():
-        raw_time_series = rrd.fetch_raw_time_series(
-            list(
-                dict.fromkeys(
-                    rrd_metric
-                    for originals in originals_per_metric.values()
-                    for rrd_metric, _scale in originals
-                )
-            ),
-            consolidation_function=function,
-            time_range=time_range,
-        )
-        for metric, originals in originals_per_metric.items():
-            scaled = [
-                _scaled(resample(ts, time_range, function), scale)
-                for rrd_metric, scale in originals
-                if (ts := raw_time_series.get(rrd_metric)) is not None
-            ]
-            if scaled:
-                time_series[metric] = _merge(scaled, time_range)
     return EvaluationContext(
-        performance_data=performance_data,
-        time_series=time_series,
+        performance_data=rrd.fetch_performance_data(rrd_metrics),
+        time_series=rrd.fetch_time_series(
+            rrd_metrics,
+            consolidation_function=consolidation_function,
+            time_range=time_range,
+        ),
         time_range=time_range,
     )

@@ -17,6 +17,7 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     HostName,
     MetricName,
+    PerformanceData,
     RawMetricNames,
     RawPerformanceData,
     RawPerformanceValue,
@@ -68,7 +69,7 @@ class _FakeRRDDataSource:
             for service in services
         }
 
-    def fetch_raw_performance_data(
+    def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]
     ) -> Mapping[Service, RawPerformanceData]:
         return self._data(
@@ -76,7 +77,40 @@ class _FakeRRDDataSource:
             for metric in rrd_metrics
         )
 
-    def fetch_raw_time_series(
+    def fetch_performance_data(
+        self, rrd_metrics: Sequence[RRDMetric]
+    ) -> Mapping[RRDMetric, PerformanceData]:
+        raw = self._fetch_performance_data(rrd_metrics)
+        result: dict[RRDMetric, PerformanceData] = {}
+        for metric in rrd_metrics:
+            service = Service(host_name=metric.host_name, service_name=metric.service_name)
+            if (data := raw.get(service)) is None:
+                continue
+            if (value := data.values.get(metric.metric_name)) is None:
+                continue
+            result[metric] = PerformanceData(
+                value=value.value,
+                warning=value.warning,
+                critical=value.critical,
+                lower_warning=value.lower_warning,
+                lower_critical=value.lower_critical,
+                minimum=value.minimum,
+                maximum=value.maximum,
+            )
+        return result
+
+    def fetch_time_series(
+        self,
+        rrd_metrics: Sequence[RRDMetric],
+        *,
+        consolidation_function: ConsolidationFunction,
+        time_range: TimeRange,
+    ) -> Mapping[RRDMetric, TimeSeries]:
+        return self._fetch_time_series(
+            rrd_metrics, consolidation_function=consolidation_function, time_range=time_range
+        )
+
+    def _fetch_time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
         *,
@@ -121,7 +155,6 @@ def test_template_lifecycle_discover_and_update() -> None:
         graphs=graphs,
         consolidation_function=ConsolidationFunction.MAX,
         time_range=_DISCOVERY_RANGE,
-        registered_translations=[],
         rrd=rrd,
     )
 
