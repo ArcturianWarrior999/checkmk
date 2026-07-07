@@ -62,6 +62,7 @@ pkg_files(
         ":cmk-general-version-infos",
         ":cmk-generate-api-spec",
         ":cmk-migrate-extension-rulesets.py",
+        ":cmk-migrate-oracle-rulesets.py",
         ":cmk-monitor-apache",
         ":cmk-monitor-broker",
         ":cmk-monitor-core",
@@ -95,6 +96,7 @@ pkg_files(
         "cmk-broker-test.py": "cmk-broker-test",
         "cmk-cert.py": "cmk-cert",
         "cmk-migrate-extension-rulesets.py": "cmk-migrate-extension-rulesets",
+        "cmk-migrate-oracle-rulesets.py": "cmk-migrate-oracle-rulesets",
         "cmk-passwd.py": "cmk-passwd",
         "cmk-piggyback-hub.py": "cmk-piggyback-hub",
         "cmk-piggyback.py": "cmk-piggyback",
@@ -250,6 +252,20 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
         "//packages/cmk-wsgi",
+    ],
+)
+
+py_library(
+    name = "cmk_migrate_oracle_rulesets_py",
+    srcs = ["cmk-migrate-oracle-rulesets.py"],
+    imports = ["."],
+    deps = [
+        "//cmk/gui:app",
+        "//cmk/gui/watolib",
+        "//cmk/update_config",
+        "//cmk/utils",
+        "//cmk/utils:paths",
+        "//packages/cmk-ccc:version",
     ],
 )
 

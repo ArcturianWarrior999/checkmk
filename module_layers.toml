@@ -1737,6 +1737,7 @@ allows = [
 "bin/cmk-convert-rrds" = "cmk.rrd"
 "bin/cmk-create-rrd.py" = "cmk.rrd"
 "bin/cmk-migrate-extension-rulesets.py" = "cmk.update_config"
+"bin/cmk-migrate-oracle-rulesets.py" = "cmk.update_config"
 "bin/cmk-passwd.py" = "cmk.cmkpasswd"
 "bin/cmk-ui-job-scheduler.py" = "cmk.gui"
 "bin/cmk-validate-config.py" = "cmk.validate_config"
