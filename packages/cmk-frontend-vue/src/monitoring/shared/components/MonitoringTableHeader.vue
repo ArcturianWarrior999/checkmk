@@ -344,6 +344,7 @@ function labelStyle(columnDef: ColumnDef<T>): CSSProperties {
 
 .monitoring-table-header__label--standalone {
   flex: 1 1 auto;
+  padding-left: var(--dimension-4);
 }
 
 .monitoring-table-header__filter-button {
