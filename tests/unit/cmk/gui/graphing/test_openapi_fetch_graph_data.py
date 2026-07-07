@@ -12,7 +12,8 @@ from livestatus import MKLivestatusSocketError
 from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph
 from cmk.gui.graphing._engine_dispatch import GraphDataRequest, serialize_graphs
 from cmk.gui.graphing.openapi import fetch_graph_data as fetch_graph_data_module
-from cmk.gui.graphing.openapi.fetch_graph_data import _consolidation_function, fetch_graph_data_v1
+from cmk.gui.graphing.openapi._serialize import api_consolidation_to_engine
+from cmk.gui.graphing.openapi.fetch_graph_data import fetch_graph_data_v1
 from cmk.gui.graphing.openapi.models import ApiTimeRange, GraphFetchRequest
 from cmk.gui.openapi.utils import ProblemException
 
@@ -28,7 +29,7 @@ from cmk.gui.openapi.utils import ProblemException
 def test_consolidation_function_mapping(
     value: Literal["min", "max", "avg"], expected: ConsolidationFunction
 ) -> None:
-    assert _consolidation_function(value) == expected
+    assert api_consolidation_to_engine(value) == expected
 
 
 @pytest.mark.usefixtures("load_config")

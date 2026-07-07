@@ -6,6 +6,7 @@ from typing import assert_never, Literal
 
 from cmk.graphing_engine import (
     AutoPrecision,
+    ConsolidationFunction,
     DecimalNotation,
     EngineeringScientificNotation,
     EvaluatedCurve,
@@ -20,6 +21,7 @@ from cmk.graphing_engine import (
 from cmk.graphing_engine import TimeRange as EngineTimeRange
 
 from .models import (
+    ApiConsolidation,
     ApiHorizontalLine,
     ApiMetric,
     ApiMetricMetadata,
@@ -29,6 +31,21 @@ from .models import (
     ApiUnitFormat,
     GraphFetchResponse,
 )
+
+
+def api_consolidation_to_engine(value: ApiConsolidation) -> ConsolidationFunction:
+    match value:
+        case "min":
+            return ConsolidationFunction.MIN
+        case "max":
+            return ConsolidationFunction.MAX
+        case "avg":
+            return ConsolidationFunction.AVERAGE
+    assert_never(value)
+
+
+def api_time_range_to_engine(time_range: ApiTimeRange) -> EngineTimeRange:
+    return EngineTimeRange(start=time_range.start, end=time_range.end, step=time_range.step)
 
 
 def evaluated_to_response(

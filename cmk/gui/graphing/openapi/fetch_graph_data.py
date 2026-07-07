@@ -3,10 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from typing import assert_never, Literal
-
-from cmk.graphing_engine import ConsolidationFunction
-from cmk.graphing_engine import TimeRange as EngineTimeRange
 from cmk.gui.openapi.framework import (
     APIVersion,
     EndpointDoc,
@@ -22,31 +18,19 @@ from cmk.livestatus_client import MKLivestatusException
 
 from .._engine_dispatch import evaluate_graphs, GraphDataRequest
 from ._family import GRAPH_FAMILY
-from ._serialize import evaluated_to_response
+from ._serialize import (
+    api_consolidation_to_engine,
+    api_time_range_to_engine,
+    evaluated_to_response,
+)
 from .models import GraphFetchRequest, GraphFetchResponse
-
-
-def _consolidation_function(value: Literal["min", "max", "avg"]) -> ConsolidationFunction:
-    match value:
-        case "min":
-            return ConsolidationFunction.MIN
-        case "max":
-            return ConsolidationFunction.MAX
-        case "avg":
-            return ConsolidationFunction.AVERAGE
-        case _:
-            assert_never(value)
 
 
 def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
     """Fetch the data for a graph definition over a requested time range"""
-    time_range = EngineTimeRange(
-        start=body.requested_time_range.start,
-        end=body.requested_time_range.end,
-        step=body.requested_time_range.step,
-    )
+    time_range = api_time_range_to_engine(body.requested_time_range)
     options: dict[str, object] = {
-        "consolidation_function": _consolidation_function(body.consolidation_function),
+        "consolidation_function": api_consolidation_to_engine(body.consolidation_function),
         "time_range": time_range,
         "destination": None,
     }

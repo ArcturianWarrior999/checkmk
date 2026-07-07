@@ -1269,6 +1269,150 @@ class GraphClient(RestApiClient):
         )
 
 
+class CustomGraphClient(RestApiClient):
+    domain: DomainType = "custom_graph"
+    default_version = APIVersion.INTERNAL
+
+    def create(
+        self,
+        name: str,
+        title: str,
+        data_sources: Sequence[Mapping[str, object]],
+        graph_options: Mapping[str, object],
+        *,
+        description: str = "",
+        topic: str = "my_workplace",
+        sort_index: int = 99,
+        hidden: bool = False,
+        is_show_more: bool = False,
+        public: Mapping[str, object] | None = None,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/collections/all",
+            body={
+                "name": name,
+                "title": title,
+                "metadata": {
+                    "description": description,
+                    "topic": topic,
+                    "sort_index": sort_index,
+                    "hidden": hidden,
+                    "is_show_more": is_show_more,
+                    "public": public if public is not None else {"type": "private"},
+                },
+                "content": {
+                    "graph_options": graph_options,
+                    "data_sources": data_sources,
+                },
+            },
+            expect_ok=expect_ok,
+        )
+
+    def get(self, name: str, owner: str | None = None, expect_ok: bool = True) -> Response:
+        return self.request(
+            "get",
+            url=f"/objects/{self.domain}/{name}",
+            query_params=_only_set_keys({"owner": owner}),
+            expect_ok=expect_ok,
+        )
+
+    def edit(
+        self,
+        name: str,
+        title: str,
+        data_sources: Sequence[Mapping[str, object]],
+        graph_options: Mapping[str, object],
+        *,
+        description: str = "",
+        topic: str = "my_workplace",
+        sort_index: int = 99,
+        hidden: bool = False,
+        is_show_more: bool = False,
+        public: Mapping[str, object] | None = None,
+        owner: str | None = None,
+        etag: IF_MATCH_HEADER_OPTIONS = "valid_etag",
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "put",
+            url=f"/objects/{self.domain}/{name}",
+            query_params=_only_set_keys({"owner": owner}),
+            body={
+                "title": title,
+                "metadata": {
+                    "description": description,
+                    "topic": topic,
+                    "sort_index": sort_index,
+                    "hidden": hidden,
+                    "is_show_more": is_show_more,
+                    "public": public if public is not None else {"type": "private"},
+                },
+                "content": {
+                    "graph_options": graph_options,
+                    "data_sources": data_sources,
+                },
+            },
+            headers=self._set_etag_header(name, owner, etag),
+            expect_ok=expect_ok,
+        )
+
+    def delete(
+        self,
+        name: str,
+        owner: str | None = None,
+        etag: IF_MATCH_HEADER_OPTIONS = "valid_etag",
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "delete",
+            url=f"/objects/{self.domain}/{name}",
+            query_params=_only_set_keys({"owner": owner}),
+            headers={
+                **(self._set_etag_header(name, owner, etag) or {}),
+                "Accept": "application/json",
+            },
+            expect_ok=expect_ok,
+        )
+
+    def list_metadata(self, expect_ok: bool = True) -> Response:
+        return self.request(
+            "get",
+            url="/domain-types/custom_graph_metadata/collections/all",
+            expect_ok=expect_ok,
+        )
+
+    def fetch_data(
+        self,
+        data_sources: Sequence[Mapping[str, object]],
+        graph_options: Mapping[str, object],
+        requested_time_range: Mapping[str, int],
+        consolidation_function: Literal["min", "max", "avg"],
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/fetch_data/invoke",
+            body={
+                "content": {
+                    "graph_options": graph_options,
+                    "data_sources": data_sources,
+                },
+                "requested_time_range": requested_time_range,
+                "consolidation_function": consolidation_function,
+            },
+            expect_ok=expect_ok,
+        )
+
+    def _set_etag_header(
+        self, name: str, owner: str | None, etag: IF_MATCH_HEADER_OPTIONS
+    ) -> Mapping[str, str] | None:
+        if etag == "valid_etag":
+            return {"If-Match": self.get(name, owner).headers["ETag"]}
+        return set_if_match_header(etag)
+
+
 class SidebarElementClient(RestApiClient):
     domain: DomainType = "sidebar_element"
     default_version = APIVersion.UNSTABLE
@@ -4448,6 +4592,7 @@ class ClientRegistry:
     TimePeriod: TimePeriodClient
     GraphTimerange: GraphTimerangeClient
     Graph: GraphClient
+    CustomGraph: CustomGraphClient
     MasterControl: MasterControlClient
     Rule: RuleClient
     Ruleset: RulesetClient
@@ -4512,6 +4657,7 @@ def get_client_registry(request_handler: RequestHandler, url_prefix: str) -> Cli
         Folder=FolderClient(request_handler, url_prefix),
         GraphTimerange=GraphTimerangeClient(request_handler, url_prefix),
         Graph=GraphClient(request_handler, url_prefix),
+        CustomGraph=CustomGraphClient(request_handler, url_prefix),
         MasterControl=MasterControlClient(request_handler, url_prefix),
         AuxTag=AuxTagClient(request_handler, url_prefix),
         TimePeriod=TimePeriodClient(request_handler, url_prefix),

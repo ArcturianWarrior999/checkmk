@@ -9,6 +9,8 @@ from pydantic import Json
 
 from cmk.gui.openapi.framework.model import api_field, api_model
 
+type ApiConsolidation = Literal["min", "max", "avg"]
+
 
 @api_model
 class ApiPrecision:
@@ -93,7 +95,7 @@ class GraphFetchRequest:
     requested_time_range: ApiTimeRange = api_field(
         description="The time range (and step) to fetch data for. The returned range may differ.",
     )
-    consolidation_function: Literal["min", "max", "avg"] = api_field(
+    consolidation_function: ApiConsolidation = api_field(
         description="The consolidation function to use for RRD data.", example="avg"
     )
     combination_mode: Literal["lines", "stacked", "sum", "average", "min", "max"] | None = (
