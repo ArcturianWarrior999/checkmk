@@ -627,6 +627,7 @@ class ModeEditSite(WatoMode):
                 parameter_form=self._site_mgmt.livestatus_proxy_form_spec(),
             ),
             "timeout": DictElement(
+                required=True,
                 parameter_form=Integer(
                     title=Title("Connect timeout"),
                     unit_symbol="Seconds",
@@ -647,6 +648,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "persist": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Persistent connection"),
                     label=Label("Use persistent connections"),
@@ -658,6 +660,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "url_prefix": DictElement(
+                required=True,
                 parameter_form=String(
                     title=Title("URL prefix"),
                     field_size=FieldSize.LARGE,
@@ -676,9 +679,11 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "status_host": DictElement(
+                required=True,
                 parameter_form=self._status_host_adapter.form_spec(),
             ),
             "disabled": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Disable in status GUI"),
                     label=Label("Temporarily disable this connection"),
@@ -693,6 +698,7 @@ class ModeEditSite(WatoMode):
     def _replication_elements(self) -> dict[str, DictElement]:
         elements: dict[str, DictElement] = {
             "replication": DictElement(
+                required=True,
                 parameter_form=SingleChoiceExtended[None | str](
                     elements=[
                         SingleChoiceElementExtended(
@@ -713,6 +719,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "message_broker_port": DictElement(
+                required=True,
                 parameter_form=Integer(
                     title=Title("Message broker port"),
                     prefill=DefaultValue(5672),
@@ -720,6 +727,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "multisiteurl": DictElement(
+                required=True,
                 parameter_form=String(
                     title=Title("URL of remote site"),
                     field_size=FieldSize.LARGE,
@@ -734,6 +742,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "disable_wato": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Disable remote configuration"),
                     label=Label("Disable configuration via Setup on this site"),
@@ -745,6 +754,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "insecure": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Ignore TLS errors"),
                     label=Label("Ignore SSL certificate errors"),
@@ -755,6 +765,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "user_login": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Direct login to web GUI allowed"),
                     label=Label(
@@ -769,6 +780,7 @@ class ModeEditSite(WatoMode):
                 ),
             ),
             "is_trusted": DictElement(
+                required=True,
                 parameter_form=BooleanChoice(
                     title=Title("Trust this site completely"),
                     label=Label("Trust this site completely"),
@@ -782,6 +794,7 @@ class ModeEditSite(WatoMode):
         }
 
         elements["replicate_ec"] = DictElement(
+            required=True,
             parameter_form=BooleanChoice(
                 title=Title("Replicate Event Console config"),
                 label=Label("Replicate Event Console configuration to this site"),
@@ -794,6 +807,7 @@ class ModeEditSite(WatoMode):
             ),
         )
         elements["replicate_mkps"] = DictElement(
+            required=True,
             parameter_form=BooleanChoice(
                 title=Title("Replicate extensions"),
                 label=Label("Replicate extensions (MKPs and files in <tt>~/local/</tt>)"),
