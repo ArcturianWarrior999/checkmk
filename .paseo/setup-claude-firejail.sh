@@ -143,6 +143,13 @@ if [[ -r /dev/tty ]]; then
         [[ -f "${home}/.ssh/config" ]] && lines+=("whitelist-ro \${HOME}/.ssh/config")
     fi
 
+    if [[ -f "${home}/.cmk-werk-ids" ]] &&
+        confirm "Whitelist ~/.cmk-werk-ids (pre-reserved werk IDs) for Claude?"; then
+        # ${HOME} stays literal on purpose: firejail expands it in claude.local.
+        # shellcheck disable=SC2016
+        lines+=('whitelist-ro ${HOME}/.cmk-werk-ids')
+    fi
+
     if [[ ${#lines[@]} -gt 0 ]]; then
         write_local_lines "${lines[@]}"
         echo "Whitelisted ${#lines[@]} credential path(s) in ${local_config}."
