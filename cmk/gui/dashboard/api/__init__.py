@@ -23,6 +23,7 @@ from ._utils import (
     make_pending_changes,
     PERMISSIONS_DASHBOARD,
     PERMISSIONS_DASHBOARD_EDIT,
+    PERMISSIONS_DASHBOARD_READ,
     save_dashboard_to_file,
 )
 
@@ -36,6 +37,7 @@ __all__ = [
     "GraphRequestInternal",
     "PERMISSIONS_DASHBOARD",
     "PERMISSIONS_DASHBOARD_EDIT",
+    "PERMISSIONS_DASHBOARD_READ",
     "convert_internal_relative_dashboard_to_api_model_dict",
     "dashboard_owner_description",
     "get_dashboard_for_read",

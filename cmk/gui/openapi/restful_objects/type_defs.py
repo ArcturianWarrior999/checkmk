@@ -133,6 +133,7 @@ CmkEndpointName = Literal[
     "cmk/compute",
     "cmk/compute_dashboard_widget_titles",
     "cmk/compute-list",
+    "cmk/compute_network_flow_top_table",
     "cmk/configure",
     "cmk/create",
     "cmk/create_aux_tag",

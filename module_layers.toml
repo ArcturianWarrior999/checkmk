@@ -833,6 +833,7 @@ allows = [
   "cmk.gui",
   "cmk.gui.nonfree",
   "cmk.metric_backend.gui",
+  "cmk.network_flow.gui",
   "cmk.otel_collector",
 ]
 
