@@ -30,13 +30,13 @@ def discover[T, V](
     """
     subclasses = {}
 
-    for mod_info in iter_modules(root_module.__path__, root_module.__name__ + "."):
-        if mod_info.name.rsplit(".", 1)[-1].startswith("_"):
-            # Private submodules are expected to not expose a backend!
+    for mod_info in iter_modules(root_module.__path__):
+        if mod_info.name.startswith("_"):
+            # Private submodules are expected to not expose public objects!
             continue
 
         try:
-            module = import_module(mod_info.name)
+            module = import_module(f"{root_module.__name__}.{mod_info.name}")
         except ImportError:
             continue
 
