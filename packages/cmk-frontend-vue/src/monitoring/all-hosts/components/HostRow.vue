@@ -32,6 +32,8 @@ const emit = defineEmits<{
 
 const { _t } = usei18n()
 
+const SERVICE_COUNT_MIN_WIDTH = 35
+
 function onActionSelect(action: CellAction): void {
   emit('action', { action, host: props.row })
 }
@@ -62,10 +64,15 @@ function toggleSelected(selected: boolean): void {
     v-if="hasColumn('num_services')"
     column-id="num_services"
     :value="row.num_services"
-    :tag-properties="{
-      variant: 'fill',
-      color: 'default'
-    }"
+    :tag-properties="
+      row.num_services === 0
+        ? undefined
+        : {
+            variant: 'fill',
+            color: 'default',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
+          }
+    "
     :linked-to="
       row.num_services === 0
         ? undefined
@@ -84,7 +91,8 @@ function toggleSelected(selected: boolean): void {
         ? undefined
         : {
             variant: 'weighted',
-            color: 'success'
+            color: 'success',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
           }
     "
     :linked-to="
@@ -105,7 +113,8 @@ function toggleSelected(selected: boolean): void {
         ? undefined
         : {
             variant: 'weighted',
-            color: 'warning'
+            color: 'warning',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
           }
     "
     :linked-to="
@@ -126,7 +135,8 @@ function toggleSelected(selected: boolean): void {
         ? undefined
         : {
             variant: 'weighted',
-            color: 'danger'
+            color: 'danger',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
           }
     "
     :linked-to="
@@ -147,7 +157,8 @@ function toggleSelected(selected: boolean): void {
         ? undefined
         : {
             variant: 'weighted',
-            color: 'unknown'
+            color: 'unknown',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
           }
     "
     :linked-to="
@@ -168,7 +179,8 @@ function toggleSelected(selected: boolean): void {
         ? undefined
         : {
             variant: 'weighted',
-            color: 'default'
+            color: 'default',
+            minWidth: SERVICE_COUNT_MIN_WIDTH
           }
     "
     :linked-to="
