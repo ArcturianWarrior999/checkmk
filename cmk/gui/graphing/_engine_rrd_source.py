@@ -17,7 +17,6 @@ from livestatus import lqencode, MKLivestatusNotFoundError
 from cmk.ccc.site import SiteId
 from cmk.graphing.v1 import translations as translations_v1
 from cmk.graphing_engine import (
-    CheckCommand,
     ConsolidationFunction,
     FetchedData,
     Metric,
@@ -107,7 +106,7 @@ def _parse_check_command(check_command: str) -> str:
 
 def _parse_perf_data(
     perf_data_string: str, check_command: str, *, debug: bool
-) -> tuple[Mapping[MetricName, RawPerformanceValue], CheckCommand]:
+) -> tuple[Mapping[MetricName, RawPerformanceValue], str]:
     check_command = _parse_check_command(check_command)
 
     parts = shlex.split(perf_data_string)
@@ -138,7 +137,7 @@ def _parse_perf_data(
             logger.exception("Failed to parse perfdata '%s'", perf_data_string)
             if debug:
                 raise exc
-    return raw_perf_data, CheckCommand(check_command)
+    return raw_perf_data, check_command
 
 
 def _service_or_filter(services: Sequence[Service]) -> str:

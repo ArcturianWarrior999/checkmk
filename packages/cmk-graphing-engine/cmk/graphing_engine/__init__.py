@@ -33,7 +33,6 @@ from ._options import (
     TimeRange,
 )
 from ._perfdata import (
-    CheckCommand,
     FetchedData,
     HostName,
     MetricName,
@@ -77,7 +76,6 @@ from ._units import (
 
 __all__ = [
     "AutoPrecision",
-    "CheckCommand",
     "FetchedData",
     "Graph",
     "ConsolidationFunction",

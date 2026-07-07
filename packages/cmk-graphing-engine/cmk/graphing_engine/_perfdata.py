@@ -11,7 +11,6 @@ from ._options import TimeRange
 
 HostName = NewType("HostName", str)
 ServiceName = NewType("ServiceName", str)
-CheckCommand = NewType("CheckCommand", str)
 
 
 class MetricName(str):
@@ -73,5 +72,5 @@ class RawPerformanceValue:
 
 @dataclass(frozen=True, kw_only=True)
 class RawPerformanceData:
-    check_command: CheckCommand
+    check_command: str
     values: Mapping[MetricName, RawPerformanceValue]

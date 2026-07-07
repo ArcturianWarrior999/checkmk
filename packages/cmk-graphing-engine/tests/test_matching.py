@@ -14,7 +14,6 @@ from cmk.graphing_engine import (
     build_curve,
     build_matched_graphs,
     build_matched_graphs_per_service,
-    CheckCommand,
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
@@ -137,7 +136,7 @@ def _perf(
 
 
 def _perf_data(*values: tuple[MetricName, RawPerformanceValue]) -> RawPerformanceData:
-    return RawPerformanceData(check_command=CheckCommand(""), values=dict(values))
+    return RawPerformanceData(check_command="", values=dict(values))
 
 
 class _FakeRRDFetchMetricNames:
