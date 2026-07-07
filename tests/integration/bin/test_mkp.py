@@ -6,6 +6,7 @@
 # mypy: disable-error-code="no-any-return"
 
 import json
+import subprocess
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
@@ -37,7 +38,7 @@ def test_mkp_update_active(site: Site) -> None:
 
 
 def test_mkp_non_existing(site: Site) -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(subprocess.CalledProcessError):
         site.check_output(["mkp", "nubbel"])
 
 

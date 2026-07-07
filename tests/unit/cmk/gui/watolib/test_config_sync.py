@@ -316,7 +316,8 @@ def test_replication_path_factory_ok() -> None:
 
 
 def test_replication_path_factory_error_absolute_path() -> None:
-    with pytest.raises(Exception):
+    # ReplicationPath.make raises a plain Exception for absolute paths
+    with pytest.raises(Exception, match="must be a path relative to the site root"):
         config_sync.ReplicationPath.make(
             ty=config_sync.ReplicationPathType.FILE,
             ident="some_file",

@@ -16,6 +16,7 @@
 
 import pytest
 
+from cmk.agent_based.v2 import GetRateError
 from cmk.plugins.skype.agent_based import skype
 from cmk.plugins.windows.agent_based.libwmi import parse_wmi_table
 
@@ -62,9 +63,8 @@ def test_skype_edge_udp_zero_counters(skype_edge_parsed):
         "packets_dropped": {"upper": (200, 400)},
     }
 
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError as expected
-    with pytest.raises(Exception):  # GetRateError or similar rate-related error
+    # get_rate raises GetRateError on the first call with an empty value store
+    with pytest.raises(GetRateError):
         list(skype.check_skype_av_edge("127527", params, skype_edge_parsed))
 
 
@@ -77,9 +77,8 @@ def test_skype_edge_udp_specific_item_monitoring(skype_edge_parsed):
         "packets_dropped": {"upper": (200, 400)},
     }
 
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError/AssertionError as expected
-    with pytest.raises(Exception):  # GetRateError or AssertionError
+    # get_rate raises GetRateError on the first call with an empty value store
+    with pytest.raises(GetRateError):
         list(skype.check_skype_av_edge("127527", params, skype_edge_parsed))
 
 
@@ -92,9 +91,8 @@ def test_skype_edge_udp_public_ipv4_interface(skype_edge_parsed):
         "packets_dropped": {"upper": (200, 400)},
     }
 
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError/AssertionError as expected
-    with pytest.raises(Exception):  # GetRateError or AssertionError
+    # get_rate raises GetRateError on the first call with an empty value store
+    with pytest.raises(GetRateError):
         list(skype.check_skype_av_edge("127527", params, skype_edge_parsed))
 
 
@@ -107,9 +105,8 @@ def test_skype_edge_udp_ipv6_zero_interface(skype_edge_parsed):
         "packets_dropped": {"upper": (200, 400)},
     }
 
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError/AssertionError as expected
-    with pytest.raises(Exception):  # GetRateError or AssertionError
+    # get_rate raises GetRateError on the first call with an empty value store
+    with pytest.raises(GetRateError):
         list(skype.check_skype_av_edge("127527", params, skype_edge_parsed))
 
 
@@ -122,7 +119,6 @@ def test_skype_edge_udp_custom_thresholds(skype_edge_parsed):
         "packets_dropped": {"upper": (100, 250)},
     }
 
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError/AssertionError as expected
-    with pytest.raises(Exception):  # GetRateError or AssertionError
+    # get_rate raises GetRateError on the first call with an empty value store
+    with pytest.raises(GetRateError):
         list(skype.check_skype_av_edge("127527", params, skype_edge_parsed))

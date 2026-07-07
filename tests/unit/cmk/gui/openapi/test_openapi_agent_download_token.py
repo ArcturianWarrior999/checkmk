@@ -23,6 +23,7 @@ from cmk.gui.token_auth import (
     AgentRegistrationToken,
     get_token_store,
 )
+from cmk.gui.token_auth._store import InvalidToken
 from tests.testlib.gui.web_test_app import SetConfig
 from tests.testlib.rest_api_client import ClientRegistry
 
@@ -157,7 +158,7 @@ class TestCreateAgentDownloadToken:
         assert captured["command"] == "agent-download-token-create"
         assert "request" in captured["vars"]
         # Local store must remain empty for the forwarded token.
-        with pytest.raises(Exception):
+        with pytest.raises(InvalidToken):
             get_token_store().verify(f"0:{resp.json['id']}", now=dt.datetime.now(dt.UTC))
 
     def test_unknown_site_id_returns_400(

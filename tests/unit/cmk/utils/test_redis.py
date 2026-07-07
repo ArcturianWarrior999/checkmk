@@ -32,6 +32,6 @@ def test_disable_redis() -> None:
 
 
 def test_disable_redis_exception_handling() -> None:
-    with disable_redis(), pytest.raises(Exception):
-        raise Exception
+    with disable_redis(), pytest.raises(ValueError):
+        raise ValueError
     assert redis_enabled()

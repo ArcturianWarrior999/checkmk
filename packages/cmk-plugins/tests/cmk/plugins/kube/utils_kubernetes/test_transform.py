@@ -18,7 +18,7 @@ from cmk.plugins.kube.schemata import api
     ],
 )
 def test_convert_to_timestamp_raises_error(kube_date_time: str) -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         api.convert_to_timestamp(kube_date_time)
 
 

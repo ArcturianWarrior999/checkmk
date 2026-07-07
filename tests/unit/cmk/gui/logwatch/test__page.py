@@ -121,5 +121,5 @@ def test_get_last_chunk_picks_most_recent() -> None:
 
 def test_parse_file_debug_reraises_exception() -> None:
     with patch("cmk.gui.logwatch._page.get_logfile_lines", return_value=["<<<bad format>>>"]):
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             parse_file(None, HOST, FILE, hidecontext=False, debug=True)

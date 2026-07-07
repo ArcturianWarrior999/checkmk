@@ -14,6 +14,7 @@ from typing import Never
 
 import pytest
 
+from cmk.agent_based.v2 import GetRateError
 from cmk.legacy_checks import fireeye_mail
 
 
@@ -57,11 +58,10 @@ def test_discover_fireeye_mail(parsed: list[list[str]]) -> None:
 
 
 def test_check_fireeye_mail(parsed: list[list[str]], monkeypatch: pytest.MonkeyPatch) -> None:
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError as expected
+    # get_rate raises GetRateError on the first call with an empty value store
     value_store: dict[str, object] = {}
     monkeypatch.setattr(fireeye_mail, "get_value_store", lambda: value_store)
-    with pytest.raises(Exception):  # GetRateError or similar rate-related error
+    with pytest.raises(GetRateError):
         list(fireeye_mail.check_fireeye_mail(None, {}, parsed))
 
 
@@ -73,11 +73,10 @@ def test_discover_fireeye_mail_attachment(parsed: list[list[str]]) -> None:
 def test_check_fireeye_mail_attachment(
     parsed: list[list[str]], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError as expected
+    # get_rate raises GetRateError on the first call with an empty value store
     value_store: dict[str, object] = {}
     monkeypatch.setattr(fireeye_mail, "get_value_store", lambda: value_store)
-    with pytest.raises(Exception):  # GetRateError or similar rate-related error
+    with pytest.raises(GetRateError):
         list(fireeye_mail.check_fireeye_attachment(None, {}, parsed))
 
 
@@ -87,11 +86,10 @@ def test_discover_fireeye_mail_url(parsed: list[list[str]]) -> None:
 
 
 def test_check_fireeye_mail_url(parsed: list[list[str]], monkeypatch: pytest.MonkeyPatch) -> None:
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError as expected
+    # get_rate raises GetRateError on the first call with an empty value store
     value_store: dict[str, object] = {}
     monkeypatch.setattr(fireeye_mail, "get_value_store", lambda: value_store)
-    with pytest.raises(Exception):  # GetRateError or similar rate-related error
+    with pytest.raises(GetRateError):
         list(fireeye_mail.check_fireeye_url(None, {}, parsed))
 
 
@@ -103,11 +101,10 @@ def test_discover_fireeye_mail_statistics(parsed: list[list[str]]) -> None:
 def test_check_fireeye_mail_statistics(
     parsed: list[list[str]], monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # This function uses get_rate which requires multiple calls to work properly
-    # First call will raise GetRateError as expected
+    # get_rate raises GetRateError on the first call with an empty value store
     value_store: dict[str, object] = {}
     monkeypatch.setattr(fireeye_mail, "get_value_store", lambda: value_store)
-    with pytest.raises(Exception):  # GetRateError or similar rate-related error
+    with pytest.raises(GetRateError):
         list(fireeye_mail.check_fireeye_mail_statistics(None, {}, parsed))
 
 

@@ -64,7 +64,7 @@ def get_value_store() -> MutableMapping[str, Any]:
     assert (
         _active_host_value_store is not None
         and _active_host_value_store.active_service_interface is not None
-    )
+    ), "no value store manager is active"
     return _active_host_value_store.active_service_interface
 
 

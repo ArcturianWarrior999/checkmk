@@ -129,7 +129,7 @@ def test_filters_to_mongo_query() -> None:
 def test_filters_to_mongo_query_Exception() -> None:
     """Exception on a column name not starting with "event_" or "history_"."""
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="not implemented for MongoDB"):
         filters_to_mongo_query(
             [
                 QueryFilter(

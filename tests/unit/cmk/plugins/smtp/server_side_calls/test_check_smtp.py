@@ -127,7 +127,7 @@ def test_check_smtp_argument_parsing_no_ip(
 
 
 def test_check_smtp_argument_parsing_exception() -> None:
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError, match="Host IP stack absent"):
         (_, _) = active_check_smtp({"name": "foo"}, TEST_HOST_CONFIG_NO_IP)
 
 

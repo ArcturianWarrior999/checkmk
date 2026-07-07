@@ -85,7 +85,7 @@ def test_check_checkpoint_packets_initial_run(parsed: Mapping[str, int]) -> None
         "espdecrypted": (100000, 200000),
     }
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError, match="no value store manager is active"):
         list(check_checkpoint_packets(params, parsed))
 
 
