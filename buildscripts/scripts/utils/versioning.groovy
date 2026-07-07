@@ -244,8 +244,8 @@ void rebase_workspace(String branch_name, String rebase_onto) {
             withGerritSshKey {
                 withEnv(["GIT_SSH_COMMAND=ssh -o 'StrictHostKeyChecking no' -i ${GERRIT_SSH_KEY} -l jenkins"]) {
                     sh("""
-                        git config --add user.name ${GERRIT_USER};
-                        git config --add user.email ${JENKINS_MAIL};
+                        git config --add user.name ${user};
+                        git config --add user.email ${env.JENKINS_MAIL};
                         time git fetch --no-tags --shallow-since=\$(date --date='2 weeks ago' --iso=seconds) origin \
                             refs/heads/${branch_name}:refs/remotes/origin/${branch_name}
                         git rebase ${rebase_onto}
