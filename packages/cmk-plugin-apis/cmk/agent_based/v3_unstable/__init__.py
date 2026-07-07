@@ -95,6 +95,19 @@ from ._check_levels import (
     PredictiveLevelsT,
 )
 from ._checking_classes import Metric
+from ._metrics_section import (
+    Aggregation,
+    AttributeFilter,
+    DatapointFilter,
+    GaugeAggregation,
+    HistogramAggregation,
+    InstantAggregation,
+    MetricBackendSection,
+    MetricSelector,
+    ResourceFilter,
+    ScopeFilter,
+    SumAggregation,
+)
 
 type _DiscoveryFunction = _Callable[..., DiscoveryResult]
 type CheckResult = _Iterable[IgnoreResults | Metric | Result]
@@ -182,6 +195,17 @@ __all__ = [
     "SimpleSNMPSection",
     "SNMPDetectSpecification",
     "InventoryPlugin",
+    "MetricBackendSection",
+    "MetricSelector",
+    "Aggregation",
+    "GaugeAggregation",
+    "SumAggregation",
+    "HistogramAggregation",
+    "InstantAggregation",
+    "AttributeFilter",
+    "ScopeFilter",
+    "ResourceFilter",
+    "DatapointFilter",
     "CheckResult",
     "DiscoveryResult",
     "HostLabelGenerator",
