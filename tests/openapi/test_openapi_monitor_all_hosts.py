@@ -246,6 +246,7 @@ class TestMonitorHostsFilters:
                 "num_services_warn": 0,
                 "site_id": "NO_SITE",
                 "state": "UP",
+                "modes": [],
             },
         ]
 
@@ -304,6 +305,8 @@ _HOSTS = [
         "num_services_crit": 0,
         "num_services_unknown": 0,
         "num_services_pending": 0,
+        "acknowledged": 0,
+        "scheduled_downtime_depth": 0,
     },
     {
         "name": "gestern",
@@ -316,6 +319,8 @@ _HOSTS = [
         "num_services_crit": 0,
         "num_services_unknown": 0,
         "num_services_pending": 0,
+        "acknowledged": 0,
+        "scheduled_downtime_depth": 0,
     },
     {
         "name": "morgen",
@@ -328,6 +333,8 @@ _HOSTS = [
         "num_services_crit": 0,
         "num_services_unknown": 0,
         "num_services_pending": 0,
+        "acknowledged": 0,
+        "scheduled_downtime_depth": 0,
     },
 ]
-_HOST_TABLE_COLUMNS = "name alias address state num_services num_services_ok num_services_warn num_services_crit num_services_unknown num_services_pending"
+_HOST_TABLE_COLUMNS = "name alias address state num_services num_services_ok num_services_warn num_services_crit num_services_unknown num_services_pending acknowledged scheduled_downtime_depth"

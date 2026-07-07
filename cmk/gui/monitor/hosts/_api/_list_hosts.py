@@ -4,11 +4,13 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from collections.abc import Sequence
 from typing import Annotated, Self
+from urllib.parse import urlencode
 
 from annotated_types import Interval
 from pydantic import PlainValidator
 
 from cmk.gui import sites
+from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.openapi.framework.api_config import APIVersion
 from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
@@ -45,6 +47,18 @@ _DEFAULT_SORT = (HostSort(column=HostSortColumn.NAME, direction=HostSortDirectio
 
 
 @api_model
+class ModeInfo:
+    icon_name: str = api_field(description="Icon to render for this mode", example="downtime")
+    link: str = api_field(
+        description="URL the mode icon links to",
+        example="view.py?view_name=downtimes_of_host&host=web-server-01",
+    )
+    title: str = api_field(
+        description="Tooltip shown for the mode icon", example="In scheduled downtime"
+    )
+
+
+@api_model
 class HostEntry:
     name: str = api_field(description="Host name", example="web-server-01")
     state: HostStateLabel = api_field(description="Host state", example="UP")
@@ -63,6 +77,14 @@ class HostEntry:
     num_services_pending: int = api_field(
         description="Number of services in PENDING state", example=2
     )
+    modes: list[ModeInfo] | ApiOmitted = api_field(
+        description=(
+            "Active host modes (e.g. scheduled downtime, acknowledgement) rendered as linked "
+            "icons. Empty when the host is in none of these modes."
+        ),
+        example=[],
+        default_factory=ApiOmitted,
+    )
 
     @classmethod
     def from_domain(cls, host: Host) -> Self:
@@ -78,7 +100,35 @@ class HostEntry:
             num_services_crit=host.service_counts.crit,
             num_services_unknown=host.service_counts.unknown,
             num_services_pending=host.service_counts.pending,
+            modes=_build_host_modes(host),
         )
+
+
+def _host_view_link(view_name: str, host: Host) -> str:
+    return "view.py?" + urlencode(
+        [("view_name", view_name), ("site", host.site_id), ("host", host.name)]
+    )
+
+
+def _build_host_modes(host: Host) -> list[ModeInfo]:
+    modes: list[ModeInfo] = []
+    if host.in_downtime:
+        modes.append(
+            ModeInfo(
+                icon_name="downtime",
+                link=_host_view_link("downtimes_of_host", host),
+                title=_("In scheduled downtime"),
+            )
+        )
+    if host.acknowledged:
+        modes.append(
+            ModeInfo(
+                icon_name="ack",
+                link=_host_view_link("host", host),
+                title=_("Problem acknowledged"),
+            )
+        )
+    return modes
 
 
 @api_model

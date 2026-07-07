@@ -52,6 +52,8 @@ class LiveStatusHostRepository:
                 Hosts.num_services_crit,
                 Hosts.num_services_unknown,
                 Hosts.num_services_pending,
+                Hosts.acknowledged,
+                Hosts.scheduled_downtime_depth,
             ],
             _build_query_filter(query_),
             extra_headers=[
@@ -78,6 +80,8 @@ class LiveStatusHostRepository:
                             unknown=row["num_services_unknown"],
                             pending=row["num_services_pending"],
                         ),
+                        acknowledged=bool(row["acknowledged"]),
+                        in_downtime=row["scheduled_downtime_depth"] > 0,
                     )
                     for row in q.iterate(conn)
                 ],

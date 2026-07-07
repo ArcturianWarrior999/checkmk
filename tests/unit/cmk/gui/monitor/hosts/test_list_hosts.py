@@ -7,7 +7,7 @@ from collections.abc import Sequence
 
 from polyfactory.factories import DataclassFactory
 
-from cmk.gui.monitor.hosts._api._list_hosts import _handle_list_hosts
+from cmk.gui.monitor.hosts._api._list_hosts import _build_host_modes, _handle_list_hosts
 from cmk.gui.monitor.hosts._models import Host, HostFilter, HostSort
 from cmk.gui.monitor.hosts._repositories import HostRepository
 
@@ -57,3 +57,29 @@ def test_handle_list_hosts_state_label_conversion() -> None:
     host_states = [host.state for host in response.hosts]
 
     assert all(state in {"UP", "DOWN", "UNREACHABLE"} for state in host_states)
+
+
+def test_build_host_modes_none() -> None:
+    host = HostFactory.build(in_downtime=False, acknowledged=False)
+    assert _build_host_modes(host) == []
+
+
+def test_build_host_modes_downtime() -> None:
+    host = HostFactory.build(in_downtime=True, acknowledged=False)
+    modes = _build_host_modes(host)
+
+    assert [mode.icon_name for mode in modes] == ["downtime"]
+    assert modes[0].link.startswith("view.py?")
+    assert "downtimes_of_host" in modes[0].link
+
+
+def test_build_host_modes_acknowledged() -> None:
+    host = HostFactory.build(in_downtime=False, acknowledged=True)
+
+    assert [mode.icon_name for mode in _build_host_modes(host)] == ["ack"]
+
+
+def test_build_host_modes_downtime_and_acknowledged() -> None:
+    host = HostFactory.build(in_downtime=True, acknowledged=True)
+
+    assert [mode.icon_name for mode in _build_host_modes(host)] == ["downtime", "ack"]

@@ -43,6 +43,8 @@ class Host:
     alias: str
     site_id: str
     service_counts: ServiceCounts
+    acknowledged: bool
+    in_downtime: bool
 
     @property
     def state_label(self) -> HostStateLabel:
