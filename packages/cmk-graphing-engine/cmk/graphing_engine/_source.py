@@ -138,9 +138,9 @@ def fetch_evaluation_context(
         )
         for metric, originals in originals_per_metric.items():
             scaled = [
-                _scaled(resample(raw_time_series[rrd_metric], time_range, function), scale)
+                _scaled(resample(ts, time_range, function), scale)
                 for rrd_metric, scale in originals
-                if rrd_metric in raw_time_series
+                if (ts := raw_time_series.get(rrd_metric)) is not None
             ]
             if scaled:
                 time_series[metric] = _merge(scaled, time_range)
