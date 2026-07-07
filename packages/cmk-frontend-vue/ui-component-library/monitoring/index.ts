@@ -14,6 +14,7 @@ import UclTableColumnFilters from './UclTableColumnFilters.vue'
 import UclActionsCell from './cell/UclActionsCell.vue'
 import UclBaseCell from './cell/UclBaseCell.vue'
 import UclCheckboxCell from './cell/UclCheckboxCell.vue'
+import UclModesCell from './cell/UclModesCell.vue'
 import UclNumberCell from './cell/UclNumberCell.vue'
 import UclStateCell from './cell/UclStateCell.vue'
 import UclStringCell from './cell/UclStringCell.vue'
@@ -23,6 +24,7 @@ export const pages: Array<Folder | Page> = [
     new Page('ActionsCell', UclActionsCell),
     new Page('BaseCell', UclBaseCell),
     new Page('CheckboxCell', UclCheckboxCell),
+    new Page('ModesCell', UclModesCell),
     new Page('NumberCell', UclNumberCell),
     new Page('StateCell', UclStateCell),
     new Page('StringCell', UclStringCell)
