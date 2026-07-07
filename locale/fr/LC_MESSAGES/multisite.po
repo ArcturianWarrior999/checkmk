@@ -2829,10 +2829,6 @@ msgid "API (via Unix socket)"
 msgstr "Accès par socket UNIX"
 
 #, fuzzy
-msgid "API access token"
-msgstr "Token d'accès à l'API"
-
-#, fuzzy
 msgid "API cache is disabled."
 msgstr "Le graphique est désactivé"
 
@@ -3752,7 +3748,8 @@ msgid "Activate monitoring of host via a HTTP connect to the HiveManager"
 msgstr ""
 "Activez la surveillance de l'hôte via une connexion HTTP au HiveManager"
 
-msgid "Activate monitoring of the HiveManagerNG cloud."
+#, fuzzy
+msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
 msgstr "Activez la surveillance du nuage HiveManagerNG."
 
 msgid "Activate on selected sites"
@@ -5063,7 +5060,8 @@ msgstr "Expiration de l'authentification"
 msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
-msgid "Aerohive HiveManager NG"
+#, fuzzy
+msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
 msgstr "Aerohive HiveManager NG"
 
 #, python-format
@@ -9840,6 +9838,10 @@ msgstr "OID de base"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "URL de base pour le moteur API de Docker"
+
+msgid ""
+"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
+msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -25634,6 +25636,14 @@ msgstr ""
 "Extrait les données de performance de la SGA dans un service séparé et "
 "affiche en plus les données de performance de la PGA"
 
+#, fuzzy
+msgid "ExtremeCloud IQ password"
+msgstr "Entrez le mot de passe de l'utilisateur"
+
+#, fuzzy
+msgid "ExtremeCloud IQ username"
+msgstr "Entrer le nom de l'utilisateur"
+
 msgid "Extremes only"
 msgstr "Les extrêmes seulement"
 
@@ -38053,6 +38063,14 @@ msgstr "LDAP [%s] : Création de l'utilisateur %s"
 msgid "LDAP [%s]: Modified user %s (%s)"
 msgstr "LDAP [%s] : Utilisateur modifié %s (%s)"
 
+#, fuzzy, python-format
+msgid "LDAP [%s]: Quarantined user %s"
+msgstr "LDAP [%s] : Création de l'utilisateur %s"
+
+#, fuzzy, python-format
+msgid "LDAP [%s]: Reactivated quarantined user %s"
+msgstr "LDAP [%s] : Création de l'utilisateur %s"
+
 #, python-format
 msgid "LDAP [%s]: Removed user %s"
 msgstr "LDAP [%s] : Suppression de l'utilisateur %s"
@@ -38497,6 +38515,12 @@ msgstr ""
 
 msgid "Learning Checkmk"
 msgstr "Contrôle de l'apprentissage"
+
+#, fuzzy
+msgid "Leave unset on installations where over-voltage is not a concern."
+msgstr ""
+"Niveaux de tension pour les dispositifs tels que les UPS ou les PDUs. "
+"Plusieurs phases peuvent être traitées indépendamment."
 
 msgid "Left"
 msgstr "Gauche"
@@ -40755,6 +40779,10 @@ msgstr "Niveaux inférieurs pour le taux d'envoi des notifications"
 
 msgid "Lower levels for number of requests"
 msgstr "Niveaux inférieurs pour le nombre de demandes"
+
+#, fuzzy
+msgid "Lower levels for online canisters"
+msgstr "Niveaux inférieurs de tension"
 
 msgid "Lower levels for remaining API reads"
 msgstr "Niveaux inférieurs pour les lectures API restantes"
@@ -44967,9 +44995,6 @@ msgstr "Nom de l'appareil"
 msgid "Name of the disk, e.g. mdisk0"
 msgstr "Nom du disque, par exemple mdisk0"
 
-msgid "Name of the enclosure, e.g. Enclosure 1"
-msgstr "Nom de l'enceinte, par ex. enceinte 1"
-
 msgid "Name of the form to populate and submit"
 msgstr "Nom du formulaire à remplir et à soumettre"
 
@@ -47952,9 +47977,6 @@ msgstr "Nombre à créer"
 
 msgid "Numeric value"
 msgstr "Valeur numérique"
-
-msgid "Numerical ID of the VHM, e.g. 102"
-msgstr "ID numérique du VHM, par exemple 102"
 
 #, fuzzy
 msgid "Nutanix Cluster CPU utilization"
@@ -52492,10 +52514,6 @@ msgstr ""
 "Exemple : <tt>VM abcsrv123</tt>. Notez également, que nous faisons "
 "correspondre le <i>début</i> du nom."
 
-msgid "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
-msgstr ""
-"Veuillez saisir <tt>Drives</tt>, <tt>Mdisques</tt> ou <tt>VDisques</tt> ici."
-
 msgid ""
 "Please enter a 10-digit, lower case hex value, e.g. 0x00000000 or 0x8004131f."
 msgstr ""
@@ -54347,8 +54365,19 @@ msgstr "Cassettes gratuites"
 msgid "Quantum Storage Status"
 msgstr "État du stockage Quantum"
 
+msgid "Quarantine LDAP users before deletion"
+msgstr ""
+
 msgid "Quarantine Usage"
 msgstr "Utilisation de la quarantaine"
+
+msgid ""
+"Quarantine users that vanished from the directory instead of deleting them"
+msgstr ""
+
+#, python-format
+msgid "Quarantined since %s (source: %s); %s"
+msgstr ""
 
 #, fuzzy
 msgid "Queried host is a ESXi host (standalone / not vCenter integrated)"
@@ -55308,9 +55337,6 @@ msgstr "Découverte du compteur MSSQL"
 #, fuzzy
 msgid "Redirect URI"
 msgstr "Bénéficiaire"
-
-msgid "Redirect URL (has to be https)"
-msgstr "URL de redirection (doit être https)"
 
 msgid "Redis clients"
 msgstr "Clients Redis"
@@ -57251,6 +57277,10 @@ msgid "Retention intervals for HW/SW inventory entities"
 msgstr "Intervalles de conservation des entités d'inventaire HW/SW"
 
 msgid "Retention period"
+msgstr "Période de conservation"
+
+#, fuzzy
+msgid "Retention period:"
 msgstr "Période de conservation"
 
 #, fuzzy
@@ -71769,6 +71799,9 @@ msgstr "Le type doit être dict, mais est %s"
 msgid "The type must be list, but is %s"
 msgstr "Le type doit être une liste, mais est %s"
 
+msgid "The type of disk/drive the latency levels apply to."
+msgstr ""
+
 msgid "The type of information to be stored in this attribute."
 msgstr "Le type d'information à stocker dans cet attribut."
 
@@ -81500,9 +81533,6 @@ msgstr "Préfixe d'URL pour les liens vers Checkmk"
 msgid "URL server address"
 msgstr "Adresse URL personnalisée du serveur"
 
-msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-msgstr "URL vers HiveManagerNG, par exemple https://cloud.aerohive.com"
-
 #, fuzzy
 msgid ""
 "URL to access the central site from the remote site, including the protocol "
@@ -83032,6 +83062,14 @@ msgstr "Niveaux supérieurs pour la taille d'utilisation des journaux"
 msgid ""
 "Upper levels for the maximum latency. Defaults: 5 ms (WARN), 10 ms (CRIT)."
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Upper levels for the nominal frequencies of AC devices like UPSs or PDUs. "
+"Leave unset where over-frequency is not a concern."
+msgstr ""
+"Niveaux pour les fréquences nominales des dispositifs AC comme les UPS ou "
+"les PDUs. Plusieurs phases peuvent être traitées indépendamment."
 
 #, fuzzy
 msgid "Upper levels for the number of HTTP requests per second"
@@ -86805,6 +86843,17 @@ msgstr ""
 msgid "What should be sent out?"
 msgstr ""
 
+msgid ""
+"When a user that was synchronized from an LDAP connection is no longer found "
+"during synchronization, Checkmk normally deletes the account immediately. "
+"With this option enabled, the account is instead locked and placed into "
+"quarantine: it stays visible to administrators but can no longer log in. If "
+"the user reappears in the directory before the retention period elapses, the "
+"account is automatically reactivated. Otherwise it is deleted once the "
+"retention period has passed. Disable this option to restore the immediate-"
+"deletion behavior."
+msgstr ""
+
 #, fuzzy
 msgid ""
 "When activated, the Agent Bakery will compress most of the agent packages. "
@@ -88549,6 +88598,12 @@ msgstr ""
 "Sans authentification, tout le monde peut envoyer des notifications au "
 "spooler.  Si vous choisissez <tt>Authentification avec TLS</tt> ce site doit "
 "faire confiance au SiteCA des expéditeurs !"
+
+msgid ""
+"Without levels all canisters are expected to be online. With fixed levels "
+"the warning and critical thresholds are applied to the number of online "
+"canisters."
+msgstr ""
 
 msgid ""
 "Without this option the access is limited to querying the current and "
@@ -91213,9 +91268,6 @@ msgstr "actif / actif"
 msgid "active / standby"
 msgstr "actif / veille"
 
-msgid "active hosts"
-msgstr "hôtes actifs"
-
 msgid "active instances"
 msgstr "instances actives"
 
@@ -91606,14 +91658,15 @@ msgstr "Définir les valeurs par défaut pour toutes les sections"
 msgid "degraded"
 msgstr "dégradé"
 
-msgid "degraded hosts"
-msgstr "hôtes dégradés"
-
 msgid "delay precompiling"
 msgstr "retarder la précompilation"
 
 msgid "delayed"
 msgstr "retardé"
+
+#, fuzzy
+msgid "deletion pending on the next synchronization"
+msgstr "Durée autorisée depuis la dernière synchronisation"
 
 msgid "demand"
 msgstr "demande"
@@ -92221,9 +92274,6 @@ msgstr "inSync"
 msgid "inactive"
 msgstr "inactif"
 
-msgid "inactive hosts"
-msgstr "hôtes inactifs"
-
 msgid "incidents left"
 msgstr "incidents laissés"
 
@@ -92696,9 +92746,6 @@ msgstr "off"
 msgid "offline"
 msgstr "hors ligne"
 
-msgid "offline hosts"
-msgstr "hôtes hors ligne"
-
 msgid "on"
 msgstr "sur"
 
@@ -92717,9 +92764,6 @@ msgstr "l'un des"
 
 msgid "online"
 msgstr "en ligne"
-
-msgid "online canisters"
-msgstr "bidons en ligne"
 
 msgid "only messages"
 msgstr "uniquement des messages"
@@ -92770,9 +92814,6 @@ msgstr "autre"
 
 msgid "other CTIO errors"
 msgstr "autres erreurs de CTIO"
-
-msgid "other hosts"
-msgstr "autres hôtes"
 
 #, fuzzy
 msgid "other names"
@@ -93013,6 +93054,10 @@ msgstr "même nième jour de la semaine (à partir du début)"
 
 msgid "same nth weekday (from end)"
 msgstr "même nième jour de semaine (à partir de la fin)"
+
+#, fuzzy, python-format
+msgid "scheduled for deletion on %s"
+msgstr "Programmer un temps d'arrêt pour %d %s"
 
 msgid "sec"
 msgstr "sec"
@@ -93656,6 +93701,10 @@ msgid "Clear search"
 msgstr "Recherche de règles"
 
 #, fuzzy
+msgid "Could not load this content."
+msgstr "Vous ne pouvez pas supprimer cette connexion."
+
+#, fuzzy
 msgid "filter"
 msgstr "Filtre"
 
@@ -94258,6 +94307,13 @@ msgstr "Ntop"
 #, fuzzy
 msgid "Display ntop alerts, flows or top talkers"
 msgstr "Affichage des alertes Ntop engagées, passées et de débit"
+
+#, fuzzy
+msgid "Network flow monitoring"
+msgstr "Surveillance du réseau"
+
+msgid "Visualize network flow traffic, applications and autonomous systems"
+msgstr ""
 
 #, fuzzy
 msgid "Select custom graph"
@@ -95279,6 +95335,17 @@ msgstr "Le nom du service"
 msgid "Show bar visualization"
 msgstr "Visualisation de la BI"
 
+#, fuzzy
+msgid "Add network flow widget"
+msgstr "Ajouter une cible"
+
+#, fuzzy
+msgid "Choose what to display"
+msgstr "Ne pas afficher de date"
+
+msgid "No network flow widgets are available yet."
+msgstr ""
+
 msgid ""
 "A preview of ntop widgets is not available due to the widget size limitation"
 msgstr ""
@@ -95298,10 +95365,6 @@ msgstr "Ntop top pairs"
 #, fuzzy
 msgid "Add ntop"
 msgstr "Ajouter à"
-
-#, fuzzy
-msgid "Choose what to display"
-msgstr "Ne pas afficher de date"
 
 msgid "Enter URL to embed"
 msgstr ""
@@ -95493,24 +95556,9 @@ msgid ""
 "<tt>$DATA_POINT_ATTR.&lt;key&gt;$</tt>"
 msgstr ""
 
-msgid "The time window used to aggregate data for each point on the chart.<ul>"
-msgstr ""
-
 #, fuzzy
 msgid "Metric name"
 msgstr "Étiquette métrique"
-
-#, fuzzy
-msgid "Aggregation lookback"
-msgstr "Contrôles d'agrégation"
-
-#, fuzzy
-msgid "Percentile (histograms)"
-msgstr "Groupes d'agrégation"
-
-#, fuzzy
-msgid "Percentile for histogram aggregation"
-msgstr "Groupes d'agrégation"
 
 #, fuzzy
 msgid "Service name template"
@@ -95732,6 +95780,14 @@ msgstr[1] "Aucun sélectionné"
 
 msgid "Show all"
 msgstr "Afficher tous"
+
+#, fuzzy
+msgid "Time zoom"
+msgstr "Horizon temporel"
+
+#, fuzzy
+msgid "Peak zoom"
+msgstr "Réinitialiser"
 
 #, fuzzy
 msgid "Custom time range"
@@ -96193,6 +96249,10 @@ msgstr "La dernière "
 #, fuzzy
 msgid "Lookback"
 msgstr "Retour en arrière"
+
+#, fuzzy
+msgid "Consolidation"
+msgstr "Consolidation du RRD"
 
 #, fuzzy
 msgid "Unknown error"
@@ -97507,6 +97567,29 @@ msgstr "Erreur générale"
 msgid "Select host %{name}"
 msgstr "Supprimer l'hôte"
 
+msgid ""
+"An at-a-glance summary of %{host} will appear here, bringing the key host "
+"information together in one place."
+msgstr ""
+
+msgid "Host details (name, alias, primary IP address, site, folder)"
+msgstr ""
+
+#, fuzzy
+msgid "Service summary with a state visualization"
+msgstr "Menu de survol du service affiché dans la visualisation BI"
+
+#, fuzzy
+msgid "Contact groups and tags"
+msgstr "Groupes de contact"
+
+msgid "Labels (discovered and explicit)"
+msgstr ""
+
+#, fuzzy
+msgid "Relations placeholder"
+msgstr "VMs de remplacement"
+
 msgid "This action runs immediately and has no further options."
 msgstr ""
 
@@ -98639,6 +98722,58 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, fuzzy
+#~ msgid "API access token"
+#~ msgstr "Token d'accès à l'API"
+
+#~ msgid "Name of the enclosure, e.g. Enclosure 1"
+#~ msgstr "Nom de l'enceinte, par ex. enceinte 1"
+
+#~ msgid "Numerical ID of the VHM, e.g. 102"
+#~ msgstr "ID numérique du VHM, par exemple 102"
+
+#~ msgid ""
+#~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
+#~ msgstr ""
+#~ "Veuillez saisir <tt>Drives</tt>, <tt>Mdisques</tt> ou <tt>VDisques</tt> "
+#~ "ici."
+
+#~ msgid "Redirect URL (has to be https)"
+#~ msgstr "URL de redirection (doit être https)"
+
+#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+#~ msgstr "URL vers HiveManagerNG, par exemple https://cloud.aerohive.com"
+
+#~ msgid "active hosts"
+#~ msgstr "hôtes actifs"
+
+#~ msgid "degraded hosts"
+#~ msgstr "hôtes dégradés"
+
+#~ msgid "inactive hosts"
+#~ msgstr "hôtes inactifs"
+
+#~ msgid "offline hosts"
+#~ msgstr "hôtes hors ligne"
+
+#~ msgid "online canisters"
+#~ msgstr "bidons en ligne"
+
+#~ msgid "other hosts"
+#~ msgstr "autres hôtes"
+
+#, fuzzy
+#~ msgid "Aggregation lookback"
+#~ msgstr "Contrôles d'agrégation"
+
+#, fuzzy
+#~ msgid "Percentile (histograms)"
+#~ msgstr "Groupes d'agrégation"
+
+#, fuzzy
+#~ msgid "Percentile for histogram aggregation"
+#~ msgstr "Groupes d'agrégation"
 
 #, python-format
 #~ msgid "Cannot read configuration file \"%s\": %s"
@@ -104929,9 +105064,6 @@ msgstr ""
 #~ msgid "Number of notifications as text"
 #~ msgstr "Nombre de notifications sous forme de texte"
 
-#~ msgid "RRD consolidation"
-#~ msgstr "Consolidation du RRD"
-
 #~ msgid ""
 #~ "Select the range in between which the values are displayed. This only "
 #~ "affects the dashlet if 'Show historic values' is selected"
@@ -108393,10 +108525,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "File upload"
 #~ msgstr "Octets téléchargés"
-
-#, fuzzy
-#~ msgid "Placeholder"
-#~ msgstr "VMs de remplacement"
 
 #~ msgid "API key from password store"
 #~ msgstr "Clé API du magasin de mots de passe"

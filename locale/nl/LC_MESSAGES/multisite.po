@@ -2784,10 +2784,6 @@ msgid "API (via Unix socket)"
 msgstr "Toegang via UNIX socket"
 
 #, fuzzy
-msgid "API access token"
-msgstr "API Toegangstoken"
-
-#, fuzzy
 msgid "API cache is disabled."
 msgstr "Grafiek is uitgeschakeld"
 
@@ -3717,7 +3713,8 @@ msgid "Activate monitoring of host via a HTTP connect to the HiveManager"
 msgstr ""
 "Activeer monitoring van host via een HTTP verbinding met de HiveManager"
 
-msgid "Activate monitoring of the HiveManagerNG cloud."
+#, fuzzy
+msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
 msgstr "Activeer monitoring van de HiveManagerNG cloud."
 
 msgid "Activate on selected sites"
@@ -5027,7 +5024,8 @@ msgstr "Lokale authentificatiegegevens"
 msgid "Aerohive HiveManager"
 msgstr "Aerohive Hive Beheerder"
 
-msgid "Aerohive HiveManager NG"
+#, fuzzy
+msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
 msgstr "Aerohive HiveManager NG"
 
 #, fuzzy, python-format
@@ -9778,6 +9776,10 @@ msgstr "Basis OID"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "Basis URL voor docker API engine"
+
+msgid ""
+"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
+msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -25415,6 +25417,14 @@ msgstr ""
 "Extraheert SGA-prestatiegegevens in een afzonderlijke dienst en geeft "
 "daarnaast PGA-prestatiegegevens weer"
 
+#, fuzzy
+msgid "ExtremeCloud IQ password"
+msgstr "Voer gebruikerswachtwoord in"
+
+#, fuzzy
+msgid "ExtremeCloud IQ username"
+msgstr "Voer gebruikersnaam in"
+
 msgid "Extremes only"
 msgstr "Alleen extremen"
 
@@ -37725,6 +37735,14 @@ msgstr "LDAP [%s]: Gebruiker %s aangemaakt"
 msgid "LDAP [%s]: Modified user %s (%s)"
 msgstr "LDAP [%s]: Gewijzigde gebruiker %s (%s)"
 
+#, fuzzy, python-format
+msgid "LDAP [%s]: Quarantined user %s"
+msgstr "LDAP [%s]: Gebruiker %s aangemaakt"
+
+#, fuzzy, python-format
+msgid "LDAP [%s]: Reactivated quarantined user %s"
+msgstr "LDAP [%s]: Gebruiker %s aangemaakt"
+
 #, python-format
 msgid "LDAP [%s]: Removed user %s"
 msgstr "LDAP [%s]: Verwijderde gebruiker %s"
@@ -38167,6 +38185,12 @@ msgstr ""
 
 msgid "Learning Checkmk"
 msgstr "Leren Checkmk"
+
+#, fuzzy
+msgid "Leave unset on installations where over-voltage is not a concern."
+msgstr ""
+"Spanningsniveaus voor apparaten zoals UPS of PDUs. Verschillende fasen "
+"kunnen onafhankelijk worden aangesproken."
 
 msgid "Left"
 msgstr "Links"
@@ -40418,6 +40442,10 @@ msgstr "Lagere niveaus voor Notification Delivery Rate"
 
 msgid "Lower levels for number of requests"
 msgstr "Lagere niveaus voor het aantal verzoeken"
+
+#, fuzzy
+msgid "Lower levels for online canisters"
+msgstr "Lagere spanningsniveaus"
 
 msgid "Lower levels for remaining API reads"
 msgstr "Lagere niveaus voor resterende API-lezingen"
@@ -44594,9 +44622,6 @@ msgstr "Naam van het apparaat"
 msgid "Name of the disk, e.g. mdisk0"
 msgstr "Naam van de schijf, b.v. mdisk0"
 
-msgid "Name of the enclosure, e.g. Enclosure 1"
-msgstr "Naam van de leefruimte, bijv. leefruimte 1"
-
 msgid "Name of the form to populate and submit"
 msgstr "Naam van het formulier dat moet worden ingevuld en verzonden"
 
@@ -47563,9 +47588,6 @@ msgstr "Aantal te creëren"
 
 msgid "Numeric value"
 msgstr "Numerieke waarde"
-
-msgid "Numerical ID of the VHM, e.g. 102"
-msgstr "Numerieke ID van de VHM, b.v. 102"
 
 #, fuzzy
 msgid "Nutanix Cluster CPU utilization"
@@ -52072,9 +52094,6 @@ msgstr ""
 "Voorbeeld: <tt>VM abcsrv123</tt>. Merk ook op, dat we het <i>begin</i> van "
 "de naam matchen."
 
-msgid "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
-msgstr "Vul hier <tt>Drives</tt>, <tt>Mdisks</tt> of <tt>VDisks</tt> in."
-
 msgid ""
 "Please enter a 10-digit, lower case hex value, e.g. 0x00000000 or 0x8004131f."
 msgstr ""
@@ -53888,8 +53907,19 @@ msgstr "Gratis tapes"
 msgid "Quantum Storage Status"
 msgstr "Quantum Opslag Status"
 
+msgid "Quarantine LDAP users before deletion"
+msgstr ""
+
 msgid "Quarantine Usage"
 msgstr "Quarantaine Gebruik"
+
+msgid ""
+"Quarantine users that vanished from the directory instead of deleting them"
+msgstr ""
+
+#, python-format
+msgid "Quarantined since %s (source: %s); %s"
+msgstr ""
 
 #, fuzzy
 msgid "Queried host is a ESXi host (standalone / not vCenter integrated)"
@@ -54849,9 +54879,6 @@ msgstr "MSSQL teller ontdekking"
 #, fuzzy
 msgid "Redirect URI"
 msgstr "Ontvanger"
-
-msgid "Redirect URL (has to be https)"
-msgstr "Redirect URL (moet https zijn)"
 
 msgid "Redis clients"
 msgstr "Redis cliënten"
@@ -56758,6 +56785,10 @@ msgid "Retention intervals for HW/SW inventory entities"
 msgstr "Bewaartermijnen voor HW/SW-inventarisentiteiten"
 
 msgid "Retention period"
+msgstr "Bewaartermijn"
+
+#, fuzzy
+msgid "Retention period:"
 msgstr "Bewaartermijn"
 
 #, fuzzy
@@ -71150,6 +71181,9 @@ msgstr "Het type moet dict zijn, maar is %s"
 msgid "The type must be list, but is %s"
 msgstr "Het type moet lijst zijn, maar is %s"
 
+msgid "The type of disk/drive the latency levels apply to."
+msgstr ""
+
 msgid "The type of information to be stored in this attribute."
 msgstr "Het soort informatie dat in dit kenmerk moet worden opgeslagen."
 
@@ -80794,9 +80828,6 @@ msgstr "URL prefix voor links naar Checkmk"
 msgid "URL server address"
 msgstr "Aangepast URL-serveradres"
 
-msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-msgstr "URL naar HiveManagerNG, b.v. https://cloud.aerohive.com"
-
 #, fuzzy
 msgid ""
 "URL to access the central site from the remote site, including the protocol "
@@ -82313,6 +82344,14 @@ msgstr "Bovenste niveaus voor de loggebruiksgrootte"
 msgid ""
 "Upper levels for the maximum latency. Defaults: 5 ms (WARN), 10 ms (CRIT)."
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Upper levels for the nominal frequencies of AC devices like UPSs or PDUs. "
+"Leave unset where over-frequency is not a concern."
+msgstr ""
+"Niveaus voor de nominale frequenties van wisselstroomapparaten zoals UPS-"
+"systemen of PDU's. Verschillende fasen kunnen onafhankelijk worden aangepakt."
 
 #, fuzzy
 msgid "Upper levels for the number of HTTP requests per second"
@@ -86031,6 +86070,17 @@ msgstr ""
 msgid "What should be sent out?"
 msgstr ""
 
+msgid ""
+"When a user that was synchronized from an LDAP connection is no longer found "
+"during synchronization, Checkmk normally deletes the account immediately. "
+"With this option enabled, the account is instead locked and placed into "
+"quarantine: it stays visible to administrators but can no longer log in. If "
+"the user reappears in the directory before the retention period elapses, the "
+"account is automatically reactivated. Otherwise it is deleted once the "
+"retention period has passed. Disable this option to restore the immediate-"
+"deletion behavior."
+msgstr ""
+
 #, fuzzy
 msgid ""
 "When activated, the Agent Bakery will compress most of the agent packages. "
@@ -87751,6 +87801,12 @@ msgstr ""
 "Zonder authenticatie kan iedereen meldingen naar de spooler sturen.  Als je "
 "kiest voor <tt>Authenticatie met TLS</tt> moet deze site de SiteCA van de "
 "afzenders vertrouwen!"
+
+msgid ""
+"Without levels all canisters are expected to be online. With fixed levels "
+"the warning and critical thresholds are applied to the number of online "
+"canisters."
+msgstr ""
 
 msgid ""
 "Without this option the access is limited to querying the current and "
@@ -90355,9 +90411,6 @@ msgstr "actief / actief"
 msgid "active / standby"
 msgstr "actief / stand-by"
 
-msgid "active hosts"
-msgstr "actieve gastheren"
-
 msgid "active instances"
 msgstr "actieve instanties"
 
@@ -90747,14 +90800,15 @@ msgstr "Standaardwaarden instellen voor alle secties"
 msgid "degraded"
 msgstr "gedegradeerd"
 
-msgid "degraded hosts"
-msgstr "gedegradeerde hosts"
-
 msgid "delay precompiling"
 msgstr "het precompileren vertragen"
 
 msgid "delayed"
 msgstr "vertraagd"
+
+#, fuzzy
+msgid "deletion pending on the next synchronization"
+msgstr "Toegestane duur sinds laatste synchronisatie"
 
 msgid "demand"
 msgstr "vraag"
@@ -91363,9 +91417,6 @@ msgstr "inSync"
 msgid "inactive"
 msgstr "inactief"
 
-msgid "inactive hosts"
-msgstr "inactieve hosts"
-
 msgid "incidents left"
 msgstr "incidenten links"
 
@@ -91839,9 +91890,6 @@ msgstr "van"
 msgid "offline"
 msgstr "offline"
 
-msgid "offline hosts"
-msgstr "offline hosts"
-
 msgid "on"
 msgstr "op"
 
@@ -91860,9 +91908,6 @@ msgstr "een van"
 
 msgid "online"
 msgstr "online"
-
-msgid "online canisters"
-msgstr "online bussen"
 
 msgid "only messages"
 msgstr "alleen berichten"
@@ -91913,9 +91958,6 @@ msgstr "andere"
 
 msgid "other CTIO errors"
 msgstr "andere CTIO-fouten"
-
-msgid "other hosts"
-msgstr "andere gastheren"
 
 #, fuzzy
 msgid "other names"
@@ -92157,6 +92199,10 @@ msgstr "dezelfde n-de weekdag (vanaf het begin)"
 
 msgid "same nth weekday (from end)"
 msgstr "dezelfde n-de weekdag (vanaf einde)"
+
+#, fuzzy, python-format
+msgid "scheduled for deletion on %s"
+msgstr "Geplande uitvaltijd voor %d %s"
 
 msgid "sec"
 msgstr "sec"
@@ -92798,6 +92844,10 @@ msgid "Clear search"
 msgstr "Regel zoeken"
 
 #, fuzzy
+msgid "Could not load this content."
+msgstr "U kunt deze verbinding niet verwijderen."
+
+#, fuzzy
 msgid "filter"
 msgstr "Filter"
 
@@ -93400,6 +93450,13 @@ msgstr "Ntop"
 #, fuzzy
 msgid "Display ntop alerts, flows or top talkers"
 msgstr "Weergave Ntop bezet, verleden en stroom waarschuwingen"
+
+#, fuzzy
+msgid "Network flow monitoring"
+msgstr "Netwerkbewaking"
+
+msgid "Visualize network flow traffic, applications and autonomous systems"
+msgstr ""
 
 #, fuzzy
 msgid "Select custom graph"
@@ -94414,6 +94471,18 @@ msgstr "De naam van de dienst"
 msgid "Show bar visualization"
 msgstr "BI-visualisatie"
 
+#, fuzzy
+msgid "Add network flow widget"
+msgstr "Doel toevoegen"
+
+#, fuzzy
+msgid "Choose what to display"
+msgstr "Geef geen datum weer"
+
+#, fuzzy
+msgid "No network flow widgets are available yet."
+msgstr "Geen informatie beschikbaar"
+
 msgid ""
 "A preview of ntop widgets is not available due to the widget size limitation"
 msgstr ""
@@ -94433,10 +94502,6 @@ msgstr "Ntop top peers"
 #, fuzzy
 msgid "Add ntop"
 msgstr "Toevoegen aan"
-
-#, fuzzy
-msgid "Choose what to display"
-msgstr "Geef geen datum weer"
 
 msgid "Enter URL to embed"
 msgstr ""
@@ -94628,24 +94693,9 @@ msgid ""
 "<tt>$DATA_POINT_ATTR.&lt;key&gt;$</tt>"
 msgstr ""
 
-msgid "The time window used to aggregate data for each point on the chart.<ul>"
-msgstr ""
-
 #, fuzzy
 msgid "Metric name"
 msgstr "Metrisch etiket"
-
-#, fuzzy
-msgid "Aggregation lookback"
-msgstr "Aggregatiecontroles"
-
-#, fuzzy
-msgid "Percentile (histograms)"
-msgstr "Aggregatiegroepen"
-
-#, fuzzy
-msgid "Percentile for histogram aggregation"
-msgstr "Aggregatiegroepen"
 
 #, fuzzy
 msgid "Service name template"
@@ -94867,6 +94917,14 @@ msgstr[1] "Geen geselecteerd"
 
 msgid "Show all"
 msgstr "Toon alle"
+
+#, fuzzy
+msgid "Time zoom"
+msgstr "Tijdshorizon"
+
+#, fuzzy
+msgid "Peak zoom"
+msgstr "Reset"
 
 #, fuzzy
 msgid "Custom time range"
@@ -95327,6 +95385,10 @@ msgstr "De laatste "
 #, fuzzy
 msgid "Lookback"
 msgstr "Terugkijken"
+
+#, fuzzy
+msgid "Consolidation"
+msgstr "RRD-consolidatie"
 
 #, fuzzy
 msgid "Unknown error"
@@ -96635,6 +96697,29 @@ msgstr "Algemene fout"
 msgid "Select host %{name}"
 msgstr "Hosts verwijderen"
 
+msgid ""
+"An at-a-glance summary of %{host} will appear here, bringing the key host "
+"information together in one place."
+msgstr ""
+
+msgid "Host details (name, alias, primary IP address, site, folder)"
+msgstr ""
+
+#, fuzzy
+msgid "Service summary with a state visualization"
+msgstr "Service hover menu getoond in BI visualisatie"
+
+#, fuzzy
+msgid "Contact groups and tags"
+msgstr "Contactgroepen"
+
+msgid "Labels (discovered and explicit)"
+msgstr ""
+
+#, fuzzy
+msgid "Relations placeholder"
+msgstr "Plaatsvervangende VM's"
+
 msgid "This action runs immediately and has no further options."
 msgstr ""
 
@@ -97764,6 +97849,56 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, fuzzy
+#~ msgid "API access token"
+#~ msgstr "API Toegangstoken"
+
+#~ msgid "Name of the enclosure, e.g. Enclosure 1"
+#~ msgstr "Naam van de leefruimte, bijv. leefruimte 1"
+
+#~ msgid "Numerical ID of the VHM, e.g. 102"
+#~ msgstr "Numerieke ID van de VHM, b.v. 102"
+
+#~ msgid ""
+#~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
+#~ msgstr "Vul hier <tt>Drives</tt>, <tt>Mdisks</tt> of <tt>VDisks</tt> in."
+
+#~ msgid "Redirect URL (has to be https)"
+#~ msgstr "Redirect URL (moet https zijn)"
+
+#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+#~ msgstr "URL naar HiveManagerNG, b.v. https://cloud.aerohive.com"
+
+#~ msgid "active hosts"
+#~ msgstr "actieve gastheren"
+
+#~ msgid "degraded hosts"
+#~ msgstr "gedegradeerde hosts"
+
+#~ msgid "inactive hosts"
+#~ msgstr "inactieve hosts"
+
+#~ msgid "offline hosts"
+#~ msgstr "offline hosts"
+
+#~ msgid "online canisters"
+#~ msgstr "online bussen"
+
+#~ msgid "other hosts"
+#~ msgstr "andere gastheren"
+
+#, fuzzy
+#~ msgid "Aggregation lookback"
+#~ msgstr "Aggregatiecontroles"
+
+#, fuzzy
+#~ msgid "Percentile (histograms)"
+#~ msgstr "Aggregatiegroepen"
+
+#, fuzzy
+#~ msgid "Percentile for histogram aggregation"
+#~ msgstr "Aggregatiegroepen"
 
 #, python-format
 #~ msgid "Cannot read configuration file \"%s\": %s"
@@ -104089,9 +104224,6 @@ msgstr ""
 #~ msgid "Number of notifications as text"
 #~ msgstr "Aantal meldingen als tekst"
 
-#~ msgid "RRD consolidation"
-#~ msgstr "RRD-consolidatie"
-
 #~ msgid ""
 #~ "Select the range in between which the values are displayed. This only "
 #~ "affects the dashlet if 'Show historic values' is selected"
@@ -107584,10 +107716,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "File upload"
 #~ msgstr "Geüploade bytes"
-
-#, fuzzy
-#~ msgid "Placeholder"
-#~ msgstr "Plaatsvervangende VM's"
 
 #~ msgid "API key from password store"
 #~ msgstr "API sleutel van wachtwoord opslag"

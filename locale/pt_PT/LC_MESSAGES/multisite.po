@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
 "Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2026-07-06 13:23+0000\n"
+"PO-Revision-Date: 2026-07-07 05:23+0000\n"
 "Language-Team: Portuguese (Portugal) <https://translate.checkmk.com/projects/"
 "checkmk/dev/pt_PT/>\n"
 "Language: pt_PT\n"
@@ -2792,10 +2792,6 @@ msgid "API (via Unix socket)"
 msgstr "Acesso via soquete UNIX"
 
 #, fuzzy
-msgid "API access token"
-msgstr "Token de Acesso API"
-
-#, fuzzy
 msgid "API cache is disabled."
 msgstr "O gráfico está desativado"
 
@@ -3718,7 +3714,8 @@ msgid "Activate monitoring of host via a HTTP connect to the HiveManager"
 msgstr ""
 "Ativar o monitoramento do host através de uma conexão HTTP ao HiveManager"
 
-msgid "Activate monitoring of the HiveManagerNG cloud."
+#, fuzzy
+msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
 msgstr "Activar a monitorização da nuvem HiveManagerNG."
 
 msgid "Activate on selected sites"
@@ -5026,7 +5023,8 @@ msgstr "Reforçar a reautenticação após:"
 msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
-msgid "Aerohive HiveManager NG"
+#, fuzzy
+msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
 msgstr "Aerohive HiveManager NG"
 
 #, fuzzy, python-format
@@ -9793,6 +9791,10 @@ msgstr "OID de base"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "URL base para o motor API do docker"
+
+msgid ""
+"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
+msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -25417,6 +25419,14 @@ msgstr ""
 "Extrai os dados de desempenho SGA em um serviço separado e exibe "
 "adicionalmente os dados de desempenho PGA"
 
+#, fuzzy
+msgid "ExtremeCloud IQ password"
+msgstr "Digite a senha do usuário"
+
+#, fuzzy
+msgid "ExtremeCloud IQ username"
+msgstr "Digite o nome do usuário"
+
 msgid "Extremes only"
 msgstr "Apenas Extremos"
 
@@ -37727,6 +37737,14 @@ msgstr "LDAP [%s]: Utilizador criado %s"
 msgid "LDAP [%s]: Modified user %s (%s)"
 msgstr "LDAP [%s]: Utilizador modificado %s (%s)"
 
+#, fuzzy, python-format
+msgid "LDAP [%s]: Quarantined user %s"
+msgstr "LDAP [%s]: Utilizador criado %s"
+
+#, fuzzy, python-format
+msgid "LDAP [%s]: Reactivated quarantined user %s"
+msgstr "LDAP [%s]: Utilizador criado %s"
+
 #, python-format
 msgid "LDAP [%s]: Removed user %s"
 msgstr "LDAP [%s]: Removido %s do usuário"
@@ -38165,6 +38183,12 @@ msgstr ""
 
 msgid "Learning Checkmk"
 msgstr "Verificação de aprendizagem"
+
+#, fuzzy
+msgid "Leave unset on installations where over-voltage is not a concern."
+msgstr ""
+"Níveis de tensão para dispositivos como UPS ou PDUs. Várias fases podem ser "
+"tratadas de forma independente."
 
 msgid "Left"
 msgstr "Esquerda"
@@ -40415,6 +40439,10 @@ msgstr "Níveis mais baixos para a taxa de entrega de notificações"
 
 msgid "Lower levels for number of requests"
 msgstr "Níveis inferiores para o número de pedidos"
+
+#, fuzzy
+msgid "Lower levels for online canisters"
+msgstr "Níveis mais baixos para Tensão"
 
 msgid "Lower levels for remaining API reads"
 msgstr "Níveis mais baixos para o API restante lê"
@@ -44604,9 +44632,6 @@ msgstr "Nome do dispositivo"
 msgid "Name of the disk, e.g. mdisk0"
 msgstr "Nome do disco, por exemplo mdisk0"
 
-msgid "Name of the enclosure, e.g. Enclosure 1"
-msgstr "Nome do invólucro, por exemplo, Invólucro 1"
-
 msgid "Name of the form to populate and submit"
 msgstr "Nome do formulário a preencher e enviar"
 
@@ -47565,9 +47590,6 @@ msgstr "Número para criar"
 
 msgid "Numeric value"
 msgstr "Valor numérico"
-
-msgid "Numerical ID of the VHM, e.g. 102"
-msgstr "Identificação numérica da VHM, por exemplo, 102"
 
 msgid "Nutanix Cluster CPU utilization"
 msgstr "Utilização da CPU do cluster da Nutanix"
@@ -52053,10 +52075,6 @@ msgstr ""
 "Exemplo: <tt>VM abcsrv123</tt>. Note também, que nós combinamos o "
 "<i>beginning</i> do nome."
 
-msgid "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
-msgstr ""
-"Por favor insira aqui <tt>Drives</tt>, <tt>Mdisks</tt> ou <tt>VDisks</tt>."
-
 msgid ""
 "Please enter a 10-digit, lower case hex value, e.g. 0x00000000 or 0x8004131f."
 msgstr ""
@@ -53882,8 +53900,19 @@ msgstr "Fitas gratuitas"
 msgid "Quantum Storage Status"
 msgstr "Status de armazenamento quântico"
 
+msgid "Quarantine LDAP users before deletion"
+msgstr ""
+
 msgid "Quarantine Usage"
 msgstr "Uso em Quarentena"
+
+msgid ""
+"Quarantine users that vanished from the directory instead of deleting them"
+msgstr ""
+
+#, python-format
+msgid "Quarantined since %s (source: %s); %s"
+msgstr ""
 
 #, fuzzy
 msgid "Queried host is a ESXi host (standalone / not vCenter integrated)"
@@ -54842,9 +54871,6 @@ msgstr "Descoberta do contador MSSQL"
 #, fuzzy
 msgid "Redirect URI"
 msgstr "Destinatário"
-
-msgid "Redirect URL (has to be https)"
-msgstr "URL redireccionada (tem de ser https)"
 
 msgid "Redis clients"
 msgstr "Clientes Redis"
@@ -56769,6 +56795,10 @@ msgid "Retention intervals for HW/SW inventory entities"
 msgstr "Intervalos de retenção para entidades de inventário HW/SW"
 
 msgid "Retention period"
+msgstr "Período de conservação"
+
+#, fuzzy
+msgid "Retention period:"
 msgstr "Período de conservação"
 
 #, fuzzy
@@ -71120,6 +71150,9 @@ msgstr "O tipo deve ser ditado, mas é %s"
 msgid "The type must be list, but is %s"
 msgstr "O tipo deve ser lista, mas é %s"
 
+msgid "The type of disk/drive the latency levels apply to."
+msgstr ""
+
 msgid "The type of information to be stored in this attribute."
 msgstr "O tipo de informação a ser armazenada neste atributo."
 
@@ -80753,9 +80786,6 @@ msgstr "Prefixo URL para links para Checkmk"
 msgid "URL server address"
 msgstr "Endereço de servidor URL personalizado"
 
-msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-msgstr "URL para HiveManagerNG, por exemplo https://cloud.aerohive.com"
-
 #, fuzzy
 msgid ""
 "URL to access the central site from the remote site, including the protocol "
@@ -82270,6 +82300,14 @@ msgstr "Níveis superiores para o tamanho de utilização dos registos"
 msgid ""
 "Upper levels for the maximum latency. Defaults: 5 ms (WARN), 10 ms (CRIT)."
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Upper levels for the nominal frequencies of AC devices like UPSs or PDUs. "
+"Leave unset where over-frequency is not a concern."
+msgstr ""
+"Níveis para as frequências nominais de dispositivos AC, como UPSs ou PDUs. "
+"Várias fases podem ser abordadas independentemente."
 
 #, fuzzy
 msgid "Upper levels for the number of HTTP requests per second"
@@ -85977,6 +86015,17 @@ msgstr ""
 msgid "What should be sent out?"
 msgstr ""
 
+msgid ""
+"When a user that was synchronized from an LDAP connection is no longer found "
+"during synchronization, Checkmk normally deletes the account immediately. "
+"With this option enabled, the account is instead locked and placed into "
+"quarantine: it stays visible to administrators but can no longer log in. If "
+"the user reappears in the directory before the retention period elapses, the "
+"account is automatically reactivated. Otherwise it is deleted once the "
+"retention period has passed. Disable this option to restore the immediate-"
+"deletion behavior."
+msgstr ""
+
 #, fuzzy
 msgid ""
 "When activated, the Agent Bakery will compress most of the agent packages. "
@@ -87679,6 +87728,12 @@ msgstr ""
 "Sem autenticação, todos podem enviar notificações para o spooler.  Se você "
 "escolher <tt>Autenticação com TLS</tt> este site deve confiar no SiteCA dos "
 "remetentes!"
+
+msgid ""
+"Without levels all canisters are expected to be online. With fixed levels "
+"the warning and critical thresholds are applied to the number of online "
+"canisters."
+msgstr ""
 
 msgid ""
 "Without this option the access is limited to querying the current and "
@@ -90268,9 +90323,6 @@ msgstr "ativo / ativo"
 msgid "active / standby"
 msgstr "ativo / em espera"
 
-msgid "active hosts"
-msgstr "hospedeiros ativos"
-
 msgid "active instances"
 msgstr "instâncias activas"
 
@@ -90657,14 +90709,15 @@ msgstr "predefinição (todas as regiões AWS normais)"
 msgid "degraded"
 msgstr "degradado"
 
-msgid "degraded hosts"
-msgstr "hospedeiros degradados"
-
 msgid "delay precompiling"
 msgstr "pré-compilação retardada"
 
 msgid "delayed"
 msgstr "adiado"
+
+#, fuzzy
+msgid "deletion pending on the next synchronization"
+msgstr "Duração permitida desde a última sincronização"
 
 msgid "demand"
 msgstr "procura"
@@ -91272,9 +91325,6 @@ msgstr "inSync"
 msgid "inactive"
 msgstr "inativo"
 
-msgid "inactive hosts"
-msgstr "hospedeiros inativos"
-
 msgid "incidents left"
 msgstr "incidentes restantes"
 
@@ -91746,9 +91796,6 @@ msgstr "em"
 msgid "offline"
 msgstr "off-line"
 
-msgid "offline hosts"
-msgstr "anfitriões off-line"
-
 msgid "on"
 msgstr "em"
 
@@ -91767,9 +91814,6 @@ msgstr "um dos"
 
 msgid "online"
 msgstr "online"
-
-msgid "online canisters"
-msgstr "latas on-line"
 
 msgid "only messages"
 msgstr "apenas mensagens"
@@ -91820,9 +91864,6 @@ msgstr "outro"
 
 msgid "other CTIO errors"
 msgstr "outros erros do CTIO"
-
-msgid "other hosts"
-msgstr "outros anfitriões"
 
 #, fuzzy
 msgid "other names"
@@ -92061,6 +92102,10 @@ msgstr "mesmo n-ésimo dia da semana (desde o início)"
 
 msgid "same nth weekday (from end)"
 msgstr "mesmo n-ésimo dia da semana (a partir do final)"
+
+#, fuzzy, python-format
+msgid "scheduled for deletion on %s"
+msgstr "Programar o tempo de inatividade para %d %s"
 
 msgid "sec"
 msgstr "seg"
@@ -92704,6 +92749,10 @@ msgid "Clear search"
 msgstr "Pesquisa de regras"
 
 #, fuzzy
+msgid "Could not load this content."
+msgstr "Não é possível eliminar esta ligação."
+
+#, fuzzy
 msgid "filter"
 msgstr "Filtro"
 
@@ -93306,6 +93355,13 @@ msgstr "Ntop"
 #, fuzzy
 msgid "Display ntop alerts, flows or top talkers"
 msgstr "Mostrar alertas Ntop engatado, passado e fluxo"
+
+#, fuzzy
+msgid "Network flow monitoring"
+msgstr "Monitorização da rede"
+
+msgid "Visualize network flow traffic, applications and autonomous systems"
+msgstr ""
 
 #, fuzzy
 msgid "Select custom graph"
@@ -94318,6 +94374,18 @@ msgstr "O nome do serviço"
 msgid "Show bar visualization"
 msgstr "visualização do BI"
 
+#, fuzzy
+msgid "Add network flow widget"
+msgstr "Adicionar alvo"
+
+#, fuzzy
+msgid "Choose what to display"
+msgstr "Não mostrar uma data"
+
+#, fuzzy
+msgid "No network flow widgets are available yet."
+msgstr "Não está disponível nenhum instantâneo para restauro."
+
 msgid ""
 "A preview of ntop widgets is not available due to the widget size limitation"
 msgstr ""
@@ -94337,10 +94405,6 @@ msgstr "Top top peers"
 #, fuzzy
 msgid "Add ntop"
 msgstr "Adicione a"
-
-#, fuzzy
-msgid "Choose what to display"
-msgstr "Não mostrar uma data"
 
 msgid "Enter URL to embed"
 msgstr ""
@@ -94532,24 +94596,9 @@ msgid ""
 "<tt>$DATA_POINT_ATTR.&lt;key&gt;$</tt>"
 msgstr ""
 
-msgid "The time window used to aggregate data for each point on the chart.<ul>"
-msgstr ""
-
 #, fuzzy
 msgid "Metric name"
 msgstr "Etiqueta métrica"
-
-#, fuzzy
-msgid "Aggregation lookback"
-msgstr "Verificações de agregação"
-
-#, fuzzy
-msgid "Percentile (histograms)"
-msgstr "Grupos de agregação"
-
-#, fuzzy
-msgid "Percentile for histogram aggregation"
-msgstr "Grupos de agregação"
 
 #, fuzzy
 msgid "Service name template"
@@ -94771,6 +94820,14 @@ msgstr[1] "Nenhum selecionado"
 
 msgid "Show all"
 msgstr "Mostrar tudo"
+
+#, fuzzy
+msgid "Time zoom"
+msgstr "Horizonte de tempo"
+
+#, fuzzy
+msgid "Peak zoom"
+msgstr "Reinicialização"
 
 #, fuzzy
 msgid "Custom time range"
@@ -95230,6 +95287,10 @@ msgstr "O último "
 #, fuzzy
 msgid "Lookback"
 msgstr "Olhando para trás"
+
+#, fuzzy
+msgid "Consolidation"
+msgstr "consolidação do RRD"
 
 #, fuzzy
 msgid "Unknown error"
@@ -96538,6 +96599,29 @@ msgstr "Erro geral"
 msgid "Select host %{name}"
 msgstr "Eliminar o anfitrião"
 
+msgid ""
+"An at-a-glance summary of %{host} will appear here, bringing the key host "
+"information together in one place."
+msgstr ""
+
+msgid "Host details (name, alias, primary IP address, site, folder)"
+msgstr ""
+
+#, fuzzy
+msgid "Service summary with a state visualization"
+msgstr "Menu de navegação do serviço mostrado na visualização do BI"
+
+#, fuzzy
+msgid "Contact groups and tags"
+msgstr "Grupos de contato"
+
+msgid "Labels (discovered and explicit)"
+msgstr ""
+
+#, fuzzy
+msgid "Relations placeholder"
+msgstr "Colocar VMs de suporte"
+
 msgid "This action runs immediately and has no further options."
 msgstr ""
 
@@ -97670,6 +97754,57 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, fuzzy
+#~ msgid "API access token"
+#~ msgstr "Token de Acesso API"
+
+#~ msgid "Name of the enclosure, e.g. Enclosure 1"
+#~ msgstr "Nome do invólucro, por exemplo, Invólucro 1"
+
+#~ msgid "Numerical ID of the VHM, e.g. 102"
+#~ msgstr "Identificação numérica da VHM, por exemplo, 102"
+
+#~ msgid ""
+#~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
+#~ msgstr ""
+#~ "Por favor insira aqui <tt>Drives</tt>, <tt>Mdisks</tt> ou <tt>VDisks</tt>."
+
+#~ msgid "Redirect URL (has to be https)"
+#~ msgstr "URL redireccionada (tem de ser https)"
+
+#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+#~ msgstr "URL para HiveManagerNG, por exemplo https://cloud.aerohive.com"
+
+#~ msgid "active hosts"
+#~ msgstr "hospedeiros ativos"
+
+#~ msgid "degraded hosts"
+#~ msgstr "hospedeiros degradados"
+
+#~ msgid "inactive hosts"
+#~ msgstr "hospedeiros inativos"
+
+#~ msgid "offline hosts"
+#~ msgstr "anfitriões off-line"
+
+#~ msgid "online canisters"
+#~ msgstr "latas on-line"
+
+#~ msgid "other hosts"
+#~ msgstr "outros anfitriões"
+
+#, fuzzy
+#~ msgid "Aggregation lookback"
+#~ msgstr "Verificações de agregação"
+
+#, fuzzy
+#~ msgid "Percentile (histograms)"
+#~ msgstr "Grupos de agregação"
+
+#, fuzzy
+#~ msgid "Percentile for histogram aggregation"
+#~ msgstr "Grupos de agregação"
 
 #, python-format
 #~ msgid "Cannot read configuration file \"%s\": %s"
@@ -104097,9 +104232,6 @@ msgstr ""
 #~ msgid "Number of notifications as text"
 #~ msgstr "Número de notificações como texto"
 
-#~ msgid "RRD consolidation"
-#~ msgstr "consolidação do RRD"
-
 #~ msgid ""
 #~ "Select the range in between which the values are displayed. This only "
 #~ "affects the dashlet if 'Show historic values' is selected"
@@ -107638,10 +107770,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "File upload"
 #~ msgstr "Bytes carregados"
-
-#, fuzzy
-#~ msgid "Placeholder"
-#~ msgstr "Colocar VMs de suporte"
 
 #~ msgid "API key from password store"
 #~ msgstr "Chave API da loja de senhas"

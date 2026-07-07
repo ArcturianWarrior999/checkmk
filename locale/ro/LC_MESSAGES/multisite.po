@@ -2818,10 +2818,6 @@ msgid "API (via Unix socket)"
 msgstr "Acces prin socket UNIX"
 
 #, fuzzy
-msgid "API access token"
-msgstr "Token de acces la API"
-
-#, fuzzy
 msgid "API cache is disabled."
 msgstr "Graficul este dezactivat"
 
@@ -3742,7 +3738,8 @@ msgstr ""
 "Activați monitorizarea gazdei prin intermediul unei conexiuni HTTP la "
 "HiveManager"
 
-msgid "Activate monitoring of the HiveManagerNG cloud."
+#, fuzzy
+msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
 msgstr "Activați monitorizarea cloud-ului HiveManagerNG."
 
 msgid "Activate on selected sites"
@@ -5040,7 +5037,8 @@ msgstr "Recomandați o reautentificare înainte de terminarea programului:"
 msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
-msgid "Aerohive HiveManager NG"
+#, fuzzy
+msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
 msgstr "Aerohive HiveManager NG"
 
 #, python-format
@@ -9782,6 +9780,10 @@ msgstr "OID de bază"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "URL de bază pentru motorul API docker"
+
+msgid ""
+"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
+msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -25480,6 +25482,14 @@ msgstr ""
 "Extrage datele de performanță SGA într-un serviciu separat și afișează "
 "suplimentar datele de performanță PGA"
 
+#, fuzzy
+msgid "ExtremeCloud IQ password"
+msgstr "Introduceți parola de utilizator"
+
+#, fuzzy
+msgid "ExtremeCloud IQ username"
+msgstr "Introduceți numele de utilizator"
+
 msgid "Extremes only"
 msgstr "Doar extreme"
 
@@ -37829,6 +37839,14 @@ msgstr "LDAP [%s]: A fost creat utilizatorul %s."
 msgid "LDAP [%s]: Modified user %s (%s)"
 msgstr "LDAP [%s]: Utilizator modificat %s (%s)"
 
+#, fuzzy, python-format
+msgid "LDAP [%s]: Quarantined user %s"
+msgstr "LDAP [%s]: A fost creat utilizatorul %s."
+
+#, fuzzy, python-format
+msgid "LDAP [%s]: Reactivated quarantined user %s"
+msgstr "LDAP [%s]: A fost creat utilizatorul %s."
+
 #, python-format
 msgid "LDAP [%s]: Removed user %s"
 msgstr "LDAP [%s]: A fost eliminat utilizatorul %s."
@@ -38268,6 +38286,12 @@ msgstr ""
 
 msgid "Learning Checkmk"
 msgstr "Învățare Checkmk"
+
+#, fuzzy
+msgid "Leave unset on installations where over-voltage is not a concern."
+msgstr ""
+"Nivelurile de tensiune pentru dispozitive precum UPS sau PDU. Mai multe faze "
+"pot fi abordate în mod independent."
 
 msgid "Left"
 msgstr "Stânga"
@@ -40501,6 +40525,10 @@ msgstr "Niveluri inferioare pentru Rata de livrare a notificărilor"
 
 msgid "Lower levels for number of requests"
 msgstr "Niveluri inferioare pentru numărul de cereri"
+
+#, fuzzy
+msgid "Lower levels for online canisters"
+msgstr "Niveluri inferioare pentru tensiune"
 
 msgid "Lower levels for remaining API reads"
 msgstr "Niveluri inferioare pentru citirile API rămase"
@@ -44699,9 +44727,6 @@ msgstr "Denumirea dispozitivului"
 msgid "Name of the disk, e.g. mdisk0"
 msgstr "Numele discului, de exemplu, mdisk0"
 
-msgid "Name of the enclosure, e.g. Enclosure 1"
-msgstr "Denumirea incintei, de exemplu, Incinta 1"
-
 msgid "Name of the form to populate and submit"
 msgstr "Numele formularului care trebuie completat și trimis"
 
@@ -47661,9 +47686,6 @@ msgstr "Număr de creat"
 
 msgid "Numeric value"
 msgstr "Valoare numerică"
-
-msgid "Numerical ID of the VHM, e.g. 102"
-msgstr "Numărul de identificare numerică al VHM, de exemplu 102"
 
 msgid "Nutanix Cluster CPU utilization"
 msgstr "Utilizare CPU a clusterului Nutanix Cluster"
@@ -52152,11 +52174,6 @@ msgstr ""
 "<tt>VM abcsrv123</tt>. De asemenea, rețineți că se potrivește cu "
 "<i>începutul</i> numelui."
 
-msgid "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
-msgstr ""
-"Vă rugăm să introduceți aici <tt>Drive-uri</tt>, <tt>Miscuri</tt> sau "
-"<tt>VDiscuri</tt>."
-
 msgid ""
 "Please enter a 10-digit, lower case hex value, e.g. 0x00000000 or 0x8004131f."
 msgstr ""
@@ -53986,8 +54003,19 @@ msgstr "Casete gratuite"
 msgid "Quantum Storage Status"
 msgstr "Starea Quantum Storage"
 
+msgid "Quarantine LDAP users before deletion"
+msgstr ""
+
 msgid "Quarantine Usage"
 msgstr "Utilizarea carantinei"
+
+msgid ""
+"Quarantine users that vanished from the directory instead of deleting them"
+msgstr ""
+
+#, python-format
+msgid "Quarantined since %s (source: %s); %s"
+msgstr ""
 
 #, fuzzy
 msgid "Queried host is a ESXi host (standalone / not vCenter integrated)"
@@ -54945,9 +54973,6 @@ msgstr "Descoperirea contorului MSSQL"
 #, fuzzy
 msgid "Redirect URI"
 msgstr "Destinatarul"
-
-msgid "Redirect URL (has to be https)"
-msgstr "URL de redirecționare (trebuie să fie https)"
 
 msgid "Redis clients"
 msgstr "Clienți Redis"
@@ -56853,6 +56878,10 @@ msgstr ""
 "hardware și software"
 
 msgid "Retention period"
+msgstr "Perioada de păstrare"
+
+#, fuzzy
+msgid "Retention period:"
 msgstr "Perioada de păstrare"
 
 #, fuzzy
@@ -71295,6 +71324,9 @@ msgstr "Tipul trebuie să fie dict, dar este %s."
 msgid "The type must be list, but is %s"
 msgstr "Tipul trebuie să fie listă, dar este %s."
 
+msgid "The type of disk/drive the latency levels apply to."
+msgstr ""
+
 msgid "The type of information to be stored in this attribute."
 msgstr "Tipul de informații care urmează să fie stocate în acest atribut."
 
@@ -80938,9 +80970,6 @@ msgstr "Prefixul URL pentru legăturile către Checkmk"
 msgid "URL server address"
 msgstr "Adresa serverului URL personalizat"
 
-msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-msgstr "URL către HiveManagerNG, de exemplu https://cloud.aerohive.com"
-
 #, fuzzy
 msgid ""
 "URL to access the central site from the remote site, including the protocol "
@@ -82460,6 +82489,15 @@ msgstr "Niveluri superioare pentru dimensiunea de utilizare a jurnalelor"
 msgid ""
 "Upper levels for the maximum latency. Defaults: 5 ms (WARN), 10 ms (CRIT)."
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Upper levels for the nominal frequencies of AC devices like UPSs or PDUs. "
+"Leave unset where over-frequency is not a concern."
+msgstr ""
+"Nivelurile pentru frecvențele nominale ale dispozitivelor de curent "
+"alternativ, cum ar fi UPS-urile sau PDU-urile. Mai multe faze pot fi "
+"abordate independent."
 
 msgid "Upper levels for the number of HTTP requests per second"
 msgstr "Niveluri superioare pentru numărul de cereri HTTP pe secundă"
@@ -86186,6 +86224,17 @@ msgstr "Care este scopul?"
 msgid "What should be sent out?"
 msgstr ""
 
+msgid ""
+"When a user that was synchronized from an LDAP connection is no longer found "
+"during synchronization, Checkmk normally deletes the account immediately. "
+"With this option enabled, the account is instead locked and placed into "
+"quarantine: it stays visible to administrators but can no longer log in. If "
+"the user reappears in the directory before the retention period elapses, the "
+"account is automatically reactivated. Otherwise it is deleted once the "
+"retention period has passed. Disable this option to restore the immediate-"
+"deletion behavior."
+msgstr ""
+
 #, fuzzy
 msgid ""
 "When activated, the Agent Bakery will compress most of the agent packages. "
@@ -87910,6 +87959,12 @@ msgstr ""
 "Fără autentificare, toată lumea poate trimite notificări către spooler.  "
 "Dacă alegeți <tt>Autentificare cu TLS</tt> acest site trebuie să aibă "
 "încredere în SiteCA al expeditorilor!"
+
+msgid ""
+"Without levels all canisters are expected to be online. With fixed levels "
+"the warning and critical thresholds are applied to the number of online "
+"canisters."
+msgstr ""
 
 msgid ""
 "Without this option the access is limited to querying the current and "
@@ -90513,9 +90568,6 @@ msgstr "activ / activ"
 msgid "active / standby"
 msgstr "activ / în așteptare"
 
-msgid "active hosts"
-msgstr "gazde active"
-
 msgid "active instances"
 msgstr "instanțe active"
 
@@ -90900,14 +90952,15 @@ msgstr "implicit (toate regiunile AWS normale)"
 msgid "degraded"
 msgstr "degradat"
 
-msgid "degraded hosts"
-msgstr "gazde degradate"
-
 msgid "delay precompiling"
 msgstr "întârzierea precompilării"
 
 msgid "delayed"
 msgstr "întârziată"
+
+#, fuzzy
+msgid "deletion pending on the next synchronization"
+msgstr "Durata permisă de la ultima sincronizare"
 
 msgid "demand"
 msgstr "cerere"
@@ -91517,9 +91570,6 @@ msgstr "inSync"
 msgid "inactive"
 msgstr "inactiv"
 
-msgid "inactive hosts"
-msgstr "gazde inactive"
-
 msgid "incidents left"
 msgstr "incidente lăsate"
 
@@ -91995,9 +92045,6 @@ msgstr "off"
 msgid "offline"
 msgstr "offline"
 
-msgid "offline hosts"
-msgstr "gazde offline"
-
 msgid "on"
 msgstr "pe"
 
@@ -92016,9 +92063,6 @@ msgstr "unul dintre"
 
 msgid "online"
 msgstr "online"
-
-msgid "online canisters"
-msgstr "canistre online"
 
 msgid "only messages"
 msgstr "numai mesaje"
@@ -92069,9 +92113,6 @@ msgstr "alte"
 
 msgid "other CTIO errors"
 msgstr "alte erori CTIO"
-
-msgid "other hosts"
-msgstr "alte gazde"
 
 #, fuzzy
 msgid "other names"
@@ -92317,6 +92358,10 @@ msgstr "aceeași a n-a zi a săptămânii (de la început)"
 
 msgid "same nth weekday (from end)"
 msgstr "aceeași a n-a zi a săptămânii (de la sfârșit)"
+
+#, fuzzy, python-format
+msgid "scheduled for deletion on %s"
+msgstr "Programarea timpului de oprire pentru %d %s"
 
 msgid "sec"
 msgstr "sec"
@@ -92965,6 +93010,10 @@ msgid "Clear search"
 msgstr "Căutarea regulilor"
 
 #, fuzzy
+msgid "Could not load this content."
+msgstr "Nu puteți șterge această conexiune."
+
+#, fuzzy
 msgid "filter"
 msgstr "Filtru"
 
@@ -93568,6 +93617,13 @@ msgstr "Ntop"
 #, fuzzy
 msgid "Display ntop alerts, flows or top talkers"
 msgstr "Afișarea alertelor Ntop angajate, trecute și de flux"
+
+#, fuzzy
+msgid "Network flow monitoring"
+msgstr "Monitorizarea rețelei"
+
+msgid "Visualize network flow traffic, applications and autonomous systems"
+msgstr ""
 
 #, fuzzy
 msgid "Select custom graph"
@@ -94586,6 +94642,18 @@ msgstr "Numele serviciului"
 msgid "Show bar visualization"
 msgstr "Afișați vizualizarea barei"
 
+#, fuzzy
+msgid "Add network flow widget"
+msgstr "Adăugați o țintă"
+
+#, fuzzy
+msgid "Choose what to display"
+msgstr "Nu afișați o dată"
+
+#, fuzzy
+msgid "No network flow widgets are available yet."
+msgstr "Nu este disponibil niciun instantaneu pentru restaurare."
+
 msgid ""
 "A preview of ntop widgets is not available due to the widget size limitation"
 msgstr ""
@@ -94605,10 +94673,6 @@ msgstr "Ntop top colegi de top"
 #, fuzzy
 msgid "Add ntop"
 msgstr "Adăugați la"
-
-#, fuzzy
-msgid "Choose what to display"
-msgstr "Nu afișați o dată"
 
 msgid "Enter URL to embed"
 msgstr ""
@@ -94800,24 +94864,9 @@ msgid ""
 "<tt>$DATA_POINT_ATTR.&lt;key&gt;$</tt>"
 msgstr ""
 
-msgid "The time window used to aggregate data for each point on the chart.<ul>"
-msgstr ""
-
 #, fuzzy
 msgid "Metric name"
 msgstr "Etichetă metrică"
-
-#, fuzzy
-msgid "Aggregation lookback"
-msgstr "Controale de agregare"
-
-#, fuzzy
-msgid "Percentile (histograms)"
-msgstr "Grupuri de agregare"
-
-#, fuzzy
-msgid "Percentile for histogram aggregation"
-msgstr "Grupuri de agregare"
 
 #, fuzzy
 msgid "Service name template"
@@ -95041,6 +95090,14 @@ msgstr[2] "Niciuna selectată"
 
 msgid "Show all"
 msgstr "Arată tot"
+
+#, fuzzy
+msgid "Time zoom"
+msgstr "Orizont de timp"
+
+#, fuzzy
+msgid "Peak zoom"
+msgstr "Resetare zoom"
 
 #, fuzzy
 msgid "Custom time range"
@@ -95501,6 +95558,10 @@ msgstr "Ultimul "
 #, fuzzy
 msgid "Lookback"
 msgstr "Privind înapoi"
+
+#, fuzzy
+msgid "Consolidation"
+msgstr "Consolidarea RRD"
 
 #, fuzzy
 msgid "Unknown error"
@@ -96820,6 +96881,29 @@ msgstr "Eroare generală"
 msgid "Select host %{name}"
 msgstr "Ștergeți gazda"
 
+msgid ""
+"An at-a-glance summary of %{host} will appear here, bringing the key host "
+"information together in one place."
+msgstr ""
+
+msgid "Host details (name, alias, primary IP address, site, folder)"
+msgstr ""
+
+#, fuzzy
+msgid "Service summary with a state visualization"
+msgstr "Meniul de navigare a serviciului afișat în vizualizarea BI"
+
+#, fuzzy
+msgid "Contact groups and tags"
+msgstr "Grupuri de contact"
+
+msgid "Labels (discovered and explicit)"
+msgstr ""
+
+#, fuzzy
+msgid "Relations placeholder"
+msgstr "VM-uri de tip Placeholder"
+
 msgid "This action runs immediately and has no further options."
 msgstr ""
 
@@ -97967,6 +98051,58 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, fuzzy
+#~ msgid "API access token"
+#~ msgstr "Token de acces la API"
+
+#~ msgid "Name of the enclosure, e.g. Enclosure 1"
+#~ msgstr "Denumirea incintei, de exemplu, Incinta 1"
+
+#~ msgid "Numerical ID of the VHM, e.g. 102"
+#~ msgstr "Numărul de identificare numerică al VHM, de exemplu 102"
+
+#~ msgid ""
+#~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
+#~ msgstr ""
+#~ "Vă rugăm să introduceți aici <tt>Drive-uri</tt>, <tt>Miscuri</tt> sau "
+#~ "<tt>VDiscuri</tt>."
+
+#~ msgid "Redirect URL (has to be https)"
+#~ msgstr "URL de redirecționare (trebuie să fie https)"
+
+#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+#~ msgstr "URL către HiveManagerNG, de exemplu https://cloud.aerohive.com"
+
+#~ msgid "active hosts"
+#~ msgstr "gazde active"
+
+#~ msgid "degraded hosts"
+#~ msgstr "gazde degradate"
+
+#~ msgid "inactive hosts"
+#~ msgstr "gazde inactive"
+
+#~ msgid "offline hosts"
+#~ msgstr "gazde offline"
+
+#~ msgid "online canisters"
+#~ msgstr "canistre online"
+
+#~ msgid "other hosts"
+#~ msgstr "alte gazde"
+
+#, fuzzy
+#~ msgid "Aggregation lookback"
+#~ msgstr "Controale de agregare"
+
+#, fuzzy
+#~ msgid "Percentile (histograms)"
+#~ msgstr "Grupuri de agregare"
+
+#, fuzzy
+#~ msgid "Percentile for histogram aggregation"
+#~ msgstr "Grupuri de agregare"
 
 #, python-format
 #~ msgid "Cannot read configuration file \"%s\": %s"
@@ -104833,9 +104969,6 @@ msgstr ""
 #~ msgid "Number of notifications as text"
 #~ msgstr "Numărul de notificări sub formă de text"
 
-#~ msgid "RRD consolidation"
-#~ msgstr "Consolidarea RRD"
-
 #~ msgid ""
 #~ "Select the range in between which the values are displayed. This only "
 #~ "affects the dashlet if 'Show historic values' is selected"
@@ -108405,10 +108538,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "File upload"
 #~ msgstr "Byte încărcate"
-
-#, fuzzy
-#~ msgid "Placeholder"
-#~ msgstr "VM-uri de tip Placeholder"
 
 #, fuzzy
 #~ msgid ""
