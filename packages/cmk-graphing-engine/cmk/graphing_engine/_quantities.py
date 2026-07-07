@@ -22,13 +22,22 @@ class Metric(Protocol):
 
 @dataclass(frozen=True, kw_only=True)
 class EvaluationContext:
-    performance_data: Mapping[RRDMetric, PerformanceData]
-    time_series: Mapping[RRDMetric, TimeSeries]
     time_range: TimeRange
     fetched: Mapping[Metric, Sequence[FetchedData]] = field(default_factory=dict)
 
     def data_of(self, metric: RRDMetric) -> PerformanceData | None:
-        return self.performance_data.get(metric)
+        performance_data: PerformanceData | None = None
+        for data in self.fetched.get(metric, ()):
+            if data.performance_data is not None:
+                performance_data = data.performance_data
+        return performance_data
+
+    def time_series_of(self, metric: RRDMetric) -> TimeSeries | None:
+        time_series: TimeSeries | None = None
+        for data in self.fetched.get(metric, ()):
+            if data.time_series is not None:
+                time_series = data.time_series
+        return time_series
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -142,7 +151,7 @@ class RRDMetric:
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
         data = context.data_of(self)
-        existing = context.time_series.get(self)
+        existing = context.time_series_of(self)
         if not ((data is not None and data.value is not None) or existing is not None):
             return None
         return EvaluatedQuantity(

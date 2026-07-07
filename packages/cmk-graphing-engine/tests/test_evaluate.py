@@ -3,7 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from cmk.graphing_engine import (
     AutoPrecision,
@@ -17,11 +17,13 @@ from cmk.graphing_engine import (
     EvaluatedLine,
     EvaluatedStack,
     EvaluatedVerticalRange,
+    FetchedData,
     FixedRange,
     Fraction,
     Graph,
     HostName,
     Line,
+    Metric,
     MetricName,
     MinimalRange,
     Product,
@@ -67,14 +69,27 @@ def _time_series(*values: float | None) -> TimeSeries:
     return TimeSeries(time_range=_TR, values=list(values))
 
 
+def _fetched(
+    performance_data: Mapping[RRDMetric, PerformanceData],
+    time_series: Mapping[RRDMetric, TimeSeries],
+) -> Mapping[Metric, Sequence[FetchedData]]:
+    fetched: dict[Metric, Sequence[FetchedData]] = {}
+    for metric in {*performance_data, *time_series}:
+        fetched[metric] = [
+            FetchedData(
+                performance_data=performance_data.get(metric),
+                time_series=time_series.get(metric),
+            )
+        ]
+    return fetched
+
+
 def _context(
     performance_data: Mapping[RRDMetric, PerformanceData],
     time_series: Mapping[RRDMetric, TimeSeries],
     time_range: TimeRange = _TR,
 ) -> EvaluationContext:
-    return EvaluationContext(
-        performance_data=performance_data, time_series=time_series, time_range=time_range
-    )
+    return EvaluationContext(fetched=_fetched(performance_data, time_series), time_range=time_range)
 
 
 def _evaluate_value(
@@ -82,7 +97,7 @@ def _evaluate_value(
     metric_data: Mapping[RRDMetric, PerformanceData],
 ) -> float | None:
     evaluated = quantity.evaluate(
-        EvaluationContext(performance_data=metric_data, time_series={}, time_range=_TR)
+        EvaluationContext(fetched=_fetched(metric_data, {}), time_range=_TR)
     )
     return None if evaluated is None else evaluated.value
 
@@ -94,9 +109,7 @@ def _evaluate_time_series(
     time_range: TimeRange,
 ) -> TimeSeries | None:
     evaluated = quantity.evaluate(
-        EvaluationContext(
-            performance_data=metric_data, time_series=time_series, time_range=time_range
-        )
+        EvaluationContext(fetched=_fetched(metric_data, time_series), time_range=time_range)
     )
     return None if evaluated is None else evaluated.time_series
 

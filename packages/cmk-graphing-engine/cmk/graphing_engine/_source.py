@@ -11,11 +11,9 @@ from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import (
     FetchedData,
     MetricName,
-    PerformanceData,
     Service,
-    TimeSeries,
 )
-from ._quantities import EvaluationContext, Metric, RRDMetric
+from ._quantities import EvaluationContext, Metric
 
 
 class RRDFetchMetricNames(Protocol):
@@ -43,19 +41,4 @@ def fetch_evaluation_context(
     fetched = fetch_data(
         metrics, consolidation_function=consolidation_function, time_range=time_range
     )
-    performance_data: dict[RRDMetric, PerformanceData] = {}
-    time_series: dict[RRDMetric, TimeSeries] = {}
-    for metric, fetched_data in fetched.items():
-        if not isinstance(metric, RRDMetric):
-            continue
-        for data in fetched_data:
-            if data.performance_data is not None:
-                performance_data[metric] = data.performance_data
-            if data.time_series is not None:
-                time_series[metric] = data.time_series
-    return EvaluationContext(
-        performance_data=performance_data,
-        time_series=time_series,
-        time_range=time_range,
-        fetched=fetched,
-    )
+    return EvaluationContext(time_range=time_range, fetched=fetched)

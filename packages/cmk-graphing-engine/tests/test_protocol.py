@@ -16,6 +16,7 @@ from cmk.graphing_engine import (
     DecimalNotation,
     EvaluatedCurve,
     EvaluatedQuantity,
+    FetchedData,
     Graph,
     HostName,
     Line,
@@ -90,9 +91,15 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
     result = _evaluate_graph(
         graph,
         EvaluationContext(
-            performance_data={a: _data(value=3.0)},
-            time_series={a: TimeSeries(time_range=_TR, values=[1.0, None, 3.0])},
             time_range=_TR,
+            fetched={
+                a: [
+                    FetchedData(
+                        performance_data=_data(value=3.0),
+                        time_series=TimeSeries(time_range=_TR, values=[1.0, None, 3.0]),
+                    )
+                ]
+            },
         ),
     )
     assert result.lines[0].curve == EvaluatedCurve(
