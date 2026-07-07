@@ -12,32 +12,7 @@ import collections
 import itertools
 import sys
 from collections.abc import Callable, Iterator
-from functools import lru_cache, wraps
-from typing import Any, ParamSpec, TypeVar
-
-P = ParamSpec("P")
-R = TypeVar("R")
-
-
-# Used as decorator wrapper for functools.lru_cache in order to bind the cache to an instance method
-# rather than the class method.
-# FIXME: Nuke this cruel hack below, it is just an ugly workaround for a missing object which should actually hold the cache!
-def instance_method_lru_cache(
-    maxsize: int | None = 128, typed: bool = False
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    def wrap(f: Callable[P, R]) -> Callable[P, R]:
-        @wraps(f)
-        def wrapped_f(*args: P.args, **kwargs: P.kwargs) -> R:
-            self, *rest = args
-            cache_orig = lru_cache(maxsize, typed)(f)
-            instance_cache = cache_orig.__get__(self, self.__class__)  # type: ignore[attr-defined]
-            setattr(self, f.__name__, instance_cache)
-            value: R = instance_cache(*rest, **kwargs)
-            return value
-
-        return wrapped_f
-
-    return wrap
+from typing import Any
 
 
 class CacheManager:
