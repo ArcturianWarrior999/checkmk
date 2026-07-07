@@ -20,6 +20,7 @@ select = [
   "A",      # flake8: builtins
   "ARG",    # flake8: unused args
   "B005",   # flake8-bugbear: strip-with-multi-characters
+  "B006",   # flake8-bugbear: mutable-argument-default
   "B012",   # flake8-bugbear: jump-statement-in-finally
   "C4",     # flake8: comprehensions
   "C90",    # mccabe

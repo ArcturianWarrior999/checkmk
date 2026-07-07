@@ -56,7 +56,7 @@ def test_flask_request_memoize(wsgi_app: WebTestAppForCMK) -> None:
 @pytest.mark.usefixtures("patch_theme", "reset_hooks")
 def test_request_memoize() -> None:
     @hooks.request_memoize()
-    def blah(a=[]):
+    def blah(a: list[int] = []) -> list[int]:  # noqa: B006
         a.append(1)
         return a
 
@@ -113,7 +113,7 @@ def test_request_memoize_unregister() -> None:
     # unregistered hooks used by memoize.
 
     @hooks.request_memoize()
-    def blah(a: list[int] = []) -> list[int]:
+    def blah(a: list[int] = []) -> list[int]:  # noqa: B006
         a.append(1)
         return a
 

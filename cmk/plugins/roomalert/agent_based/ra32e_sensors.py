@@ -143,7 +143,7 @@ def _check_ra32e_temperature_sensors(
     item: str,
     params: TempParamType,
     internal: InternalSection | None,
-    sections: list[DigitalSection | None] = [],
+    sections: Sequence[DigitalSection | None] = [],
 ) -> CheckResult:
     if internal is not None and item in {"Internal", "Heat Index"}:
         unique_name = "ra32e_temp_heatindex" if is_heat_index_name(item) else "ra32e_temp_internal"

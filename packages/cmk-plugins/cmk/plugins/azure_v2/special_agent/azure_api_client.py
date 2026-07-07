@@ -260,7 +260,7 @@ class BaseAsyncApiClient:
         key=None,
         params=None,
         next_page_key="nextLink",
-        custom_headers={},
+        custom_headers=None,
         raise_for_rate_limit=False,
     ):
         uri = full_uri or self._base_url + uri_end

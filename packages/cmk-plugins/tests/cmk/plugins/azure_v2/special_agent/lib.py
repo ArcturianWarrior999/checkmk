@@ -2,8 +2,8 @@
 # Copyright (C) 2025 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+
 from collections.abc import Iterable
-from typing import Any
 
 from cmk.plugins.azure_v2.special_agent.agent_azure_v2 import (
     AzureSection,
@@ -16,12 +16,12 @@ class MockAzureSection(AzureSection):
     def __init__(
         self,
         name: str,
-        content: list[Any] = [],
+        content: Iterable[object] = [],
         piggytargets: Iterable[str] = ("",),
         separator: int = 124,
     ) -> None:
         super().__init__(name, piggytargets, separator)
-        self._cont = content
+        self._cont = list(content)
 
 
 def fake_azure_subscription(use_unique_names: bool = False) -> AzureSubscription:
