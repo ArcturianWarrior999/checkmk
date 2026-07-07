@@ -8,5 +8,8 @@ description:
  It shows {vmid} (e.g. "101"), {status} (e.g. "running"), {type} ("lxc" or "qemu") and {host} values
  returned by the API for the given VM.
 
+ Tags set on the VM in Proxmox VE are exported as host labels of the form
+ {cmk/pve/tag/<tag>:yes}.
+
 discovery:
  One service per system is created.

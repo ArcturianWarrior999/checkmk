@@ -10,9 +10,10 @@ from zoneinfo import ZoneInfo
 import pytest
 import time_machine
 
-from cmk.agent_based.v2 import CheckResult, Metric, Result, State
+from cmk.agent_based.v2 import CheckResult, HostLabel, Metric, Result, State
 from cmk.plugins.proxmox_ve.agent_based.proxmox_ve_vm_info import (
     _check_proxmox_ve_vm_info_testable,
+    host_label_function,
     Params,
     parse_proxmox_ve_vm_info,
 )
@@ -36,6 +37,28 @@ VM_DATA_WITH_LOCK = SectionVMInfo(
     uptime=12345,
     lock=LockState.BACKUP,
 )
+
+
+@pytest.mark.parametrize(
+    "tags,expected_tag_labels",
+    [
+        ((), []),
+        (
+            ("prod", "web"),
+            [HostLabel("cmk/pve/tag/prod", "yes"), HostLabel("cmk/pve/tag/web", "yes")],
+        ),
+    ],
+)
+def test_host_label_function_tags(
+    tags: tuple[str, ...], expected_tag_labels: list[HostLabel]
+) -> None:
+    section = VM_DATA.model_copy(update={"tags": tags, "cluster": "cluster1"})
+    labels = list(host_label_function(section))
+    assert labels == [
+        HostLabel("cmk/pve/entity", "vm"),
+        HostLabel("cmk/pve/cluster", "cluster1"),
+        *expected_tag_labels,
+    ]
 
 
 @pytest.mark.parametrize("info_section_model", [VM_DATA, VM_DATA_WITH_LOCK])

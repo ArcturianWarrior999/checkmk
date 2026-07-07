@@ -476,6 +476,7 @@ def _create_vm_sections(
             vmid=vmid,
             node=vm["node"],
             type=vm["type"],
+            tags=tuple(tag for tag in vm.get("tags", "").split(";") if tag),
             status=vm["status"],
             name=vm["name"],
             uptime=vm["uptime"],
