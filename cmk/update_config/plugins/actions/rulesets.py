@@ -99,26 +99,29 @@ def validate_rule_values(
                     exc_info=True,
                 )
                 identity = create_gui_crash_report().ident_to_text()
-                logger.warning("A crash report was generated with ID: %s", identity)
+                logger.warning(
+                    "A crash report was generated with ID: %(crash_report_id)s",
+                    {"crash_report_id": identity},
+                )
 
     if n_invalid:
         logger.warning(
             format_warning(
-                "Detected %s issue(s) in configured rules.\n"
+                "Detected %(n_invalid)s issue(s) in configured rules.\n"
                 "To correct these issues, we recommend to open the affected rules in the GUI.\n"
                 "Upon attempting to save them, any problematic fields will be highlighted."
             ),
-            n_invalid,
+            {"n_invalid": n_invalid},
         )
     if n_broken:
         logger.warning(
             format_warning(
-                "Detected %s issue(s) in loaded rulesets. This is a problem with the plug-in "
-                "implementation. It needs to be addressed by the maintainers. Please review the "
-                "crashes in the crash reports page to help fix the issues. "
+                "Detected %(n_broken)s issue(s) in loaded rulesets. This is a problem with the "
+                "plug-in implementation. It needs to be addressed by the maintainers. Please "
+                "review the crashes in the crash reports page to help fix the issues. "
                 "Until all issues are resolved, we recommend disabling the affected rules."
             ),
-            n_broken,
+            {"n_broken": n_broken},
         )
 
 

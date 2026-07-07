@@ -86,9 +86,8 @@ class MigrateSiteChangesSchema(UpdateAction):
 
             if migrated:
                 logger.info(
-                    "Migrated %d pending change(s) for site %r to the new schema.",
-                    migrated,
-                    site_id,
+                    "Migrated %(migrated)d pending change(s) for site %(site_id)r to the new schema.",
+                    {"migrated": migrated, "site_id": site_id},
                 )
 
 

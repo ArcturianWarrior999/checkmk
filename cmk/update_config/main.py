@@ -69,16 +69,15 @@ def main(
         debug.enable()
 
     logger = _setup_logging(arguments.verbose)
-    logger.debug("parsed arguments: %s", arguments)
+    logger.debug("parsed arguments: %(arguments)s", {"arguments": arguments})
 
     if not arguments.site_may_run:
         ensure_site_is_stopped_callback(logger)
 
     logger.info(
-        "%sATTENTION%s\n  Some steps may take a long time depending "
+        "%(yellow)sATTENTION%(normal)s\n  Some steps may take a long time depending "
         "on your installation.\n  Please be patient.\n",
-        tty.yellow,
-        tty.normal,
+        {"yellow": tty.yellow, "normal": tty.normal},
     )
     edition = cmk_edition(paths.omd_root)
     main_modules.register(edition)
@@ -220,7 +219,9 @@ def _load_plugins(edition: Edition, logger: logging.Logger) -> None:
             else []
         ),
     ):
-        logger.error("Error in action plug-in %s: %s\n", plugin, exc)
+        logger.error(
+            "Error in action plug-in %(plugin)s: %(exc)s\n", {"plugin": plugin, "exc": exc}
+        )
         if debug.enabled():
             raise exc
 
@@ -263,11 +264,18 @@ def check_config(edition: Edition, logger: logging.Logger, conflict_mode: Confli
         _initialize_base_environment(edition)
         for count, pre_action in enumerate(pre_update_actions, start=1):
             logger.info(
-                " %s%02d/%02d%s %s...", tty.yellow, count, total, tty.normal, pre_action.title
+                " %(yellow)s%(count)02d/%(total)02d%(normal)s %(title)s...",
+                {
+                    "yellow": tty.yellow,
+                    "count": count,
+                    "total": total,
+                    "normal": tty.normal,
+                    "title": pre_action.title,
+                },
             )
             pre_action(logger, conflict_mode)
 
-    logger.info("Done (%ssuccess%s)\n", tty.green, tty.normal)
+    logger.info("Done (%(green)ssuccess%(normal)s)\n", {"green": tty.green, "normal": tty.normal})
 
 
 def update_config(edition: Edition, logger: logging.Logger) -> Literal[0, 1]:
@@ -289,7 +297,14 @@ def update_config(edition: Edition, logger: logging.Logger) -> Literal[0, 1]:
         with _forbid_pending_change_writes():
             for num, action in enumerate(actions, start=1):
                 logger.info(
-                    " %s%02d/%02d%s %s...", tty.yellow, num, total, tty.normal, action.title
+                    " %(yellow)s%(num)02d/%(total)02d%(normal)s %(title)s...",
+                    {
+                        "yellow": tty.yellow,
+                        "num": num,
+                        "total": total,
+                        "normal": tty.normal,
+                        "title": action.title,
+                    },
                 )
                 try:
                     action(logger)
@@ -299,7 +314,7 @@ def update_config(edition: Edition, logger: logging.Logger) -> Literal[0, 1]:
                     raise
                 except Exception:
                     has_errors = True
-                    logger.exception(' + "%s" failed', action.title)
+                    logger.exception(' + "%(title)s" failed', {"title": action.title})
                     if not action.continue_on_failure or debug.enabled():
                         raise
 
@@ -322,10 +337,10 @@ def update_config(edition: Edition, logger: logging.Logger) -> Literal[0, 1]:
             )
 
     if has_errors:
-        logger.error("Done (%swith errors%s)", tty.red, tty.normal)
+        logger.error("Done (%(red)swith errors%(normal)s)", {"red": tty.red, "normal": tty.normal})
         return 1
 
-    logger.info("Done (%ssuccess%s)", tty.green, tty.normal)
+    logger.info("Done (%(green)ssuccess%(normal)s)", {"green": tty.green, "normal": tty.normal})
     return 0
 
 

@@ -42,7 +42,10 @@ class PreUpdateAgentBasedPlugins(PreUpdateAction):
 
         for error in rewrite_yielding_errors(write=False):
             if error.plugin is None:
-                logger.error("%s: %s.", error.host_name, error.message)
+                logger.error(
+                    "%(host_name)s: %(message)s.",
+                    {"host_name": error.host_name, "message": error.message},
+                )
                 if _continue_per_users_choice(
                     conflict_mode,
                     " You can abort and fix this manually."
@@ -58,13 +61,19 @@ class PreUpdateAgentBasedPlugins(PreUpdateAction):
 
         # show one error per plugin to decrease the number of errors user has to handle
         for plugin, hosts in plugin_errors.items():
-            logger.log(VERBOSE, "%s: Failed to migrate autochecks", plugin)
+            logger.log(VERBOSE, "%(plugin)s: Failed to migrate autochecks", {"plugin": plugin})
             for host, messages in hosts.items():
-                logger.log(VERBOSE, "  %s service(s) on %s affected", len(messages), host)
+                logger.log(
+                    VERBOSE,
+                    "  %(service_count)s service(s) on %(host)s affected",
+                    {"service_count": len(messages), "host": host},
+                )
 
             all_messages = list(itertools.chain(*hosts.values()))
 
-            logger.error("%s: %s. ", plugin, all_messages[0])
+            logger.error(
+                "%(plugin)s: %(message)s. ", {"plugin": plugin, "message": all_messages[0]}
+            )
             if _continue_per_users_choice(
                 conflict_mode,
                 "You can abort and fix this manually. "

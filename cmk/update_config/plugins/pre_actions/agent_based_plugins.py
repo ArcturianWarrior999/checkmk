@@ -65,17 +65,17 @@ class PreUpdateAgentBasedPlugins(PreUpdateAction):
         for package_id, paths in grouped_files.items():
             if not is_applicable_mkp(manifests[package_id]):
                 logger.info(
-                    "[%s %s]: Ignoring problems (MKP will be disabled on target version)",
-                    package_id.name,
-                    package_id.version,
+                    "[%(package_name)s %(package_version)s]: Ignoring problems "
+                    "(MKP will be disabled on target version)",
+                    {"package_name": package_id.name, "package_version": package_id.version},
                 )
                 continue
 
             _log_error_message_obsolete_files(logger, paths)
             logger.error(
-                "The above file(s) are part of the extension package %s %s.",
-                package_id.name,
-                package_id.version,
+                "The above file(s) are part of the extension package "
+                "%(package_name)s %(package_version)s.",
+                {"package_name": package_id.name, "package_version": package_id.version},
             )
             if disable_incomp_mkp(conflict_mode, package_id, installer, PACKAGE_STORE, path_config):
                 continue
@@ -97,11 +97,11 @@ def _continue_per_users_choice(conflict_mode: ConflictMode) -> Resume:
 
 def _log_error_message_obsolete_files(logger: Logger, paths: Sequence[Path]) -> None:
     for path in paths:
-        logger.error("Obsolete file: '%s'", path)
+        logger.error("Obsolete file: '%(path)s'", {"path": path})
     logger.error(
         "The file(s) residing in `local/lib/python3/cmk/plugins/agent_based` will no longer be loaded in Checkmk 2.4. "
     )
-    logger.error("See: %s", werk_reference_url(WerkReference.DECOMMISSION_V1_API))
+    logger.error("See: %(url)s", {"url": werk_reference_url(WerkReference.DECOMMISSION_V1_API)})
 
 
 pre_update_action_registry.register(

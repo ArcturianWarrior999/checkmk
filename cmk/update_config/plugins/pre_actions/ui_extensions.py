@@ -66,9 +66,8 @@ class PreUpdateUIExtensions(PreUpdateAction):
             if not is_applicable_mkp(manifest):
                 dealt_with_packages.add(manifest.id)
                 logger.info(
-                    "[%s %s]: Ignoring problems (MKP will be disabled on target version)",
-                    manifest.name,
-                    manifest.version,
+                    "[%(manifest_name)s %(manifest_version)s]: Ignoring problems (MKP will be disabled on target version)",
+                    {"manifest_name": manifest.name, "manifest_version": manifest.version},
                 )
                 continue
 
@@ -101,7 +100,7 @@ class PreUpdateUIExtensions(PreUpdateAction):
             "These where the errors we encountered:",
         )
         for exc in discovered_plugins_errors:
-            logger.error("    %s", exc)
+            logger.error("    %(exc)s", {"exc": exc})
         if _continue_on_incomp_local_file(conflict_mode).is_not_abort():
             return
         raise MKUserError(None, "incompatible graphing plugins")

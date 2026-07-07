@@ -32,7 +32,9 @@ def add_cmk_inv_rules(logger: Logger, all_rulesets: RulesetCollection) -> None:
     for rule_config in reversed(CMK_INV_RULES):
         if _rule_present(cmk_inv_rules, rule_config["id"]):
             continue
-        logger.info("Adding: %s", rule_config["options"]["description"])
+        logger.info(
+            "Adding: %(description)s", {"description": rule_config["options"]["description"]}
+        )
         cmk_inv_rules.prepend_rule(
             root_folder, Rule.from_config(root_folder, cmk_inv_rules, rule_config)
         )

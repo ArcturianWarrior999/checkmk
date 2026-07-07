@@ -80,12 +80,17 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
                 migrated = True
                 logger.log(
                     VERBOSE,
-                    "Migrated user_sync=%r on site %r to authentication_connections=%r, "
-                    "user_attribute_sync_connections=%r",
-                    user_sync,
-                    str(site_id),
-                    site_spec.get("authentication_connections"),
-                    site_spec.get("user_attribute_sync_connections"),
+                    "Migrated user_sync=%(user_sync)r on site %(site_id)r to "
+                    "authentication_connections=%(authentication_connections)r, "
+                    "user_attribute_sync_connections=%(user_attribute_sync_connections)r",
+                    {
+                        "user_sync": user_sync,
+                        "site_id": str(site_id),
+                        "authentication_connections": site_spec.get("authentication_connections"),
+                        "user_attribute_sync_connections": site_spec.get(
+                            "user_attribute_sync_connections"
+                        ),
+                    },
                 )
 
         if migrated:

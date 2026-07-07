@@ -46,7 +46,11 @@ class RestoreBackupTargetPasswords(UpdateAction):
 
         if restored:
             config.save()
-            logger.log(VERBOSE, "Fixed backup target secrets format for: %s", ", ".join(restored))
+            logger.log(
+                VERBOSE,
+                "Fixed backup target secrets format for: %(targets)s",
+                {"targets": ", ".join(restored)},
+            )
 
 
 update_action_registry.register(

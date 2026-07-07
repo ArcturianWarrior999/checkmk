@@ -69,9 +69,9 @@ class PreUpdateRulesets(PreUpdateAction):
                     ruleset.rulespec.value_model
                 except Exception:
                     logger.exception(
-                        "ERROR: Failed to load Ruleset: %s. "
+                        "ERROR: Failed to load Ruleset: %(ruleset_name)s. "
                         "There is likely an error in the implementation.",
-                        ruleset.name,
+                        {"ruleset_name": ruleset.name},
                     )
                     logger.exception("This is the exception: ")
                     if _continue_on_broken_ruleset(conflict_mode).is_abort():
@@ -178,7 +178,9 @@ def _validate_rule_values(
 
         for folder, index, rule in ruleset.get_rules():
             logger.log(
-                VERBOSE, "Validating ruleset '%s' in folder '%s'", ruleset.name, folder.name()
+                VERBOSE,
+                "Validating ruleset '%(ruleset_name)s' in folder '%(folder_name)s'",
+                {"ruleset_name": ruleset.name, "folder_name": folder.name()},
             )
             with warnings.catch_warnings(action="error", category=RegexFutureWarning):
                 try:

@@ -55,11 +55,16 @@ class RulesetSplitMigration:
     ) -> None:
         try:
             new_ruleset = self.all_rulesets.get(new_ruleset_name)
-            self.logger.debug("Adding migrated rules to existing ruleset %s", new_ruleset.name)
+            self.logger.debug(
+                "Adding migrated rules to existing ruleset %(ruleset_name)s",
+                {"ruleset_name": new_ruleset.name},
+            )
         except KeyError:
             new_ruleset = Ruleset(name=new_ruleset_name)
             self.all_rulesets.set(new_ruleset_name, new_ruleset)
-            self.logger.debug("Created new ruleset %s", new_ruleset.name)
+            self.logger.debug(
+                "Created new ruleset %(ruleset_name)s", {"ruleset_name": new_ruleset.name}
+            )
 
         self._clone_rules(old_ruleset, new_ruleset, migration_details)
 
@@ -78,14 +83,17 @@ class RulesetSplitMigration:
                         and migration_detail.default_value is None
                     ):
                         self.logger.debug(
-                            "No value for rule %s. Skipping", migration_detail.old_value_name
+                            "No value for rule %(old_value_name)s. Skipping",
+                            {"old_value_name": migration_detail.old_value_name},
                         )
                         continue
 
                     self.logger.debug(
-                        "Adding value %s to rule %s",
-                        migration_detail.old_value_name,
-                        new_ruleset.name,
+                        "Adding value %(old_value_name)s to rule %(ruleset_name)s",
+                        {
+                            "old_value_name": migration_detail.old_value_name,
+                            "ruleset_name": new_ruleset.name,
+                        },
                     )
                     value[migration_detail.new_value_name] = rule.value.get(
                         migration_detail.old_value_name, migration_detail.default_value
@@ -107,11 +115,15 @@ class RulesetSplitMigration:
         try:
             old_ruleset = self.all_rulesets.get(self.old_ruleset_name)
         except KeyError:
-            self.logger.debug("No %s ruleset to migrate.", self.ruleset_title)
+            self.logger.debug(
+                "No %(ruleset_title)s ruleset to migrate.", {"ruleset_title": self.ruleset_title}
+            )
             return None
 
         if old_ruleset.is_empty():
-            self.logger.debug("%s ruleset has no rules.", self.ruleset_title)
+            self.logger.debug(
+                "%(ruleset_title)s ruleset has no rules.", {"ruleset_title": self.ruleset_title}
+            )
             return None
 
         sort_func = lambda item: item.new_ruleset_name
@@ -121,9 +133,11 @@ class RulesetSplitMigration:
         ):
             _migration_group: list[MigrationDetail] = list(migration_group)
             self.logger.debug(
-                "Migrating %s rule values %s to new ruleset",
-                self.ruleset_title,
-                [detail.old_value_name for detail in _migration_group],
+                "Migrating %(ruleset_title)s rule values %(value_names)s to new ruleset",
+                {
+                    "ruleset_title": self.ruleset_title,
+                    "value_names": [detail.old_value_name for detail in _migration_group],
+                },
             )
             try:
                 self._create_ruleset(

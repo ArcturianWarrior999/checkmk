@@ -40,9 +40,8 @@ class RemoveSAMLOwnedBySite(UpdateAction):
             modified = True
             logger.log(
                 VERBOSE,
-                "Removed owned_by_site=%r from SAML connection %r",
-                owner,
-                connection.get("id"),
+                "Removed owned_by_site=%(owner)r from SAML connection %(connection_id)r",
+                {"owner": owner, "connection_id": connection.get("id")},
             )
 
         if modified:

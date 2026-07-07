@@ -43,10 +43,12 @@ def drop_invalid_ssc_rules(
             if _is_valid_ssc_value(rule.value):
                 continue
             logger.info(
-                "Dropping rule %s of ruleset '%s' in folder '%s': its value is not a dictionary, so it has been ignored anyway",
-                rule.id,
-                ruleset.name,
-                folder.path() or "main",
+                "Dropping rule %(rule_id)s of ruleset '%(ruleset_name)s' in folder '%(folder_path)s': its value is not a dictionary, so it has been ignored anyway",
+                {
+                    "rule_id": rule.id,
+                    "ruleset_name": ruleset.name,
+                    "folder_path": folder.path() or "main",
+                },
             )
             ruleset.delete_rule(rule, create_change=False, pending_changes=pending_changes)
             n_dropped += 1

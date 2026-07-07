@@ -46,7 +46,7 @@ def add_ps_discovery_rules(
         return
 
     for rule in reversed(INVENTORY_PROCESS_DISCOVERY_RULES):
-        logger.info("Adding: %s", rule["options"]["description"])
+        logger.info("Adding: %(description)s", {"description": rule["options"]["description"]})
         ps_discovery_rules.prepend_rule(
             root_folder, Rule.from_config(root_folder, ps_discovery_rules, rule)
         )
@@ -57,7 +57,7 @@ def add_new_default_rules(logger: Logger, ps_discovery_rules: Ruleset, root_fold
         if rule["id"] not in _NEW_DEFAULT_RULE_IDS or rule_present(ps_discovery_rules, rule["id"]):
             continue
 
-        logger.info("Adding: %s", rule["options"]["description"])
+        logger.info("Adding: %(description)s", {"description": rule["options"]["description"]})
         ps_discovery_rules.prepend_rule(
             root_folder, Rule.from_config(root_folder, ps_discovery_rules, rule)
         )
@@ -69,7 +69,7 @@ def overwrite_ps_discovery_rule(
     try:
         rule = ps_discovery_rules.get_rule_by_id(rule_id)
     except KeyError:
-        logger.debug("No default rule for %s.", ps_descr)
+        logger.debug("No default rule for %(ps_descr)s.", {"ps_descr": ps_descr})
         return
 
     if rule.value["match"] == old_rule_match:
@@ -78,12 +78,15 @@ def overwrite_ps_discovery_rule(
                 rule for rule in INVENTORY_PROCESS_DISCOVERY_RULES if rule["id"] == rule_id
             )
         except StopIteration:
-            logger.debug("No actual rule for %s.", ps_descr)
+            logger.debug("No actual rule for %(ps_descr)s.", {"ps_descr": ps_descr})
             return
         rule.value["match"] = default_rule["value"]["match"]
-        logger.info("Overwriting default value: %s", rule.rule_options.description)
+        logger.info(
+            "Overwriting default value: %(description)s",
+            {"description": rule.rule_options.description},
+        )
     else:
-        logger.debug("Rule for %s was changed. Nothing to do.", ps_descr)
+        logger.debug("Rule for %(ps_descr)s was changed. Nothing to do.", {"ps_descr": ps_descr})
 
 
 def overwrite_default_ec_rule(logger: Logger, ps_discovery_rules: Ruleset) -> None:

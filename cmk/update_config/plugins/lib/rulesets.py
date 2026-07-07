@@ -134,7 +134,7 @@ def _delete_deprecated_wato_rulesets(
 ) -> None:
     for ruleset_name in list(all_rulesets.get_rulesets()):
         if any(p.match(ruleset_name) for p in deprecated_ruleset_patterns):
-            logger.log(VERBOSE, "Removing ruleset %s", ruleset_name)
+            logger.log(VERBOSE, "Removing ruleset %(ruleset_name)s", {"ruleset_name": ruleset_name})
             all_rulesets.delete(ruleset_name)
             continue
 
@@ -147,7 +147,11 @@ def _delete_removed_wato_rulesets(
     for folder_path, removed_ruleset_config in all_rulesets.get_unknown_rulesets().items():
         for ruleset_name in list(removed_ruleset_config.keys()):
             if ruleset_name in removed_rulesets:
-                logger.log(VERBOSE, "Deleting removed ruleset %s", ruleset_name)
+                logger.log(
+                    VERBOSE,
+                    "Deleting removed ruleset %(ruleset_name)s",
+                    {"ruleset_name": ruleset_name},
+                )
                 all_rulesets.delete_unknown(folder_path, ruleset_name)
 
 
@@ -157,7 +161,9 @@ def _transform_rulesets_loosing_item(
     rulesets_loosing_item: Iterable[str],
 ) -> None:
     for ruleset_name in rulesets_loosing_item:
-        logger.log(VERBOSE, "Fixing items for ruleset %s", ruleset_name)
+        logger.log(
+            VERBOSE, "Fixing items for ruleset %(ruleset_name)s", {"ruleset_name": ruleset_name}
+        )
         for _folder, _index, rule in all_rulesets.get(
             f"checkgroup_parameters:{ruleset_name}"
         ).get_rules():
@@ -211,7 +217,11 @@ def _transform_replaced_known_rulesets(
 
         new_ruleset = all_rulesets.get(replaced_rulesets[ruleset_name])
 
-        logger.log(VERBOSE, "Replacing ruleset %s with %s", ruleset_name, new_ruleset.name)
+        logger.log(
+            VERBOSE,
+            "Replacing ruleset %(ruleset_name)s with %(new_ruleset_name)s",
+            {"ruleset_name": ruleset_name, "new_ruleset_name": new_ruleset.name},
+        )
         for folder, _folder_index, rule in ruleset.get_rules():
             new_ruleset.append_rule(folder, rule)
 
@@ -235,7 +245,11 @@ def _transform_replaced_unknown_rulesets(
 
             new_ruleset = all_rulesets.get(replaced_rulesets[ruleset_name])
 
-            logger.log(VERBOSE, "Replacing ruleset %s with %s", ruleset_name, new_ruleset.name)
+            logger.log(
+                VERBOSE,
+                "Replacing ruleset %(ruleset_name)s with %(new_ruleset_name)s",
+                {"ruleset_name": ruleset_name, "new_ruleset_name": new_ruleset.name},
+            )
             for rule_spec in rule_specs:
                 new_ruleset.append_rule(folder, Rule.from_config(folder, new_ruleset, rule_spec))
 
@@ -259,9 +273,9 @@ def transform_wato_rulesets_params(
             value_model = ruleset.rulespec.value_model
         except Exception:
             logger.exception(
-                "ERROR: Failed to load Ruleset: %s. "
+                "ERROR: Failed to load Ruleset: %(ruleset_name)s. "
                 "There is likely an error in the implementation.",
-                ruleset.name,
+                {"ruleset_name": ruleset.name},
             )
             logger.exception("This is the exception: ")
             continue
@@ -279,12 +293,14 @@ def transform_wato_rulesets_params(
                 if raise_errors:
                     raise
                 logger.exception(
-                    "ERROR: Failed to transform rule: (Ruleset: %s, Folder: %s, "
-                    "Rule: %d, Value: %s",
-                    ruleset.name,
-                    folder.path(),
-                    folder_index,
-                    rule.value,
+                    "ERROR: Failed to transform rule: (Ruleset: %(ruleset_name)s, "
+                    "Folder: %(folder)s, Rule: %(rule_index)d, Value: %(value)s",
+                    {
+                        "ruleset_name": ruleset.name,
+                        "folder": folder.path(),
+                        "rule_index": folder_index,
+                        "value": rule.value,
+                    },
                 )
     return migrated_rulesets
 
@@ -323,10 +339,13 @@ def transform_remove_null_host_tag_conditions_from_rulesets(
 
             try:
                 logger.warning(
-                    "WARNING: Removing null host tag condition: rule=%s(id=%s), tag_groups=%s",
-                    ruleset.name,
-                    old_rule.id,
-                    null_tag_groups,
+                    "WARNING: Removing null host tag condition: "
+                    "rule=%(ruleset_name)s(id=%(rule_id)s), tag_groups=%(tag_groups)s",
+                    {
+                        "ruleset_name": ruleset.name,
+                        "rule_id": old_rule.id,
+                        "tag_groups": null_tag_groups,
+                    },
                 )
 
                 new_conditions = {"host_tags": {**filtered_host_tags}}
@@ -340,11 +359,13 @@ def transform_remove_null_host_tag_conditions_from_rulesets(
                 if raise_errors:
                     raise
                 logger.exception(
-                    "ERROR: Failed to transform rule: (Ruleset: %s, Folder: %s, "
-                    "Rule: %d, Value: %s",
-                    ruleset.name,
-                    folder.path(),
-                    folder_index,
-                    old_rule.value,
+                    "ERROR: Failed to transform rule: (Ruleset: %(ruleset_name)s, "
+                    "Folder: %(folder)s, Rule: %(rule_index)d, Value: %(value)s",
+                    {
+                        "ruleset_name": ruleset.name,
+                        "folder": folder.path(),
+                        "rule_index": folder_index,
+                        "value": old_rule.value,
+                    },
                 )
     return migrated_rulesets
