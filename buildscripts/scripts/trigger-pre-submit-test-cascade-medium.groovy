@@ -130,9 +130,9 @@ void main() {
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
                 build_params_no_check: [
-                    CIPARAM_OVERRIDE_BUILD_NODE      : params.CIPARAM_OVERRIDE_BUILD_NODE,
-                    CIPARAM_CLEANUP_WORKSPACE        : params.CIPARAM_CLEANUP_WORKSPACE,
-                    CIPARAM_BISECT_COMMENT           : params.CIPARAM_BISECT_COMMENT,
+                    CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
+                    CIPARAM_CLEANUP_WORKSPACE: params.CIPARAM_CLEANUP_WORKSPACE,
+                    CIPARAM_BISECT_COMMENT: params.CIPARAM_BISECT_COMMENT,
                     CIPARAM_OVERRIDE_DOCKER_TAG_BUILD: params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,
                 ],
                 no_remove_others: true, // do not delete other files in the dest dir
