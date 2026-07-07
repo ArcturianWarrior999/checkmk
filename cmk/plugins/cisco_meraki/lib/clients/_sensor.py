@@ -28,5 +28,8 @@ class SensorClient:
         try:
             return self._sdk.getOrganizationSensorReadingsLatest(id, total_pages="all")
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get sensor readings: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get sensor readings: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return []

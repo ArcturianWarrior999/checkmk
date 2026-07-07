@@ -187,7 +187,7 @@ def get_upnp_info(
 
     attrs = dict(re.findall("<([^>]+)>([^<]+)<[^>]+>", match.group(1), re.M | re.S))
 
-    LOGGER.debug("Parsed:\n%s", pprint.pformat(attrs))
+    LOGGER.debug("Parsed:\n%(parsed)s", {"parsed": pprint.pformat(attrs)})
 
     return attrs, device, version
 

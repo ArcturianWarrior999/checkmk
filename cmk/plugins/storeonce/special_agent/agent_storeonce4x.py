@@ -120,7 +120,10 @@ class StoreOnceOauth2Session:
             verify=self._verify_ssl,
         )
         if resp.status_code != 200:
-            LOGGER.warning("Call to %s returned HTTP %s.", url, resp.status_code)
+            LOGGER.warning(
+                "Call to %(url)s returned HTTP %(status_code)s.",
+                {"url": url, "status_code": resp.status_code},
+            )
         return resp.json()
 
 

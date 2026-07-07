@@ -27,7 +27,10 @@ class WirelessClient:
         try:
             return self._sdk.getDeviceWirelessStatus(serial)
         except APIError as e:
-            log.LOGGER.debug("Serial: %r: Get wireless device status: %r", serial, e)
+            log.LOGGER.debug(
+                "Serial: %(serial)r: Get wireless device status: %(error)r",
+                {"serial": serial, "error": e},
+            )
             return None
 
     def get_ethernet_statuses(self, id: str, /) -> Sequence[schema.RawWirelessEthernetStatus]:
@@ -35,6 +38,7 @@ class WirelessClient:
             return self._sdk.getOrganizationWirelessDevicesEthernetStatuses(id, total_pages="all")
         except APIError as e:
             log.LOGGER.debug(
-                "Organisation ID: %r: Get wireless devices ethernet statuses: %r", id, e
+                "Organisation ID: %(org_id)r: Get wireless devices ethernet statuses: %(error)r",
+                {"org_id": id, "error": e},
             )
             return []

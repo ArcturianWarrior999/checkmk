@@ -256,7 +256,10 @@ class MerakiOrganisation:
         self, serial: str, devices_by_serial: Mapping[str, Device]
     ) -> str | None:
         if (device := devices_by_serial.get(serial)) is None:
-            LOGGER.debug("Device piggyback not found: org_id=%r, device=%r", self.id, serial)
+            LOGGER.debug(
+                "Device piggyback not found: org_id=%(org_id)r, device=%(device)r",
+                {"org_id": self.id, "device": serial},
+            )
             return None
 
         net_id_prefix = f"{net_id}-" if (net_id := device.get("networkId")) else ""

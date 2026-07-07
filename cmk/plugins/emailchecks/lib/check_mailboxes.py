@@ -92,8 +92,11 @@ def check_mailboxes(args: Args) -> CheckResult:
         LOGGER.info("connected, fetch mailbox folders..")
         available_mailboxes = mailbox.folders()
 
-        LOGGER.debug("Found %d mailbox folders", len(available_mailboxes))
-        LOGGER.debug("Mailboxes to check: %r", args.mailbox)
+        LOGGER.debug(
+            "Found %(folder_count)d mailbox folders",
+            {"folder_count": len(available_mailboxes)},
+        )
+        LOGGER.debug("Mailboxes to check: %(mailboxes)r", {"mailboxes": args.mailbox})
         if args.mailbox and any(folder not in available_mailboxes for folder in args.mailbox):
             return (
                 3,
@@ -103,9 +106,12 @@ def check_mailboxes(args: Args) -> CheckResult:
             )
 
         for i, folder in enumerate(args.mailbox or available_mailboxes):
-            LOGGER.debug("Check folder %r (%d/%d)", folder, i, len(available_mailboxes))
+            LOGGER.debug(
+                "Check folder %(folder)r (%(index)d/%(total)d)",
+                {"folder": folder, "index": i, "total": len(available_mailboxes)},
+            )
             mail_count = mailbox.select_folder(available_mailboxes[folder])
-            LOGGER.debug("%d mails", mail_count)
+            LOGGER.debug("%(mail_count)d mails", {"mail_count": mail_count})
 
             if args.crit_count and args.warn_count and mail_count >= args.warn_count:
                 messages.append(
@@ -118,7 +124,10 @@ def check_mailboxes(args: Args) -> CheckResult:
 
             if args.crit_age_oldest is not None and args.warn_age_oldest is not None:
                 old_mails = sorted(mailbox.mails_by_date(before=now - args.warn_age_oldest))
-                LOGGER.debug("timestamps fetched from folder %r: %s", folder, old_mails)
+                LOGGER.debug(
+                    "timestamps fetched from folder %(folder)r: %(timestamps)s",
+                    {"folder": folder, "timestamps": old_mails},
+                )
                 if old_mails and (oldest := now - old_mails[0]) >= args.warn_age_oldest:
                     status = 2 if oldest >= args.crit_age_oldest else 1
                     messages.append(
@@ -134,7 +143,10 @@ def check_mailboxes(args: Args) -> CheckResult:
 
             if args.crit_age_newest is not None and args.warn_age_newest is not None:
                 new_mails = sorted(mailbox.mails_by_date(after=now - args.crit_age_newest))
-                LOGGER.debug("timestamps fetched from folder %r: %s", folder, new_mails)
+                LOGGER.debug(
+                    "timestamps fetched from folder %(folder)r: %(timestamps)s",
+                    {"folder": folder, "timestamps": new_mails},
+                )
 
                 if new_mails and (newest := now - new_mails[-1]) >= args.warn_age_newest:
                     status = 2 if newest >= args.crit_age_newest else 1

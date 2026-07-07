@@ -29,5 +29,8 @@ class SwitchClient:
             # Hence, why we are not using the DEFAULT_TIMESPAN here.
             return self._sdk.getDeviceSwitchPortsStatuses(serial, timespan=900)
         except APIError as e:
-            log.LOGGER.debug("Serial: %r: Get Switch Ports Statuses: %r", serial, e)
+            log.LOGGER.debug(
+                "Serial: %(serial)r: Get Switch Ports Statuses: %(error)r",
+                {"serial": serial, "error": e},
+            )
             return []

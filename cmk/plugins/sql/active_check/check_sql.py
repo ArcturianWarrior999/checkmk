@@ -196,7 +196,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
     # V-VERBOSE INFO
     for key, val in vars(args).items():
-        LOG.debug("argparse: %s = %r", key, val)
+        LOG.debug("argparse: %(key)s = %(value)r", {"key": key, "value": val})
     return args
 
 
@@ -217,12 +217,12 @@ def _default_execute(
     cursor: Any, cmd: str, inpt: Sequence[str], procedure: str
 ) -> list[tuple[Any, ...]]:
     if procedure:
-        LOG.info("SQL Procedure Name: %s", cmd)
-        LOG.info("Input Values: %s", inpt)
+        LOG.info("SQL Procedure Name: %(cmd)s", {"cmd": cmd})
+        LOG.info("Input Values: %(input)s", {"input": inpt})
         cursor.callproc(cmd, inpt)
-        LOG.debug("inpt after 'callproc' = %r", inpt)
+        LOG.debug("inpt after 'callproc' = %(input)r", {"input": inpt})
     else:
-        LOG.info("SQL Statement: %s", cmd)
+        LOG.info("SQL Statement: %(cmd)s", {"cmd": cmd})
         cursor.execute(cmd)
 
     return cursor.fetchall()
@@ -262,10 +262,10 @@ def mssql_execute(
     cursor: Any, cmd: str, _inpt: Sequence[str], procedure: bool
 ) -> list[tuple[Any, ...]]:
     if procedure:
-        LOG.info("SQL Procedure Name: %s", cmd)
+        LOG.info("SQL Procedure Name: %(cmd)s", {"cmd": cmd})
         cmd = "EXEC " + cmd
     else:
-        LOG.info("SQL Statement: %s", cmd)
+        LOG.info("SQL Statement: %(cmd)s", {"cmd": cmd})
 
     cursor.execute(cmd)
 
@@ -301,8 +301,8 @@ def oracle_execute(
     import oracledb
 
     if procedure:
-        LOG.info("SQL Procedure Name: %s", cmd)
-        LOG.info("Input Values: %s", inpt)
+        LOG.info("SQL Procedure Name: %(cmd)s", {"cmd": cmd})
+        LOG.info("Input Values: %(input)s", {"input": inpt})
 
         # In an earlier version, this code-branch
         # had been executed regardles of the dbms.
@@ -312,19 +312,19 @@ def oracle_execute(
         parameters = [*inpt, outvar]
         cursor.callproc(cmd, parameters)
 
-        LOG.debug("parameters after 'callproc' = %r", parameters)
-        LOG.debug("outvar = %r", outvar)
+        LOG.debug("parameters after 'callproc' = %(parameters)r", {"parameters": parameters})
+        LOG.debug("outvar = %(outvar)r", {"outvar": outvar})
 
         # for empty input this is just
         #  _res = outvar.getvalue()
         _res = ",".join(i.getvalue() for i in parameters)
 
-        LOG.debug("outvar.getvalue() = %r", _res)
+        LOG.debug("outvar.getvalue() = %(result)r", {"result": _res})
         params_result = _res.split(",")
-        LOG.debug("params_result = %r", params_result)
+        LOG.debug("params_result = %(params_result)r", {"params_result": params_result})
 
     else:
-        LOG.info("SQL Statement: %s", cmd)
+        LOG.info("SQL Statement: %(cmd)s", {"cmd": cmd})
         cursor.execute(cmd)
 
     return cursor.fetchall()
@@ -427,7 +427,7 @@ def execute(
         cursor.close()
         connection.close()
 
-    LOG.info("SQL Result:\n%r", result)
+    LOG.info("SQL Result:\n%(result)r", {"result": result})
     return result
 
 

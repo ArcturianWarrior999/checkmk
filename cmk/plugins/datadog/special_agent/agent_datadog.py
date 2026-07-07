@@ -636,9 +636,11 @@ class LogsQuerier:
         resp = self.datadog_api.post_request("logs/events/search", body, version="v2")
         while HTTPStatus(resp.status_code) is HTTPStatus.TOO_MANY_REQUESTS:
             LOGGER.debug(
-                "Encountered %s, sleeping %s seconds",
-                int(HTTPStatus.TOO_MANY_REQUESTS),
-                self.cooldown_too_many_requests,
+                "Encountered %(status)s, sleeping %(cooldown)s seconds",
+                {
+                    "status": int(HTTPStatus.TOO_MANY_REQUESTS),
+                    "cooldown": self.cooldown_too_many_requests,
+                },
             )
             time.sleep(self.cooldown_too_many_requests)
             resp = self.datadog_api.post_request("logs/events/search", body, version="v2")
@@ -690,7 +692,7 @@ def _log_to_syslog_message(
     text_elements = {el.name: _get_nested(attributes, el.key) for el in translator}
     for name, value in text_elements.items():
         if value is None:
-            LOGGER.debug("Did not find value for message element: %s", name)
+            LOGGER.debug("Did not find value for message element: %(name)s", {"name": name})
     return SyslogMessage(
         facility=facility,
         service_level=service_level,

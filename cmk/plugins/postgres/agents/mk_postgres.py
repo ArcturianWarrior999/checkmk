@@ -1329,8 +1329,8 @@ def main(argv=None):
         _, e = sys.exc_info()[:2]  # python2 and python3 compatible exception logging
         dbuser = helper.get_default_postgres_user()
         pg_binary_path = None
-        LOGGER.debug("try_parse_config: exception: %s", str(e))
-        LOGGER.debug('Using "%s" as default postgres user.', dbuser)
+        LOGGER.debug("try_parse_config: exception: %(exception)s", {"exception": str(e)})
+        LOGGER.debug('Using "%(dbuser)s" as default postgres user.', {"dbuser": dbuser})
 
     if not instances:
         default_postgres_installation_parameters = {

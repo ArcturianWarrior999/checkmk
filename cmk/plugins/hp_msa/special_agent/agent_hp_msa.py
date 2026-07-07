@@ -102,10 +102,10 @@ property_to_section = {
 
 def store_property(prop: list[str]) -> None:
     if prop[0] in property_to_section:
-        LOGGER.info("property (stored): %r", (prop,))
+        LOGGER.info("property (stored): %(property)r", {"property": (prop,)})
         sections.setdefault(property_to_section[prop[0]], []).append(" ".join(prop))
     else:
-        LOGGER.debug("property (ignored): %r", (prop,))
+        LOGGER.debug("property (ignored): %(property)r", {"property": (prop,)})
 
 
 class HTMLObjectParser(HTMLParser):
@@ -196,14 +196,15 @@ class HPMSAConnection:
 
     def get(self, *, uri: str) -> requests.Response:
         url = urljoin(self._base_url, uri)
-        LOGGER.debug("GET %r", url)
+        LOGGER.debug("GET %(url)r", {"url": url})
         # we must provide the verify keyword to every individual request call!
         response = self._session.get(url, timeout=self._timeout, verify=self._verify_ssl)
         if response.status_code != 200:
             LOGGER.warning(
-                "RESPONSE.status_code, reason: %r", (response.status_code, response.reason)
+                "RESPONSE.status_code, reason: %(status_and_reason)r",
+                {"status_and_reason": (response.status_code, response.reason)},
             )
-        LOGGER.debug("RESPONSE.text\n%s", response.text)
+        LOGGER.debug("RESPONSE.text\n%(text)s", {"text": response.text})
         return response
 
 
@@ -225,7 +226,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             except Exception as exc:  # broad exception because we don't know what to catch
                 if args.debug:
                     raise
-                LOGGER.warning("Failed to parse response for %s: %s", element, exc)
+                LOGGER.warning(
+                    "Failed to parse response for %(element)s: %(exc)s",
+                    {"element": element, "exc": exc},
+                )
 
     # Output sections
     for section, lines in sections.items():

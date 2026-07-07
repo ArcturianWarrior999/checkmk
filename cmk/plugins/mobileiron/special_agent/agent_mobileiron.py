@@ -210,13 +210,15 @@ class MobileironAPI:
         try:
             response = self._session.get(self._api_url, params=params, timeout=50)
         except requests.Timeout:
-            LOGGER.exception("The request timed out: %s, %s", self._api_url, params)
+            LOGGER.exception(
+                "The request timed out: %(api_url)s, %(params)s",
+                {"api_url": self._api_url, "params": params},
+            )
             raise
         except requests.exceptions.SSLError:
             LOGGER.exception(
-                "Certificate verify failed. Please add the ssl certificate to the Trusted certificate authorities for SSL storage. Or disable certificate check. %s, %s.",
-                self._api_url,
-                params,
+                "Certificate verify failed. Please add the ssl certificate to the Trusted certificate authorities for SSL storage. Or disable certificate check. %(api_url)s, %(params)s.",
+                {"api_url": self._api_url, "params": params},
             )
             raise
 
@@ -224,10 +226,8 @@ class MobileironAPI:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             LOGGER.exception(
-                "HTTPError %s occurred: %s, %s.",
-                e,
-                self._api_url,
-                params,
+                "HTTPError %(error)s occurred: %(api_url)s, %(params)s.",
+                {"error": e, "api_url": self._api_url, "params": params},
             )
             raise
 
@@ -235,10 +235,8 @@ class MobileironAPI:
             response_json = response.json()
         except requests.exceptions.JSONDecodeError:
             LOGGER.exception(
-                "No json in reply to: %s, %s. Got this instead %s",
-                self._api_url,
-                params,
-                response.text,
+                "No json in reply to: %(api_url)s, %(params)s. Got this instead %(response_text)s",
+                {"api_url": self._api_url, "params": params, "response_text": response.text},
             )
             raise
 
@@ -319,7 +317,7 @@ def agent_mobileiron_main(args: argparse.Namespace) -> int:
             all_devices = mobileiron_api.get_all_devices(partitions=args.partition)
 
         if args.debug:
-            LOGGER.debug("Received the following devices: %s", all_devices)
+            LOGGER.debug("Received the following devices: %(devices)s", {"devices": all_devices})
 
         LOGGER.info("Write agent output..")
         for device in all_devices:

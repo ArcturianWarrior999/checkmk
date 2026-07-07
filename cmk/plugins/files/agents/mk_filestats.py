@@ -163,7 +163,7 @@ class FileStat:
 
     @classmethod
     def from_path(cls, raw_file_path, file_path):
-        LOGGER.debug("Creating FileStat(%r)", raw_file_path)
+        LOGGER.debug("Creating FileStat(%(raw_file_path)r)", {"raw_file_path": raw_file_path})
         try:
             file_stat = os.stat(raw_file_path)
         except OSError as exc:
@@ -244,20 +244,29 @@ class PatternIterator:
         for raw_file_path in raw_file_paths:
             file_path = _sanitize_path(raw_file_path)
             if not all(f.matches(file_path) for f in self._regex_filters):
-                LOGGER.debug("File %r does not match any regex filter", raw_file_path)
+                LOGGER.debug(
+                    "File %(raw_file_path)r does not match any regex filter",
+                    {"raw_file_path": raw_file_path},
+                )
                 continue
 
             file_stat = FileStat.from_path(raw_file_path, file_path)
             if not all(f.matches(file_stat) for f in self._numerical_filters):
-                LOGGER.debug("File %r does not match any numerical filter", raw_file_path)
+                LOGGER.debug(
+                    "File %(raw_file_path)r does not match any numerical filter",
+                    {"raw_file_path": raw_file_path},
+                )
                 continue
 
-            LOGGER.debug("File %s matches all regex and numerical filters", raw_file_path)
+            LOGGER.debug(
+                "File %(raw_file_path)s matches all regex and numerical filters",
+                {"raw_file_path": raw_file_path},
+            )
             yield file_stat
 
     def __iter__(self):
         for pattern in self._patterns:
-            LOGGER.info("processing pattern: %r", pattern)
+            LOGGER.info("processing pattern: %(pattern)r", {"pattern": pattern})
             # pattern needs to be a unicode/python3 str. Otherwise things might go sour, for instance:
             # If we pass "*".encode("utf-8"), then a non-UTF-8 filesystem may no longer realize that
             # b'\x2A' refers to a wildcard. Instead iglob is responsible for conversion.
@@ -354,7 +363,9 @@ class AgeFilter(AbstractNumericFilter):
 class RegexFilter:
     def __init__(self, regex_pattern):
         super().__init__()
-        LOGGER.debug("initializing with pattern: %r", regex_pattern)
+        LOGGER.debug(
+            "initializing with pattern: %(regex_pattern)r", {"regex_pattern": regex_pattern}
+        )
         self._regex = re.compile(ensure_text(regex_pattern), re.UNICODE)
 
     def matches(self, file_path):
@@ -371,7 +382,7 @@ def get_file_filters(config):
 
     filters = []
     for variety, spec_string in filter_specs:
-        LOGGER.debug("found filter spec: %r", (variety, spec_string))
+        LOGGER.debug("found filter spec: %(filter_spec)r", {"filter_spec": (variety, spec_string)})
         try:
             filter_type = {
                 "regex": RegexFilter,
@@ -413,7 +424,10 @@ def parse_grouping_config(
             grouping_type = option.split("_", 1)[1]
             grouping_rule = config.get(raw_config_section_name, option)
 
-    LOGGER.info("found subgroup: %s", raw_config_section_name)
+    LOGGER.info(
+        "found subgroup: %(raw_config_section_name)s",
+        {"raw_config_section_name": raw_config_section_name},
+    )
     return parent_group_name, (
         child_group_name,
         {
@@ -601,9 +615,9 @@ def iter_config_section_dicts(cfg_file=None):
         DEFAULT_CFG_SECTION,
         dict_type=collections.OrderedDict,
     )
-    LOGGER.debug("trying to read %r", cfg_file)
+    LOGGER.debug("trying to read %(cfg_file)r", {"cfg_file": cfg_file})
     files_read = config.read(cfg_file)
-    LOGGER.info("read configration file(s): %r", files_read)
+    LOGGER.info("read configration file(s): %(files_read)r", {"files_read": files_read})
 
     parsed_config = {}
     for raw_cfg_section_name in config.sections():

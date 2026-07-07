@@ -143,14 +143,16 @@ class ZertoRequest:
         ).get("/vms")
 
         if response.status_code != 200:
-            LOGGER.debug("response status code: %s", response.status_code)
-            LOGGER.debug("response : %s", response.text)
+            LOGGER.debug(
+                "response status code: %(status_code)s", {"status_code": response.status_code}
+            )
+            LOGGER.debug("response : %(text)s", {"text": response.text})
             raise RuntimeError("Call to ZVM failed")
         try:
             data = response.json()
         except ValueError:
             LOGGER.debug("failed to parse json")
-            LOGGER.debug("response : %s", response.text)
+            LOGGER.debug("response : %(text)s", {"text": response.text})
             raise ValueError("Got invalid data from host")
         return data
 
@@ -187,14 +189,16 @@ class ZertoConnection:
             ).request("post", "/session/add")
 
         if response.status_code != 200:
-            LOGGER.info("response status code: %s", response.status_code)
-            LOGGER.debug("response text: %s", response.text)
+            LOGGER.info(
+                "response status code: %(status_code)s", {"status_code": response.status_code}
+            )
+            LOGGER.debug("response text: %(text)s", {"text": response.text})
             raise AuthError("Failed authenticating to the Zerto Virtual Manager")
 
         if "x-zerto-session" not in response.headers:
             LOGGER.info("session id not found in response header")
-            LOGGER.debug("response header: %s", response.headers)
-            LOGGER.debug("response text: %s", response.text)
+            LOGGER.debug("response header: %(headers)s", {"headers": response.headers})
+            LOGGER.debug("response text: %(text)s", {"text": response.text})
         return response.headers.get("x-zerto-session")
 
 

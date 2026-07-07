@@ -43,7 +43,7 @@ class OrganizationsClient:
         try:
             return self._sdk.getOrganizations()
         except APIError as e:
-            log.LOGGER.debug("Get organisations: %r", e)
+            log.LOGGER.debug("Get organisations: %(error)r", {"error": e})
             return []
 
     def get_api_response_codes(self, id: str, /) -> Sequence[schema.RawApiResponseCodes]:
@@ -65,21 +65,30 @@ class OrganizationsClient:
         try:
             return self._sdk.getOrganizationDevicesStatuses(id, total_pages="all")
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get device statuses: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get device statuses: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return []
 
     def get_device_uplink_addresses(self, id: str, /) -> Sequence[schema.RawDeviceUplinksAddress]:
         try:
             return self._sdk.getOrganizationDevicesUplinksAddressesByDevice(id, total_pages="all")
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get device uplink addresses: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get device uplink addresses: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return []
 
     def get_licenses_overview(self, id: str, name: str, /) -> schema.LicensesOverview | None:
         try:
             raw_overview = self._sdk.getOrganizationLicensesOverview(id)
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get license overview: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get license overview: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return None
 
         return schema.LicensesOverview(organisation_id=id, organisation_name=name, **raw_overview)
@@ -91,5 +100,8 @@ class OrganizationsClient:
                 for raw_network in self._sdk.getOrganizationNetworks(id, total_pages="all")
             ]
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get networks: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get networks: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return []

@@ -54,11 +54,11 @@ def fetch_mails(
 
     def matches(subject: None | str) -> bool:
         if pattern and not pattern.match(subject or ""):
-            LOGGER.debug("filter mail with non-matching subject %r", subject)
+            LOGGER.debug("filter mail with non-matching subject %(subject)r", {"subject": subject})
             return False
         return True
 
-    LOGGER.debug("pattern used to receive mails: %s", pattern)
+    LOGGER.debug("pattern used to receive mails: %(pattern)s", {"pattern": pattern})
     try:
         return connection.fetch_mails(matches)
     except Exception as exc:
@@ -126,7 +126,9 @@ def _active_check_main_core(
 
     logging.getLogger("exchangelib").setLevel(logging.WARNING)
 
-    LOGGER.debug("use protocol for fetching: %r", args.fetch_protocol)
+    LOGGER.debug(
+        "use protocol for fetching: %(fetch_protocol)r", {"fetch_protocol": args.fetch_protocol}
+    )
     try:
         return check_fn(args)
     except (

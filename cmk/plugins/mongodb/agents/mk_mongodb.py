@@ -835,13 +835,13 @@ class MongoDBConfigParser(configparser.ConfigParser):
     mongo_section = "MONGODB"
 
     def read_from_filename(self, filename):
-        LOGGER.debug("trying to read %r", filename)
+        LOGGER.debug("trying to read %(filename)r", {"filename": filename})
         if not os.path.exists(filename):
-            LOGGER.warning("config file %s does not exist!", filename)
+            LOGGER.warning("config file %(filename)s does not exist!", {"filename": filename})
         else:
             with open(filename) as cfg:
                 self.read_file(cfg)
-            LOGGER.info("read configuration file %r", filename)
+            LOGGER.info("read configuration file %(filename)r", {"filename": filename})
 
     def get_mongodb_bool(self, option, *, default=None):
         if not self.has_option(self.mongo_section, option):
@@ -987,11 +987,16 @@ def main(argv=None):
 
     args = parse_arguments(argv)
     setup_logging(args.verbose)
-    LOGGER.debug("parsed args: %r", args)
+    LOGGER.debug("parsed args: %(args)r", {"args": args})
     if LOGGER.isEnabledFor(logging.INFO):
-        LOGGER.info("python version: %s", sys.version.replace("\n", " "))
-        LOGGER.info("pymongo version: %s", PYMONGO_VERSION)
-        LOGGER.info("mk_mongodb version: %s", __version__)
+        LOGGER.info(
+            "python version: %(python_version)s",
+            {"python_version": sys.version.replace("\n", " ")},
+        )
+        LOGGER.info("pymongo version: %(pymongo_version)s", {"pymongo_version": PYMONGO_VERSION})
+        LOGGER.info(
+            "mk_mongodb version: %(mk_mongodb_version)s", {"mk_mongodb_version": __version__}
+        )
 
     config_parser = MongoDBConfigParser()
     config_parser.read_from_filename(os.path.abspath(args.config_file))

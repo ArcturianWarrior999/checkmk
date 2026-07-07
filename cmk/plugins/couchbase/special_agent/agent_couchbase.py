@@ -215,19 +215,19 @@ class CouchbaseClient:
 
     def _get_suburi(self, suburi: str) -> Any:
         uri = self._base + suburi
-        LOGGER.debug("request GET %r", uri)
+        LOGGER.debug("request GET %(uri)r", {"uri": uri})
 
         try:
             response = self._session.get(uri, timeout=self._timeout)
             response.raise_for_status()
         except (requests.ConnectionError, requests.HTTPError):
-            LOGGER.warning("%r could not be reached", uri)
+            LOGGER.warning("%(uri)r could not be reached", {"uri": uri})
             raise
 
         try:
             return response.json()
         except ValueError:
-            LOGGER.warning("Invalid response: %r", response)
+            LOGGER.warning("Invalid response: %(response)r", {"response": response})
             raise
 
     def get_pool(self) -> Mapping[str, Any]:

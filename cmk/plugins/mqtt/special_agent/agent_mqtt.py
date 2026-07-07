@@ -220,7 +220,10 @@ def receive_from_mqtt(args: argparse.Namespace) -> ReceivedData:
     if not received.subscribed_to_sys:
         raise RuntimeError("Not subscribed")
 
-    LOGGER.info("Received %d topics within %d seconds", len(received.topics), wait_for)
+    LOGGER.info(
+        "Received %(topic_count)d topics within %(wait_for)d seconds",
+        {"topic_count": len(received.topics), "wait_for": wait_for},
+    )
     LOGGER.debug(received.topics)
 
     if not received.topics:

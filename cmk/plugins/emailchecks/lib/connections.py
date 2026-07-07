@@ -156,13 +156,18 @@ class EWS(_Connection):
         self._account.protocol.close()
 
     def folders(self) -> Mapping[str, str]:
-        LOGGER.debug("Account::msg_folder_root.tree():\n%s", self._account.msg_folder_root.tree())
         LOGGER.debug(
-            "folder, [folder.children]:\n%s",
-            "\n".join(
-                f"{folder} {[str(x.name) for x in folder.children]}"
-                for folder in self._account.msg_folder_root.children
-            ),
+            "Account::msg_folder_root.tree():\n%(tree)s",
+            {"tree": self._account.msg_folder_root.tree()},
+        )
+        LOGGER.debug(
+            "folder, [folder.children]:\n%(children)s",
+            {
+                "children": "\n".join(
+                    f"{folder} {[str(x.name) for x in folder.children]}"
+                    for folder in self._account.msg_folder_root.children
+                )
+            },
         )
 
         # Return a folders 'absolute' path as it's shown in the UI.
@@ -229,8 +234,14 @@ class EWS(_Connection):
             datetime.fromtimestamp(before) if before else datetime.now()
         ).astimezone(tz)
 
-        LOGGER.debug("fetch mails from %s (from %s)", dt_start, after)
-        LOGGER.debug("fetch mails to   %s (from %s)", dt_end, before)
+        LOGGER.debug(
+            "fetch mails from %(dt_start)s (from %(after)s)",
+            {"dt_start": dt_start, "after": after},
+        )
+        LOGGER.debug(
+            "fetch mails to   %(dt_end)s (from %(before)s)",
+            {"dt_end": dt_end, "before": before},
+        )
 
         return [
             item.datetime_sent.timestamp()
@@ -528,11 +539,13 @@ class SMTP(_Connection):
         mail["Date"] = email.utils.formatdate(localtime=True)
 
         LOGGER.debug(
-            "send roundtrip mail with subject %r to %r from %r using %r",
-            mail["Subject"],
-            mail_to,
-            mail_from,
-            self,
+            "send roundtrip mail with subject %(subject)r to %(mail_to)r from %(mail_from)r using %(connection)r",
+            {
+                "subject": mail["Subject"],
+                "mail_to": mail_to,
+                "mail_from": mail_from,
+                "connection": self,
+            },
         )
 
         with smtplib.SMTP(self.server, self.port, timeout=self.timeout) as connection:
@@ -853,11 +866,13 @@ def make_fetch_connection(config: TRXConfig, timeout: int) -> EWS | POP3 | IMAP 
 
 def _make_connection(config: TRXConfig, timeout: int) -> POP3 | IMAP | EWS | GraphApi | SMTP:
     LOGGER.debug(
-        "connecting to: %r %r %r %r",
-        config.protocol,
-        config.server,
-        config.port,
-        config.tls,
+        "connecting to: %(protocol)r %(server)r %(port)r %(tls)r",
+        {
+            "protocol": config.protocol,
+            "server": config.server,
+            "port": config.port,
+            "tls": config.tls,
+        },
     )
     try:
         match config.protocol:

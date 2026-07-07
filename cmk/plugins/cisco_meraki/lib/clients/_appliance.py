@@ -33,7 +33,10 @@ class ApplianceClient:
         try:
             return self._sdk.getDeviceAppliancePerformance(serial)
         except APIError as e:
-            log.LOGGER.debug("Serial: %r: Get appliance device performance: %r", serial, e)
+            log.LOGGER.debug(
+                "Serial: %(serial)r: Get appliance device performance: %(error)r",
+                {"serial": serial, "error": e},
+            )
             return None
 
     def get_uplink_statuses(self, id: str) -> Sequence[schema.RawUplinkStatuses]:
@@ -41,7 +44,8 @@ class ApplianceClient:
             return self._sdk.getOrganizationApplianceUplinkStatuses(id, total_pages="all")
         except APIError as e:
             log.LOGGER.debug(
-                "Organisation ID: %r: Get Appliance uplink status by network: %r", id, e
+                "Organisation ID: %(org_id)r: Get Appliance uplink status by network: %(error)r",
+                {"org_id": id, "error": e},
             )
             return []
 
@@ -52,7 +56,8 @@ class ApplianceClient:
             )
         except APIError as e:
             log.LOGGER.debug(
-                "Organisation ID: %r: Get Appliance uplink usage by network: %r", id, e
+                "Organisation ID: %(org_id)r: Get Appliance uplink usage by network: %(error)r",
+                {"org_id": id, "error": e},
             )
             return []
 
@@ -60,5 +65,8 @@ class ApplianceClient:
         try:
             return self._sdk.getOrganizationApplianceVpnStatuses(id, total_pages="all")
         except APIError as e:
-            log.LOGGER.debug("Organisation ID: %r: Get Appliance VPN status by network: %r", id, e)
+            log.LOGGER.debug(
+                "Organisation ID: %(org_id)r: Get Appliance VPN status by network: %(error)r",
+                {"org_id": id, "error": e},
+            )
             return []

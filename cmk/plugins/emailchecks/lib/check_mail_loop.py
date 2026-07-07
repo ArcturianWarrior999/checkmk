@@ -196,9 +196,8 @@ def check_mails(
             # drop expecting messages when older than critical threshold,
             # but keep waiting for other mails which have not yet reached it
             LOGGER.warning(
-                "found mail with critical roundtrip time: %r (%dsec)",
-                ident,
-                now - send_ts,
+                "found mail with critical roundtrip time: %(ident)r (%(roundtrip)dsec)",
+                {"ident": ident, "roundtrip": now - send_ts},
             )
             del expected_mails[ident]
             num_lost += 1
@@ -241,10 +240,10 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
     # TODO: maybe we should use cmk.utils.paths.tmp_dir?
     status_file_components = ("check_mail_loop", args.status_suffix, "status")
     status_path = args.status_dir / ".".join(filter(bool, status_file_components))
-    LOGGER.debug("status_path: '%s'", status_path)
+    LOGGER.debug("status_path: '%(status_path)s'", {"status_path": status_path})
 
     expected_mails = load_expected_mails(status_path) or {}
-    LOGGER.debug("expected_mails: %r", expected_mails)
+    LOGGER.debug("expected_mails: %(expected_mails)r", {"expected_mails": expected_mails})
 
     # Store the unmodified list of expected mails for later deletion
     expected_mails_keys = set(expected_mails.keys())
@@ -257,7 +256,7 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
 
         def filter_subject(subject: None | str, re_pattern: re.Pattern[str]) -> None | re.Match:
             if not (match := re_pattern.match(subject or "")):
-                LOGGER.debug("ignore message with subject %r", subject)
+                LOGGER.debug("ignore message with subject %(subject)r", {"subject": subject})
                 return None
             return match
 
@@ -273,7 +272,10 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
             if (match := filter_subject(subject, re_subject))
             for tx_timestamp, key in (match.groups(),)
         }
-        LOGGER.debug("received %d check_mail_loop messages", len(message_details))
+        LOGGER.debug(
+            "received %(message_count)d check_mail_loop messages",
+            {"message_count": len(message_details)},
+        )
 
         # relevant messages are a subset of above received messages which we expected
         relevant_mail_loop_messages = {
@@ -281,7 +283,10 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
             for ts_key, (index, rx_timestamp, subject, raw_message) in message_details.items()
             if ts_key in expected_mails
         }
-        LOGGER.debug("relevant messages: %r", relevant_mail_loop_messages)
+        LOGGER.debug(
+            "relevant messages: %(relevant_messages)r",
+            {"relevant_messages": relevant_mail_loop_messages},
+        )
 
         # send a 'sensor-email' with a timestamp we expect to receive next time
         if fetch == send and isinstance(connection, SMTP | EWS):
@@ -302,7 +307,7 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
                     # I am not sure what this is about. I suspect we're trying to generate a unique key? Poormans UUID?
                     key=random.randint(1, 1000),
                 )
-        LOGGER.debug("sent new mail: %r", new_mail)
+        LOGGER.debug("sent new mail: %(new_mail)r", {"new_mail": new_mail})
 
         expected_mails.update((new_mail,))
         state, output, perfdata = check_mails(
@@ -320,9 +325,11 @@ def check_mail_roundtrip(args: Args) -> CheckResult:
             if ts_key in expected_mails_keys or now - rx_timestamp > DEPRECATION_AGE
         }
         LOGGER.debug(
-            "candidates for deletion (expected messages + those older than %ds): %s",
-            DEPRECATION_AGE,
-            list(deletion_candidates.keys()),
+            "candidates for deletion (expected messages + those older than %(deprecation_age)ds): %(candidates)s",
+            {
+                "deprecation_age": DEPRECATION_AGE,
+                "candidates": list(deletion_candidates.keys()),
+            },
         )
         if args.delete_messages:
             # Do not delete all messages in the inbox. Only the ones which were
