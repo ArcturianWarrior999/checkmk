@@ -9,7 +9,7 @@ import itertools
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
-from ._quantities import Quantity, RRDMetric
+from ._quantities import Metric, Quantity
 from ._title import title_metrics
 from ._units import CurveAttributes
 
@@ -73,10 +73,10 @@ class Graph:
             if bound is not None and not isinstance(bound, int | float):
                 yield bound
 
-    def metrics(self) -> Sequence[RRDMetric]:
+    def metrics(self) -> Sequence[Metric]:
         drawn = list(
             dict.fromkeys(
-                rrd_metric
+                metric
                 for quantity in itertools.chain(
                     (m.quantity for g in self.stacks for m in g.members),
                     (g.reference.quantity for g in self.stacks if g.reference is not None),
@@ -84,7 +84,7 @@ class Graph:
                     (rule.curve.quantity for rule in self.rules),
                     self._bound_quantities(),
                 )
-                for rrd_metric in quantity.metrics()
+                for metric in quantity.metrics()
             )
         )
         return list(dict.fromkeys([*drawn, *title_metrics(self.title, drawn)]))

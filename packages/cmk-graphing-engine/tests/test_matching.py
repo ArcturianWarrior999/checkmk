@@ -18,9 +18,11 @@ from cmk.graphing_engine import (
     ConsolidationFunction,
     evaluate_graphs,
     EvaluatedGraph,
+    FetchedData,
     Graph,
     HostName,
     Line,
+    Metric,
     MetricName,
     PerformanceData,
     Quantity,
@@ -160,39 +162,38 @@ class _FakeRRDDataSource:
         self.performance_response = performance_response or {}
         self._time_series_response = time_series_response or {}
 
-    def fetch_performance_data(
-        self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[RRDMetric, PerformanceData]:
-        result: dict[RRDMetric, PerformanceData] = {}
-        for metric in rrd_metrics:
-            service = Service(host_name=metric.host_name, service_name=metric.service_name)
-            raw = self.performance_response.get(service)
-            raw_value = None if raw is None else raw.values.get(metric.metric_name)
-            if raw_value is None:
-                continue
-            result[metric] = PerformanceData(
-                value=raw_value.value,
-                lower_warning=raw_value.lower_warning,
-                lower_critical=raw_value.lower_critical,
-                warning=raw_value.warning,
-                critical=raw_value.critical,
-                minimum=raw_value.minimum,
-                maximum=raw_value.maximum,
-            )
-        return result
-
-    def fetch_time_series(
+    def fetch(
         self,
-        rrd_metrics: Sequence[RRDMetric],
+        metrics: Sequence[Metric],
         *,
         consolidation_function: ConsolidationFunction,  # noqa: ARG002
         time_range: TimeRange,  # noqa: ARG002
-    ) -> Mapping[RRDMetric, TimeSeries]:
-        return {
-            metric: self._time_series_response[metric]
-            for metric in rrd_metrics
-            if metric in self._time_series_response
-        }
+    ) -> Mapping[Metric, Sequence[FetchedData]]:
+        result: dict[Metric, Sequence[FetchedData]] = {}
+        for metric in metrics:
+            if not isinstance(metric, RRDMetric):
+                continue
+            service = Service(host_name=metric.host_name, service_name=metric.service_name)
+            raw = self.performance_response.get(service)
+            raw_value = None if raw is None else raw.values.get(metric.metric_name)
+            performance_data = (
+                None
+                if raw_value is None
+                else PerformanceData(
+                    value=raw_value.value,
+                    lower_warning=raw_value.lower_warning,
+                    lower_critical=raw_value.lower_critical,
+                    warning=raw_value.warning,
+                    critical=raw_value.critical,
+                    minimum=raw_value.minimum,
+                    maximum=raw_value.maximum,
+                )
+            )
+            series = self._time_series_response.get(metric)
+            if performance_data is None and series is None:
+                continue
+            result[metric] = [FetchedData(performance_data=performance_data, time_series=series)]
+        return result
 
 
 def _discover(

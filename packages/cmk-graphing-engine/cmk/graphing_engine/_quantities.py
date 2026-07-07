@@ -8,12 +8,16 @@ from __future__ import annotations
 import enum
 import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass, KW_ONLY
+from dataclasses import dataclass, field, KW_ONLY
 from typing import Protocol
 
 from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import HostName, MetricName, PerformanceData, ServiceName, TimeSeries
+from ._perfdata import FetchedData, HostName, MetricName, PerformanceData, ServiceName, TimeSeries
 from ._units import CurveAttributes
+
+
+class Metric(Protocol):
+    def type(self) -> str: ...
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -21,6 +25,7 @@ class EvaluationContext:
     performance_data: Mapping[RRDMetric, PerformanceData]
     time_series: Mapping[RRDMetric, TimeSeries]
     time_range: TimeRange
+    fetched: Mapping[Metric, Sequence[FetchedData]] = field(default_factory=dict)
 
     def data_of(self, metric: RRDMetric) -> PerformanceData | None:
         return self.performance_data.get(metric)
@@ -35,7 +40,7 @@ class EvaluatedQuantity:
 class Quantity(Protocol):
     def ident(self) -> str: ...
 
-    def metrics(self) -> Iterable[RRDMetric]: ...
+    def metrics(self) -> Iterable[Metric]: ...
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None: ...
 
@@ -110,7 +115,7 @@ class Constant:
     def ident(self) -> str:
         return f"constant:{self.value}"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         return ()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity:
@@ -126,10 +131,13 @@ class RRDMetric:
     metric_name: MetricName
     consolidation_function: ConsolidationFunction | None = None
 
+    def type(self) -> str:
+        return "rrd_metric"
+
     def ident(self) -> str:
         return f"metric:{self.host_name}/{self.service_name}/{self.metric_name}"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         yield self
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
@@ -175,7 +183,7 @@ class ScalarOf:
     def ident(self) -> str:
         return f"{self.scalar_type}:{self.metric.ident()}"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         yield self.metric
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:
@@ -195,7 +203,7 @@ class Sum:
     def ident(self) -> str:
         return f"sum({','.join(summand.ident() for summand in self.summands)})"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         for summand in self.summands:
             yield from summand.metrics()
 
@@ -214,7 +222,7 @@ class Product:
     def ident(self) -> str:
         return f"product({','.join(factor.ident() for factor in self.factors)})"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         for factor in self.factors:
             yield from factor.metrics()
 
@@ -234,7 +242,7 @@ class Difference:
     def ident(self) -> str:
         return f"difference({self.minuend.ident()},{self.subtrahend.ident()})"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         yield from self.minuend.metrics()
         yield from self.subtrahend.metrics()
 
@@ -257,7 +265,7 @@ class Fraction:
     def ident(self) -> str:
         return f"fraction({self.dividend.ident()},{self.divisor.ident()})"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         yield from self.dividend.metrics()
         yield from self.divisor.metrics()
 

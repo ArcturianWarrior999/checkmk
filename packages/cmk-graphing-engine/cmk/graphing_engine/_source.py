@@ -9,12 +9,13 @@ from typing import Protocol
 from ._graph import Graph
 from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import (
+    FetchedData,
     MetricName,
     PerformanceData,
     Service,
     TimeSeries,
 )
-from ._quantities import EvaluationContext, RRDMetric
+from ._quantities import EvaluationContext, Metric, RRDMetric
 
 
 class RRDFetchMetricNames(Protocol):
@@ -22,17 +23,13 @@ class RRDFetchMetricNames(Protocol):
 
 
 class RRDDataSource(Protocol):
-    def fetch_performance_data(
-        self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[RRDMetric, PerformanceData]: ...
-
-    def fetch_time_series(
+    def fetch(
         self,
-        rrd_metrics: Sequence[RRDMetric],
+        metrics: Sequence[Metric],
         *,
         consolidation_function: ConsolidationFunction,
         time_range: TimeRange,
-    ) -> Mapping[RRDMetric, TimeSeries]: ...
+    ) -> Mapping[Metric, Sequence[FetchedData]]: ...
 
 
 def fetch_evaluation_context(
@@ -42,13 +39,23 @@ def fetch_evaluation_context(
     graphs: Sequence[Graph],
     rrd: RRDDataSource,
 ) -> EvaluationContext:
-    rrd_metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
+    metrics = list(dict.fromkeys(metric for graph in graphs for metric in graph.metrics()))
+    fetched = rrd.fetch(
+        metrics, consolidation_function=consolidation_function, time_range=time_range
+    )
+    performance_data: dict[RRDMetric, PerformanceData] = {}
+    time_series: dict[RRDMetric, TimeSeries] = {}
+    for metric, fetched_data in fetched.items():
+        if not isinstance(metric, RRDMetric):
+            continue
+        for data in fetched_data:
+            if data.performance_data is not None:
+                performance_data[metric] = data.performance_data
+            if data.time_series is not None:
+                time_series[metric] = data.time_series
     return EvaluationContext(
-        performance_data=rrd.fetch_performance_data(rrd_metrics),
-        time_series=rrd.fetch_time_series(
-            rrd_metrics,
-            consolidation_function=consolidation_function,
-            time_range=time_range,
-        ),
+        performance_data=performance_data,
+        time_series=time_series,
         time_range=time_range,
+        fetched=fetched,
     )

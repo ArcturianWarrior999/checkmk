@@ -28,7 +28,7 @@ from cmk.graphing_engine import (
 )
 from cmk.graphing_engine._evaluate import _evaluate_graph
 from cmk.graphing_engine._perfdata import PerformanceData
-from cmk.graphing_engine._quantities import EvaluationContext, Quantity
+from cmk.graphing_engine._quantities import EvaluationContext, Metric, Quantity
 
 _UNIT = Unit(notation=DecimalNotation(""), precision=AutoPrecision(2))
 _TR = TimeRange(start=0, end=30, step=10)  # three data points
@@ -53,7 +53,7 @@ class Negated:
     def ident(self) -> str:
         return f"negated({self.operand.ident()})"
 
-    def metrics(self) -> Iterable[RRDMetric]:
+    def metrics(self) -> Iterable[Metric]:
         yield from self.operand.metrics()
 
     def evaluate(self, context: EvaluationContext) -> EvaluatedQuantity | None:

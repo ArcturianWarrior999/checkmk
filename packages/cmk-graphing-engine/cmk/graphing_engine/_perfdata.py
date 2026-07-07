@@ -55,6 +55,12 @@ class TimeSeries:
 
 
 @dataclass(frozen=True, kw_only=True)
+class FetchedData:
+    performance_data: PerformanceData | None
+    time_series: TimeSeries | None
+
+
+@dataclass(frozen=True, kw_only=True)
 class RawPerformanceValue:
     value: float
     warning: float | None = None

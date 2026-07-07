@@ -8,7 +8,7 @@ import re
 from collections.abc import Iterable, Iterator, Mapping
 
 from ._perfdata import MetricName, Service
-from ._quantities import EvaluationContext, Quantity, RRDMetric, ScalarOf, ScalarType
+from ._quantities import EvaluationContext, Metric, Quantity, RRDMetric, ScalarOf, ScalarType
 
 _TITLE_EXPRESSION_PREFIX = "_EXPRESSION:"
 _TITLE_EXPRESSION_PATTERN = re.compile(re.escape(_TITLE_EXPRESSION_PREFIX) + r"\{.*?\}")
@@ -22,9 +22,11 @@ _TITLE_SCALAR_TYPES: Mapping[str, ScalarType] = {
 }
 
 
-def _unique_service(metrics: Iterable[RRDMetric]) -> Service | None:
+def _unique_service(metrics: Iterable[Metric]) -> Service | None:
     services = {
-        Service(host_name=metric.host_name, service_name=metric.service_name) for metric in metrics
+        Service(host_name=metric.host_name, service_name=metric.service_name)
+        for metric in metrics
+        if isinstance(metric, RRDMetric)
     }
     return next(iter(services)) if len(services) == 1 else None
 
@@ -43,7 +45,7 @@ def _title_quantity(raw: str, service: Service) -> Quantity | None:
     return ScalarOf(metric=metric, scalar_type=scalar_type)
 
 
-def title_metrics(title: str, drawn_metrics: Iterable[RRDMetric]) -> Iterator[RRDMetric]:
+def title_metrics(title: str, drawn_metrics: Iterable[Metric]) -> Iterator[Metric]:
     if (service := _unique_service(drawn_metrics)) is None:
         return
     for raw in _TITLE_EXPRESSION_PATTERN.findall(title):
@@ -57,7 +59,7 @@ def _fallback_title(title: str) -> str:
 
 def evaluate_title(
     title: str,
-    drawn_metrics: Iterable[RRDMetric],
+    drawn_metrics: Iterable[Metric],
     context: EvaluationContext,
 ) -> str:
     service = _unique_service(drawn_metrics)

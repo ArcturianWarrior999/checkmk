@@ -76,10 +76,12 @@ def _add_predictive_lines(
     for group in graph.stacks:
         for member in group.members:
             for metric in member.quantity.metrics():
-                inverse_by_metric.setdefault(metric.metric_name, group.inverse)
+                if isinstance(metric, RRDMetric):
+                    inverse_by_metric.setdefault(metric.metric_name, group.inverse)
     for line in graph.lines:
         for metric in line.curve.quantity.metrics():
-            inverse_by_metric.setdefault(metric.metric_name, line.inverse)
+            if isinstance(metric, RRDMetric):
+                inverse_by_metric.setdefault(metric.metric_name, line.inverse)
 
     added: list[Line] = []
     names: set[MetricName] = set()

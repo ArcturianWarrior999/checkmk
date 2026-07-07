@@ -34,6 +34,7 @@ from ._options import (
 )
 from ._perfdata import (
     CheckCommand,
+    FetchedData,
     HostName,
     MetricName,
     PerformanceData,
@@ -49,6 +50,7 @@ from ._quantities import (
     EvaluatedQuantity,
     EvaluationContext,
     Fraction,
+    Metric,
     Product,
     Quantity,
     RRDMetric,
@@ -76,6 +78,7 @@ from ._units import (
 __all__ = [
     "AutoPrecision",
     "CheckCommand",
+    "FetchedData",
     "Graph",
     "ConsolidationFunction",
     "Constant",
@@ -94,6 +97,7 @@ __all__ = [
     "RRDFetchMetricNames",
     "FixedRange",
     "Fraction",
+    "Metric",
     "HostName",
     "IECNotation",
     "Line",

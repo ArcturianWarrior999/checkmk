@@ -3,7 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 
 import pytest
@@ -13,12 +13,12 @@ from cmk.graphing.v1 import graphs as graphs_v1
 from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing.v1 import Title
 from cmk.graphing_engine import (
-    CheckCommand,
     ConsolidationFunction,
+    FetchedData,
     HostName,
+    Metric,
     MetricName,
     PerformanceData,
-    RawPerformanceData,
     RawPerformanceValue,
     RRDMetric,
     ScalarOf,
@@ -56,68 +56,27 @@ class _FakeRRDDataSource:
     )
     requested_ranges: list[TimeRange] = field(default_factory=list)
 
-    def _data(self, services: Iterable[Service]) -> Mapping[Service, RawPerformanceData]:
-        return {
-            service: RawPerformanceData(
-                check_command=CheckCommand("check_mk-foo"),
-                values={MetricName(name): value for name, value in self.values.items()},
-            )
-            for service in services
-        }
-
-    def _fetch_performance_data(
-        self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[Service, RawPerformanceData]:
-        return self._data(
-            Service(host_name=metric.host_name, service_name=metric.service_name)
-            for metric in rrd_metrics
-        )
-
-    def fetch_performance_data(
-        self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[RRDMetric, PerformanceData]:
-        raw = self._fetch_performance_data(rrd_metrics)
-        result: dict[RRDMetric, PerformanceData] = {}
-        for metric in rrd_metrics:
-            service = Service(host_name=metric.host_name, service_name=metric.service_name)
-            if (data := raw.get(service)) is None:
-                continue
-            if (value := data.values.get(metric.metric_name)) is None:
-                continue
-            result[metric] = PerformanceData(
-                value=value.value,
-                warning=value.warning,
-                critical=value.critical,
-                lower_warning=value.lower_warning,
-                lower_critical=value.lower_critical,
-                minimum=value.minimum,
-                maximum=value.maximum,
-            )
-        return result
-
-    def fetch_time_series(
+    def fetch(
         self,
-        rrd_metrics: Sequence[RRDMetric],
+        metrics: Sequence[Metric],
         *,
         consolidation_function: ConsolidationFunction,
         time_range: TimeRange,
-    ) -> Mapping[RRDMetric, TimeSeries]:
-        return self._fetch_time_series(
-            rrd_metrics, consolidation_function=consolidation_function, time_range=time_range
-        )
-
-    def _fetch_time_series(
-        self,
-        rrd_metrics: Sequence[RRDMetric],
-        *,
-        consolidation_function: ConsolidationFunction,
-        time_range: TimeRange,
-    ) -> Mapping[RRDMetric, TimeSeries]:
+    ) -> Mapping[Metric, Sequence[FetchedData]]:
         self.requested_ranges.append(time_range)
-        return {
-            metric: TimeSeries(time_range=time_range, values=[1.0, 1.0, 1.0])
-            for metric in rrd_metrics
-        }
+        result: dict[Metric, Sequence[FetchedData]] = {}
+        for metric in metrics:
+            if not isinstance(metric, RRDMetric):
+                continue
+            raw = self.values.get(str(metric.metric_name))
+            performance_data = None if raw is None else PerformanceData(value=raw.value)
+            result[metric] = [
+                FetchedData(
+                    performance_data=performance_data,
+                    time_series=TimeSeries(time_range=time_range, values=[1.0, 1.0, 1.0]),
+                )
+            ]
+        return result
 
 
 def test_template_lifecycle_discover_and_update() -> None:
