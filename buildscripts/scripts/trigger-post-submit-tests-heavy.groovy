@@ -10,6 +10,7 @@ void main() {
 
     /// This will get us the location to e.g. "checkmk/master" or "Testing/<name>/checkmk/master"
     def branch_base_folder = package_helper.branch_base_folder(true);
+    def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
 
     def job_names = [
@@ -53,6 +54,8 @@ void main() {
         |job_names:........... │${job_names}│
         |branch_base_folder:.. │${checkout_dir}│
         |force_build:......... │${force_build}│
+        |fake_artifacts:...... │${fake_artifacts}│
+        |force_build:......... │${force_build}│
         |trigger_xss_crawl:... │${trigger_xss_crawl}│
         |===================================================
         """.stripMargin());
@@ -69,6 +72,8 @@ void main() {
                     relative_job_name: "${branch_base_folder}/heavy/${job_name}",
                     build_params: [
                         CUSTOM_GIT_REF: effective_git_ref,
+                        FAKE_ARTIFACTS: fake_artifacts,
+                        DISABLE_CACHE: disable_cache,
                     ],
                     build_params_no_check: [
                         CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
@@ -95,6 +100,7 @@ void main() {
                 relative_job_name: "${branch_base_folder}/heavy/test-xss-crawl",
                 build_params: [
                     CUSTOM_GIT_REF: effective_git_ref,
+                    FAKE_ARTIFACTS: fake_artifacts,
                 ],
                 build_params_no_check: [
                     CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,

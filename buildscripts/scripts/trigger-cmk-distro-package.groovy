@@ -24,6 +24,7 @@ void main() {
     def edition = params.EDITION;
     def version = params.VERSION;
     def disable_cache = params.DISABLE_CACHE;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
     def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
 
@@ -55,6 +56,7 @@ void main() {
         |safe_branch_name:......... │${safe_branch_name}│
         |checkout_dir:............. │${checkout_dir}│
         |triggerd_by:.............. │${triggerd_by}│
+        |fake_artifacts:........... │${fake_artifacts}│
         |disable_cache:............ │${disable_cache}│
         |force_build:.............. │${force_build}│
         |===================================================
@@ -79,7 +81,7 @@ void main() {
     inside_container_minimal(safe_branch_name: safe_branch_name) {
         def stages = [:];
 
-        if (!params.FAKE_ARTIFACTS) {
+        if (!fake_artifacts) {
             stages += package_helper.provide_agent_binaries(
                 version: version,
                 cmk_version: cmk_version,
@@ -109,7 +111,7 @@ void main() {
                     EDITION: edition,
                     DISTRO: distro,
                     DISABLE_CACHE: disable_cache,
-                    FAKE_ARTIFACTS: params.FAKE_ARTIFACTS,
+                    FAKE_ARTIFACTS: fake_artifacts,
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                     CIPARAM_OVERRIDE_DOCKER_TAG_BUILD: params.CIPARAM_OVERRIDE_DOCKER_TAG_BUILD,
                 ],
@@ -140,7 +142,7 @@ void main() {
                     EDITION: edition,
                     DISTRO: distro,
                     DISABLE_CACHE: disable_cache,
-                    FAKE_ARTIFACTS: params.FAKE_ARTIFACTS,
+                    FAKE_ARTIFACTS: fake_artifacts,
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
                 build_params_no_check: [

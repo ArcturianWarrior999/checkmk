@@ -12,6 +12,10 @@ void main() {
     def branch_base_folder = package_helper.branch_base_folder(true);
     def safe_branch_name = versioning.safe_branch_name();
 
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def disable_cache = params.DISABLE_CACHE;
+
     def all_editions = [];
     inside_container_minimal(safe_branch_name: safe_branch_name) {
         all_editions = versioning.get_editions();
@@ -25,6 +29,8 @@ void main() {
 
     def job_parameters = [
         CUSTOM_GIT_REF: effective_git_ref,
+        FAKE_ARTIFACTS: fake_artifacts,
+        DISABLE_CACHE: disable_cache,
     ];
     def job_parameters_no_check = [
         CIPARAM_BISECT_COMMENT: params.CIPARAM_BISECT_COMMENT,
@@ -35,7 +41,6 @@ void main() {
     if (override_editions) {
         editions_to_test = override_editions.replaceAll(',', ' ').split(' ').grep();
     }
-    def force_build = params.DISABLE_JENKINS_CACHE == true;
 
     print(
         """
@@ -47,6 +52,8 @@ void main() {
         |fixed_node:............ |${params.TRIGGER_CIPARAM_OVERRIDE_BUILD_NODE}|
         |safe_branch_name:...... │${safe_branch_name}│
         |force_build:........... │${force_build}│
+        |fake_artifacts:........ │${fake_artifacts}│
+        |disable_cache:......... │${disable_cache}│
         |===================================================
         """.stripMargin());
 

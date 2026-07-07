@@ -31,7 +31,7 @@ void voteGerrit(Map args) {
     }
 }
 
-// groovylint-disable-next-line MethodSize
+// groovylint-disable MethodSize
 void main() {
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
@@ -43,7 +43,8 @@ void main() {
     def force_build = params.DISABLE_JENKINS_CACHE == true;
     def do_rebase = params.CIPARAM_GATED_TRIGGER_REBASE;
     def do_automerge = params.CIPARAM_GATED_TRIGGER_AUTOMERGE;
-
+    def fake_artifacts = true;
+    def disable_cache = params.DISABLE_CACHE;
     def edition_medium_chain = "ultimate";
     def distro_medium_chain = "ubuntu-24.04";
 
@@ -64,6 +65,9 @@ void main() {
         |job_names:......... │${job_names}│
         |branch_base_folder: │${branch_base_folder}│
         |force_build:....... │${force_build}│
+        |fake_artifacts:.... │${fake_artifacts} (always active)│
+        |disable_cache:..... │${disable_cache}│
+        |disable_signing:... │${disable_signing}│
         |do_rebase:......... │${do_rebase}│
         |do_automerge:...... │${do_automerge}│
         |===================================================
@@ -121,8 +125,8 @@ void main() {
                     CUSTOM_GIT_REF: effective_git_ref,
                     EDITION: edition_medium_chain,
                     DISTRO: distro_medium_chain,
-                    DISABLE_CACHE: params.DISABLE_CACHE,
-                    FAKE_ARTIFACTS: true,
+                    DISABLE_CACHE: force_build,
+                    FAKE_ARTIFACTS: fake_artifacts,
                     CIPARAM_GATED_REBASE_ONTO: rebase_onto,
                 ],
                 build_params_no_check: [
@@ -151,8 +155,8 @@ void main() {
                         CUSTOM_GIT_REF: effective_git_ref,
                         EDITION: edition_medium_chain,
                         DISTRO: distro_medium_chain,
-                        DISABLE_CACHE: params.DISABLE_CACHE,
-                        FAKE_ARTIFACTS: true,
+                        DISABLE_CACHE: force_build,
+                        FAKE_ARTIFACTS: fake_artifacts,
                         // if there is a test filter specified on make target level, the last one in the list of pytest arguments will
                         // overwrite all previous ones. Place all required test filters in one place and connect them with "and"
                         // "TEST_FILTER" is prepended to the pytest call and thereby always the first source of settings and so it is

@@ -25,6 +25,7 @@ void main() {
     def trigger_post_submit_heavy_chain = params.TRIGGER_POST_SUBMIT_HEAVY_CHAIN;
     def build_node = params.CIPARAM_OVERRIDE_BUILD_NODE;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def disable_cache = params.DISABLE_CACHE;
 
     def safe_branch_name = versioning.safe_branch_name();
     def branch_version = versioning.get_branch_version(checkout_dir);
@@ -82,6 +83,7 @@ void main() {
         |checkout_dir:............. │${checkout_dir}│
         |branch_base_folder:....... │${branch_base_folder}│
         |force_build:.............. │${force_build}│
+        |disable_cache:............ │${disable_cache}│
         |trigger_fips_chain:....... │${trigger_fips_chain}│
         |selected_fips_distros:.... │${selected_fips_distros}│
         |===================================================

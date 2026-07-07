@@ -35,7 +35,9 @@ void main() {
     def make_target = "test-docker-docker";
     def package_dir = "${checkout_dir}/downloaded_packages_for_docker_tests";
     def source_dir = package_dir + "/" + cmk_version_rc_aware;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def disable_cache = params.DISABLE_CACHE;
 
     def distro = "ubuntu-22.04";
 
@@ -72,8 +74,8 @@ void main() {
                         CUSTOM_GIT_REF: effective_git_ref,
                         VERSION: params.VERSION,
                         EDITION: params.EDITION,
-                        DISABLE_CACHE: params.DISABLE_CACHE,
-                        FAKE_ARTIFACTS: params.FAKE_ARTIFACTS,
+                        DISABLE_CACHE: disable_cache,
+                        FAKE_ARTIFACTS: fake_artifacts,
                     ],
                     build_params_no_check: [
                         CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
@@ -115,8 +117,8 @@ void main() {
                         VERSION: params.VERSION,
                         EDITION: params.EDITION,
                         DISTRO: distro,
-                        DISABLE_CACHE: params.DISABLE_CACHE,
-                        FAKE_ARTIFACTS: params.FAKE_ARTIFACTS,
+                        DISABLE_CACHE: disable_cache,
+                        FAKE_ARTIFACTS: fake_artifacts,
                     ],
                     build_params_no_check: [
                         CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,

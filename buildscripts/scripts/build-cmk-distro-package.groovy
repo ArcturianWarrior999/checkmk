@@ -24,7 +24,6 @@ void main() {
     def distro = params.DISTRO;
     def edition = params.EDITION;
     def version = params.VERSION;
-    def disable_cache = params.DISABLE_CACHE;
 
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def bazel_logs = load("${checkout_dir}/buildscripts/scripts/utils/bazel_logs.groovy");
@@ -66,9 +65,11 @@ void main() {
     // groovylint-disable-next-line UnusedVariable
     def package_name = "";
     def license_flag = edition == "community" ? '--//:repo_license="gpl"' : "";
-    def fake_artifacts = params.FAKE_ARTIFACTS ? "--//:use_faked_artifacts=true" : "";
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def fake_artifacts_cli_arg = fake_artifacts ? "--//:use_faked_artifacts=true" : "";
     def enable_compression = versioning.is_official_release(cmk_version_rc_aware) ? "" : "--//:low_zstd_compression=true";
     def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def disable_cache = params.DISABLE_CACHE;
     def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
 
     print(
@@ -78,7 +79,9 @@ void main() {
         |edition:.................. │${edition}│
         |cmk_version:.............. │${cmk_version}│
         |safe_branch_name:......... │${safe_branch_name}│
+        |fake_artifacts:........... │${fake_artifacts}│
         |force_build:.............. │${force_build}│
+        |disable_cache:............ │${disable_cache}│
         |omd_env_vars:............. │${omd_env_vars}│
         |docker_tag:............... │${docker_tag}│
         |checkout_dir:............. │${checkout_dir}│
@@ -121,7 +124,7 @@ void main() {
 
     def stages = [:];
 
-    if (!params.FAKE_ARTIFACTS) {
+    if (!fake_artifacts) {
         stages += package_helper.provide_agent_binaries(
             version: version,
             cmk_version: cmk_version,
@@ -129,7 +132,7 @@ void main() {
             disable_cache: disable_cache,
             bisect_comment: params.CIPARAM_BISECT_COMMENT,
             artifacts_base_dir: "tmp_artifacts",
-            fake_artifacts: params.FAKE_ARTIFACTS,
+            fake_artifacts: fake_artifacts,
         );
     }
 
@@ -173,7 +176,7 @@ void main() {
                     ]) {
                         sh("""
                             bazel build \
-                                ${fake_artifacts} \
+                                ${fake_artifacts_cli_arg} \
                                 ${enable_compression} \
                                 --cmk_version=${cmk_version} \
                                 --cmk_edition=${edition} \
@@ -207,7 +210,7 @@ void main() {
                     try {
                         sh("""
                             bazel test \
-                                ${fake_artifacts} \
+                                ${fake_artifacts_cli_arg} \
                                 ${enable_compression} \
                                 --cmk_version=${cmk_version} \
                                 --cmk_edition=${edition} \

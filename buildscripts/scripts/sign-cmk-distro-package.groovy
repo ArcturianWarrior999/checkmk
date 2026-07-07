@@ -20,6 +20,9 @@ void main() {
     def edition = params.EDITION;
     def version = params.VERSION;
     def rebase_onto = params.CIPARAM_GATED_REBASE_ONTO;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
+    def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def disable_cache = params.DISABLE_CACHE;
 
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
@@ -59,6 +62,9 @@ void main() {
         |triggerd_by:.............. │${triggerd_by}│
         |package_type:............. │${package_type}│
         |rebase_onto:.............. |${rebase_onto}|
+        |fake_artifacts:........... │${fake_artifacts}│
+        |force_build:.............. │${force_build}│
+        |disable_cache:............ │${disable_cache}│
         |===================================================
         """.stripMargin());
 
@@ -93,9 +99,10 @@ void main() {
                     edition: edition,
                     distro: distro,
                     download_dir: checkout_dir,
-                    disable_cache: params.DISABLE_CACHE,
+                    disable_cache: disable_cache,
                     bisect_comment: params.CIPARAM_BISECT_COMMENT,
-                    fake_artifacts: params.FAKE_ARTIFACTS,
+                    fake_artifacts: fake_artifacts,
+                    force_build: force_build,
                     docker_tag: docker_tag,
                     safe_branch_name: safe_branch_name,
                     no_remove_others: true,
@@ -105,7 +112,7 @@ void main() {
 
             smart_stage(
                 name: "Download built Windows artifacts",
-                condition: !params.FAKE_ARTIFACTS,
+                condition: !fake_artifacts,
                 raiseOnError: true,
             ) {
                 single_tests.fetch_package(
@@ -114,6 +121,7 @@ void main() {
                     distro: "",
                     download_dir: checkout_dir,
                     fake_artifacts: "",
+                    disable_cache: disable_cache,
                     no_remove_others: true,
                     dependency_paths: package_helper.dependency_paths_hashes()["winagt-build"],
                 );
@@ -143,7 +151,7 @@ void main() {
                     workspace: checkout_dir,
                     source_dir: checkout_dir,
                     cmk_version: cmk_version,
-                    fake_artifacts: params.FAKE_ARTIFACTS,
+                    fake_artifacts: fake_artifacts,
                 );
             }
 

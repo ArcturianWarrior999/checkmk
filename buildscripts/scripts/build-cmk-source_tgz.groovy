@@ -20,6 +20,7 @@ void main() {
 
     def edition = params.EDITION;
     def version = params.VERSION;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
     def disable_cache = params.DISABLE_CACHE;
     def force_build = params.DISABLE_JENKINS_CACHE == true;
     def safe_branch_name = versioning.safe_branch_name();
@@ -37,6 +38,9 @@ void main() {
         |cmk_version:.............. │${cmk_version}│
         |edition:.................. │${edition}│
         |cmk_version_rc_aware:..... │${cmk_version_rc_aware}│
+        |fake_artifacts:........... │${fake_artifacts}│
+        |force_build:.............. │${force_build}│
+        |disable_cache:............ │${disable_cache}│
         |===================================================
         """.stripMargin());
 
@@ -56,7 +60,7 @@ void main() {
 
     def stages = [:];
 
-    if (!params.FAKE_ARTIFACTS) {
+    if (!fake_artifacts) {
         stages += package_helper.provide_agent_binaries(
             version: version,
             cmk_version: cmk_version,
@@ -103,7 +107,7 @@ void main() {
                 workspace: WORKSPACE,
                 source_dir: checkout_dir,
                 cmk_version: cmk_version,
-                fake_artifacts: params.FAKE_ARTIFACTS,
+                fake_artifacts: fake_artifacts,
             );
         }
 

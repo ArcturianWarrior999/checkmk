@@ -52,6 +52,8 @@ void main() {
     def cross_edition_target = params.CROSS_EDITION_TARGET ?: "";
     def deliverables_dir = "${checkout_dir}/test-results";
     def force_build = params.DISABLE_JENKINS_CACHE == true;
+    def disable_cache = params.DISABLE_CACHE;
+    def fake_artifacts = params.FAKE_ARTIFACTS;
 
     print(
         """
@@ -71,6 +73,8 @@ void main() {
         |checkout_dir:............. │${checkout_dir}│
         |branch_base_folder:....... │${branch_base_folder}│
         |force_build:.............. │${force_build}│
+        |fake_artifacts:........... │${fake_artifacts}│
+        |disable_cache:............ │${disable_cache}│
         |===================================================
         """.stripMargin());
 
@@ -118,7 +122,8 @@ void main() {
                         VERSION: version,
                         CROSS_EDITION_TARGET: cross_edition_target,
                         CUSTOM_GIT_REF: effective_git_ref,
-                        FAKE_ARTIFACTS: params.FAKE_ARTIFACTS,
+                        FAKE_ARTIFACTS: fake_artifacts,
+                        DISABLE_CACHE: disable_cache,
                     ],
                     build_params_no_check: [
                         CIPARAM_OVERRIDE_BUILD_NODE: params.CIPARAM_OVERRIDE_BUILD_NODE,
