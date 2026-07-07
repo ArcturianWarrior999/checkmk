@@ -65,6 +65,20 @@ def _uuid_crash_dirs(type_dir: Path) -> Iterator[Path]:
             yield p
 
 
+def iter_crash_dirs(base_path: Path) -> Iterator[Path]:
+    """Yield every per-crash directory (UUID-named) under base_path, across all
+    crash-type directories. Order is filesystem-dependent.
+
+    This is the enumeration mechanism; callers apply their own policy (e.g. the
+    uploader skips already-uploaded dirs and requires a crash.info to pack).
+    """
+    if not base_path.exists():
+        return
+    for type_dir in base_path.iterdir():
+        if type_dir.is_dir():
+            yield from _uuid_crash_dirs(type_dir)
+
+
 def _remove_crash_dir(crash_dir: Path) -> None:
     """Remove a single crash report directory and its contents."""
     for f in crash_dir.iterdir():

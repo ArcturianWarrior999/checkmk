@@ -21,6 +21,7 @@ from cmk.crash import (
     CrashInfo,
     CrashReportStore,
     format_var_for_export,
+    iter_crash_dirs,
     make_crash_report_base_path,
     read_occurrences,
     REDACTED_STRING,
@@ -724,3 +725,28 @@ def test_read_occurrences_v0_time_float() -> None:
 def test_read_occurrences_missing_both_raises() -> None:
     with pytest.raises(ValueError, match="neither"):
         read_occurrences({"crash_type": "check"})
+
+
+_FAKE_UUID = "11111111-1111-1111-1111-111111111111"
+
+
+def test_iter_crash_dirs_missing_base(tmp_path: Path) -> None:
+    assert list(iter_crash_dirs(tmp_path / "nonexistent")) == []
+
+
+def test_iter_crash_dirs_skips_non_uuid_names(tmp_path: Path) -> None:
+    (tmp_path / "check" / "not-a-uuid").mkdir(parents=True)
+    assert list(iter_crash_dirs(tmp_path)) == []
+
+
+def test_iter_crash_dirs_yields_uuid_dirs_across_types(tmp_path: Path) -> None:
+    (tmp_path / "check" / _FAKE_UUID).mkdir(parents=True)
+    (tmp_path / "gui" / _FAKE_UUID).mkdir(parents=True)
+    assert {p.parent.name for p in iter_crash_dirs(tmp_path)} == {"check", "gui"}
+
+
+def test_iter_crash_dirs_yields_dir_without_crash_info(tmp_path: Path) -> None:
+    """The mechanism enumerates every UUID dir; requiring a crash.info is a caller
+    policy (the uploader), not part of enumeration."""
+    (tmp_path / "check" / _FAKE_UUID).mkdir(parents=True)
+    assert [p.name for p in iter_crash_dirs(tmp_path)] == [_FAKE_UUID]

@@ -1,3 +1,4 @@
+load("@cmk_requirements//:requirements.bzl", "requirement")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 
 py_cmk_test(
@@ -7,5 +8,7 @@ py_cmk_test(
     deps = [
         "//packages/cmk-crash:crash",
         "//packages/cmk-crash:crash_reporting",
+        requirement("requests"),
+        requirement("responses"),
     ],
 )

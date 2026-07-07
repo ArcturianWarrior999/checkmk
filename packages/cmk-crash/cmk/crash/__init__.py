@@ -40,6 +40,7 @@ from ._store import (
     CrashReportStore,
     DEFAULT_MAX_CRASH_AGE,
     DEFAULT_MAX_CRASHES_TOTAL_SIZE,
+    iter_crash_dirs,
 )
 
 __all__ = [
@@ -63,6 +64,7 @@ __all__ = [
     "VersionInfo",
     "crash_fingerprint",
     "format_var_for_export",
+    "iter_crash_dirs",
     "make_crash_report_base_path",
     "normalize_crash_time",
     "read_occurrences",

@@ -11,8 +11,10 @@ other flow) can reuse it. The batch upload loop and CLI entrypoint
 """
 
 from ._packaging import crash_report_submit_payload, pack_crash_report
+from .upload import run_batch
 
 __all__ = [
     "crash_report_submit_payload",
     "pack_crash_report",
+    "run_batch",
 ]

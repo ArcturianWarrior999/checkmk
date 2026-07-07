@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
@@ -32,10 +33,15 @@ py_library(
     srcs = [
         "cmk/crash_reporting/__init__.py",
         "cmk/crash_reporting/_packaging.py",
+        "cmk/crash_reporting/upload.py",
     ],
     data = [":crash_reporting_py_typed"],
     imports = ["."],
     visibility = ["//visibility:public"],
+    deps = [
+        ":crash",
+        requirement("requests"),
+    ],
 )
 
 filegroup(
