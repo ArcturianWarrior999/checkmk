@@ -805,9 +805,9 @@ class Site:
             CompletedProcess: the process object resulted from the "omd" command
         """
         cmd = ["omd", mode] + list(args)
-        logger.info("Executing: %(cmd)s", {"cmd": subprocess.list2cmdline(cmd)})
+        logger.debug("Executing: %(cmd)s", {"cmd": subprocess.list2cmdline(cmd)})
         completed_process = self.run(cmd, check=check)
-        logger.info("Exit code: %(returncode)d", {"returncode": completed_process.returncode})
+        logger.debug("Exit code: %(returncode)d", {"returncode": completed_process.returncode})
         if completed_process.stdout:
             logger.debug("Stdout:")
             for line in completed_process.stdout.strip().split("\n"):
@@ -818,7 +818,7 @@ class Site:
                 logger.info("> %(line)s", {"line": line})
 
         if mode == "status":
-            logger.info(
+            logger.debug(
                 "OMD status: %(returncode)d (%(status)s)",
                 {
                     "returncode": completed_process.returncode,
