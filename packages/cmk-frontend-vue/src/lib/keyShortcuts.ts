@@ -56,12 +56,17 @@ const MODIFIER_KEYS = new Set([
 export class KeyShortcutService {
   private keyStates: KeyStates = {}
   private handlers: KeyShortcutHandler[] = []
+  private readonly boundHandleKeyDown: (e: KeyboardEvent) => void
+  private readonly boundHandleKeyUp: (e: KeyboardEvent) => void
+  private iframeObserver: MutationObserver | null = null
 
   constructor(
     private window: Window,
     private propagateTo: HTMLCollectionOf<HTMLIFrameElement> | null = null,
     private listenTo: HTMLCollectionOf<HTMLIFrameElement> | null = null
   ) {
+    this.boundHandleKeyDown = this.handleKeyDown.bind(this)
+    this.boundHandleKeyUp = this.handleKeyUp.bind(this)
     this.initListeners()
   }
 
@@ -140,18 +145,55 @@ export class KeyShortcutService {
   }
 
   private initListeners() {
-    this.window.addEventListener('keydown', this.handleKeyDown.bind(this))
-    this.window.addEventListener('keyup', this.handleKeyUp.bind(this))
+    this.window.addEventListener('keydown', this.boundHandleKeyDown)
+    this.window.addEventListener('keyup', this.boundHandleKeyUp)
 
     if (this.listenTo) {
-      for (let i = 0; i < this.listenTo.length; i++) {
-        this.listenTo
-          ?.item(i)
-          ?.contentWindow?.addEventListener('keydown', this.handleKeyDown.bind(this))
-        this.listenTo
-          ?.item(i)
-          ?.contentWindow?.addEventListener('keyup', this.handleKeyUp.bind(this))
+      this.observeIframes()
+    }
+  }
+
+  private observeIframes(): void {
+    for (let i = 0; i < this.listenTo!.length; i++) {
+      const iframe = this.listenTo!.item(i)
+      if (iframe) {
+        this.listenToIframe(iframe)
       }
+    }
+
+    const body = this.window.document.body
+    if (!body) {
+      return
+    }
+
+    this.iframeObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLIFrameElement) {
+            this.listenToIframe(node)
+          } else if (node instanceof HTMLElement) {
+            node.querySelectorAll('iframe').forEach((iframe) => this.listenToIframe(iframe))
+          }
+        }
+      }
+    })
+    this.iframeObserver.observe(body, { childList: true, subtree: true })
+  }
+
+  private listenToIframe(iframe: HTMLIFrameElement): void {
+    this.attachKeyListeners(iframe.contentWindow)
+    iframe.addEventListener('load', () => this.attachKeyListeners(iframe.contentWindow))
+  }
+
+  private attachKeyListeners(contentWindow: Window | null): void {
+    if (!contentWindow) {
+      return
+    }
+    try {
+      contentWindow.addEventListener('keydown', this.boundHandleKeyDown)
+      contentWindow.addEventListener('keyup', this.boundHandleKeyUp)
+    } catch {
+      return
     }
   }
 
