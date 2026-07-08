@@ -134,7 +134,7 @@ def apache_hook_header(version: int) -> str:
 
 
 def apache_hook_version() -> int:
-    return 3
+    return 4
 
 
 def _site_not_started_html(site_name: str) -> str:
@@ -273,6 +273,14 @@ def create_apache_hook(
     # wrong devlivered pages sometimes
     ProxyPass http://{apache_tcp_addr}:{apache_tcp_port}/{site_name} retry=0 disablereuse=On timeout=120
     ProxyPassReverse http://{apache_tcp_addr}:{apache_tcp_port}/{site_name}
+  </Location>
+
+  <Location /.well-known/oauth-authorization-server/{site_name}>
+    # RFC 8414 authorization server metadata for this site. Lives outside the
+    # /{site_name} prefix, so it needs its own Location, but is served by the
+    # same site backend (see cmk.gui's noauth:oauth_authorization_server page).
+    ProxyPass http://{apache_tcp_addr}:{apache_tcp_port}/{site_name}/check_mk/oauth_authorization_server.py retry=0 disablereuse=On timeout=120
+    ProxyPassReverse http://{apache_tcp_addr}:{apache_tcp_port}/{site_name}/check_mk/oauth_authorization_server.py
   </Location>
 </IfModule>
 

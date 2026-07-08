@@ -36,7 +36,7 @@ def test_register_with_system_apache(tmp_path: Path, mocker: MockerFixture) -> N
     content = apache_config.read_bytes()
     assert (
         sha256(content).hexdigest()
-        == "0530f7167814607e0b85cdd741a9201e341017e938e55a6704ba655759aa0b76"
+        == "f1ad5dc49bd1ae9cf9304039af1cfe3ac9baf3d297eda93381f4ec367c592fc9"
     ), (
         "The content of [site].conf was changed. Have you updated the apache_hook_version()? The "
         "number needs to be increased with every change to inform the user about an additional step "
@@ -126,6 +126,16 @@ def test_create_apache_hook_world_readable(tmp_path: Path) -> None:
     apache_config.parent.mkdir(parents=True)
     create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", 0)
     assert apache_config.stat().st_mode & stat.S_IROTH
+
+
+def test_create_apache_hook_well_known_oauth_authorization_server(tmp_path: Path) -> None:
+    apache_config = tmp_path / "omd/apache/unit.conf"
+    apache_config.parent.mkdir(parents=True)
+    create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", apache_hook_version())
+
+    content = apache_config.read_text()
+    assert "<Location /.well-known/oauth-authorization-server/unit>" in content
+    assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_authorization_server.py" in content
 
 
 def test_write_apache_listen_conf_ipv4(tmp_path: Path) -> None:
