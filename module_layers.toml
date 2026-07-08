@@ -1557,7 +1557,6 @@ allows = [
   "cmk.ccc.version",
   # TYPE_CHECKING only, in license_distribution_registry
   "cmk.utils.automation_config",
-  "livestatus",
 ]
 
 [components."cmk.utils.local_secrets"]

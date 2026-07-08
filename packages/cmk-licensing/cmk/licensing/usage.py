@@ -17,9 +17,8 @@ from pathlib import Path
 from typing import Any, NamedTuple, Protocol
 from uuid import UUID
 
-import livestatus
-
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 from cmk.ccc import store
 from cmk.ccc.site import omd_site
 from cmk.ccc.version import Edition
