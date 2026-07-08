@@ -202,8 +202,8 @@ $LONGSERVICEOUTPUT$
             "tags": DictElement(
                 parameter_form=ListOfStrings(
                     title=Title("Tags"),
-                    # astrein: disable=localization-named-placeholder
-                    help_text=Help("Tags of the alert.<br><br>%s") % notification_macro_help_fs(),
+                    help_text=Help("Tags of the alert.<br><br>%(macro_help)s")
+                    % {"macro_help": notification_macro_help_fs()},
                     string_spec=String(),
                     custom_validate=[LengthInRange(min_value=1)],
                     layout=ListOfStringsLayout.horizontal,

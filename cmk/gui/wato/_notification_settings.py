@@ -137,13 +137,12 @@ ConfigVariableNotificationPluginTimeout = ConfigVariable(
 def _valuespec_notification_logging(context: GlobalSettingsContext) -> DropdownChoice:
     return DropdownChoice(
         title=_("Notification log level"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "You can configure the notification mechanism to log more details about "
             "the notifications into the notification log. This information are logged "
-            "into the file <tt>%s</tt>"
+            "into the file <tt>%(log_file)s</tt>"
         )
-        % (context.site_neutral_log_dir / "notify.log"),
+        % {"log_file": context.site_neutral_log_dir / "notify.log"},
         choices=[
             (20, _("Minimal logging")),
             (15, _("Normal logging")),

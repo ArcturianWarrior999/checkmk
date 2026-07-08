@@ -1366,20 +1366,22 @@ def _get_vue_data() -> Notifications:
                 title=_("Core status of notifications"),
                 sites_column_title=_("Sites"),
                 status_column_title=_("Notification core status"),
-                # astrein: disable=localization-named-placeholder
-                ok_msg=_("Notifications enabled on %d of %d %s")
-                % (
-                    all_sites_count,
-                    all_sites_count,
-                    site_prefix := ungettext("site", "sites", all_sites_count),
-                ),
-                # astrein: disable=localization-named-placeholder
-                warning_msg=_("Notifications disabled on %d of %d %s")
-                % (
-                    len(sites_with_disabled_notifications),
-                    all_sites_count,
-                    site_prefix,
-                ),
+                ok_msg=_(
+                    "Notifications enabled on %(enabled_count)d of %(total_count)d %(site_prefix)s"
+                )
+                % {
+                    "enabled_count": all_sites_count,
+                    "total_count": all_sites_count,
+                    "site_prefix": (site_prefix := ungettext("site", "sites", all_sites_count)),
+                },
+                warning_msg=_(
+                    "Notifications disabled on %(disabled_count)d of %(total_count)d %(site_prefix)s"
+                )
+                % {
+                    "disabled_count": len(sites_with_disabled_notifications),
+                    "total_count": all_sites_count,
+                    "site_prefix": site_prefix,
+                },
                 disabled_msg=_("Disabled via master control"),
             ),
         ),
@@ -1787,8 +1789,7 @@ class ModeAnalyzeNotifications(ModeNotifications):
             if transactions.check_transaction():
                 replay_nr = request.get_integer_input_mandatory("_replay")
                 notification_replay(replay_nr, debug=config.debug)
-                # astrein: disable=localization-named-placeholder
-                flash(_("Replayed notification number %d") % (replay_nr + 1))
+                flash(_("Replayed notification number %(nr)d") % {"nr": replay_nr + 1})
                 return None
 
         return redirect(self.mode_url())
@@ -2106,28 +2107,29 @@ class ModeTestNotifications(ModeNotifications):
         match_count_global = match_count_all - match_count_user
 
         html.write_text_permissive(
-            # astrein: disable=localization-named-placeholder
-            _("%s notification %s (%d global %s, %d user %s)")
-            % (
-                match_count_all,
-                ungettext(
+            _(
+                "%(count_all)s notification %(matches_label)s (%(global_count)d global %(global_label)s, %(user_count)d user %(user_label)s)"
+            )
+            % {
+                "count_all": match_count_all,
+                "matches_label": ungettext(
                     "rule matches",
                     "rules are matching",
                     match_count_all,
                 ),
-                match_count_global,
-                ungettext(
+                "global_count": match_count_global,
+                "global_label": ungettext(
                     "rule",
                     "rules",
                     match_count_global,
                 ),
-                match_count_user,
-                ungettext(
+                "user_count": match_count_user,
+                "user_label": ungettext(
                     "rule",
                     "rules",
                     match_count_user,
                 ),
-            )
+            }
         )
         html.br()
         resulting_notifications_count = _get_resulting_notifications_count(
@@ -2154,17 +2156,16 @@ class ModeTestNotifications(ModeNotifications):
             notification_sent_count = len(unique_contacts)
             html.br()
             html.write_text_permissive(
-                # astrein: disable=localization-named-placeholder
-                _("%d %s %s.")
-                % (
-                    notification_sent_count,
-                    self._vs_notification_scripts().value_to_html(dispatch_method),
-                    ungettext(
+                _("%(count)d %(script)s %(label)s.")
+                % {
+                    "count": notification_sent_count,
+                    "script": self._vs_notification_scripts().value_to_html(dispatch_method),
+                    "label": ungettext(
                         "notification has been triggered",
                         "notifications have been triggered",
                         notification_sent_count,
                     ),
-                )
+                }
             )
         html.br()
         html.br()
@@ -2702,9 +2703,12 @@ class ModeTestNotifications(ModeNotifications):
                                     default_value=time.strftime("%H:%M"),
                                     server_time_text=timezone_utc_offset_str()
                                     + " "
-                                    # astrein: disable=localization-named-placeholder
-                                    + _("Server time (currently: %s)")
-                                    % time.strftime("%Y-%m-%d %H:%M", time.localtime()),
+                                    + _("Server time (currently: %(server_time)s)")
+                                    % {
+                                        "server_time": time.strftime(
+                                            "%Y-%m-%d %H:%M", time.localtime()
+                                        )
+                                    },
                                 ),
                             ],
                         ),
@@ -2816,8 +2820,7 @@ class ABCUserNotificationsMode(ABCNotificationsMode):
         raise NotImplementedError
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Custom notification table for user %s") % self._user_id()
+        return _("Custom notification table for user %(user_id)s") % {"user_id": self._user_id()}
 
     def action(self, config: Config) -> ActionResult:
         if not transactions.check_transaction():
@@ -2837,8 +2840,8 @@ class ABCUserNotificationsMode(ABCNotificationsMode):
             )
             self._add_change(
                 action_name="notification-delete-user-rule",
-                # astrein: disable=localization-named-placeholder
-                text=_("Deleted notification rule %d of user %s") % (nr, self._user_id()),
+                text=_("Deleted notification rule %(nr)d of user %(user_id)s")
+                % {"nr": nr, "user_id": self._user_id()},
                 pending_changes=_pending_changes(config, omd_site(), user.id),
                 site_configs=config.sites,
             )
@@ -2860,9 +2863,8 @@ class ABCUserNotificationsMode(ABCNotificationsMode):
 
             self._add_change(
                 action_name="notification-move-user-rule",
-                # astrein: disable=localization-named-placeholder
-                text=_("Changed position of notification rule %d of user %s")
-                % (from_pos, self._user_id()),
+                text=_("Changed position of notification rule %(from_pos)d of user %(user_id)s")
+                % {"from_pos": from_pos, "user_id": self._user_id()},
                 pending_changes=_pending_changes(config, omd_site(), user.id),
                 site_configs=config.sites,
             )
@@ -3129,8 +3131,9 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
                     self._rule = deepcopy(self._rules[self._clone_nr])
                     self._rule["rule_id"] = new_notification_rule_id()
                 except IndexError:
-                    # astrein: disable=localization-named-placeholder
-                    raise MKUserError(None, _("This %s does not exist.") % "notification rule")
+                    raise MKUserError(
+                        None, _("This %(entity)s does not exist.") % {"entity": "notification rule"}
+                    )
             else:
                 # For user notifications, we still need the old way to load the
                 # default rule. Parameters are stored within the rule
@@ -3140,8 +3143,9 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
             try:
                 self._rule = self._rules[self._edit_nr]
             except IndexError:
-                # astrein: disable=localization-named-placeholder
-                raise MKUserError(None, _("This %s does not exist.") % "notification rule")
+                raise MKUserError(
+                    None, _("This %(entity)s does not exist.") % {"entity": "notification rule"}
+                )
 
     def _get_default_notification_rule(self) -> EventRule | dict[str, object]:
         return get_default_notification_rule()
@@ -3584,9 +3588,8 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
                 if not info["bulk"]:
                     raise MKUserError(
                         varprefix + "_p_notify_plugin",
-                        # astrein: disable=localization-named-placeholder
-                        _("The notification script %s does not allow building bulks.")
-                        % info["title"],
+                        _("The notification script %(title)s does not allow building bulks.")
+                        % {"title": info["title"]},
                     )
             else:
                 raise MKUserError(
@@ -3639,11 +3642,11 @@ class ABCEditNotificationRuleMode(ABCNotificationsMode):
         )
         flash(
             (
-                # astrein: disable=localization-named-placeholder
-                _("New notification rule #%d successfully created!") % (len(self._rules) - 1)
+                _("New notification rule #%(nr)d successfully created!")
+                % {"nr": len(self._rules) - 1}
                 if self._new
-                # astrein: disable=localization-named-placeholder
-                else _("Notification rule number #%d successfully edited!") % self._edit_nr
+                else _("Notification rule number #%(nr)d successfully edited!")
+                % {"nr": self._edit_nr}
             ),
         )
 
@@ -3706,8 +3709,7 @@ class ModeEditNotificationRule(ABCEditNotificationRuleMode):
     def title(self) -> str:
         if self._new:
             return _("Add notification rule")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit notification rule %d") % self._edit_nr
+        return _("Edit notification rule %(edit_nr)d") % {"edit_nr": self._edit_nr}
 
     def _log_text(self, edit_nr: int) -> str:
         if self._new:
@@ -3769,13 +3771,11 @@ class ModeEditUserNotificationRule(ABCEditNotificationRuleMode):
 
     def title(self) -> str:
         if self._new:
-            # astrein: disable=localization-named-placeholder
-            return _("Add notification rule for user %s") % self._user_id()
-        # astrein: disable=localization-named-placeholder
-        return _("Edit notification rule %d of user %s") % (
-            self._edit_nr,
-            self._user_id(),
-        )
+            return _("Add notification rule for user %(user_id)s") % {"user_id": self._user_id()}
+        return _("Edit notification rule %(edit_nr)d of user %(user_id)s") % {
+            "edit_nr": self._edit_nr,
+            "user_id": self._user_id(),
+        }
 
     def _load_rules(self) -> list[EventRule]:
         self._users = userdb.load_users(lock=transactions.is_transaction())
@@ -3861,8 +3861,7 @@ class ModeEditPersonalNotificationRule(ABCEditNotificationRuleMode):
     def title(self) -> str:
         if self._new:
             return _("Create new notification rule")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit notification rule %d") % self._edit_nr
+        return _("Edit notification rule %(edit_nr)d") % {"edit_nr": self._edit_nr}
 
     def _get_default_notification_rule(self) -> EventRule | dict[str, object]:
         # For user notifications, we still need the old way to load the
@@ -4103,8 +4102,10 @@ class ABCNotificationParameterMode(WatoMode):
                         "_clone",
                     )
                 except KeyError:
-                    # astrein: disable=localization-named-placeholder
-                    raise MKUserError(None, _("This %s does not exist.") % "notification parameter")
+                    raise MKUserError(
+                        None,
+                        _("This %(entity)s does not exist.") % {"entity": "notification parameter"},
+                    )
             else:
                 self._parameter = NotificationParameterItem(
                     general=NotificationParameterGeneralInfos(
@@ -4118,8 +4119,10 @@ class ABCNotificationParameterMode(WatoMode):
             try:
                 self._parameter = method_parameters[NotificationParameterID(self._edit_parameter)]
             except IndexError:
-                # astrein: disable=localization-named-placeholder
-                raise MKUserError(None, _("This %s does not exist.") % "notification parameter")
+                raise MKUserError(
+                    None,
+                    _("This %(entity)s does not exist.") % {"entity": "notification parameter"},
+                )
 
     def _spec(self) -> ValueSpec[Any]:
         try:
@@ -4134,8 +4137,8 @@ class ABCNotificationParameterMode(WatoMode):
                 )
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("No notification parameters for method '%s' found") % self._method(),
+                _("No notification parameters for method '%(method)s' found")
+                % {"method": self._method()},
             )
 
         if isinstance(plugin, NotificationParameters):
@@ -4253,8 +4256,7 @@ class ModeNotificationParameters(ABCNotificationParameterMode):
         return self.mode_url(method=self._method())
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Parameters for %s") % self._method_name()
+        return _("Parameters for %(method_name)s") % {"method_name": self._method_name()}
 
     def _log_text(self, edit_nr: int) -> str:
         if self._new:
@@ -4298,8 +4300,10 @@ class ModeNotificationParameters(ABCNotificationParameterMode):
 
     def page(self, config: Config) -> None:
         if self._method() not in load_notification_scripts():
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(None, _("Notification method '%s' does not exist") % self._method())
+            raise MKUserError(
+                None,
+                _("Notification method '%(method)s' does not exist") % {"method": self._method()},
+            )
 
         if parameter_id_with_related_rules := request.var("_parameter_id_with_related_rules"):
             parameter_id = NotificationParameterID(parameter_id_with_related_rules)
@@ -4516,15 +4520,16 @@ class ModeEditNotificationParameter(ABCNotificationParameterMode):
     def title(self) -> str:
         if self._new:
             if self._clone_id:
-                # astrein: disable=localization-named-placeholder
-                return _("Clone %s notification parameter") % self._method_name()
-            # astrein: disable=localization-named-placeholder
-            return _("Add %s notification parameter") % self._method_name()
-        # astrein: disable=localization-named-placeholder
-        return _("Edit %s notification parameter #%s") % (
-            self._method_name(),
-            self._edit_nr,
-        )
+                return _("Clone %(method_name)s notification parameter") % {
+                    "method_name": self._method_name()
+                }
+            return _("Add %(method_name)s notification parameter") % {
+                "method_name": self._method_name()
+            }
+        return _("Edit %(method_name)s notification parameter #%(edit_nr)s") % {
+            "method_name": self._method_name(),
+            "edit_nr": self._edit_nr,
+        }
 
     def _log_text(self, edit_nr: int) -> str:
         if self._new:
@@ -4635,8 +4640,7 @@ class ModeEditNotificationRuleQuickSetup(WatoMode):
     def title(self) -> str:
         if self._new:
             return _("Add notification rule")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit notification rule %d") % self._edit_nr
+        return _("Edit notification rule %(edit_nr)d") % {"edit_nr": self._edit_nr}
 
     def breadcrumb(self) -> Breadcrumb:
         with request.stashed_vars():

@@ -444,8 +444,7 @@ def _get_service_levels_single_choice() -> Sequence[SingleChoiceElementExtended[
     return [
         SingleChoiceElementExtended(
             name=name,
-            # astrein: disable=localization-named-placeholder
-            title=Title("%s") % _(" %s") % title,
+            title=Title("%(title)s") % {"title": _(" %(title)s")} % {"title": title},
         )
         for name, title in service_levels()
     ]
@@ -578,8 +577,8 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                         elements=[
                                                             SingleChoiceElementExtended(
                                                                 name=name,
-                                                                # astrein: disable=localization-named-placeholder
-                                                                title=Title("%s") % title,
+                                                                title=Title("%(title)s")
+                                                                % {"title": title},
                                                             )
                                                             for name, title in syslog_priorities
                                                         ],
@@ -589,8 +588,8 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                         elements=[
                                                             SingleChoiceElementExtended(
                                                                 name=name,
-                                                                # astrein: disable=localization-named-placeholder
-                                                                title=Title("%s") % title,
+                                                                title=Title("%(title)s")
+                                                                % {"title": title},
                                                             )
                                                             for name, title in syslog_priorities
                                                         ],
@@ -605,8 +604,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                 elements=[
                                                     SingleChoiceElementExtended(
                                                         name=name,
-                                                        # astrein: disable=localization-named-placeholder
-                                                        title=Title("%s") % title,
+                                                        title=Title("%(title)s") % {"title": title},
                                                     )
                                                     for name, title in syslog_facilities
                                                 ],
@@ -677,8 +675,8 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                         elements=[
                                             MultipleChoiceElementExtended(
                                                 name=group_name,
-                                                # astrein: disable=localization-named-placeholder
-                                                title=Title("%s") % group_name,
+                                                title=Title("%(group_name)s")
+                                                % {"group_name": group_name},
                                             )
                                             for group_name in load_host_group_information()
                                         ],
@@ -765,8 +763,8 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                 elements=[
                                                     MultipleChoiceElementExtended(
                                                         name=group_name,
-                                                        # astrein: disable=localization-named-placeholder
-                                                        title=Title("%s") % group_name,
+                                                        title=Title("%(group_name)s")
+                                                        % {"group_name": group_name},
                                                     )
                                                     for group_name in load_service_group_information()
                                                 ],
@@ -831,8 +829,8 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                                 elements=[
                                                     MultipleChoiceElementExtended(
                                                         name=group_name,
-                                                        # astrein: disable=localization-named-placeholder
-                                                        title=Title("%s") % group_name,
+                                                        title=Title("%(group_name)s")
+                                                        % {"group_name": group_name},
                                                     )
                                                     for group_name in load_service_group_information()
                                                 ],
@@ -999,8 +997,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                         elements=[
                                             MultipleChoiceElementExtended(
                                                 name=name,
-                                                # astrein: disable=localization-named-placeholder
-                                                title=Title("%s") % title,
+                                                title=Title("%(title)s") % {"title": title},
                                             )
                                             for name, title in sorted_contact_group_choices()
                                         ],
@@ -1032,8 +1029,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                             elements=[
                                                 SingleChoiceElementExtended(
                                                     name=userid,
-                                                    # astrein: disable=localization-named-placeholder
-                                                    title=Title("%s") % user,
+                                                    title=Title("%(user)s") % {"user": user},
                                                 )
                                                 for userid, user in _get_contact_group_users()
                                             ],
@@ -1101,8 +1097,9 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                         elements=[
                                             SingleChoiceElementExtended(
                                                 name=name,
-                                                # astrein: disable=localization-named-placeholder
-                                                title=Title("%s") % _(" %s") % folder,
+                                                title=Title("%(folder)s")
+                                                % {"folder": _(" %(folder)s")}
+                                                % {"folder": folder},
                                             )
                                             for name, folder in folder_tree().folder_choices(
                                                 logged_in_user
@@ -1116,8 +1113,7 @@ def filter_for_hosts_and_services() -> QuickSetupStage:
                                         elements=[
                                             MultipleChoiceElementExtended(
                                                 name=name,
-                                                # astrein: disable=localization-named-placeholder
-                                                title=Title("%s") % title,
+                                                title=Title("%(title)s") % {"title": title},
                                             )
                                             for name, title in get_activation_site_choices(
                                                 active_config.sites
@@ -1185,9 +1181,11 @@ def notification_method() -> QuickSetupStage:
                             elements=[
                                 CascadingSingleChoiceElementExtended(
                                     name=name,
-                                    # astrein: disable=localization-named-placeholder
-                                    title=Title("%s")
-                                    % (_("%(timeperiod)s") % {"timeperiod": timeperiod}),
+                                    title=Title("%(timeperiod)s")
+                                    % {
+                                        "timeperiod": _("%(timeperiod)s")
+                                        % {"timeperiod": timeperiod}
+                                    },
                                     parameter_form=bulk_notification(
                                         title="timeperiod",
                                     ),
@@ -1383,9 +1381,8 @@ def notification_method() -> QuickSetupStage:
                                             title=Title("Method"),
                                             elements=[
                                                 CascadingSingleChoiceElementExtended(
-                                                    # astrein: disable=localization-named-placeholder
-                                                    title=Title("%s")
-                                                    % (_("%(title)s") % {"title": title}),
+                                                    title=Title("%(title)s")
+                                                    % {"title": _("%(title)s") % {"title": title}},
                                                     name=script_name,
                                                     parameter_form=Dictionary(
                                                         elements={
@@ -1423,9 +1420,8 @@ def notification_method() -> QuickSetupStage:
                                             title=Title("Method"),
                                             elements=[
                                                 CascadingSingleChoiceElementExtended(
-                                                    # astrein: disable=localization-named-placeholder
-                                                    title=Title("%s")
-                                                    % (_("%(title)s") % {"title": title}),
+                                                    title=Title("%(title)s")
+                                                    % {"title": _("%(title)s") % {"title": title}},
                                                     name=script_name,
                                                     parameter_form=FixedValue(value=None),
                                                 )
