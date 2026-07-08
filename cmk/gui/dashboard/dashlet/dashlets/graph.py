@@ -176,8 +176,9 @@ class ABCGraphDashlet[T: ABCGraphDashletConfig, TGraphSpec: GraphSpecification](
 
         # New graphs which have been added via "add to visual" option don't have a timerange
         # configured. So we assume the default timerange here by default.
+        # TODO: If the comment above is correct, the typing is wrong => suppression for now
         if "timerange" not in self._dashlet_spec:
-            self._dashlet_spec["timerange"] = "25h"
+            self._dashlet_spec["timerange"] = "25h"  # type: ignore[unreachable]
 
         self._cached_graph_specification: TGraphSpec | None = None
         self._cached_recipes: Sequence[GraphRecipeWithOverrides] | None = None

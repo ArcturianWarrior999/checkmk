@@ -39,17 +39,21 @@ from cmk.utils.paths import web_dir
 
 
 def _security_msg_template_html(macro_func: Callable) -> Template:
-    return Template(macro_func() + get_template_html())
+    # Suppression because of funny typing of Template.__new__'s return value
+    return Template(macro_func() + get_template_html())  # type: ignore[no-any-return]
 
 
 def _security_msg_template_txt() -> Template:
-    return Template("""
+    # Suppression because of funny typing of Template.__new__'s return value
+    return Template(  # type: ignore[no-any-return]
+        """
 You received this Email because of the following event:\n\n
 
 {{ event }} at {{event_time}}\n\n
 
 If you are not the initiator of this event, please contact your administrator.
-""")
+"""
+    )
 
 
 # .

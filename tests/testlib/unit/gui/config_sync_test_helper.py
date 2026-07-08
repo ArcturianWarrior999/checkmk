@@ -62,7 +62,7 @@ def setup_disable_cmk_update_config(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @contextmanager
-def create_sync_snapshot(
+def create_sync_snapshot(  # type: ignore[misc]
     activation_manager: activate_changes.ActivateChangesManager,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

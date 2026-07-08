@@ -1124,7 +1124,7 @@ def _create_nagvis_backends(sites_config: SiteConfigurations) -> None:
 
         if site["proxy"] is None and is_livestatus_encrypted(site):
             assert isinstance(site["socket"], tuple) and site["socket"][0] in ["tcp", "tcp6"]
-            address_spec = cast(NetworkSocketDetails, site["socket"][1])
+            address_spec = site["socket"][1]
             tls_settings = address_spec["tls"][1]
             cfg.append("verify_tls_peer=%d" % tls_settings["verify"])
             cfg.append("verify_tls_ca_path=%s" % ConfigDomainCACertificates.trusted_cas_file)
@@ -1137,7 +1137,7 @@ def _create_nagvis_backends(sites_config: SiteConfigurations) -> None:
 def _encode_socket_for_nagvis(site_id: SiteId, site: SiteConfiguration) -> str:
     if site["proxy"] is None and is_livestatus_encrypted(site):
         assert isinstance(site["socket"], tuple) and site["socket"][0] in ["tcp", "tcp6"]
-        return "tcp-tls:%s:%d" % cast(NetworkSocketDetails, site["socket"][1])["address"]
+        return "tcp-tls:%s:%d" % site["socket"][1]["address"]
     return cmk.gui.sites.encode_socket_for_livestatus(site_id, site)
 
 

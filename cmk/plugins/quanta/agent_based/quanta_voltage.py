@@ -66,7 +66,6 @@ def check_quanta_voltage(item: str, params: Mapping[str, Any], section: Section)
     if entry.value in (-99, None):
         return
 
-    assert entry.value is not None
     yield from check_levels_v1(
         entry.value,
         metric_name="voltage",

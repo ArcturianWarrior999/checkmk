@@ -17,9 +17,9 @@ def test_common_raise_path_type(path: object) -> None:
 
 def test_common_kwarg_only() -> None:
     with pytest.raises(TypeError):
-        _ = Attributes(["a"])  # type: ignore[misc]
+        _ = Attributes(["a"])  # type: ignore[call-arg]
     with pytest.raises(TypeError):
-        _ = TableRow(["a"], key_columns={"ding": "dong"})  # type: ignore[misc]
+        _ = TableRow(["a"], key_columns={"ding": "dong"})  # type: ignore[call-arg]
 
 
 def test_atrributes_wrong_types() -> None:

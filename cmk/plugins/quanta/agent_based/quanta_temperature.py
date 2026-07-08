@@ -58,7 +58,6 @@ def check_quanta_temperature(item: str, params: TempParamType, section: Section)
         yield Result(state=entry.status[0], summary=f"Status: {entry.status[1]}")
         return
 
-    assert entry.value is not None
     yield from check_temperature(
         reading=entry.value,
         params=params,

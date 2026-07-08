@@ -46,7 +46,7 @@ def test_service_invalid(item: object, parameters: object, labels: object) -> No
 
 def test_service_kwargs_only() -> None:
     with pytest.raises(TypeError):
-        _ = Service(None)  # type: ignore[misc]
+        _ = Service(None)  # type: ignore[call-arg]
 
 
 def test_service_features() -> None:
@@ -128,7 +128,7 @@ def test_best_state(
 
 def test_metric_kwarg() -> None:
     with pytest.raises(TypeError):
-        _ = Metric("universe", 42, (23, 23))  # type: ignore[misc]
+        _ = Metric("universe", 42, (23, 23))  # type: ignore[call-arg]
 
 
 @pytest.mark.parametrize(
