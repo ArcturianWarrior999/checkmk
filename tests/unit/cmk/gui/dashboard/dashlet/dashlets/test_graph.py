@@ -83,7 +83,7 @@ ColumnHeaders: off
             ),
             (
                 "METRIC_metric2",
-                "Metric: Metric2",
+                "Metric: metric2",
             ),
         ]
 
