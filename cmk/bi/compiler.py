@@ -172,12 +172,15 @@ class BICompiler:
                 branch_title = bi_branch.properties.title
                 if branch_title in used_titles:
                     raise MKGeneralException(
-                        # astrein: disable=localization-named-placeholder
                         _(
-                            'The aggregation titles are not unique. "%s" is created '
-                            "by aggregation <b>%s</b> and <b>%s</b>"
+                            'The aggregation titles are not unique. "%(title)s" is created '
+                            "by aggregation <b>%(aggr_id)s</b> and <b>%(other_aggr_id)s</b>"
                         )
-                        % (branch_title, aggr_id, used_titles[branch_title])
+                        % {
+                            "title": branch_title,
+                            "aggr_id": aggr_id,
+                            "other_aggr_id": used_titles[branch_title],
+                        }
                     )
                 used_titles[branch_title] = aggr_id
 

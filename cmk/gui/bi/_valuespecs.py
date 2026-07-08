@@ -628,12 +628,15 @@ class BIConfigCallARuleAction(BICallARuleAction, ABCBIConfigAction):
         if len(arguments) != len(rule_params):
             raise MKUserError(
                 varprefix + "_1_0",
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The rule you selected needs %d argument(s) (%s), "
-                    "but you configured %d arguments."
+                    "The rule you selected needs %(needed)d argument(s) (%(params)s), "
+                    "but you configured %(configured)d arguments."
                 )
-                % (len(rule_params), ", ".join(rule_params), len(arguments)),
+                % {
+                    "needed": len(rule_params),
+                    "params": ", ".join(rule_params),
+                    "configured": len(arguments),
+                },
             )
 
     @classmethod
@@ -810,11 +813,10 @@ bi_config_aggregation_function_registry = BIConfigAggregationFunctionRegistry()
 
 class BIConfigAggregationFunctionBest(BIAggregationFunctionBest, ABCBIConfigAggregationFunction):
     def __str__(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Best state, %d nodes, restrict to %s") % (
-            self.count,
-            short_service_state_name(self.restrict_state),
-        )
+        return _("Best state, %(count)d nodes, restrict to %(restrict_state)s") % {
+            "count": self.count,
+            "restrict_state": short_service_state_name(self.restrict_state),
+        }
 
     @classmethod
     def title(cls):
@@ -857,11 +859,10 @@ class BIConfigAggregationFunctionBest(BIAggregationFunctionBest, ABCBIConfigAggr
 
 class BIConfigAggregationFunctionWorst(BIAggregationFunctionWorst, ABCBIConfigAggregationFunction):
     def __str__(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Worst state, %d nodes, restrict to %s") % (
-            self.count,
-            short_service_state_name(self.restrict_state),
-        )
+        return _("Worst state, %(count)d nodes, restrict to %(restrict_state)s") % {
+            "count": self.count,
+            "restrict_state": short_service_state_name(self.restrict_state),
+        }
 
     @classmethod
     def title(cls):

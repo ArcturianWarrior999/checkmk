@@ -369,12 +369,11 @@ class BIAggregationPacks:
         if bi_rule.id in parents:
             parents.append(bi_rule.id)
             raise MKGeneralException(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "There is a cycle in your rules. This rule calls itself - "
-                    "either directly or indirectly: %s"
+                    "either directly or indirectly: %(rule_path)s"
                 )
-                % "->".join(parents)
+                % {"rule_path": "->".join(parents)}
             )
 
         parents.append(bi_rule.id)

@@ -1128,16 +1128,15 @@ def _handle_command_freeze_aggregation_affected(
     len_action_rows: int, cmdtag: Literal["HOST", "SVC"]
 ) -> HTML:
     return HTML.without_escaping(
-        # astrein: disable=localization-named-placeholder
-        _("Affected %s: %s")
-        % (
-            ungettext(
+        _("Affected %(aggregations)s: %(count)s")
+        % {
+            "aggregations": ungettext(
                 "aggregation",
                 "aggregations",
                 len_action_rows,
             ),
-            len_action_rows,
-        )
+            "count": len_action_rows,
+        }
     )
 
 

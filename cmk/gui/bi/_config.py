@@ -236,8 +236,8 @@ class ABCBIMode(WatoMode):
     def verify_pack_permission(self, bi_pack: BIAggregationPack) -> None:
         if not is_contact_for_pack(bi_pack):
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
-                _("You have no permission for changes in this BI pack %s.") % bi_pack.title
+                _("You have no permission for changes in this BI pack %(title)s.")
+                % {"title": bi_pack.title}
             )
 
     def title(self) -> str:
@@ -334,8 +334,7 @@ class ModeBIEditPack(ABCBIMode):
 
     def title(self) -> str:
         if self._bi_pack:
-            # astrein: disable=localization-named-placeholder
-            return _("Edit BI pack %s") % self.bi_pack.title
+            return _("Edit BI pack %(title)s") % {"title": self.bi_pack.title}
         return _("Add BI pack")
 
     def action(self, config: Config) -> ActionResult:
@@ -355,8 +354,7 @@ class ModeBIEditPack(ABCBIMode):
                 pending_changes.add(
                     Change(
                         action_name="bi-edit-pack",
-                        # astrein: disable=localization-named-placeholder
-                        text=_("Modified BI pack %s") % self.bi_pack.id,
+                        text=_("Modified BI pack %(id)s") % {"id": self.bi_pack.id},
                         domains=[GUI],
                     ),
                     ChangeScope.all_activation_sites(),
@@ -367,8 +365,7 @@ class ModeBIEditPack(ABCBIMode):
                 pending_changes.add(
                     Change(
                         action_name="bi-new-pack",
-                        # astrein: disable=localization-named-placeholder
-                        text=_("Added new BI pack %s") % vs_config["id"],
+                        text=_("Added new BI pack %(id)s") % {"id": vs_config["id"]},
                         domains=[GUI],
                     ),
                     ChangeScope.all_activation_sites(),
@@ -577,8 +574,8 @@ class ModeBIPacks(ABCBIMode):
         if pack.num_rules() > 0:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("You cannot delete this pack. It contains <b>%d</b> rules.") % pack.num_rules(),
+                _("You cannot delete this pack. It contains <b>%(count)d</b> rules.")
+                % {"count": pack.num_rules()},
             )
 
         _pending_changes(
@@ -653,21 +650,19 @@ class ModeBIPacks(ABCBIMode):
 
 def _get_pack_confirm_message(pack: BIAggregationPack) -> str:
     return str(
-        # astrein: disable=localization-named-placeholder
-        _("ID: %s") % pack.id
+        _("ID: %(id)s") % {"id": pack.id}
         + "<br>"
-        # astrein: disable=localization-named-placeholder
-        + _("Contains: %d %s and %d %s")
-        % (
-            num_aggregations := pack.num_aggregations(),
-            ungettext("aggregation", "aggregations", num_aggregations),
-            len_rules := len(pack.rules),
-            ungettext(
+        + _("Contains: %(num_aggregations)d %(aggregations)s and %(num_rules)d %(rules)s")
+        % {
+            "num_aggregations": (num_aggregations := pack.num_aggregations()),
+            "aggregations": ungettext("aggregation", "aggregations", num_aggregations),
+            "num_rules": (len_rules := len(pack.rules)),
+            "rules": ungettext(
                 "rule",
                 "rules",
                 len_rules,
             ),
-        ),
+        },
     )
 
 
@@ -1257,12 +1252,15 @@ class ModeBIEditRule(ABCBIMode):
             assert existing_bi_rule is not None
             raise MKUserError(
                 "rule_p_id",
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "There is already a rule with the ID <b>%s</b>. "
-                    "It is in the pack <b>%s</b> and as the title <b>%s</b>"
+                    "There is already a rule with the ID <b>%(rule_id)s</b>. "
+                    "It is in the pack <b>%(pack_title)s</b> and as the title <b>%(rule_title)s</b>"
                 )
-                % (new_rule_id, existing_bi_pack.title, existing_bi_rule.title),
+                % {
+                    "rule_id": new_rule_id,
+                    "pack_title": existing_bi_pack.title,
+                    "rule_title": existing_bi_rule.title,
+                },
             )
 
     def _action_modify_rule(self, pending_changes: PendingChanges, new_bi_rule: BIRule) -> None:
@@ -1279,8 +1277,7 @@ class ModeBIEditRule(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-new-rule",
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Add BI rule %s") % new_bi_rule.id,
+                    text=_("Add BI rule %(id)s") % {"id": new_bi_rule.id},
                     domains=[GUI],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -1289,8 +1286,7 @@ class ModeBIEditRule(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-edit-rule",
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Modified BI rule %s") % new_bi_rule.id,
+                    text=_("Modified BI rule %(id)s") % {"id": new_bi_rule.id},
                     domains=[GUI],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -1371,9 +1367,11 @@ class ModeBIEditRule(ABCBIMode):
         if rules_without_permissions:
             message = ", ".join(
                 [
-                    # astrein: disable=localization-named-placeholder
-                    _("BI rules %s from BI pack '%s'")
-                    % (", ".join(["'%s'" % ruleid for ruleid in ruleids]), title)
+                    _("BI rules %(rules)s from BI pack '%(title)s'")
+                    % {
+                        "rules": ", ".join(["'%s'" % ruleid for ruleid in ruleids]),
+                        "title": title,
+                    }
                     for (_nodeid, title), ruleids in rules_without_permissions.items()
                 ]
             )
@@ -1429,15 +1427,14 @@ class ModeBIEditRule(ABCBIMode):
                 TextInput(
                     title=_("Documentation URL"),
                     help=HTML.without_escaping(
-                        # astrein: disable=localization-named-placeholder
                         _(
                             "An optional URL pointing to the documentation or any other page. It will be "
-                            "displayed as an icon %s and opens "
+                            "displayed as an icon %(icon)s and opens "
                             "a new page when clicked. You can use either global URLs (beginning with "
                             "<tt>http://</tt>), absolute local URLs (beginning with <tt>/</tt>) or relative "
                             "URLs (that are relative to <tt>check_mk/</tt>)."
                         )
-                        % html.render_static_icon(StaticIcon(IconNames.url))
+                        % {"icon": html.render_static_icon(StaticIcon(IconNames.url))}
                     ),
                     size=80,
                 ),
@@ -1809,8 +1806,9 @@ class BIModeEditAggregation(ABCBIMode):
 
     def title(self) -> str:
         if self._clone:
-            # astrein: disable=localization-named-placeholder
-            return _("Clone aggregation %s") % request.get_str_input_mandatory("clone")
+            return _("Clone aggregation %(clone)s") % {
+                "clone": request.get_str_input_mandatory("clone")
+            }
         if self._new:
             return _("Add aggregation")
         return _("Edit aggregation")
@@ -1885,8 +1883,7 @@ class BIModeEditAggregation(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-new-aggregation",
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Add new BI aggregation %s") % new_bi_aggregation.id,
+                    text=_("Add new BI aggregation %(id)s") % {"id": new_bi_aggregation.id},
                     domains=[GUI],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -1895,8 +1892,7 @@ class BIModeEditAggregation(ABCBIMode):
             pending_changes.add(
                 Change(
                     action_name="bi-edit-aggregation",
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Modified BI aggregation %s") % (new_bi_aggregation.id),
+                    text=_("Modified BI aggregation %(id)s") % {"id": new_bi_aggregation.id},
                     domains=[GUI],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -2088,9 +2084,12 @@ class BIModeEditAggregation(ABCBIMode):
                         choices=[
                             (
                                 "builtin_default",
-                                # astrein: disable=localization-named-placeholder
-                                _("Default (%s)")
-                                % active_config.default_bi_layout["node_style"][8:].title(),
+                                _("Default (%(style)s)")
+                                % {
+                                    "style": active_config.default_bi_layout["node_style"][
+                                        8:
+                                    ].title()
+                                },
                             ),
                             ("builtin_force", _("Built-in: force")),
                             ("builtin_hierarchy", _("Built-in: hierarchy")),
@@ -2107,9 +2106,8 @@ class BIModeEditAggregation(ABCBIMode):
                         choices=[
                             (
                                 "default",
-                                # astrein: disable=localization-named-placeholder
-                                _("Default (%s)")
-                                % active_config.default_bi_layout["line_style"].title(),
+                                _("Default (%(style)s)")
+                                % {"style": active_config.default_bi_layout["line_style"].title()},
                             ),
                             ("straight", "Straight"),
                             ("round", _("Round")),

@@ -241,8 +241,8 @@ class BICompiledLeaf(ABCBICompiledNode):
                     state=int(assumed_state),
                     in_downtime=in_downtime,
                     acknowledged=bool(entity.acknowledged),
-                    # astrein: disable=localization-named-placeholder
-                    output=_("Assumed to be %s") % self._get_state_name(assumed_state),
+                    output=_("Assumed to be %(state_name)s")
+                    % {"state_name": self._get_state_name(assumed_state)},
                     in_service_period=entity.in_service_period,
                     state_messages={},
                     custom_infos={},
