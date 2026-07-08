@@ -290,7 +290,7 @@ impl Registration for Api {
             Self::apply_registration_auth(
                 certs::client(
                     Some(certs::HandshakeCredentials {
-                        server_root_cert: root_cert,
+                        server_root_certs: vec![root_cert],
                         client_identity: None,
                     }),
                     self.use_proxy,
@@ -324,7 +324,7 @@ impl Api {
             Self::apply_registration_auth(
                 certs::client(
                     root_cert.map(|r| certs::HandshakeCredentials {
-                        server_root_cert: r,
+                        server_root_certs: vec![r],
                         client_identity: None,
                     }),
                     self.use_proxy,

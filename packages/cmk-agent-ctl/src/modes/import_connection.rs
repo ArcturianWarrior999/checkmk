@@ -87,7 +87,7 @@ mod tests {
                     uuid: uuid::Uuid::from_str("2da53af5-5c06-4195-ab6f-668875710bec").unwrap(),
                     private_key: String::from("fake private key"),
                     certificate: String::from("fake cert"),
-                    root_cert: String::from("fake root cert"),
+                    root_certs: vec![String::from("fake root cert")],
                 },
             })
         }

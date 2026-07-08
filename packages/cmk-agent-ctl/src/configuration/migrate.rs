@@ -147,7 +147,7 @@ impl Into<config::TrustedConnection> for Connection {
             uuid: self.uuid,
             private_key: self.private_key,
             certificate: self.certificate,
-            root_cert: self.root_cert,
+            root_certs: vec![self.root_cert],
         }
     }
 }
@@ -263,10 +263,7 @@ mod test {
             connection_push.trust.certificate.to_string(),
             "certificate_push"
         );
-        assert_eq!(
-            connection_push.trust.root_cert.to_string(),
-            "root_cert_push"
-        );
+        assert_eq!(connection_push.trust.root_certs, vec!["root_cert_push"]);
         assert_eq!(connection_push.receiver_port, 8000);
 
         let (site_id_pull, connection_pull) = migrated_registry
@@ -286,10 +283,7 @@ mod test {
             connection_pull.trust.certificate.to_string(),
             "certificate_pull"
         );
-        assert_eq!(
-            connection_pull.trust.root_cert.to_string(),
-            "root_cert_pull"
-        );
+        assert_eq!(connection_pull.trust.root_certs, vec!["root_cert_pull"]);
         assert_eq!(connection_pull.receiver_port, 8000);
 
         let connection_imported = migrated_registry
@@ -308,10 +302,7 @@ mod test {
             connection_imported.certificate.to_string(),
             "certificate_imported"
         );
-        assert_eq!(
-            connection_imported.root_cert.to_string(),
-            "root_cert_imported"
-        );
+        assert_eq!(connection_imported.root_certs, vec!["root_cert_imported"]);
     }
 
     #[test]

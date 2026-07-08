@@ -599,12 +599,50 @@ impl PartialEq for TrustedConnectionWithRemote {
 
 #[serde_with::serde_as]
 #[derive(Serialize, Deserialize, Eq, Debug, Clone)]
+#[serde(from = "TrustedConnectionDeserialized")]
 pub struct TrustedConnection {
     #[serde_as(as = "DisplayFromStr")]
     pub uuid: uuid::Uuid,
     pub private_key: String,
     pub certificate: String,
-    pub root_cert: String,
+    /// The site CAs trusted for this connection. During graceful SiteCA rotation this holds both
+    /// the old and the new CA, so the agent keeps accepting the site while the CA is being
+    /// swapped. See [`TrustedConnectionDeserialized`] for backward compatibility.
+    pub root_certs: Vec<String>,
+}
+
+/// Intermediate representation used to deserialize [`TrustedConnection`] while staying
+/// backward-compatible with registries written before graceful SiteCA rotation, which stored a
+/// single `root_cert` string instead of the `root_certs` list.
+#[serde_with::serde_as]
+#[derive(Deserialize)]
+struct TrustedConnectionDeserialized {
+    #[serde_as(as = "DisplayFromStr")]
+    uuid: uuid::Uuid,
+    private_key: String,
+    certificate: String,
+    #[serde(default)]
+    root_cert: Option<String>,
+    #[serde(default)]
+    root_certs: Vec<String>,
+}
+
+impl From<TrustedConnectionDeserialized> for TrustedConnection {
+    fn from(deserialized: TrustedConnectionDeserialized) -> Self {
+        let mut root_certs = deserialized.root_certs;
+        // Fold a legacy single root certificate into the list of trusted CAs.
+        if let Some(legacy_root_cert) = deserialized.root_cert {
+            if !root_certs.contains(&legacy_root_cert) {
+                root_certs.insert(0, legacy_root_cert);
+            }
+        }
+        Self {
+            uuid: deserialized.uuid,
+            private_key: deserialized.private_key,
+            certificate: deserialized.certificate,
+            root_certs,
+        }
+    }
 }
 
 impl PartialEq for TrustedConnection {
@@ -628,7 +666,7 @@ impl std::borrow::Borrow<uuid::Uuid> for TrustedConnection {
 impl TrustedConnection {
     pub fn tls_handshake_credentials(&self) -> AnyhowResult<certs::HandshakeCredentials<'_>> {
         Ok(certs::HandshakeCredentials {
-            server_root_cert: &self.root_cert,
+            server_root_certs: self.root_certs.iter().map(String::as_str).collect(),
             client_identity: Some(self.identity()?),
         })
     }
@@ -700,6 +738,88 @@ fn mtime(path: &Path) -> AnyhowResult<Option<SystemTime>> {
     } else {
         None
     })
+}
+
+#[cfg(test)]
+mod test_trusted_connection_deserialization {
+    use super::*;
+    use std::str::FromStr;
+
+    const UUID: &str = "2da53af5-5c06-4195-ab6f-668875710bec";
+
+    #[test]
+    fn test_legacy_single_root_cert() {
+        let json = format!(
+            r#"{{"uuid": "{UUID}", "private_key": "pk", "certificate": "cert", "root_cert": "legacy_ca"}}"#
+        );
+        let conn: TrustedConnection = serde_json::from_str(&json).unwrap();
+        assert_eq!(conn.root_certs, vec![String::from("legacy_ca")]);
+    }
+
+    #[test]
+    fn test_new_root_certs_list() {
+        let json = format!(
+            r#"{{"uuid": "{UUID}", "private_key": "pk", "certificate": "cert", "root_certs": ["ca_new", "ca_old"]}}"#
+        );
+        let conn: TrustedConnection = serde_json::from_str(&json).unwrap();
+        assert_eq!(
+            conn.root_certs,
+            vec![String::from("ca_new"), String::from("ca_old")]
+        );
+    }
+
+    #[test]
+    fn test_legacy_folded_to_front() {
+        // If both keys are present and the legacy cert is not already listed, it is folded in front.
+        let json = format!(
+            r#"{{"uuid": "{UUID}", "private_key": "pk", "certificate": "cert", "root_cert": "ca_legacy", "root_certs": ["ca_new"]}}"#
+        );
+        let conn: TrustedConnection = serde_json::from_str(&json).unwrap();
+        assert_eq!(
+            conn.root_certs,
+            vec![String::from("ca_legacy"), String::from("ca_new")]
+        );
+    }
+
+    #[test]
+    fn test_legacy_already_present_is_not_duplicated() {
+        // If the legacy cert is already in the list, the list is kept as-is (no duplication).
+        let json = format!(
+            r#"{{"uuid": "{UUID}", "private_key": "pk", "certificate": "cert", "root_cert": "ca_legacy", "root_certs": ["ca_new", "ca_legacy"]}}"#
+        );
+        let conn: TrustedConnection = serde_json::from_str(&json).unwrap();
+        assert_eq!(
+            conn.root_certs,
+            vec![String::from("ca_new"), String::from("ca_legacy")]
+        );
+    }
+
+    #[test]
+    fn test_round_trip_serializes_root_certs() {
+        let conn = TrustedConnection {
+            uuid: uuid::Uuid::from_str(UUID).unwrap(),
+            private_key: String::from("pk"),
+            certificate: String::from("cert"),
+            root_certs: vec![String::from("ca_a"), String::from("ca_b")],
+        };
+        let serialized = serde_json::to_string(&conn).unwrap();
+        assert!(serialized.contains("root_certs"));
+        assert!(!serialized.contains("\"root_cert\""));
+        let deserialized: TrustedConnection = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(deserialized.root_certs, conn.root_certs);
+    }
+
+    #[test]
+    fn test_flattened_within_connection_with_remote() {
+        // TrustedConnection is flattened into TrustedConnectionWithRemote; ensure the
+        // backward-compatible deserialization still applies through the flatten.
+        let json = format!(
+            r#"{{"uuid": "{UUID}", "private_key": "pk", "certificate": "cert", "root_cert": "legacy_ca", "receiver_port": 8000}}"#
+        );
+        let conn: TrustedConnectionWithRemote = serde_json::from_str(&json).unwrap();
+        assert_eq!(conn.trust.root_certs, vec![String::from("legacy_ca")]);
+        assert_eq!(conn.receiver_port, 8000);
+    }
 }
 
 #[cfg(test)]
@@ -804,7 +924,7 @@ pub mod test_helpers {
                 uuid: u,
                 private_key: String::from("private_key"),
                 certificate: String::from("certificate"),
-                root_cert: String::from("root_cert"),
+                root_certs: vec![String::from("root_cert")],
             }
         }
     }

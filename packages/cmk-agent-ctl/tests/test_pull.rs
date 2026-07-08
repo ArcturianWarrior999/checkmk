@@ -48,7 +48,7 @@ fn registry(
                 uuid: controller_uuid,
                 private_key: String::from_utf8(certs.controller_private_key.clone()).unwrap(),
                 certificate: String::from_utf8(certs.controller_cert.clone()).unwrap(),
-                root_cert: String::from_utf8(certs.ca_cert.clone()).unwrap(),
+                root_certs: vec![String::from_utf8(certs.ca_cert.clone()).unwrap()],
             },
             receiver_port: 1234,
         },

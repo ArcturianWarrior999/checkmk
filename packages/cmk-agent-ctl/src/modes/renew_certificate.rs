@@ -310,7 +310,7 @@ mod test_renew_certificate {
             uuid: uuid::Uuid::new_v4(),
             private_key: String::from("private_key"),
             certificate: cert,
-            root_cert: String::from("root_cert"),
+            root_certs: vec![String::from("root_cert")],
         }
     }
 

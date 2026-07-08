@@ -188,7 +188,9 @@ pub struct TLSIdentity {
 }
 
 pub struct HandshakeCredentials<'a> {
-    pub server_root_cert: &'a str,
+    /// The site CAs trusted to verify the receiver's server certificate. More than one may be
+    /// present during graceful SiteCA rotation, so that both the old and the new CA are accepted.
+    pub server_root_certs: Vec<&'a str>,
     pub client_identity: Option<TLSIdentity>,
 }
 
@@ -201,7 +203,7 @@ fn tls_config(
     }
     .with_custom_certificate_verifier(Arc::new(
         CnIsNoUuidAcceptAnyHostname::from_roots_and_crypto_provider(
-            root_cert_store([handshake_credentials.server_root_cert].into_iter())?,
+            root_cert_store(handshake_credentials.server_root_certs.iter().copied())?,
             crypto_provider,
         )?,
     ));

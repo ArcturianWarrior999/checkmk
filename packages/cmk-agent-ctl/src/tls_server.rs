@@ -33,7 +33,11 @@ fn tls_config<'a>(
     Ok(Arc::new(
         ServerConfig::builder()
             .with_client_cert_verifier(Arc::new(CNNoUUIDVerifier::from_roots_and_crypto_provider(
-                certs::root_cert_store(connections.iter().map(|it| it.root_cert.as_str()))?,
+                certs::root_cert_store(
+                    connections
+                        .iter()
+                        .flat_map(|it| it.root_certs.iter().map(String::as_str)),
+                )?,
                 crypto_provider,
             )?))
             .with_cert_resolver(sni_resolver(

@@ -285,7 +285,7 @@ fn direct_registration(
                 uuid: registration_input.uuid,
                 private_key: registration_input.private_key.clone(),
                 certificate: registration_result.agent_cert,
-                root_cert: registration_result.root_cert,
+                root_certs: vec![registration_result.root_cert],
             },
             receiver_port: config.receiver_port,
         },
@@ -330,7 +330,7 @@ fn proxy_registration(
                 uuid: registration_input.uuid,
                 private_key: registration_input.private_key,
                 certificate: registration_result.agent_cert,
-                root_cert: registration_result.root_cert,
+                root_certs: vec![registration_result.root_cert],
             }
         })?
     );
@@ -1324,7 +1324,7 @@ mod tests {
                             uuid: uuid::Uuid::new_v4(),
                             private_key: String::from("private_key"),
                             certificate: String::from("certificate"),
-                            root_cert: String::from("root_cert"),
+                            root_certs: vec![String::from("root_cert")],
                         },
                         receiver_port: config.connection_config.receiver_port,
                     },
