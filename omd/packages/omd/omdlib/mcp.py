@@ -12,6 +12,7 @@ def _write_mcp_apache_conf(site_name: str, site_home: Path, config: Config) -> N
     conf_path = site_home / "etc" / "apache" / "conf.d" / "mcp.conf"
     if config["MCP_SERVER"] == "on":
         sock = site_home / "tmp" / "run" / "mcp.sock"
+        prm = f"/.well-known/oauth-protected-resource/{site_name}/check_mk/mcp"
         conf_path.write_text(
             f"""\
 # Written by MCP_SERVER hook
@@ -27,6 +28,20 @@ LoadModule proxy_http_module /omd/sites/{site_name}/lib/apache/modules/mod_proxy
 
 ProxyPass "/{site_name}/check_mk/mcp" "unix://{sock}|http://localhost/" retry=0 timeout=120
 ProxyPassReverse "/{site_name}/check_mk/mcp" "unix://{sock}|http://localhost/"
+
+# OAuth 2.0 Protected Resource Metadata (RFC 9728). Public discovery document,
+# proxied to the MCP server preserving the full path so its PRM route matches.
+<Location "{prm}">
+  ProxyPreserveHost On
+  Require all granted
+</Location>
+# No retry=/timeout= here: mod_proxy keys workers by the socket origin (the
+# "unix://...sock|http://localhost" prefix, path excluded), so this ProxyPass
+# reuses the worker the "/{site_name}/check_mk/mcp" line above already defined.
+# Those parameters are worker-scoped and set there; repeating them is ignored
+# ("AH01146: Ignoring parameter ... because of worker sharing" at startup).
+ProxyPass "{prm}" "unix://{sock}|http://localhost{prm}"
+ProxyPassReverse "{prm}" "unix://{sock}|http://localhost{prm}"
 """
         )
     else:

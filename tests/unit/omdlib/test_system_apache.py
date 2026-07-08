@@ -36,13 +36,24 @@ def test_register_with_system_apache(tmp_path: Path, mocker: MockerFixture) -> N
     content = apache_config.read_bytes()
     assert (
         sha256(content).hexdigest()
-        == "f1ad5dc49bd1ae9cf9304039af1cfe3ac9baf3d297eda93381f4ec367c592fc9"
+        == "5290b64cc49ba4eab4d007a5baa24bbd8fbf514529cce22d103bc5d879f0df37"
     ), (
         "The content of [site].conf was changed. Have you updated the apache_hook_version()? The "
         "number needs to be increased with every change to inform the user about an additional step "
         "he has to make. After you did it, you may update the hash here."
     )
     reload_apache.assert_called_once_with(["/usr/sbin/apachectl", "graceful"])
+
+
+def test_apache_hook_publishes_the_public_mcp_prm_route(tmp_path: Path) -> None:
+    apache_config = tmp_path / "omd/apache/unit.conf"
+    apache_config.parent.mkdir(parents=True)
+
+    create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", apache_hook_version())
+
+    content = apache_config.read_text()
+    assert "/.well-known/oauth-protected-resource/unit/check_mk/mcp" in content
+    assert "Require all granted" in content
 
 
 def test_unregister_from_system_apache(tmp_path: Path, mocker: MockerFixture) -> None:
@@ -134,7 +145,7 @@ def test_create_apache_hook_well_known_oauth_authorization_server(tmp_path: Path
     create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", apache_hook_version())
 
     content = apache_config.read_text()
-    assert "<Location /.well-known/oauth-authorization-server/unit>" in content
+    assert "<Location /.well-known/oauth-authorization-server/unit/check_mk/authserver>" in content
     assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_authorization_server.py" in content
 
 
