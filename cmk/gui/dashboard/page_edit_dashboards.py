@@ -90,11 +90,9 @@ def _render_dashboard_columns() -> Callable[[Table, VisualName, TVisual], None]:
 
         now = dt.datetime.now(dt.UTC)
         if valid_until > now:
-            # astrein: disable=localization-named-placeholder
-            return _("Expires %s") % valid_until.strftime("%Y-%m-%d")
+            return _("Expires %(date)s") % {"date": valid_until.strftime("%Y-%m-%d")}
 
-        # astrein: disable=localization-named-placeholder
-        return _("Expired %s") % valid_until.strftime("%Y-%m-%d")
+        return _("Expired %(date)s") % {"date": valid_until.strftime("%Y-%m-%d")}
 
     def _render_not_shared(table: Table) -> None:
         table.cell(_("Public link"), _("Not shared"))

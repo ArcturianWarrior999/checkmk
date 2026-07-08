@@ -68,9 +68,10 @@ class EmbeddedViewSpecManager:
         if embedded_id not in embedded_views:
             raise MKUserError(
                 "embedded_id",
-                # astrein: disable=localization-named-placeholder
-                _("The dashboard '%s' does not contain an embedded view with the ID '%s'.")
-                % (dashboard["name"], embedded_id),
+                _(
+                    "The dashboard '%(dashboard_name)s' does not contain an embedded view with the ID '%(embedded_id)s'."
+                )
+                % {"dashboard_name": dashboard["name"], "embedded_id": embedded_id},
             )
 
         return cls.embedded_to_normal_view_spec(
@@ -346,8 +347,10 @@ class _ViewWidgetIFrameRequestParameters(_ViewWidgetIFrameAuthTokenRequestParame
 
         view_spec = get_permitted_views().get(self.view_name)
         if not view_spec:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError("name", _("No view defined with the name '%s'.") % self.view_name)
+            raise MKUserError(
+                "name",
+                _("No view defined with the name '%(view_name)s'.") % {"view_name": self.view_name},
+            )
 
         return view_spec
 
@@ -362,9 +365,10 @@ class _ViewWidgetIFrameRequestParameters(_ViewWidgetIFrameAuthTokenRequestParame
         except KeyError:
             raise MKUserError(
                 "dashboard",
-                # astrein: disable=localization-named-placeholder
-                _("The dashboard '%s' does not exist or you do not have permission to view it.")
-                % self.dashboard_name,
+                _(
+                    "The dashboard '%(dashboard_name)s' does not exist or you do not have permission to view it."
+                )
+                % {"dashboard_name": self.dashboard_name},
             ) from None
 
         return EmbeddedViewSpecManager.get_embedded_view_spec(
@@ -727,8 +731,10 @@ class ViewWidgetEditPage(Page):
             # Applies to all modes (create, copy, edit): editing foreign dashboards
             # requires the general.edit_foreign_dashboards permission.
             if not user.may("general.edit_foreign_dashboards"):
-                # astrein: disable=localization-named-placeholder
-                raise MKAuthException(_("You are not allowed to edit foreign %s.") % "dashboards")
+                raise MKAuthException(
+                    _("You are not allowed to edit foreign %(objects)s.")
+                    % {"objects": "dashboards"}
+                )
         return owner_id
 
     @staticmethod
@@ -813,12 +819,11 @@ class ViewWidgetEditPage(Page):
         if embedded_id in embedded_views:
             raise MKUserError(
                 "embedded_id",
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The dashboard '%s' already contains an embedded view with the ID '%s'. "
+                    "The dashboard '%(dashboard_name)s' already contains an embedded view with the ID '%(embedded_id)s'. "
                     "Please choose another ID."
                 )
-                % (dashboard["name"], embedded_id),
+                % {"dashboard_name": dashboard["name"], "embedded_id": embedded_id},
             )
 
         return ViewSpec(

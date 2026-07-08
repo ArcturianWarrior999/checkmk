@@ -81,14 +81,15 @@ def title_help_text_for_macros(
     macros_as_list = (
         f"<ul>{''.join(f'<li><tt>{macro}</tt></li>' for macro in available_macros)}</ul>"
     )
-    # astrein: disable=localization-named-placeholder
-    return _("You can use the following macros to fill in the corresponding information:%s%s") % (
-        macros_as_list,
-        _(
+    return _(
+        "You can use the following macros to fill in the corresponding information:%(macros_list)s%(combine_hint)s"
+    ) % {
+        "macros_list": macros_as_list,
+        "combine_hint": _(
             'These macros can be combined with arbitrary text elements, e.g. "some text '
             '<tt>$MACRO1$</tt> -- <tt>$MACRO2$</tt>".'
         ),
-    )
+    }
 
 
 def _get_title_macros_from_single_infos(single_infos: SingleInfos) -> Iterable[str]:
