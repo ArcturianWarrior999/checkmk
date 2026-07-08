@@ -63,9 +63,6 @@ py_library(
     ],
 )
 
-# Deprecated compatibility shim for the old 'livestatus' module name, announced
-# in werk #20119. To be removed in a future version of Checkmk (after 3.0),
-# together with the "livestatus_whl" wheel below.
 py_library(
     name = "py_livestatus",
     srcs = ["livestatus/__init__.py"],
