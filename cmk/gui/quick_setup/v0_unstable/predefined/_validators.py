@@ -180,12 +180,11 @@ def validate_host_name_doesnt_exists(
     host = folder_tree().host(HostName(host_name))
     if host:
         return [
-            # astrein: disable=localization-named-placeholder
             _(
-                "A host with the name %s already exists in the folder %s. "
+                "A host with the name %(host_name)s already exists in the folder %(folder)s. "
                 "Please choose a different host name."
             )
-            % (host_name, host.folder().alias_path())
+            % {"host_name": host_name, "folder": host.folder().alias_path()}
         ]
 
     return []
@@ -216,11 +215,10 @@ def validate_host_path_permissions(
 
     if not has_permissions:
         return [
-            # astrein: disable=localization-named-placeholder
             _(
-                "You do not have permission to create a new host in the folder %s. "
+                "You do not have permission to create a new host in the folder %(folder)s. "
                 "Please choose a different folder."
             )
-            % (folder.alias_path())
+            % {"folder": folder.alias_path()}
         ]
     return []

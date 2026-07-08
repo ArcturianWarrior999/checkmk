@@ -208,17 +208,18 @@ def configure_services_to_monitor() -> QuickSetupStage:
 class _GCERecapMessage:
     @staticmethod
     def _cre_message() -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "Hosts for virtual machines need to be created manually, please check the %s."
-        ) % HTMLWriter.render_a(
-            _("documentation"),
-            href=doc_reference_url(
-                user.language,
-                DocReferenceUtm(campaign="setup_wizard", content="quick_setup.gcp"),
-                DocReference.GCP_MANUAL_VM,
-            ),
-        )
+            "Hosts for virtual machines need to be created manually, please check the %(link)s."
+        ) % {
+            "link": HTMLWriter.render_a(
+                _("documentation"),
+                href=doc_reference_url(
+                    user.language,
+                    DocReferenceUtm(campaign="setup_wizard", content="quick_setup.gcp"),
+                    DocReference.GCP_MANUAL_VM,
+                ),
+            )
+        }
 
     message: Callable[[], str] = _cre_message
 

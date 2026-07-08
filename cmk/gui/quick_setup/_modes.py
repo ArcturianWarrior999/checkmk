@@ -147,8 +147,10 @@ class ModeQuickSetupSpecialAgent(WatoMode):
 
         quick_setup = quick_setup_registry.get(self._name)
         if quick_setup is None:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(None, _("No configuration Quick Setup for %s available") % self._name)
+            raise MKUserError(
+                None,
+                _("No configuration Quick Setup for %(name)s available") % {"name": self._name},
+            )
         self._quick_setup_id = quick_setup.id
 
     @staticmethod
@@ -237,9 +239,8 @@ class ModeEditConfigurationBundles(WatoMode):
         if self._bundle_group_type not in bundle_domains():
             raise MKUserError(
                 self.VAR_NAME,
-                # astrein: disable=localization-named-placeholder
-                _("No edit configuration bundle implemented for bundle group type '%s'.")
-                % self._name,
+                _("No edit configuration bundle implemented for bundle group type '%(name)s'.")
+                % {"name": self._name},
             )
 
     @override
@@ -348,8 +349,7 @@ class ModeEditConfigurationBundles(WatoMode):
 
             html.div(
                 html.render_dynamic_icon(DynamicIconName(f"qs_{subtype}"))
-                # astrein: disable=localization-named-placeholder
-                + html.render_b(_("No %s configuration yet") % self.title())
+                + html.render_b(_("No %(title)s configuration yet") % {"title": self.title()})
                 + html.render_p(
                     _(
                         'Click the "Add configuration" button to start setting up your first '
@@ -770,10 +770,8 @@ class ModeConfigurationBundle(WatoMode):
     @override
     def title(self) -> str:
         if not self._existing_bundle:
-            # astrein: disable=localization-named-placeholder
-            return _("Configuration: %s") % self._bundle_id
-        # astrein: disable=localization-named-placeholder
-        return _("Edit configuration: %s") % self._bundle["title"]
+            return _("Configuration: %(bundle_id)s") % {"bundle_id": self._bundle_id}
+        return _("Edit configuration: %(title)s") % {"title": self._bundle["title"]}
 
     @override
     def breadcrumb(self) -> Breadcrumb:
@@ -814,20 +812,18 @@ class ModeConfigurationBundle(WatoMode):
             case _:
                 raise MKUserError(
                     None,
-                    # astrein: disable=localization-named-placeholder
-                    _("No edit configuration bundle implemented for bundle group type '%s'.")
-                    % self._bundle_group,
+                    _("No edit configuration bundle implemented for bundle group type '%(group)s'.")
+                    % {"group": self._bundle_group},
                 )
 
     def _verify_special_agent_vars(self) -> None:
         if not valid_special_agent_bundle(self._bundle_references):
             raise MKGeneralException(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The configuration bundle '%s' is not valid. "
+                    "The configuration bundle '%(bundle_id)s' is not valid. "
                     "This likely means that parts of it were removed or not properly created."
                 )
-                % self._bundle_id,
+                % {"bundle_id": self._bundle_id},
             )
 
     @override
@@ -840,8 +836,10 @@ class ModeConfigurationBundle(WatoMode):
     def page(self, config: Config) -> None:
         if not self._existing_bundle:
             html.open_div(class_="really")
-            # astrein: disable=localization-named-placeholder
-            html.h3(_("The configuration bundle %s does not exist") % self._bundle_id)
+            html.h3(
+                _("The configuration bundle %(bundle_id)s does not exist")
+                % {"bundle_id": self._bundle_id}
+            )
             html.br()
             html.write_text_permissive(
                 _(
@@ -866,9 +864,8 @@ class ModeConfigurationBundle(WatoMode):
             case _:
                 raise MKUserError(
                     None,
-                    # astrein: disable=localization-named-placeholder
-                    _("No edit configuration bundle implemented for bundle group type '%s'.")
-                    % self._bundle_group,
+                    _("No edit configuration bundle implemented for bundle group type '%(group)s'.")
+                    % {"group": self._bundle_group},
                 )
 
     def _page_section_bundle_links(self) -> None:

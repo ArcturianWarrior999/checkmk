@@ -463,8 +463,8 @@ def start_quick_setup_job(
             ),
         ),
         InitialStatusArgs(
-            # astrein: disable=localization-named-placeholder
-            title=_("Running Quick Setup %s action %s") % (quick_setup.id, action_id),
+            title=_("Running Quick Setup %(quick_setup_id)s action %(action_id)s")
+            % {"quick_setup_id": quick_setup.id, "action_id": action_id},
             user=str(user.id) if user.id else None,
         ),
     )

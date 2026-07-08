@@ -54,9 +54,8 @@ def unique_id_formspec_wrapper(
                         custom_validate=(
                             validators.LengthInRange(
                                 min_value=1,
-                                # astrein: disable=localization-named-placeholder
-                                error_msg=Message("%s is required but not specified.")
-                                % title.localize(translate_to_current_language),
+                                error_msg=Message("%(title)s is required but not specified.")
+                                % {"title": title.localize(translate_to_current_language)},
                             ),
                             validators.MatchRegex(
                                 regex=ID_VALIDATION_REGEX,
@@ -92,19 +91,17 @@ def _host_name_dict_element(
                 validators.LengthInRange(
                     min_value=1,
                     max_value=240,
-                    # astrein: disable=localization-named-placeholder
                     error_msg=Message(
-                        "The %s is required but not specified or too long. Please enter a name that is not yet in use and is no longer than 253 characters."
+                        "The %(title_str)s is required but not specified or too long. Please enter a name that is not yet in use and is no longer than 253 characters."
                     )
-                    % title_str,
+                    % {"title_str": title_str},
                 ),
                 validators.MatchRegex(
                     regex=HOST_NAME_REGEXP,
-                    # astrein: disable=localization-named-placeholder
                     error_msg=Message(
-                        "Found invalid characters in the %s. Please ensure that only letters from the English alphabet, numbers and the special characters dot, hyphen and underscore are used."
+                        "Found invalid characters in the %(title_str)s. Please ensure that only letters from the English alphabet, numbers and the special characters dot, hyphen and underscore are used."
                     )
-                    % title_str,
+                    % {"title_str": title_str},
                 ),
             ),
             prefill=DefaultValue(

@@ -90,19 +90,20 @@ def prepare_aws() -> QuickSetupStage:
                 list_type="ordered",
             ),
             NoteText(
-                # astrein: disable=localization-named-placeholder
                 text=_(
                     "Note: For access options like AssumeRole or a custom IAM region, please use "
-                    "the %s."
+                    "the %(link)s."
                 )
-                % HTMLWriter.render_a(
-                    _("advanced configuration"),
-                    href=makeuri_contextless(
-                        request,
-                        [("mode", "edit_ruleset"), ("varname", "special_agents:aws")],
-                        "wato.py",
-                    ),
-                )
+                % {
+                    "link": HTMLWriter.render_a(
+                        _("advanced configuration"),
+                        href=makeuri_contextless(
+                            request,
+                            [("mode", "edit_ruleset"), ("varname", "special_agents:aws")],
+                            "wato.py",
+                        ),
+                    )
+                }
             ),
             widgets.unique_id_formspec_wrapper(
                 title=Title("Configuration name"), prefill_template="aws_config"
@@ -236,18 +237,19 @@ def _save_and_activate_recap(title: str, parsed_data: ParsedFormData) -> Sequenc
         if not ec2_creation.handle_automatically:
             messages.append(
                 Text(
-                    # astrein: disable=localization-named-placeholder
                     text=_(
-                        "Hosts for EC2 instances need to be created manually, please check the %s."
+                        "Hosts for EC2 instances need to be created manually, please check the %(link)s."
                     )
-                    % HTMLWriter.render_a(
-                        _("documentation"),
-                        href=doc_reference_url(
-                            user.language,
-                            DocReferenceUtm(campaign="setup_wizard", content="quick_setup.aws"),
-                            DocReference.AWS_MANUAL_VM,
-                        ),
-                    )
+                    % {
+                        "link": HTMLWriter.render_a(
+                            _("documentation"),
+                            href=doc_reference_url(
+                                user.language,
+                                DocReferenceUtm(campaign="setup_wizard", content="quick_setup.aws"),
+                                DocReference.AWS_MANUAL_VM,
+                            ),
+                        )
+                    }
                 )
             )
         else:

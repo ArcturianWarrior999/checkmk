@@ -40,8 +40,7 @@ def quick_setup_link_url(ident: GlobalIdent) -> str:
 def quick_setup_render_link(ident: GlobalIdent) -> HTML:
     """Returns HTML for a link to the quick setup. This assumes the `ident` is for a quick setup."""
     return html.render_a(
-        # astrein: disable=localization-named-placeholder
-        _("[%s] - Quick Setup") % ident["instance_id"],
+        _("[%(instance_id)s] - Quick Setup") % {"instance_id": ident["instance_id"]},
         _quick_setup_link(ident),
         class_=["config-bundle-link"],
     )
@@ -128,8 +127,8 @@ def quick_setup_duplication_warning(ident: GlobalIdent, type_name: str) -> None:
                     )
                     % {"type_name": type_name}
                     + html.render_a(
-                        # astrein: disable=localization-named-placeholder
-                        _("[%s] - Quick Setup") % ident["instance_id"],
+                        _("[%(instance_id)s] - Quick Setup")
+                        % {"instance_id": ident["instance_id"]},
                         _quick_setup_link(ident),
                         class_=["config-bundle-link"],
                         style="margin-left: 2px;",
