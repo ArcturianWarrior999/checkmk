@@ -970,9 +970,9 @@ def page_add_snapin(ctx: PageContext) -> None:
     breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_customize(), title)
     make_header(
         html,
-        title,
-        breadcrumb,
-        _add_snapins_page_menu(breadcrumb),
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=_add_snapins_page_menu(breadcrumb),
         debug=ctx.config.debug,
         lang=user.language,
         inject_js_profiling_code=ctx.config.inject_js_profiling_code,

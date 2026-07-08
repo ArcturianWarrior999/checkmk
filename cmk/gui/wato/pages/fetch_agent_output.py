@@ -198,8 +198,8 @@ class PageFetchAgentOutput(AgentOutputPage):
         title = self._title()
         make_header(
             html,
-            title,
-            self._breadcrumb(
+            title=title,
+            breadcrumb=self._breadcrumb(
                 title,
                 user_permissions := UserPermissions.from_config(ctx.config, permission_registry),
             ),

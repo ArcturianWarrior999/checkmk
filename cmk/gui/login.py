@@ -276,8 +276,8 @@ class LoginPage(Page):
         html.add_body_css_class("login")
         make_header(
             html,
-            get_page_heading(config, omd_site()),
-            Breadcrumb(),
+            title=get_page_heading(config, omd_site()),
+            breadcrumb=Breadcrumb(),
             show_main_navigation=False,
             debug=config.debug,
             lang=user.language,

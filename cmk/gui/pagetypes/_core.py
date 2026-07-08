@@ -1060,9 +1060,9 @@ class ListPage[T: Overridable](Page):
         )
         make_header(
             html,
-            title_plural,
-            breadcrumb,
-            page_menu,
+            title=title_plural,
+            breadcrumb=breadcrumb,
+            page_menu=page_menu,
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -1340,9 +1340,9 @@ class EditPage[T_OverridableConfig: OverridableConfig, T: Overridable](Page):
 
         make_header(
             html,
-            title,
-            breadcrumb,
-            page_menu,
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=page_menu,
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,

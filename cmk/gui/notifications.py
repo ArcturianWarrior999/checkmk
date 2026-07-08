@@ -227,9 +227,9 @@ class ClearFailedNotificationPage(Page):
 
         make_header(
             html,
-            title,
-            breadcrumb,
-            page_menu,
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=page_menu,
             debug=config.debug,
             lang=user.language,
             inject_js_profiling_code=config.inject_js_profiling_code,

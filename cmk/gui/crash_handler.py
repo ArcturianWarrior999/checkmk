@@ -198,8 +198,8 @@ def _show_crash_dump_message(
 
     make_header(
         html,
-        title,
-        Breadcrumb(),
+        title=title,
+        breadcrumb=Breadcrumb(),
         debug=debug,
         lang=user.language,
         inject_js_profiling_code=inject_js_profiling_code,

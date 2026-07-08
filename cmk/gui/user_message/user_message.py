@@ -65,9 +65,9 @@ class PageUserMessage(Page):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_user(), _("Messages"))
         make_header(
             html,
-            _("Your messages"),
-            breadcrumb,
-            self.page_menu(breadcrumb),
+            title=_("Your messages"),
+            breadcrumb=breadcrumb,
+            page_menu=self.page_menu(breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,

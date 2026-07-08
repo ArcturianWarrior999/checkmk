@@ -91,7 +91,7 @@ class PageWelcomePageStageInformation(AjaxPage):
 def _welcome_page(ctx: PageContext) -> None:
     make_header(
         html,
-        "Welcome",
+        title="Welcome",
         breadcrumb=Breadcrumb(),
         show_top_heading=False,
         enable_main_page_scrollbar=False,

@@ -43,9 +43,9 @@ def page_create_visual(
     breadcrumb = visual_page_breadcrumb(what, title, "create")
     make_header(
         html,
-        title,
-        breadcrumb,
-        make_simple_form_page_menu(
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=make_simple_form_page_menu(
             visual_name.capitalize(),
             breadcrumb,
             form_name="create_visual",

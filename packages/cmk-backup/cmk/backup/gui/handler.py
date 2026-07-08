@@ -2375,9 +2375,9 @@ class ModeBackupRestore(WatoMode[object]):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_setup(), title)
         make_header(
             html,
-            title,
-            breadcrumb,
-            PageMenu(dropdowns=[], breadcrumb=breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=PageMenu(dropdowns=[], breadcrumb=breadcrumb),
             debug=active_config.debug,
             lang=user.language,
             inject_js_profiling_code=active_config.inject_js_profiling_code,

@@ -281,9 +281,9 @@ def page_message(ctx: PageContext) -> None:
     menu = _page_menu(breadcrumb)
     make_header(
         html,
-        title,
-        breadcrumb,
-        menu,
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=menu,
         debug=ctx.config.debug,
         lang=user.language,
         inject_js_profiling_code=ctx.config.inject_js_profiling_code,

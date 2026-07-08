@@ -199,9 +199,9 @@ class UserChangePasswordPage(Page):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_user(), self._page_title())
         make_header(
             html,
-            title,
-            breadcrumb,
-            user_profile_page_menu(self._edition, ctx.config.sites, breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=user_profile_page_menu(self._edition, ctx.config.sites, breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,

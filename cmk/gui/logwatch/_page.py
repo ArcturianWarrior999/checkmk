@@ -105,9 +105,9 @@ def show_log_list(request: Request, *, debug: bool, table_row_limit: int) -> Non
     breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_monitoring(), title)
     make_header(
         html,
-        title,
-        breadcrumb,
-        _log_list_page_menu(request, breadcrumb),
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=_log_list_page_menu(request, breadcrumb),
         debug=active_config.debug,
         lang=user.language,
         inject_js_profiling_code=active_config.inject_js_profiling_code,
@@ -227,9 +227,9 @@ def show_host_log_list(
     breadcrumb = _host_log_list_breadcrumb(host_name, title, user_permissions)
     make_header(
         html,
-        title,
-        breadcrumb,
-        _host_log_list_page_menu(request, breadcrumb, site, host_name),
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=_host_log_list_page_menu(request, breadcrumb, site, host_name),
         debug=active_config.debug,
         lang=user.language,
         inject_js_profiling_code=active_config.inject_js_profiling_code,
@@ -389,9 +389,9 @@ def show_file(
     breadcrumb = _show_file_breadcrumb(request, host_name, title, user_permissions)
     make_header(
         html,
-        title,
-        breadcrumb,
-        _show_file_page_menu(request, breadcrumb, site, host_name, int_filename),
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=_show_file_page_menu(request, breadcrumb, site, host_name, int_filename),
         debug=active_config.debug,
         lang=user.language,
         inject_js_profiling_code=active_config.inject_js_profiling_code,

@@ -613,9 +613,9 @@ class UserTwoFactorOverview(Page):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_user(), self._page_title())
         make_header(
             html,
-            title,
-            breadcrumb,
-            self._page_menu(ctx.request, ctx.config.sites, breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=self._page_menu(ctx.request, ctx.config.sites, breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -816,9 +816,9 @@ class UserTwoFactorEnforce(Page):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_user(), self._page_title())
         make_header(
             html,
-            title,
-            breadcrumb,
-            self._page_menu(ctx.config.sites, breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=self._page_menu(ctx.config.sites, breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -998,9 +998,9 @@ class RegisterTotpSecret(Page):
         breadcrumb = self._breadcrumb()
         make_header(
             html,
-            title,
-            breadcrumb,
-            self._page_menu(breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=self._page_menu(breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -1126,9 +1126,9 @@ class EditCredentialAlias(Page):
         breadcrumb = self._breadcrumb()
         make_header(
             html,
-            title,
-            breadcrumb,
-            self._page_menu(breadcrumb),
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=self._page_menu(breadcrumb),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -1433,8 +1433,8 @@ class UserLoginTwoFactor(Page):
         html.add_body_css_class("two_factor")
         make_header(
             html,
-            _("Two-factor authentication"),
-            Breadcrumb(),
+            title=_("Two-factor authentication"),
+            breadcrumb=Breadcrumb(),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,

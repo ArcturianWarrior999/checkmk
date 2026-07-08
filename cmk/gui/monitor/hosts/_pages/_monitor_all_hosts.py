@@ -112,8 +112,8 @@ class MonitorAllHostsPage(Page):
 
         make_header(
             html,
-            str(_PAGE_TITLE),
-            breadcrumb,
+            title=str(_PAGE_TITLE),
+            breadcrumb=breadcrumb,
             page_menu=_build_page_menu(breadcrumb),
             enable_main_page_scrollbar=False,
             debug=ctx.config.debug,

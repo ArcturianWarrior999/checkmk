@@ -63,7 +63,7 @@ class NagVisMaps(SidebarSnapin):
 
         make_header(
             html,
-            _("NagVis"),
+            title=_("NagVis"),
             breadcrumb=Breadcrumb(),
             show_top_heading=False,
             enable_main_page_scrollbar=False,

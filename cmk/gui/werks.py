@@ -141,9 +141,9 @@ class ChangeLogPage(Page):
 
         make_header(
             html,
-            _("Change log (Werks)"),
-            breadcrumb,
-            self._page_menu(ctx.request, breadcrumb, werk_table_options),
+            title=_("Change log (Werks)"),
+            breadcrumb=breadcrumb,
+            page_menu=self._page_menu(ctx.request, breadcrumb, werk_table_options),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,
@@ -308,9 +308,9 @@ def page_werk(ctx: PageContext) -> None:
     breadcrumb.append(make_current_page_breadcrumb_item(title))
     make_header(
         html,
-        title,
-        breadcrumb,
-        _page_menu_werk(ctx.request, breadcrumb, werk),
+        title=title,
+        breadcrumb=breadcrumb,
+        page_menu=_page_menu_werk(ctx.request, breadcrumb, werk),
         debug=ctx.config.debug,
         lang=user.language,
         inject_js_profiling_code=ctx.config.inject_js_profiling_code,

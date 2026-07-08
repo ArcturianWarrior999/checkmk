@@ -292,9 +292,9 @@ class ABCTopologyPage(Page):
         self._extend_display_dropdown(menu=page_menu, page_name=visual_spec["name"])
         make_header(
             html,
-            title,
-            breadcrumb,
-            page_menu,
+            title=title,
+            breadcrumb=breadcrumb,
+            page_menu=page_menu,
             debug=config.debug,
             lang=user.language,
             inject_js_profiling_code=config.inject_js_profiling_code,

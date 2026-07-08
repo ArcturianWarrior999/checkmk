@@ -97,8 +97,8 @@ def _page_not_found(ctx: pages.PageContext) -> Response:
         title = _("Page not found")
         make_header(
             html,
-            title,
-            Breadcrumb(
+            title=title,
+            breadcrumb=Breadcrumb(
                 [
                     BreadcrumbItem(
                         title="Nowhere",
@@ -148,8 +148,8 @@ def _render_exception(ctx: pages.PageContext, e: Exception, title: str) -> Respo
     if not fail_silently():
         make_header(
             html,
-            title,
-            Breadcrumb(),
+            title=title,
+            breadcrumb=Breadcrumb(),
             debug=ctx.config.debug,
             lang=user.language,
             inject_js_profiling_code=ctx.config.inject_js_profiling_code,

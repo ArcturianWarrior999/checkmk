@@ -16,6 +16,7 @@ from cmk.gui.top_heading import top_heading
 
 def make_header(
     writer: HTMLGenerator,
+    *,
     title: str,
     breadcrumb: Breadcrumb,
     page_menu: PageMenu | None = None,
@@ -23,7 +24,6 @@ def make_header(
     show_body_start: bool = True,
     show_top_heading: bool = True,
     enable_main_page_scrollbar: bool = True,
-    *,
     show_main_navigation: bool = True,
     debug: bool,
     lang: str,

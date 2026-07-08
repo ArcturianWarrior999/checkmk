@@ -19,7 +19,7 @@ class GuiTimingsPage(Page):
         breadcrumb = make_simple_page_breadcrumb(main_menu_registry.menu_help(), _("Info"))
         make_header(
             html,
-            "GUI timings",
+            title="GUI timings",
             breadcrumb=breadcrumb,
             debug=ctx.config.debug,
             lang=user.language,
