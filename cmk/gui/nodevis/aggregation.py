@@ -136,10 +136,9 @@ class AjaxFetchAggregationData(AjaxPage):
                 "builtin_hierarchy": _("hierarchy"),
             }
             layout_settings["origin_type"] = "default_template"
-            # astrein: disable=localization-named-placeholder
-            layout_settings["origin_info"] = _("Default %s template") % builtin_mapping.get(
-                template_layout_id, _("Unknown")
-            )
+            layout_settings["origin_info"] = _("Default %(template)s template") % {
+                "template": builtin_mapping.get(template_layout_id, _("Unknown"))
+            }
 
             if template_layout_id == "builtin_default":
                 template_layout_id = config.default_bi_layout["node_style"]
@@ -147,11 +146,12 @@ class AjaxFetchAggregationData(AjaxPage):
         else:
             # Any Unknown/Removed layout id gets the default template
             layout_settings["origin_type"] = "default_template"
-            # astrein: disable=localization-named-placeholder
-            layout_settings["origin_info"] = _("Fallback template (%s): Unknown ID %s") % (
-                config.default_bi_layout["node_style"][8:].title(),
-                template_layout_id,
-            )
+            layout_settings["origin_info"] = _(
+                "Fallback template (%(node_style)s): Unknown ID %(layout_id)s"
+            ) % {
+                "node_style": config.default_bi_layout["node_style"][8:].title(),
+                "layout_id": template_layout_id,
+            }
             layout_settings["default_id"] = config.default_bi_layout["node_style"][8:]
 
         return layout_settings

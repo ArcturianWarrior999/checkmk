@@ -129,8 +129,7 @@ def get_languages() -> list[tuple[str, str]]:
         try:
             languages.update(
                 [
-                    # astrein: disable=localization-named-placeholder
-                    (val.name, _("%s") % get_language_alias(val.name))
+                    (val.name, _("%(alias)s") % {"alias": get_language_alias(val.name)})
                     for val in lang_dir.iterdir()
                     if val.name != "packages" and val.is_dir()
                 ]

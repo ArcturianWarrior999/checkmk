@@ -14,9 +14,8 @@ from cmk.utils.rulesets.definition import RuleGroup
 def _valuespec_agent_config_mk_docker_container_piggybacked() -> Alternative:
     return Alternative(
         title=_("Piggybacked Docker containers"),
-        # astrein: disable=localization-named-placeholder
-        help=_('This rule is deprecated. Please use "%s" instead.')
-        % _("Docker node and containers"),
+        help=_('This rule is deprecated. Please use "%(name)s" instead.')
+        % {"name": _("Docker node and containers")},
         elements=[
             Dictionary(
                 title=_("Deploy the Docker container plug-in"),

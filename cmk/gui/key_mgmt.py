@@ -169,11 +169,9 @@ class ModeKeyManagement(WatoMode[object]):
                 if self._may_edit_config():
                     message = self._delete_confirm_msg()
                     if key.owner != user.id:
-                        message += (
-                            # astrein: disable=localization-named-placeholder
-                            _("<br><br><b>Note</b>: this key was created by user <b>%s</b>")
-                            % key.owner
-                        )
+                        message += _(
+                            "<br><br><b>Note</b>: this key was created by user <b>%(owner)s</b>"
+                        ) % {"owner": key.owner}
 
                     delete_url = make_confirm_delete_link(
                         url=makeactionuri(request, transactions, [("_delete", key_id)]),
@@ -243,9 +241,8 @@ class ModeEditKey(WatoMode[object]):
         except KeyAlreadyExists as e:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("The key / certificate already exists (key: %s, description: %s)")
-                % (e.key_id, e.alias),
+                _("The key / certificate already exists (key: %(key_id)s, description: %(alias)s)")
+                % {"key_id": e.key_id, "alias": e.alias},
             )
 
     @property
@@ -372,9 +369,8 @@ class ModeUploadKey(WatoMode[object]):
         except KeyAlreadyExists as e:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("The key / certificate already exists (key: %s, description: %s)")
-                % (e.key_id, e.alias),
+                _("The key / certificate already exists (key: %(key_id)s, description: %(alias)s)")
+                % {"key_id": e.key_id, "alias": e.alias},
             )
 
     @property

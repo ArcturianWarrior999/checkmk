@@ -41,9 +41,10 @@ class Theme:
             raise MKInternalError(_("No valid theme directories found."))
         if self._default_theme not in self.theme_choices:
             raise MKInternalError(
-                # astrein: disable=localization-named-placeholder
-                _('The default theme "%s" is not given among the found theme choices: %s.')
-                % (self._default_theme, self.theme_choices)
+                _(
+                    'The default theme "%(default_theme)s" is not given among the found theme choices: %(theme_choices)s.'
+                )
+                % {"default_theme": self._default_theme, "theme_choices": self.theme_choices}
             )
 
     def from_config(self, default_theme: str) -> None:

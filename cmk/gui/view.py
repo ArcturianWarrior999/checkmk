@@ -58,21 +58,19 @@ class View:
             if self.spec["datasource"].startswith("mkeventd_"):
                 raise MKUserError(
                     None,
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "The Event Console view '%s' cannot be rendered. The Event Console might be "
+                        "The Event Console view '%(view_name)s' cannot be rendered. The Event Console might be "
                         "disabled."
                     )
-                    % self.name,
+                    % {"view_name": self.name},
                 )
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The view '%s' using the data source '%s' can not be rendered "
+                    "The view '%(view_name)s' using the data source '%(data_source)s' can not be rendered "
                     "because the data source does not exist."
                 )
-                % (self.name, self.datasource),
+                % {"view_name": self.name, "data_source": self.datasource},
             )
 
     @property
@@ -217,12 +215,11 @@ class View:
 
         raise MKUserError(
             None,
-            # astrein: disable=localization-named-placeholder
             _(
-                "The view '%s' using the layout '%s' cannot be rendered "
+                "The view '%(view_name)s' using the layout '%(layout_name)s' cannot be rendered "
                 "because the layout does not exist."
             )
-            % (self.name, self.spec.get("layout")),
+            % {"view_name": self.name, "layout_name": self.spec.get("layout")},
         )
 
     @property

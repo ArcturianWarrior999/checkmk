@@ -393,12 +393,15 @@ class Table:
 
             if limit and num_rows_unlimited > limit:
                 html.show_message(
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "This table is limited to show only %d of %d rows. "
-                        'Click <a href="%s">here</a> to disable the limitation.'
+                        "This table is limited to show only %(limit)d of %(total)d rows. "
+                        'Click <a href="%(url)s">here</a> to disable the limitation.'
                     )
-                    % (limit, num_rows_unlimited, makeuri(request, [("limit", "none")]))
+                    % {
+                        "limit": limit,
+                        "total": num_rows_unlimited,
+                        "url": makeuri(request, [("limit", "none")]),
+                    }
                 )
 
             self._write_table(
@@ -688,8 +691,7 @@ class Table:
                 action_uri = makeuri(request, [("_%s_sort" % table_id, "%d,%d" % (nr, reverse))])
                 html.open_th(
                     class_=css_class,
-                    # astrein: disable=localization-named-placeholder
-                    title=_("Sort by %s") % header.title,
+                    title=_("Sort by %(title)s") % {"title": header.title},
                     onclick="location.href='%s'" % action_uri,
                 )
 

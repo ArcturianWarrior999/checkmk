@@ -181,11 +181,16 @@ class ParentScanBackgroundJob(BackgroundJob):
         except Exception as e:
             self._num_errors += 1
             if task.site_id:
-                # astrein: disable=localization-named-placeholder
-                msg = _("ERROR %s on site %s: %s") % (task.host_name, task.site_id, e)
+                msg = _("ERROR %(host_name)s on site %(site_id)s: %(error)s") % {
+                    "host_name": task.host_name,
+                    "site_id": task.site_id,
+                    "error": e,
+                }
             else:
-                # astrein: disable=localization-named-placeholder
-                msg = _("ERROR %s: %s") % (task.host_name, e)
+                msg = _("ERROR %(host_name)s: %(error)s") % {
+                    "host_name": task.host_name,
+                    "error": e,
+                }
 
             if isinstance(e, MKUserError):
                 # Expected user error, the traceback adds no value here.
@@ -337,8 +342,10 @@ class ParentScanBackgroundJob(BackgroundJob):
             return [gateway.existing_gw_host_name]  # Nothing needs to be created
 
         if settings.where == "nowhere":
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(None, _("Need parent %s, but not allowed to create one") % gateway.ip)
+            raise MKUserError(
+                None,
+                _("Need parent %(ip)s, but not allowed to create one") % {"ip": gateway.ip},
+            )
 
         gw_folder = self._determine_gateway_folder(
             settings.where,

@@ -496,15 +496,16 @@ def _process_message(msg: Message, multisite_user_ids: Set[str]) -> None:
                 + (
                     _(" for all recipients.")
                     if num_success[method] == num_recipients
-                    # astrein: disable=localization-named-placeholder
-                    else _(" for %d of %d recipients.") % (num_success[method], num_recipients)
+                    else _(" for %(num_success)d of %(num_recipients)d recipients.")
+                    % {"num_success": num_success[method], "num_recipients": num_recipients}
                 )
             )
         )
 
     message += HTMLWriter.render_ul(HTML.empty().join(parts))
-    # astrein: disable=localization-named-placeholder
-    message += HTMLWriter.render_p(_("Recipients: %s") % ", ".join(recipients))
+    message += HTMLWriter.render_p(
+        _("Recipients: %(recipients)s") % {"recipients": ", ".join(recipients)}
+    )
     html.show_message(message)
 
     if errors:
@@ -601,19 +602,21 @@ def _message_mail(user_id: UserId, msg: Message) -> bool:
     if not (sender_name := users[user.id].get("alias")):
         sender_name = user_id
 
-    # astrein: disable=localization-named-placeholder
-    body = _("""Greetings %s,\n\n%s sent you a message: \n\n---\n%s\n---""") % (
-        recipient_name,
-        sender_name,
-        msg["text"]["content"],
-    )
+    body = _(
+        """Greetings %(recipient_name)s,\n\n%(sender_name)s sent you a message: \n\n---\n%(content)s\n---"""
+    ) % {
+        "recipient_name": recipient_name,
+        "sender_name": sender_name,
+        "content": msg["text"]["content"],
+    }
 
     if valid_till := msg["valid_till"]:
-        # astrein: disable=localization-named-placeholder
-        body += _("This message has been created at %s and is valid till %s.") % (
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(msg["time"])),
-            time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(valid_till)),
-        )
+        body += _(
+            "This message has been created at %(created_at)s and is valid till %(valid_till)s."
+        ) % {
+            "created_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(msg["time"])),
+            "valid_till": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(valid_till)),
+        }
 
     mail = MIMEMultipart(_charset="utf-8")
     mail.attach(MIMEText(body.replace("\n", "\r\n"), "plain", _charset="utf-8"))

@@ -259,9 +259,12 @@ def _make_legend(current_measurement: tuple[float, float] | None) -> Sequence[tu
         (Color.CRIT_AREA, _("Critical area")),
         (
             Color.OBSERVED,
-            # astrein: disable=localization-named-placeholder
-            _("Measurement: %s")
-            % ("N/A" if current_measurement is None else "%.2f" % current_measurement[1]),
+            _("Measurement: %(measurement)s")
+            % {
+                "measurement": "N/A"
+                if current_measurement is None
+                else "%.2f" % current_measurement[1]
+            },
         ),
     ]
 

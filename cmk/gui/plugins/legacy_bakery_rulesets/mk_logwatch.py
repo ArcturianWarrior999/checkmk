@@ -387,8 +387,8 @@ def _valuespec_agent_config_mk_logwatch() -> Alternative:
         ),
         elements=[
             Dictionary(
-                # astrein: disable=localization-named-placeholder
-                title=_("Deploy the %s plug-in and its configuration") % "Logwatch",
+                title=_("Deploy the %(plugin)s plug-in and its configuration")
+                % {"plugin": "Logwatch"},
                 elements=[
                     (
                         "global_retention_period",
@@ -420,18 +420,16 @@ def _valuespec_agent_config_mk_logwatch() -> Alternative:
             ),
             FixedValue(
                 value=True,
-                # astrein: disable=localization-named-placeholder
-                title=_("Deploy the %s plug-in without configuration") % "Logwatch",
-                # astrein: disable=localization-named-placeholder
-                help=_("The file %s needs to be created and maintained manually.")
-                % "<tt>/etc/check_mk/logwatch.cfg</tt>",
-                # astrein: disable=localization-named-placeholder
-                totext=_("manually configure %s") % "<tt>/etc/check_mk/logwatch.cfg</tt>",
+                title=_("Deploy the %(plugin)s plug-in without configuration")
+                % {"plugin": "Logwatch"},
+                help=_("The file %(file)s needs to be created and maintained manually.")
+                % {"file": "<tt>/etc/check_mk/logwatch.cfg</tt>"},
+                totext=_("manually configure %(file)s")
+                % {"file": "<tt>/etc/check_mk/logwatch.cfg</tt>"},
             ),
             FixedValue(
                 value=None,
-                # astrein: disable=localization-named-placeholder
-                title=_("Do not deploy the %s plug-in") % "Logwatch",
+                title=_("Do not deploy the %(plugin)s plug-in") % {"plugin": "Logwatch"},
                 totext=_("(disabled)"),
             ),
         ],

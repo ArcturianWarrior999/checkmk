@@ -173,12 +173,11 @@ def _valuespec_agent_config_mk_docker() -> Alternative:
                         "base_url",
                         TextInput(
                             title=_("Base URL for Docker API engine"),
-                            # astrein: disable=localization-named-placeholder
                             help=_(
                                 "Provide the base URL for Docker API engine calls. By default"
-                                " we are trying to connect via the Unix socket at %s."
+                                " we are trying to connect via the Unix socket at %(socket_path)s."
                             )
-                            % "/var/run/docker.sock",
+                            % {"socket_path": "/var/run/docker.sock"},
                             default_value="unix://var/run/docker.sock",
                         ),
                     ),

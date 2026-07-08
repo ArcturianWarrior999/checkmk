@@ -176,8 +176,8 @@ class ModeParentScan(WatoMode):
             logger.exception("Failed to start parent scan")
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("Failed to start parent scan: %s") % ("%s" % e).replace("\n", "\n<br>"),
+                _("Failed to start parent scan: %(error)s")
+                % {"error": ("%s" % e).replace("\n", "\n<br>")},
             )
 
         raise HTTPRedirect(self._job.detail_url())
@@ -221,9 +221,8 @@ class ModeParentScan(WatoMode):
     def page(self, config: Config) -> None:
         if self._job.is_active():
             html.show_message(
-                # astrein: disable=localization-named-placeholder
-                _('Parent scan currently running in <a href="%s">background</a>.')
-                % self._job.detail_url()
+                _('Parent scan currently running in <a href="%(url)s">background</a>.')
+                % {"url": self._job.detail_url()}
             )
             return
 
@@ -382,8 +381,8 @@ class ModeParentScan(WatoMode):
             "where",
             "subfolder",
             self._settings.where == "subfolder",
-            # astrein: disable=localization-named-placeholder
-            _("in the subfolder <b>%s/Parents</b>") % disk_folder.title(),
+            _("in the subfolder <b>%(folder_title)s/Parents</b>")
+            % {"folder_title": disk_folder.title()},
         )
 
         html.br()
@@ -391,8 +390,8 @@ class ModeParentScan(WatoMode):
             "where",
             "here",
             self._settings.where == "here",
-            # astrein: disable=localization-named-placeholder
-            _("directly in the folder <b>%s</b>") % disk_folder.title(),
+            _("directly in the folder <b>%(folder_title)s</b>")
+            % {"folder_title": disk_folder.title()},
         )
         html.br()
         html.radiobutton(

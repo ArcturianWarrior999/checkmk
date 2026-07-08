@@ -220,23 +220,18 @@ def crash_dump_message(crash: GUICrashReport, show_crash_link: bool) -> str:
     # Do not reveal crash context information to unauthenticated users or not permitted
     # users to prevent disclosure of internal information
     if not show_crash_link:
-        message += (
-            # astrein: disable=localization-named-placeholder
-            _(
-                "An internal error occurred while processing your request (crash ID: %s). "
-                "You can report this issue to your Checkmk administrator. "
-                "Detailed information can be found on the crash report page "
-                "or in <tt>var/log/web.log</tt>."
-            )
-            % crash.ident_to_text()
-        )
-    else:
-        # astrein: disable=localization-named-placeholder
         message += _(
-            "An internal error occurred while processing your request (crash ID: %s). "
+            "An internal error occurred while processing your request (crash ID: %(crash_id)s). "
+            "You can report this issue to your Checkmk administrator. "
+            "Detailed information can be found on the crash report page "
+            "or in <tt>var/log/web.log</tt>."
+        ) % {"crash_id": crash.ident_to_text()}
+    else:
+        message += _(
+            "An internal error occurred while processing your request (crash ID: %(crash_id)s). "
             "You can report this issue to the Checkmk team to help "
-            'fixing this issue. Please open the <a href="%s">crash report page</a> '
+            'fixing this issue. Please open the <a href="%(url)s">crash report page</a> '
             "and use the form for reporting the problem."
-        ) % (crash.ident_to_text(), crash.url())
+        ) % {"crash_id": crash.ident_to_text(), "url": crash.url()}
 
     return message

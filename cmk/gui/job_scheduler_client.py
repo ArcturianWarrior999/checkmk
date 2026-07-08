@@ -41,14 +41,13 @@ class JobSchedulerClient:
         except requests.ConnectionError as e:
             return result.Error(
                 StartupError(
-                    # astrein: disable=localization-named-placeholder
                     _(
                         "Could not connect to ui-job-scheduler. "
                         "Possibly the service <tt>ui-job-scheduler</tt> is not started, "
                         "please make sure that all site services are started. "
-                        "Tried to connect via <tt>%s</tt>. Reported error was: %s."
+                        "Tried to connect via <tt>%(socket_path)s</tt>. Reported error was: %(error)s."
                     )
-                    % (self._SOCKET_PATH, e)
+                    % {"socket_path": self._SOCKET_PATH, "error": e}
                 )
             )
         except requests.RequestException as e:
@@ -61,8 +60,10 @@ class JobSchedulerClient:
 
         if response.status_code != 200:
             return result.Error(
-                # astrein: disable=localization-named-placeholder
-                StartupError(_("Got response: HTTP %s: %s") % (response.status_code, response.text))
+                StartupError(
+                    _("Got response: HTTP %(status_code)s: %(text)s")
+                    % {"status_code": response.status_code, "text": response.text}
+                )
             )
 
         return result.OK(response)
