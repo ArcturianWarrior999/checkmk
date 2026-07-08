@@ -30,11 +30,10 @@ import cmk.ccc.version as cmk_version
 import cmk.utils.log
 import cmk.utils.paths
 from cmk import trace
-from cmk.automations.logging import LoggingManager
 from cmk.base import profiling
 from cmk.base.app import make_app
 from cmk.base.modes.call import call
-from cmk.base.modes.check_mk import _verbosity, general_options
+from cmk.base.modes.check_mk import general_options
 from cmk.base.modes.modes import (
     discover_modes,
     Modes,
@@ -132,21 +131,17 @@ try:
 
     done, exit_status = False, 0
     trace_context = trace.extract_context_from_environment(dict(os.environ))
-    log_level = LoggingManager.verbosity_to_level(_verbosity)
-    log_manager = LoggingManager(log_level)
-    logger = log_manager.get_logger(mode_name or "")
-    with log_manager.stream_logging(log_level=log_level):
-        if mode_name is not None and mode_args is not None:
-            exit_status = call(app, modes.get(mode_name), mode_args, opts, args, trace_context)
-            done = True
+    if mode_name is not None and mode_args is not None:
+        exit_status = call(app, modes.get(mode_name), mode_args, opts, args, trace_context)
+        done = True
 
-        # When no mode was found, Checkmk is running the "check" mode
-        if not done:
-            if (args and len(args) <= 2) or "--keepalive" in [o[0] for o in opts]:
-                exit_status = call(app, modes.get("check"), None, opts, args, trace_context)
-            else:
-                sys.stdout.write(modes.help())
-                exit_status = 0
+    # When no mode was found, Checkmk is running the "check" mode
+    if not done:
+        if (args and len(args) <= 2) or "--keepalive" in [o[0] for o in opts]:
+            exit_status = call(app, modes.get("check"), None, opts, args, trace_context)
+        else:
+            sys.stdout.write(modes.help())
+            exit_status = 0
 
     sys.exit(exit_status)
 
