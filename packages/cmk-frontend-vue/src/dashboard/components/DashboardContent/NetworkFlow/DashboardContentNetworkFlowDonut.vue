@@ -16,8 +16,8 @@ import CmkLoading from '@/components/CmkLoading.vue'
 import type { NetworkFlowDonutContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
 
-import DashboardContentContainer from './DashboardContentContainer.vue'
-import type { ContentProps } from './types.ts'
+import DashboardContentContainer from '../DashboardContentContainer.vue'
+import type { ContentProps } from '../types.ts'
 
 const { _t } = usei18n()
 const props = defineProps<ContentProps<NetworkFlowDonutContent>>()

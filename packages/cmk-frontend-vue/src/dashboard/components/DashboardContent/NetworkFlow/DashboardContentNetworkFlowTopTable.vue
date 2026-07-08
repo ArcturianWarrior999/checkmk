@@ -17,8 +17,8 @@ import type { RankedTableColumn, RankedTableRow } from '@/components/CmkRankedTa
 import type { NetworkFlowTopTableContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
 
-import DashboardContentContainer from './DashboardContentContainer.vue'
-import type { ContentProps } from './types.ts'
+import DashboardContentContainer from '../DashboardContentContainer.vue'
+import type { ContentProps } from '../types.ts'
 
 const { _t } = usei18n()
 const props = defineProps<ContentProps<NetworkFlowTopTableContent>>()
