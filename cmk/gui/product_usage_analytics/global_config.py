@@ -85,15 +85,16 @@ def make_product_usage_analytics_config_variable(
         primary_domain=ConfigDomainProductUsageAnalytics,
         ident="product_usage_analytics",
         domain_hint=HTML.without_escaping(
-            # astrein: disable=localization-named-placeholder
             _(
-                "Inspect product usage data: Run <tt>cmk-product-usage --dry-run</tt> as site user, or %s. "
+                "Inspect product usage data: Run <tt>cmk-product-usage --dry-run</tt> as site user, or %(link)s. "
                 "This allows you to review the data locally; it does not enable the feature or transmit any information."
             )
-            % HTMLWriter.render_a(
-                content=_("download the full JSON report"),
-                href="download_product_usage.py",
-            )
+            % {
+                "link": HTMLWriter.render_a(
+                    content=_("download the full JSON report"),
+                    href="download_product_usage.py",
+                )
+            }
         ),
         hint=hint,
         valuespec=lambda context: Dictionary(
