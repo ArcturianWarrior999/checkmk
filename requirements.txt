@@ -3042,6 +3042,7 @@ opentelemetry-api==1.39.1 \
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-redis
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
@@ -3082,17 +3083,24 @@ opentelemetry-instrumentation==0.60b1 \
     #   opentelemetry-container-distro
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-redis
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
 opentelemetry-instrumentation-asgi==0.60b1 \
     --hash=sha256:16bfbe595cd24cda309a957456d0fc2523f41bc7b076d1f2d7e98a1ad9876d6f \
     --hash=sha256:d48def2dbed10294c99cfcf41ebbd0c414d390a11773a41f472d20000fcddc25
-    # via opentelemetry-instrumentation-fastapi
+    # via
+    #   -r non-free/packages/cmk-mcp/requirements.in
+    #   opentelemetry-instrumentation-fastapi
 opentelemetry-instrumentation-fastapi==0.60b1 \
     --hash=sha256:af94b7a239ad1085fc3a820ecf069f67f579d7faf4c085aaa7bd9b64eafc8eaf \
     --hash=sha256:de608955f7ff8eecf35d056578346a5365015fd7d8623df9b1f08d1c74769c01
     # via -r cmk/requirements.in
+opentelemetry-instrumentation-httpx==0.60b1 \
+    --hash=sha256:a506ebaf28c60112cbe70ad4f0338f8603f148938cb7b6794ce1051cd2b270ae \
+    --hash=sha256:f37636dd742ad2af83d896ba69601ed28da51fa4e25d1ab62fde89ce413e275b
+    # via -r non-free/packages/cmk-mcp/requirements.in
 opentelemetry-instrumentation-redis==0.60b1 \
     --hash=sha256:33bef0ff9af6f2d88de90c1cd7e25675c10a16d4f9ee5ae7592b28bb08b78139 \
     --hash=sha256:ecafa8f81c88917b59f0d842fb3d157f3a8edc71fb4b85bebca3bc19432ce7b8
@@ -3153,6 +3161,7 @@ opentelemetry-semantic-conventions==0.60b1 \
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-redis
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
@@ -3167,6 +3176,7 @@ opentelemetry-util-http==0.60b1 \
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
 opsgenie-sdk==2.1.5 \
@@ -5900,6 +5910,7 @@ wrapt==1.17.3 \
     --hash=sha256:fd341868a4b6714a5962c1af0bd44f7c404ef78720c7de4892901e540417111c
     # via
     #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-redis
     #   vcrpy
 x-wr-timezone==2.0.1 \

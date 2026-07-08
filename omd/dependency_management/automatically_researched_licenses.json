@@ -2040,6 +2040,7 @@
   "pkg:pypi/opentelemetry-exporter-otlp@1.39.1": "Apache-2.0",
   "pkg:pypi/opentelemetry-instrumentation-asgi@0.60b1": "Apache-2.0",
   "pkg:pypi/opentelemetry-instrumentation-fastapi@0.60b1": "Apache-2.0",
+  "pkg:pypi/opentelemetry-instrumentation-httpx@0.60b1": "Apache-2.0",
   "pkg:pypi/opentelemetry-instrumentation-redis@0.60b1": "Apache-2.0",
   "pkg:pypi/opentelemetry-instrumentation-requests@0.60b1": "Apache-2.0",
   "pkg:pypi/opentelemetry-instrumentation-wsgi@0.60b1": "Apache-2.0",
