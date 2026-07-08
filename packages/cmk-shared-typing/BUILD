@@ -12,6 +12,7 @@ load(
     "@npm//packages/cmk-shared-typing:openapi-typescript/package_json.bzl",
     openapi_typescript = "bin",
 )
+load("@openapi_spec_editions//:editions.bzl", "OPENAPI_SPEC_EDITION_GENERATORS")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
@@ -82,31 +83,54 @@ write_file(
     out = "typescript/index.ts",
 )
 
+# Merge the specs of all editions in the checkout (CI strips edition dirs,
+# see versioning.groovy REPO_PATCH_RULES) into the union spec typing the
+# edition-independent frontend bundle. Deliberately not keyed on
+# --cmk_edition: no single edition covers the union, and vue-tsc only runs
+# on full checkouts; distro builds bundle without type checking, so a subset
+# spec cannot fail them. GPL builds merge only community to keep non-free
+# targets out of the gpl dependency graph.
+[
+    run_binary(
+        name = "openapi_spec_internal_" + edition,
+        outs = ["openapi_spec_internal_%s.yaml" % edition],
+        args = [
+            "generate",
+            "--version",
+            "internal",
+            "--edition",
+            edition,
+            "--format",
+            "yaml",
+            "--out",
+            "$(execpath openapi_spec_internal_%s.yaml)" % edition,
+        ],
+        tool = tool,
+    )
+    for edition, tool in OPENAPI_SPEC_EDITION_GENERATORS.items()
+]
+
 run_binary(
     name = "openapi_spec_internal",
+    srcs = select({
+        "@//:gpl+nonfree_repo": [
+            ":openapi_spec_internal_" + edition
+            for edition in OPENAPI_SPEC_EDITION_GENERATORS
+        ],
+        "@//:gpl_repo": [":openapi_spec_internal_community"],
+    }),
     outs = ["openapi_spec_internal.yaml"],
     args = [
-        "generate",
-        "--version",
-        "internal",
-        "--edition",
-        # Use the highest edition whose source code is available in all nonfree
-        # checkouts (pro). The generated TypeScript types are consumed by
-        # cmk-frontend-vue which ships the same bundle for all editions.
-        # We cannot use ultimatemt here because pro builds strip ultimate/ dirs.
-    ] + select({
-        "@//:gpl+nonfree_repo": ["pro"],
-        "@//:gpl_repo": ["community"],
-    }) + [
-        "--format",
-        "yaml",
         "--out",
         "$(execpath openapi_spec_internal.yaml)",
-    ],
-    tool = select({
-        "@//:gpl+nonfree_repo": "//cmk/gui/openapi/spec/editions/nonfree/pro:generate_api_spec",
-        "@//:gpl_repo": "//cmk/gui/openapi/spec/editions/community:generate_api_spec",
+    ] + select({
+        "@//:gpl+nonfree_repo": [
+            "--input=%s=$(execpath :openapi_spec_internal_%s)" % (edition, edition)
+            for edition in OPENAPI_SPEC_EDITION_GENERATORS
+        ],
+        "@//:gpl_repo": ["--input=community=$(execpath :openapi_spec_internal_community)"],
     }),
+    tool = "//cmk/gui/openapi/spec/spec_generator:merge_api_specs",
 )
 
 openapi_typescript.openapi_typescript(

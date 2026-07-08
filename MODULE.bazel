@@ -2,6 +2,8 @@ http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 
 http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
+openapi_spec_editions = use_repo_rule("//bazel/rules:openapi_spec_editions.bzl", "detect_openapi_spec_editions")
+
 repo_license = use_repo_rule("//bazel/rules:repo_license.bzl", "detect_repo_license")
 
 snap7_repository = use_repo_rule("//omd/packages/snap7:snap7_repository.bzl", "snap7_repository")
@@ -750,6 +752,8 @@ http_archive(
 )
 
 repo_license(name = "repo_license")
+
+openapi_spec_editions(name = "openapi_spec_editions")
 
 multitool = use_extension("@rules_multitool//multitool:extension.bzl", "multitool")
 multitool.hub(
