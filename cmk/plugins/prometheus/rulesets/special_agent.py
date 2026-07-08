@@ -545,8 +545,9 @@ def _validate_hostname(text: str) -> None:
         # As we add prefixes and/or suffixes, the number has to be way lower.
         # 240 seems to be OK to still be able to delete a host if it causes
         # trouble elsewhere
-        # astrein: disable=localization-named-placeholder
-        raise validators.ValidationError(Message("Host name too long: %s") % f"{text[:16] + '…'!r}")
+        raise validators.ValidationError(
+            Message("Host name too long: %(host_name)s") % {"host_name": f"{text[:16] + '…'!r}"}
+        )
 
     with suppress(ValueError):
         ipaddress.ip_address(text)
