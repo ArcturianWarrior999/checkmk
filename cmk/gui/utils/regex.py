@@ -18,21 +18,22 @@ def validate_regex(value: str, varname: str | None) -> None:
     except re.error:
         raise MKUserError(
             varname,
-            # astrein: disable=localization-named-placeholder
             _(
-                "Your search statement is not valid. You need to provide a %s (regex). For example "
+                "Your search statement is not valid. You need to provide a %(regex_link)s (regex). For example "
                 "you need to use <tt>\\\\</tt> instead of <tt>\\</tt> if you want to search for a "
                 "single backslash."
             )
-            % html.render_a(
-                "regular expression",
-                href=doc_reference_url(
-                    user.language,
-                    DocReferenceUtm(campaign="error_help", content="regex"),
-                    DocReference.REGEXES,
-                ),
-                target="_blank",
-            ),
+            % {
+                "regex_link": html.render_a(
+                    "regular expression",
+                    href=doc_reference_url(
+                        user.language,
+                        DocReferenceUtm(campaign="error_help", content="regex"),
+                        DocReference.REGEXES,
+                    ),
+                    target="_blank",
+                )
+            },
         )
 
     # livestatus uses re2 and re can not validate posix pattern, so we have to

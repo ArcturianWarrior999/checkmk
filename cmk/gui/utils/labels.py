@@ -71,9 +71,10 @@ def parse_labels_value(value: str) -> Labels:
         if label.id in seen:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _('A label key can be used only once per object. The label key "%s" is used twice.')
-                % label.id,
+                _(
+                    'A label key can be used only once per object. The label key "%(label_id)s" is used twice.'
+                )
+                % {"label_id": label.id},
             )
         yield Label(label.id, label.value, False)
         seen.add(label.id)

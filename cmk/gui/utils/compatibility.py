@@ -39,12 +39,17 @@ def make_incompatible_info(
     remote_license_state: LicenseState | None,
     compatibility: cmk_version.VersionsIncompatible | LicensingCompatibility,
 ) -> str:
-    # astrein: disable=localization-named-placeholder
-    return _("The central (%s) and remote site (%s) are not compatible. Reason: %s") % (
-        make_site_version_info(central_version, central_edition_short, central_license_state),
-        make_site_version_info(remote_version, remote_edition_short, remote_license_state),
-        compatibility,
-    )
+    return _(
+        "The central (%(central)s) and remote site (%(remote)s) are not compatible. Reason: %(reason)s"
+    ) % {
+        "central": make_site_version_info(
+            central_version, central_edition_short, central_license_state
+        ),
+        "remote": make_site_version_info(
+            remote_version, remote_edition_short, remote_license_state
+        ),
+        "reason": compatibility,
+    }
 
 
 def make_site_version_info(
@@ -54,18 +59,16 @@ def make_site_version_info(
 ) -> str:
     if edition_short == cmk_version.Edition.COMMUNITY.short:
         # No licensing in Checkmk Community, information not necessary
-        # astrein: disable=localization-named-placeholder
-        return _("Version: %s, Edition: %s") % (
-            version,
-            edition_short.title() if edition_short else _("unknown"),
-        )
+        return _("Version: %(version)s, Edition: %(edition)s") % {
+            "version": version,
+            "edition": edition_short.title() if edition_short else _("unknown"),
+        }
 
-    # astrein: disable=localization-named-placeholder
-    return _("Version: %s, Edition: %s, License state: %s") % (
-        version,
-        edition_short.title() if edition_short else _("unknown"),
-        license_state.readable if license_state else _("unknown"),
-    )
+    return _("Version: %(version)s, Edition: %(edition)s, License state: %(license_state)s") % {
+        "version": version,
+        "edition": edition_short.title() if edition_short else _("unknown"),
+        "license_state": license_state.readable if license_state else _("unknown"),
+    }
 
 
 def is_distributed_setup_compatible_for_licensing(
@@ -151,9 +154,10 @@ def _common_is_compatible_for_licensing(
     if central_edition is cmk_version.Edition.ULTIMATE:
         if central_license_state in [LicenseState.UNLICENSED, LicenseState.FREE]:
             return LicenseStateIncompatible(
-                # astrein: disable=localization-named-placeholder
-                _("Remote sites are not allowed when central site in license state %s")
-                % central_license_state.readable
+                _(
+                    "Remote sites are not allowed when central site in license state %(license_state)s"
+                )
+                % {"license_state": central_license_state.readable}
             )
 
         if (

@@ -172,8 +172,7 @@ class BackgroundJob:
 
     def _terminate_processes(self) -> None:
         if (result := self._executor.terminate(self._job_id)).is_error():
-            # astrein: disable=localization-named-placeholder
-            raise MKGeneralException(_("Failed to stop job: %s") % result.error)
+            raise MKGeneralException(_("Failed to stop job: %(error)s") % {"error": result.error})
 
     def get_status(self) -> JobStatusSpec:
         status = self._jobstatus_store.read()
