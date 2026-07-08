@@ -252,8 +252,7 @@ class ModeDiscovery(WatoMode):
         )
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Services of host %s") % self._host.name()
+        return _("Services of host %(host)s") % {"host": self._host.name()}
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return service_page_menu(breadcrumb, self._host, self._options)
@@ -345,14 +344,13 @@ class AutomationServiceDiscoveryJob(AutomationCommand[_AutomationServiceDiscover
         host = tree.host(host_name)
         if host is None:
             raise MKGeneralException(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Host %s does not exist on remote site %s. This "
+                    "Host %(host_name)s does not exist on remote site %(site)s. This "
                     "may be caused by a failed configuration synchronization. Have a look at "
                     'the <a href="wato.py?folder=&mode=changelog">activate changes page</a> '
                     "for further information."
                 )
-                % (host_name, omd_site())
+                % {"host_name": host_name, "site": omd_site()}
             )
         host.permissions.need_permission("read", user)
 
@@ -742,14 +740,13 @@ class ModeAjaxServiceDiscovery(AjaxPage):
             }, "waiting"
 
         if discovery_result.job_status["state"] == JobStatusStates.EXCEPTION:
-            # astrein: disable=localization-named-placeholder
             return _(
-                "%s failed after %s: %s (see <tt>var/log/web.log</tt> for further information)"
-            ) % (
-                job_title,
-                duration_txt,
-                "\n".join(discovery_result.job_status["loginfo"]["JobException"]),
-            ), "error"
+                "%(job_title)s failed after %(duration_txt)s: %(error)s (see <tt>var/log/web.log</tt> for further information)"
+            ) % {
+                "job_title": job_title,
+                "duration_txt": duration_txt,
+                "error": "\n".join(discovery_result.job_status["loginfo"]["JobException"]),
+            }, "error"
 
         messages = []
         if self._sources_failed_on_first_attempt(previous_discovery_result, discovery_result):
@@ -910,13 +907,12 @@ class DiscoveryPageRenderer:
             else:
                 num_problem_states: int = len([s for s in states if s != 0])
                 html.h2(
-                    # astrein: disable=localization-named-placeholder
                     ungettext(
-                        "Problems with %d datasource detected",
-                        "Problems with %d datasources detected",
+                        "Problems with %(count)d datasource detected",
+                        "Problems with %(count)d datasources detected",
                         num_problem_states,
                     )
-                    % num_problem_states
+                    % {"count": num_problem_states}
                 )
 
             is_push_mode = (
@@ -967,8 +963,8 @@ class DiscoveryPageRenderer:
 
         with table_element(
             table_id="host_labels",
-            # astrein: disable=localization-named-placeholder
-            title=_("Discovered host labels (%s)") % len(discovery_result.host_labels),
+            title=_("Discovered host labels (%(count)s)")
+            % {"count": len(discovery_result.host_labels)},
             css="data",
             searchable=False,
             limit=False,
@@ -1200,13 +1196,12 @@ class DiscoveryPageRenderer:
             request, [("mode", "edit_ruleset"), ("varname", "clustered_services")]
         )
         html.show_message(
-            # astrein: disable=localization-named-placeholder
             _(
                 "Could not find any service for your cluster. You first need to "
                 "specify which services of your nodes shall be added to the "
-                'cluster. This is done using the <a href="%s">%s</a> rule set.'
+                'cluster. This is done using the <a href="%(url)s">%(link_text)s</a> rule set.'
             )
-            % (url, _("Clustered services"))
+            % {"url": url, "link_text": _("Clustered services")}
         )
 
     def _group_check_table_by_state(
@@ -1516,54 +1511,55 @@ class DiscoveryPageRenderer:
     ) -> None:
         if changed_labels:
             html.p(
-                # astrein: disable=localization-named-placeholder
-                ungettext("%d changed label", "%d changed labels", len(changed_labels))
-                % len(changed_labels)
+                ungettext(
+                    "%(count)d changed label", "%(count)d changed labels", len(changed_labels)
+                )
+                % {"count": len(changed_labels)}
             )
             self._show_discovered_labels(changed_labels, override_label_render_type="changed")
         if added_labels:
             html.p(
-                # astrein: disable=localization-named-placeholder
-                ungettext("%d new label", "%d new labels", len(added_labels)) % len(added_labels)
+                ungettext("%(count)d new label", "%(count)d new labels", len(added_labels))
+                % {"count": len(added_labels)}
             )
             self._show_discovered_labels(added_labels, override_label_render_type="added")
         if removed_labels:
             html.p(
-                # astrein: disable=localization-named-placeholder
-                ungettext("%d removed label", "%d removed labels", len(removed_labels))
-                % len(removed_labels)
+                ungettext(
+                    "%(count)d removed label", "%(count)d removed labels", len(removed_labels)
+                )
+                % {"count": len(removed_labels)}
             )
             self._show_discovered_labels(removed_labels, override_label_render_type="removed")
         if changed_parameters:
             html.p(
-                # astrein: disable=localization-named-placeholder
                 ungettext(
-                    "%d discovery parameter changed",
-                    "%d discovery parameters changed",
+                    "%(count)d discovery parameter changed",
+                    "%(count)d discovery parameters changed",
                     len(changed_parameters),
                 )
-                % len(changed_parameters)
+                % {"count": len(changed_parameters)}
                 + html.render_static_icon(
                     StaticIcon(IconNames.search),  # TODO: new icon!
-                    # astrein: disable=localization-named-placeholder
-                    title=_("Old: %r\nNew: %r")
-                    % (
-                        {k: v for k, v in old_parameters.items() if k in changed_parameters},
-                        changed_parameters,
-                    ),
+                    title=_("Old: %(old_parameters)r\nNew: %(new_parameters)r")
+                    % {
+                        "old_parameters": {
+                            k: v for k, v in old_parameters.items() if k in changed_parameters
+                        },
+                        "new_parameters": changed_parameters,
+                    },
                     css_classes=["iconbutton"],
                 )
             )
 
         if added_parameters:
             html.p(
-                # astrein: disable=localization-named-placeholder
                 ungettext(
-                    "%d discovery parameter added",
-                    "%d discovery parameters added",
+                    "%(count)d discovery parameter added",
+                    "%(count)d discovery parameters added",
                     len(added_parameters),
                 )
-                % len(added_parameters)
+                % {"count": len(added_parameters)}
                 + html.render_static_icon(
                     StaticIcon(IconNames.search),
                     title=_("New: %(added_parameters)r") % {"added_parameters": added_parameters},
@@ -1572,13 +1568,12 @@ class DiscoveryPageRenderer:
             )
         if removed_parameters:
             html.p(
-                # astrein: disable=localization-named-placeholder
                 ungettext(
-                    "%d discovery parameter removed",
-                    "%d discovery parameters removed",
+                    "%(count)d discovery parameter removed",
+                    "%(count)d discovery parameters removed",
                     len(removed_parameters),
                 )
-                % len(removed_parameters)
+                % {"count": len(removed_parameters)}
                 + html.render_static_icon(
                     StaticIcon(IconNames.search),
                     title=_("Removed: %(removed_parameters)r")
@@ -1639,9 +1634,12 @@ class DiscoveryPageRenderer:
         try:
             if isinstance(params, dict) and "tp_computed_params" in params:
                 html.write_text_permissive(
-                    # astrein: disable=localization-named-placeholder
-                    _("Time-specific parameters computed at %s")
-                    % cmk.utils.render.date_and_time(params["tp_computed_params"]["computed_at"])
+                    _("Time-specific parameters computed at %(computed_at)s")
+                    % {
+                        "computed_at": cmk.utils.render.date_and_time(
+                            params["tp_computed_params"]["computed_at"]
+                        )
+                    }
                 )
                 html.br()
                 params = params["tp_computed_params"]["params"]
@@ -2054,15 +2052,14 @@ class DiscoveryPageRenderer:
                 DiscoveryState.CLUSTERED_VANISHED,
                 show_bulk_actions=False,
                 title=_("Vanished clustered services - located on cluster host"),
-                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
-                    "<i>%s</i> or <i>%s</i>."
+                    "<i>%(ruleset)s</i> or <i>%(overlapping_ruleset)s</i>."
                 )
-                % (
-                    _("Clustered services"),
-                    _("Clustered services for overlapping clusters"),
-                )
+                % {
+                    "ruleset": _("Clustered services"),
+                    "overlapping_ruleset": _("Clustered services for overlapping clusters"),
+                }
                 + " "
                 + _(
                     "They have been found on this host previously, but have now disappeared. "
@@ -2128,29 +2125,27 @@ class DiscoveryPageRenderer:
                 table_group=DiscoveryState.CLUSTERED_OLD,
                 show_bulk_actions=False,
                 title=_("Monitored clustered services - located on cluster host"),
-                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
-                    "<i>%s</i> or <i>%s</i>."
+                    "<i>%(ruleset)s</i> or <i>%(overlapping_ruleset)s</i>."
                 )
-                % (
-                    _("Clustered services"),
-                    _("Clustered services for overlapping clusters"),
-                ),
+                % {
+                    "ruleset": _("Clustered services"),
+                    "overlapping_ruleset": _("Clustered services for overlapping clusters"),
+                },
             ),
             TableGroupEntry(
                 table_group=DiscoveryState.CLUSTERED_NEW,
                 show_bulk_actions=False,
                 title=_("Undecided clustered services"),
-                # astrein: disable=localization-named-placeholder
                 help_text=_(
                     "These services are mapped to a cluster host by a rule in one of the rule sets "
-                    "<i>%s</i> or <i>%s</i>."
+                    "<i>%(ruleset)s</i> or <i>%(overlapping_ruleset)s</i>."
                 )
-                % (
-                    _("Clustered services"),
-                    _("Clustered services for overlapping clusters"),
-                )
+                % {
+                    "ruleset": _("Clustered services"),
+                    "overlapping_ruleset": _("Clustered services for overlapping clusters"),
+                }
                 + " "
                 + _("They appear to be new to this node, but may still be already monitored."),
             ),

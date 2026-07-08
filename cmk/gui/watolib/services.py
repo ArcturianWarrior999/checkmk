@@ -494,11 +494,10 @@ class Discovery:
         debug: bool,
         pending_changes: PendingChanges,
     ) -> None:
-        # astrein: disable=localization-named-placeholder
-        message = _("Saved check configuration of host '%s' with %d services") % (
-            affected_host_name,
-            len(autochecks_table.target_services),
-        )
+        message = _("Saved check configuration of host '%(host_name)s' with %(count)d services") % {
+            "host_name": affected_host_name,
+            "count": len(autochecks_table.target_services),
+        }
         self._add_service_change(
             message,
             need_sync,
@@ -871,11 +870,10 @@ def _perform_update_host_labels(
         if (host := folder_tree().host(host_name)) is None:
             raise ValueError(f"no such host: {host_name!r}")
 
-        # astrein: disable=localization-named-placeholder
-        message = _("Updated discovered host labels of '%s' with %d labels") % (
-            host_name,
-            len(host_labels),
-        )
+        message = _("Updated discovered host labels of '%(host_name)s' with %(count)d labels") % {
+            "host_name": host_name,
+            "count": len(host_labels),
+        }
         pending_changes.add(
             Change(
                 action_name="update-host-labels",
@@ -1190,8 +1188,8 @@ def get_check_table(
         pending_changes.add(
             Change(
                 action_name="refresh-autochecks",
-                # astrein: disable=localization-named-placeholder
-                text=_("Refreshed check configuration of host '%s'") % host.name(),
+                text=_("Refreshed check configuration of host '%(host_name)s'")
+                % {"host_name": host.name()},
                 object_ref=host.object_ref(),
                 domains=[CORE_DOMAIN],
                 domain_settings={CORE_DOMAIN: generate_hosts_to_update_settings([host.name()])},
