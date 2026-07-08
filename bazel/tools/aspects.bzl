@@ -16,6 +16,7 @@ load("//bazel/tools:lint_license_header.bzl", "lint_license_header_aspect")
 load("//bazel/tools:lint_ps_script_analyzer.bzl", "lint_ps_script_analyzer_aspect")
 load("//bazel/tools:lint_py_import_cycles.bzl", "lint_py_import_cycles_aspect")
 load("//bazel/tools:lint_python_extensions.bzl", "lint_python_extension_aspect")
+load("//packages/cmk-repo-checks:deballast.bzl", "lint_deballast_aspect")
 
 eslint = lint_eslint_aspect(
     binary = Label(":eslint"),
@@ -96,6 +97,10 @@ stylelint = lint_stylelint_aspect(
     binary = Label(":stylelint"),
     config = Label("//:stylelintrc"),
     filegroup_tags = ["stylelint"],
+)
+
+deballast = lint_deballast_aspect(
+    binary = Label("//packages/cmk-repo-checks:deballast_bin"),
 )
 
 license_header_checker = lint_license_header_aspect(
