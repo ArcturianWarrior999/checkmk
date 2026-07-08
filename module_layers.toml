@@ -444,6 +444,7 @@ allows = [
 [components."cmk.base.nonfree"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.bakery.base",
   "cmk.base",
@@ -461,7 +462,6 @@ allows = [
   "cmk.checkengine.snmplib",
   "cmk.telemetry",
   "cmk.utils",
-  "livestatus",
 ]
 
 [components."cmk.base.config"]
