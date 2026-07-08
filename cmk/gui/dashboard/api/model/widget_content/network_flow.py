@@ -6,6 +6,8 @@ from typing import Literal, override, Self
 
 from cmk.gui.dashboard.type_defs import (
     NetworkFlowBarAccent,
+    NetworkFlowDonutDashletConfig,
+    NetworkFlowDonutDimension,
     NetworkFlowTopTableDashletConfig,
     NetworkFlowTopTableDimension,
 )
@@ -46,5 +48,39 @@ class NetworkFlowTopTableContent(BaseWidgetContent):
             type=self.internal_type(),
             dimension=self.dimension,
             accent=self.accent,
+            limit_to=self.limit_to,
+        )
+
+
+@api_model
+class NetworkFlowDonutContent(BaseWidgetContent):
+    type: Literal["network_flow_donut"] = api_field(
+        description="Displays a network flow breakdown as a donut chart with share-of-total slices."
+    )
+    dimension: NetworkFlowDonutDimension = api_field(
+        description="Which dimension to break the traffic down by (applications)."
+    )
+    limit_to: int = api_field(
+        description="Maximum number of slices to display before the rest are grouped as 'Other'."
+    )
+
+    @classmethod
+    @override
+    def internal_type(cls) -> str:
+        return "network_flow_donut"
+
+    @classmethod
+    def from_internal(cls, config: NetworkFlowDonutDashletConfig) -> Self:
+        return cls(
+            type="network_flow_donut",
+            dimension=config["dimension"],
+            limit_to=config["limit_to"],
+        )
+
+    @override
+    def to_internal(self) -> NetworkFlowDonutDashletConfig:
+        return NetworkFlowDonutDashletConfig(
+            type=self.internal_type(),
+            dimension=self.dimension,
             limit_to=self.limit_to,
         )

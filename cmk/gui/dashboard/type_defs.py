@@ -153,6 +153,14 @@ class NetworkFlowTopTableDashletConfig(DashletConfig):
     limit_to: int
 
 
+NetworkFlowDonutDimension = Literal["applications"]
+
+
+class NetworkFlowDonutDashletConfig(DashletConfig):
+    dimension: NetworkFlowDonutDimension
+    limit_to: int
+
+
 class StateDashletConfig(DashletConfig):
     status_display: StatusDisplay
     show_summary: Literal["not_ok"] | None
