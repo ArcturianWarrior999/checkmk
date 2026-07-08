@@ -32,6 +32,7 @@ select = [
   "B031",   # flake8-bugbear: reuse-of-groupby-generator
   "B033",   # flake8-bugbear: duplicate-value
   "B034",   # flake8-bugbear: re-sub-positional-args
+  "B035",   # flake8-bugbear: static-key-dict-comprehension
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)
