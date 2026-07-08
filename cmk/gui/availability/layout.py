@@ -435,13 +435,14 @@ def layout_timeline(
     def chaos_period(
         chaos_begin: AVTimeStamp, chaos_end: AVTimeStamp, chaos_count: int, chaos_width: float
     ) -> AVTimelineSpan:
-        # astrein: disable=localization-named-placeholder
-        title = _("%d chaotic state changes from %s until %s (%s)") % (
-            chaos_count,
-            render_date(chaos_begin),
-            render_date(chaos_end),
-            apply_render_number_functions(chaos_end - chaos_begin, considered_duration),
-        )
+        title = _(
+            "%(count)d chaotic state changes from %(from_date)s until %(until_date)s (%(duration)s)"
+        ) % {
+            "count": chaos_count,
+            "from_date": render_date(chaos_begin),
+            "until_date": render_date(chaos_end),
+            "duration": apply_render_number_functions(chaos_end - chaos_begin, considered_duration),
+        }
         return (None, title, chaos_width, "chaos")
 
     current_time = from_time
@@ -469,13 +470,14 @@ def layout_timeline(
             if sid != state_id:
                 continue
 
-            # astrein: disable=localization-named-placeholder
-            title = _("From %s until %s (%s) %s") % (
-                from_text,
-                until_text,
-                duration_text,
-                help_txt and help_txt or sname,
-            )
+            title = _(
+                "From %(from_text)s until %(until_text)s (%(duration_text)s) %(state_name)s"
+            ) % {
+                "from_text": from_text,
+                "until_text": until_text,
+                "duration_text": duration_text,
+                "state_name": help_txt and help_txt or sname,
+            }
             if "log_output" in row and row["log_output"]:
                 title += " - " + row["log_output"]
             width = rest_percentage * row["duration"] / total_duration  # fixed: true-division

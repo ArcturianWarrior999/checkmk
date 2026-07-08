@@ -88,8 +88,8 @@ def show_annotations(
             delete_url = make_confirm_delete_link(
                 url=makeactionuri(request, transactions, del_anno + anno_vars),
                 title=_("Delete annotation #%(nr)d") % {"nr": nr},
-                # astrein: disable=localization-named-placeholder
-                message=_("Annotation: %s") % " ".join(annotation["text"].strip().split()),
+                message=_("Annotation: %(text)s")
+                % {"text": " ".join(annotation["text"].strip().split())},
             )
             html.icon_button(delete_url, _("Delete this annotation"), StaticIcon(IconNames.delete))
 
@@ -133,17 +133,19 @@ def show_annotations(
             if recl_host_state is not None:
                 html.static_icon(
                     StaticIcon(IconNames.status),
-                    # astrein: disable=localization-named-placeholder
-                    title=_("This period has been reclassified in host state to state: %s")
-                    % host_state_name(recl_host_state),
+                    title=_(
+                        "This period has been reclassified in host state to state: %(host_state)s"
+                    )
+                    % {"host_state": host_state_name(recl_host_state)},
                 )
             recl_svc_state = annotation.get("service_state")
             if recl_svc_state is not None:
                 html.static_icon(
                     StaticIcon(IconNames.status),
-                    # astrein: disable=localization-named-placeholder
-                    title=_("This period has been reclassified in service state to state: %s")
-                    % service_state_name(recl_svc_state),
+                    title=_(
+                        "This period has been reclassified in service state to state: %(service_state)s"
+                    )
+                    % {"service_state": service_state_name(recl_svc_state)},
                 )
 
             table.cell(

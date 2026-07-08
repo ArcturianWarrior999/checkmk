@@ -349,13 +349,12 @@ def show_availability_page(
     if missing_single_infos:
         raise MKUserError(
             None,
-            # astrein: disable=localization-named-placeholder
             _(
                 "Unable to render this availability view, because we miss some required context "
-                "information (%s). Please update the filters on the source view or add the "
+                "information (%(infos)s). Please update the filters on the source view or add the "
                 "missing HTTP request variables to your request"
             )
-            % ", ".join(sorted(missing_single_infos)),
+            % {"infos": ", ".join(sorted(missing_single_infos))},
         )
 
     html.write_html(confirmation_html_code)
@@ -365,13 +364,12 @@ def show_availability_page(
         # with changed logrow_limit = 0, which means no limit
         if has_reached_logrow_limit:
             text = escaping.escape_to_html_permissive(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Your query matched more than %d log entries. "
+                    "Your query matched more than %(logrow_limit)d log entries. "
                     "<b>Note:</b> The number of shown rows does not necessarily reflect the "
                     "matched entries and the result might be incomplete. "
                 )
-                % avoptions["logrow_limit"]
+                % {"logrow_limit": avoptions["logrow_limit"]}
             )
             text += HTMLWriter.render_a(
                 _("Repeat query without limit."),
@@ -387,12 +385,11 @@ def show_availability_page(
             if only_sites is None or site_id in only_sites
         ]:
             html.show_warning(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "The following sites could not be reached, so the shown data is "
-                    "incomplete and the computed availability might be incorrect: %s"
+                    "incomplete and the computed availability might be incorrect: %(sites)s"
                 )
-                % ", ".join(sorted(dead_sites))
+                % {"sites": ", ".join(sorted(dead_sites))}
             )
         do_render_availability(
             what,
@@ -631,8 +628,7 @@ def _render_availability_timeline(
     *,
     table_row_limit: int,
 ) -> None:
-    # astrein: disable=localization-named-placeholder
-    html.h3(_("Timeline of %s") % object_title(what, av_entry))
+    html.h3(_("Timeline of %(object)s") % {"object": object_title(what, av_entry)})
 
     timeline_rows = av_entry["timeline"]
 
@@ -1114,13 +1110,12 @@ def show_bi_availability(
         # with changed logrow_limit = 0, which means no limit
         if has_reached_logrow_limit:
             text = HTML.with_escaping(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Your query matched more than %d log entries. "
+                    "Your query matched more than %(logrow_limit)d log entries. "
                     "<b>Note:</b> The shown data does not necessarily reflect the "
                     "matched entries and the result might be incomplete. "
                 )
-                % avoptions["logrow_limit"]
+                % {"logrow_limit": avoptions["logrow_limit"]}
             ) + HTMLWriter.render_a(
                 _("Repeat query without limit."), makeuri(request, [("_unset_logrow_limit", "1")])
             )
@@ -1128,12 +1123,11 @@ def show_bi_availability(
 
         if dead_sites:
             html.show_warning(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "The following sites could not be reached, so the shown data is "
-                    "incomplete and the computed availability might be incorrect: %s"
+                    "incomplete and the computed availability might be incorrect: %(sites)s"
                 )
-                % ", ".join(sorted(dead_sites))
+                % {"sites": ", ".join(sorted(dead_sites))}
             )
 
         if _maybe_output_csv("bi", av_mode, av_data, avoptions, table_row_limit=table_row_limit):
