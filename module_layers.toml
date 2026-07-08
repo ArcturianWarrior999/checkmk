@@ -1279,7 +1279,7 @@ allows = [
 ]
 
 [components."cmk.livestatus_client"]
-allows = ["@ccc", "@trace", "livestatus"]
+allows = ["@ccc", "@trace"]
 
 [components."cmk.mknotifyd"]
 allows = ["@ccc", "cmk.crash", "cmk.events"]

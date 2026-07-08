@@ -90,15 +90,14 @@ py_library(
     ],
 )
 
-# __main__.py imports from livestatus (not declared as dep of the standalone package).
-# Keep it in a separate target to avoid mypy errors on the standalone package.
+# Keep __main__.py in a separate target to avoid mypy errors on the standalone package.
 py_library(
     name = "cmk-livestatus-client-main",
     srcs = ["cmk/livestatus_client/__main__.py"],
     imports = ["."],
     tags = ["no-mypy"],
     visibility = ["//cmk:__pkg__"],
-    deps = [":py_livestatus"],
+    deps = [":cmk-livestatus-client"],
 )
 
 py_doc_test(
