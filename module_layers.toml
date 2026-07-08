@@ -1088,7 +1088,6 @@ allows = [
   "cmk.web.utils.speaklater",
   "cmk.web.utils.urls",
   "cmk.utils.werks",
-  "livestatus",
 ]
 excludes = [
   "cmk.gui.nonfree.pro",

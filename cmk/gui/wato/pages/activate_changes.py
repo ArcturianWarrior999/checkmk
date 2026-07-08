@@ -15,8 +15,6 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 from typing import Literal, override
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.ccc.archive import CheckmkTarArchive
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import omd_site, SiteId
@@ -86,6 +84,7 @@ from cmk.gui.watolib.site_changes import ChangeSpec
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.licensing.registry import get_licensing_user_effect
 from cmk.licensing.usage import get_license_usage_report_validity, LicenseUsageReportValidity
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils import paths, render
 from cmk.utils.setup_search_index import request_index_rebuild
 

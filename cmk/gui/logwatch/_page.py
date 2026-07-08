@@ -12,8 +12,7 @@ import time
 from collections.abc import Iterator, Sequence
 from typing import Any, cast
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId

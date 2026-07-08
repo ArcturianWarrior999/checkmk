@@ -9,8 +9,6 @@ from typing import Self
 
 from werkzeug.datastructures import ETags
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.user import UserId
 from cmk.gui.config import Config
 from cmk.gui.logged_in import LoggedInUser
@@ -28,6 +26,7 @@ from cmk.gui.type_defs import (
 )
 from cmk.gui.user_connection_config_types import ConfigurableUserConnectionSpec
 from cmk.gui.utils.roles import UserPermissions
+from cmk.livestatus_client import SiteConfigurations
 from cmk.ruleset_matcher.tags import TagGroup
 
 from .api_config import APIVersion

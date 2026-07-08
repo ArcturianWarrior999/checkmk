@@ -6,8 +6,6 @@
 import enum
 from typing import Literal
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.background_job.job import BackgroundStatusSnapshot
@@ -36,6 +34,7 @@ from cmk.gui.watolib.services import (
     DiscoveryState,
     ServiceDiscoveryBackgroundJob,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.ruleset_matcher.labels import HostLabelValueDict
 
 from ._family import SERVICE_DISCOVERY_FAMILY

@@ -22,8 +22,6 @@ import recurring_ical_events
 from icalendar import Calendar, Event
 from icalendar.prop import vDDDTypes
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
@@ -78,6 +76,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.timeperiods import load_timeperiods
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import dateutils
 from cmk.utils.timeperiod import (
     is_builtin_timeperiod,

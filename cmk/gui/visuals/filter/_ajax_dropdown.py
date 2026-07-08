@@ -8,8 +8,7 @@
 from collections.abc import Callable, Iterable
 from typing import Literal
 
-import livestatus
-
+import cmk.livestatus_client as livestatus
 from cmk.gui import query_filters, sites
 from cmk.gui.http import request
 from cmk.gui.i18n import _

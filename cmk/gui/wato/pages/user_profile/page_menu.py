@@ -5,8 +5,6 @@
 
 from collections.abc import Iterator
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.version import Edition
 from cmk.gui.breadcrumb import Breadcrumb
 from cmk.gui.http import request
@@ -23,6 +21,7 @@ from cmk.gui.page_menu import (
 from cmk.gui.site_config import is_distributed_setup_remote_site
 from cmk.gui.type_defs import IconNames, StaticIcon
 from cmk.gui.utils.urls import requested_file_name
+from cmk.livestatus_client import SiteConfigurations
 
 
 def user_profile_page_menu(

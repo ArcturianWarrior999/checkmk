@@ -11,8 +11,6 @@ import json
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from typing import Any, Literal
 
-from livestatus import MultiSiteConnection
-
 from cmk.ccc import version
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition, edition
@@ -31,6 +29,7 @@ from cmk.gui.watolib.groups import edit_group
 from cmk.gui.watolib.groups_io import load_group_information
 from cmk.gui.watolib.hosts_and_folders import Folder
 from cmk.gui.watolib.pending_changes import PendingChanges
+from cmk.livestatus_client import MultiSiteConnection
 from cmk.livestatus_client.queries import detailed_connection, Query
 from cmk.livestatus_client.tables.hosts import Hosts
 from cmk.utils import paths

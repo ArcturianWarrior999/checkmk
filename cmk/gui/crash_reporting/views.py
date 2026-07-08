@@ -9,9 +9,7 @@ import json
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from typing import Any, Literal
 
-import livestatus
-from livestatus import MKLivestatusNotFoundError, OnlySites, Query, QuerySpecification
-
+import cmk.livestatus_client as livestatus
 from cmk.crash import read_occurrences
 from cmk.gui import query_filters
 from cmk.gui.config import Config
@@ -50,7 +48,13 @@ from cmk.gui.views.sorter import (
 from cmk.gui.visuals import SiteFilter
 from cmk.gui.visuals._site_filters import default_site_filter_heading_info
 from cmk.gui.visuals.filter import Filter, FilterOption, FilterTime, InputTextFilter
-from cmk.livestatus_client import DeleteCrashReport
+from cmk.livestatus_client import (
+    DeleteCrashReport,
+    MKLivestatusNotFoundError,
+    OnlySites,
+    Query,
+    QuerySpecification,
+)
 
 from .helpers import local_files_involved_in_crash
 

@@ -14,8 +14,6 @@ import traceback
 from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
 from typing import cast, Literal, NamedTuple, overload, TypedDict
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
@@ -119,6 +117,7 @@ from cmk.gui.watolib.users import (
     user_features_registry,
     verify_password_policy,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils import paths, render
 
 from ._user_security_message import (

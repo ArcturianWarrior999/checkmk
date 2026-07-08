@@ -9,8 +9,6 @@
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any, Literal, TypeGuard
 
-from livestatus import OnlySites
-
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
 from cmk.ccc.user import UserId
@@ -82,6 +80,7 @@ from cmk.livestatus_client import (
     ECDeleteEventsOfHost,
     ECUpdate,
     LivestatusClient,
+    OnlySites,
 )
 from cmk.utils.statename import short_service_state_name
 

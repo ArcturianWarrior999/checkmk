@@ -5,8 +5,6 @@
 
 from collections.abc import Callable, Mapping, Sequence
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.site import SiteId
 from cmk.gui.form_specs.unstable.two_column_dictionary import TwoColumnDictionary
 from cmk.gui.htmllib.generator import HTMLWriter
@@ -47,6 +45,7 @@ from cmk.gui.quick_setup.v0_unstable.widgets import (
     Widget,
 )
 from cmk.gui.utils.urls import doc_reference_url, DocReference, DocReferenceUtm
+from cmk.livestatus_client import SiteConfiguration
 from cmk.plugins.gcp.rulesets import gcp  # astrein: disable=cmk-module-layer-violation
 from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.rulesets.v1 import Title

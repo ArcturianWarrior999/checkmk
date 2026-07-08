@@ -8,19 +8,6 @@ from typing import Annotated, Literal, Self
 from annotated_types import Ge, Interval
 from pydantic import Discriminator, PlainSerializer, WithJsonSchema
 
-from livestatus import (
-    LocalSocketInfo,
-    NetworkSocketDetails,
-    NetworkSocketInfo,
-    ProxyConfig,
-    ProxyConfigParams,
-    ProxyConfigTcp,
-    SiteConfiguration,
-    TLSParams,
-    UnixSocketDetails,
-    UnixSocketInfo,
-)
-
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.site import SiteId
 from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
@@ -33,6 +20,18 @@ from cmk.gui.openapi.framework.model.converter import (
     TypedPlainValidator,
 )
 from cmk.gui.watolib.hosts_and_folders import folder_tree, Host
+from cmk.livestatus_client import (
+    LocalSocketInfo,
+    NetworkSocketDetails,
+    NetworkSocketInfo,
+    ProxyConfig,
+    ProxyConfigParams,
+    ProxyConfigTcp,
+    SiteConfiguration,
+    TLSParams,
+    UnixSocketDetails,
+    UnixSocketInfo,
+)
 
 
 @api_model

@@ -28,8 +28,6 @@ from flask import g, send_from_directory
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.routing import Map, Rule, Submount
 
-from livestatus import LivestatusTestingError
-
 import cmk.ccc.version as cmk_version
 from cmk import trace
 from cmk.ccc import store
@@ -75,6 +73,7 @@ from cmk.gui.watolib.activate_changes import update_config_generation
 from cmk.gui.watolib.git import do_git_commit
 from cmk.gui.wsgi.applications.utils import AbstractWSGIApp
 from cmk.gui.wsgi.wrappers import ParameterDict
+from cmk.livestatus_client import LivestatusTestingError
 from cmk.utils import paths
 
 if TYPE_CHECKING:

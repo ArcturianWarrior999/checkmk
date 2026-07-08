@@ -25,8 +25,6 @@ from typing import Any, Literal, NamedTuple, override
 
 from pydantic import BaseModel, Field
 
-from livestatus import SiteConfigurations
-
 import cmk.utils.render
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
@@ -121,6 +119,7 @@ from cmk.gui.watolib.services import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import mk_repr
+from cmk.livestatus_client import SiteConfigurations
 from cmk.ruleset_matcher.definition import RuleGroup
 from cmk.ruleset_matcher.labels import HostLabelValueDict, Labels
 from cmk.shared_typing.setup import (

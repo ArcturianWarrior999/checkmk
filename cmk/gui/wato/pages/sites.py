@@ -18,17 +18,6 @@ from copy import deepcopy
 from typing import Any, assert_never, cast, overload, override
 from urllib.parse import urlparse
 
-from livestatus import (
-    BrokerConnection,
-    BrokerConnections,
-    BrokerSite,
-    ConnectionId,
-    NetworkSocketDetails,
-    SiteConfiguration,
-    SiteConfigurations,
-    TLSParams,
-)
-
 import cmk.gui.sites
 import cmk.gui.watolib.audit_log as _audit_log
 import cmk.utils.paths
@@ -168,6 +157,16 @@ from cmk.gui.watolib.sites import (
 )
 from cmk.licensing.license_distribution_registry import distribute_license_to_remotes
 from cmk.licensing.registry import is_free
+from cmk.livestatus_client import (
+    BrokerConnection,
+    BrokerConnections,
+    BrokerSite,
+    ConnectionId,
+    NetworkSocketDetails,
+    SiteConfiguration,
+    SiteConfigurations,
+    TLSParams,
+)
 from cmk.messaging import check_remote_connection, ConnectionFailed, ConnectionOK, ConnectionRefused
 from cmk.rulesets.internal.form_specs import (
     SingleChoiceElementExtended,

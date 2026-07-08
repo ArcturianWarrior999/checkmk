@@ -7,8 +7,6 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from http import HTTPStatus
 from typing import Any, Literal
 
-from livestatus import SiteConfigurations
-
 import cmk.gui.utils.permission_verification as permissions
 from cmk.ccc.site import omd_site
 from cmk.ccc.user import UserId
@@ -36,6 +34,7 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.gui.watolib.profile_replication import add_profile_replication_change
 from cmk.gui.watolib.user_profile import push_user_profiles_to_site_transitional_wrapper
 from cmk.gui.watolib.users import get_enabled_remote_sites_for_user
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.automation_config import RemoteAutomationConfig
 
 from ..dashlet.base import ResponsiveLayoutBreakpointConstraints

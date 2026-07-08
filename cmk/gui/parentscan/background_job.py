@@ -9,8 +9,6 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from livestatus import SiteConfiguration, SiteConfigurations
-
 from cmk.automations.results import Gateway, GatewayResult
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
@@ -54,6 +52,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChanges,
     PendingChangesStore,
 )
+from cmk.livestatus_client import SiteConfiguration, SiteConfigurations
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
 from cmk.utils.paths import configuration_lockfile
 

@@ -15,8 +15,6 @@ from dataclasses import asdict
 from typing import cast, Final, Literal, overload, override
 from urllib.parse import unquote
 
-from livestatus import SiteConfigurations
-
 import cmk.gui.watolib.sites as watolib_sites
 import cmk.ruleset_matcher.tags
 from cmk.automations.results import (
@@ -124,6 +122,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
+from cmk.livestatus_client import SiteConfigurations
 from cmk.shared_typing.mode_host import (
     AgentInstallCmds,
     AgentRegistrationCmds,

@@ -23,9 +23,6 @@ from dataclasses import asdict
 from datetime import datetime, timedelta
 from typing import Any, cast, Literal, NamedTuple, NotRequired, overload, TypedDict
 
-from livestatus import LivestatusResponse, SiteConfiguration, SiteConfigurations
-from livestatus import Query as OldQuery
-
 import cmk.gui.view_utils
 import cmk.gui.watolib.audit_log as _audit_log
 from cmk.ccc import store
@@ -199,6 +196,8 @@ from cmk.gui.watolib.user_scripts import (
     load_notification_scripts,
 )
 from cmk.gui.watolib.users import notification_script_choices
+from cmk.livestatus_client import LivestatusResponse, SiteConfiguration, SiteConfigurations
+from cmk.livestatus_client import Query as OldQuery
 from cmk.livestatus_client.expressions import And, LqSafe
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables.hosts import Hosts

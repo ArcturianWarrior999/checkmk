@@ -8,8 +8,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from livestatus import lqencode
-
 import cmk.utils.paths
 from cmk.ccc import store
 from cmk.ccc.hostaddress import HostName
@@ -17,6 +15,7 @@ from cmk.gui import sites
 from cmk.gui.i18n import _
 from cmk.gui.page_menu import make_javascript_link, PageMenuEntry
 from cmk.gui.type_defs import IconNames, StaticIcon
+from cmk.livestatus_client import lqencode
 from cmk.utils.paths import default_config_dir
 from cmk.utils.servicename import ServiceName
 

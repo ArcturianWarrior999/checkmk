@@ -8,11 +8,10 @@
 
 from typing import Literal
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
 from cmk.gui.site_config import is_distributed_setup_remote_site, site_is_local
+from cmk.livestatus_client import SiteConfiguration
 
 UserSyncConfig = Literal["all", "master"] | tuple[Literal["list"], list[str]] | None
 

@@ -21,8 +21,6 @@ from typing import Any, Final, Literal, NotRequired, TypedDict
 
 from marshmallow import fields
 
-from livestatus import SiteConfigurations
-
 import cmk.ccc.plugin_registry
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
@@ -43,6 +41,7 @@ from cmk.gui.i18n import _, _u
 from cmk.gui.type_defs import Choices, CustomHostAttrSpec
 from cmk.gui.utils.html import HTML
 from cmk.gui.valuespec import Checkbox, DropdownChoice, TextInput, Transform, ValueSpec
+from cmk.livestatus_client import SiteConfigurations
 from cmk.ruleset_matcher.labels import Labels
 from cmk.ruleset_matcher.tags import TagGroup, TagGroupID, TagID
 from cmk.rulesets.internal.form_specs import SingleChoiceElementExtended, SingleChoiceExtended

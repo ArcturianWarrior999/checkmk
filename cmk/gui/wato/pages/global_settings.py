@@ -16,8 +16,6 @@ from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from copy import deepcopy
 from typing import Any, Final, override
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
@@ -93,6 +91,7 @@ from cmk.gui.watolib.pending_changes import (
 from cmk.gui.watolib.piggyback_hub import validate_piggyback_hub_config
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import site_neutral_path
+from cmk.livestatus_client import SiteConfigurations
 from cmk.utils.paths import log_dir, var_dir
 
 

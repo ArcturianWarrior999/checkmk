@@ -20,8 +20,6 @@ The broker connection endpoints allow for:
 from collections.abc import Mapping
 from typing import Any
 
-from livestatus import BrokerConnections, ConnectionId, SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.gui.config import active_config
@@ -62,6 +60,7 @@ from cmk.gui.watolib.site_management import (
     add_changes_after_editing_broker_connection,
     SitesApiMgr,
 )
+from cmk.livestatus_client import BrokerConnections, ConnectionId, SiteConfigurations
 
 PERMISSIONS = permissions.Perm("wato.sites")
 

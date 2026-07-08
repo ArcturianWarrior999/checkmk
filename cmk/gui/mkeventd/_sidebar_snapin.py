@@ -6,8 +6,6 @@
 
 from collections.abc import Iterator
 
-from livestatus import MKLivestatusBadGatewayError, MKLivestatusTableNotFoundError, OnlySites, Query
-
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import SiteId
 from cmk.gui import sites
@@ -19,6 +17,12 @@ from cmk.gui.i18n import _
 from cmk.gui.sidebar import SidebarSnapin, snapin_site_choice
 from cmk.gui.type_defs import RoleName
 from cmk.gui.user_sites import get_event_console_site_choices
+from cmk.livestatus_client import (
+    MKLivestatusBadGatewayError,
+    MKLivestatusTableNotFoundError,
+    OnlySites,
+    Query,
+)
 
 
 class SidebarSnapinEventConsole(SidebarSnapin):

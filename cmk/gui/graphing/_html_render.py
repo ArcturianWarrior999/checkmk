@@ -14,8 +14,6 @@ from uuid import uuid4
 
 from pydantic import BaseModel, field_validator, SerializeAsAny
 
-from livestatus import MKLivestatusNotFoundError
-
 import cmk.utils.render
 from cmk import trace
 from cmk.ccc.exceptions import MKGeneralException
@@ -42,6 +40,7 @@ from cmk.gui.utils.popups import MethodAjax
 from cmk.gui.utils.rendering import text_with_links_to_user_translated_html
 from cmk.gui.utils.temperate_unit import TemperatureUnit
 from cmk.gui.valuespec import Timerange, TimerangeValue
+from cmk.livestatus_client import MKLivestatusNotFoundError
 from cmk.utils.jsontype import JsonSerializable
 from cmk.utils.paths import profile_dir
 from cmk.utils.servicename import ServiceName

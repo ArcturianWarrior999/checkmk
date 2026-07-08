@@ -14,8 +14,6 @@ import abc
 from collections.abc import Collection, Sequence
 from typing import cast
 
-from livestatus import SiteConfigurations
-
 import cmk.ruleset_matcher.tags
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.site import omd_site, SiteId
@@ -93,6 +91,7 @@ from cmk.gui.watolib.tags import (
     TagConfigFile,
     update_tag_config,
 )
+from cmk.livestatus_client import SiteConfigurations
 from cmk.ruleset_matcher.tags import TagGroupID, TagID
 
 from ._tile_menu import TileMenuRenderer

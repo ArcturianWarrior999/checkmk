@@ -16,10 +16,8 @@ from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 
-import livestatus
-from livestatus import livestatus_lql
-
 import cmk.ccc.version as cmk_version
+import cmk.livestatus_client as livestatus
 from cmk import trace
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
@@ -29,6 +27,7 @@ from cmk.gui import sites
 from cmk.gui.i18n import _
 from cmk.gui.type_defs import ColumnName
 from cmk.gui.utils.temperate_unit import TemperatureUnit
+from cmk.livestatus_client import livestatus_lql
 from cmk.utils.metrics import MetricName
 from cmk.utils.servicename import ServiceName
 

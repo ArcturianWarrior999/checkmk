@@ -9,11 +9,16 @@
 from collections.abc import Mapping
 from typing import Final, Literal
 
-from livestatus import MultiSiteConnection, OnlySites
-
 from cmk.ccc.site import SiteId
 from cmk.gui.logged_in import user
-from cmk.livestatus_client import ECChangeState, ECDelete, ECUpdate, LivestatusClient
+from cmk.livestatus_client import (
+    ECChangeState,
+    ECDelete,
+    ECUpdate,
+    LivestatusClient,
+    MultiSiteConnection,
+    OnlySites,
+)
 from cmk.livestatus_client.expressions import Or, QueryExpression
 from cmk.livestatus_client.queries import Query
 from cmk.livestatus_client.tables.eventconsoleevents import Eventconsoleevents

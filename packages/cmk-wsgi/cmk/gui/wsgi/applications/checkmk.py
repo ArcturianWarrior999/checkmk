@@ -19,9 +19,8 @@ from wsgiref.types import StartResponse, WSGIEnvironment
 import flask
 from werkzeug.exceptions import RequestEntityTooLarge
 
-import livestatus
-
 import cmk.ccc.store
+import cmk.livestatus_client as livestatus
 from cmk import trace
 from cmk.ccc.exceptions import MKException, MKGeneralException
 from cmk.crypto import MKCryptoException

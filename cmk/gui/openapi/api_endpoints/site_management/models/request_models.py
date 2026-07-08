@@ -7,8 +7,6 @@ from typing import Annotated, Self
 
 from pydantic import model_validator
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.site import SiteId
 from cmk.ccc.version import Edition
 from cmk.gui.fields.utils import edition_field_description
@@ -18,6 +16,7 @@ from cmk.gui.openapi.framework.model.converter import (
     TypedPlainValidator,
 )
 from cmk.gui.openapi.framework.model.restrict_editions import after_validator_for_customer_field
+from cmk.livestatus_client import SiteConfiguration
 
 from .common import SiteConnectionBaseModel
 from .config_example import default_config_example

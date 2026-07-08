@@ -11,18 +11,6 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import cast, Literal, NamedTuple, NewType, TypedDict
 
-from livestatus import (
-    ConnectedSite,
-    lqencode,
-    MKLivestatusQueryError,
-    MultiSiteConnection,
-    NetworkSocketInfo,
-    sanitize_site_configuration,
-    SiteConfiguration,
-    SiteConfigurations,
-    UnixSocketInfo,
-)
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import __version__, Edition, edition, Version, VersionsIncompatible
@@ -43,6 +31,17 @@ from cmk.gui.utils.compatibility import (
 )
 from cmk.licensing.handler import LicenseState
 from cmk.licensing.registry import get_license_state
+from cmk.livestatus_client import (
+    ConnectedSite,
+    lqencode,
+    MKLivestatusQueryError,
+    MultiSiteConnection,
+    NetworkSocketInfo,
+    sanitize_site_configuration,
+    SiteConfiguration,
+    SiteConfigurations,
+    UnixSocketInfo,
+)
 from cmk.utils import paths
 from cmk.utils.paths import livestatus_unix_socket
 

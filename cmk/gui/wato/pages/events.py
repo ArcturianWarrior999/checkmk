@@ -9,8 +9,6 @@ import abc
 from collections.abc import Callable, Sequence
 from typing import Literal
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.version import Edition
 from cmk.events.notify_types import EventRule
 from cmk.gui.http import request
@@ -33,6 +31,7 @@ from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.mode import WatoMode
 from cmk.gui.watolib.pending_changes import PendingChanges
 from cmk.gui.watolib.timeperiods import TimeperiodSelection
+from cmk.livestatus_client import SiteConfigurations
 
 from .._check_plugin_selection import CheckPluginSelection
 from .._group_selection import sorted_contact_group_choices, sorted_service_group_choices

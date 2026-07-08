@@ -11,8 +11,6 @@ import re
 from collections.abc import Collection, Iterable, Sequence
 from datetime import datetime
 
-from livestatus import SiteConfigurations
-
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
@@ -68,6 +66,7 @@ from cmk.gui.watolib.pending_changes import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.users import remove_custom_attribute_from_all_users, user_features_registry
+from cmk.livestatus_client import SiteConfigurations
 
 
 def register(mode_registry: ModeRegistry) -> None:

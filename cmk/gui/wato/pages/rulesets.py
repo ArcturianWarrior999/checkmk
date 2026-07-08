@@ -27,8 +27,6 @@ from typing import (
     TypedDict,
 )
 
-from livestatus import SiteConfiguration
-
 from cmk import trace
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName, HostNameValidationError
@@ -205,6 +203,7 @@ from cmk.gui.watolib.rulespecs import (
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.utils import mk_eval, mk_repr
+from cmk.livestatus_client import SiteConfiguration
 from cmk.ruleset_matcher import matcher as ruleset_matcher
 from cmk.ruleset_matcher.conditions import (
     allow_host_label_conditions,

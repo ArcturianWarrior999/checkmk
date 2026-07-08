@@ -13,12 +13,11 @@ import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import Literal, NamedTuple
 
-from livestatus import LivestatusResponse, lqencode, quote_dict
-
 from cmk.ccc.site import SiteId
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.i18n import _
 from cmk.gui.type_defs import FilterHTTPVariables
+from cmk.livestatus_client import LivestatusResponse, lqencode, quote_dict
 from cmk.ruleset_matcher.labels import (
     AndOrNotLiteral,
     BaseLabel,

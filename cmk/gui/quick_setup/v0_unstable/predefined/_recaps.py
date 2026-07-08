@@ -5,8 +5,6 @@
 
 from collections.abc import Mapping, Sequence
 
-from livestatus import SiteConfiguration
-
 from cmk.ccc.site import SiteId
 from cmk.gui.form_specs import RawDiskData, serialize_data_for_frontend
 from cmk.gui.quick_setup.v0_unstable._registry import quick_setup_registry
@@ -20,6 +18,7 @@ from cmk.gui.quick_setup.v0_unstable.type_defs import (
     StageIndex,
 )
 from cmk.gui.quick_setup.v0_unstable.widgets import FormSpecRecap, Widget
+from cmk.livestatus_client import SiteConfiguration
 
 
 def recaps_form_spec(
