@@ -652,7 +652,7 @@ allows = ["cmk.ccc.site", "cmk.utils.paths"]
 allows = ["@ccc", "cmk.utils.paths"]
 
 [components."cmk.events"]
-allows = ["@ccc", "@livestatus_client", "livestatus"]
+allows = ["@ccc", "@livestatus_client"]
 
 [components."cmk.fetcher_encoder"]
 allows = ["cmk.checkengine.helper_interface"]
