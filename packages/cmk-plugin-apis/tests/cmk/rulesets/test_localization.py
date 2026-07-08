@@ -19,7 +19,7 @@ _TRANSLATABLE_STRINGS: Final = {
     "horst": "This should not be used.",
     "One sentence. ": "blah",
     "Another sentence.": "blah",
-    "is %s": "I am %s",
+    "is %(value)s": "I am %(value)s",
 }
 
 
@@ -66,18 +66,14 @@ class TestLocalizable:
             pytest.param(Title("same"), Title("same"), True, id="equal"),
             pytest.param(Title("same"), Title("different"), False, id="not equal"),
             pytest.param(
-                # astrein: disable=localization-named-placeholder
-                (Title("is %s") % "same").localize(_localizer),
-                # astrein: disable=localization-named-placeholder
-                (Title("is %s") % "same").localize(_localizer),
+                (Title("is %(value)s") % {"value": "same"}).localize(_localizer),
+                (Title("is %(value)s") % {"value": "same"}).localize(_localizer),
                 True,
                 id="localized equal",
             ),
             pytest.param(
-                # astrein: disable=localization-named-placeholder
-                (Title("is %s") % "same").localize(_localizer),
-                # astrein: disable=localization-named-placeholder
-                (Title("is %s") % "different").localize(_localizer),
+                (Title("is %(value)s") % {"value": "same"}).localize(_localizer),
+                (Title("is %(value)s") % {"value": "different"}).localize(_localizer),
                 False,
                 id="localized unequal",
             ),
