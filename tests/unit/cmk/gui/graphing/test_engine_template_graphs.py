@@ -19,7 +19,6 @@ from cmk.graphing_engine import (
     Metric,
     MetricName,
     PerformanceData,
-    RawPerformanceValue,
     RRDMetric,
     ScalarOf,
     ScalarType,
@@ -28,6 +27,7 @@ from cmk.graphing_engine import (
     TimeRange,
     TimeSeries,
 )
+from cmk.gui.graphing._engine_rrd_translate import RawPerformanceValue
 from cmk.gui.graphing._engine_template_graphs import (
     build_template_graphs,
     evaluate_template_graphs,

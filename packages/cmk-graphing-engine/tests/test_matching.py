@@ -25,8 +25,6 @@ from cmk.graphing_engine import (
     MetricName,
     PerformanceData,
     Quantity,
-    RawPerformanceData,
-    RawPerformanceValue,
     RRDMetric,
     Rule,
     ScalarOf,
@@ -123,8 +121,8 @@ def _perf(
     critical: float | None = None,
     minimum: float | None = None,
     maximum: float | None = None,
-) -> tuple[MetricName, RawPerformanceValue]:
-    return name, RawPerformanceValue(
+) -> tuple[MetricName, PerformanceData]:
+    return name, PerformanceData(
         value=1.0,
         lower_warning=lower_warning,
         lower_critical=lower_critical,
@@ -135,27 +133,29 @@ def _perf(
     )
 
 
-def _perf_data(*values: tuple[MetricName, RawPerformanceValue]) -> RawPerformanceData:
-    return RawPerformanceData(check_command="", values=dict(values))
+def _perf_data(
+    *values: tuple[MetricName, PerformanceData],
+) -> Mapping[MetricName, PerformanceData]:
+    return dict(values)
 
 
 class _FakeRRDFetchMetricNames:
-    def __init__(self, performance_response: Mapping[Service, RawPerformanceData]) -> None:
+    def __init__(
+        self, performance_response: Mapping[Service, Mapping[MetricName, PerformanceData]]
+    ) -> None:
         self._performance_response = performance_response
 
     def __call__(
         self,
         services: Sequence[Service],  # noqa: ARG002
     ) -> Mapping[Service, frozenset[MetricName]]:
-        return {
-            service: frozenset(raw.values) for service, raw in self._performance_response.items()
-        }
+        return {service: frozenset(raw) for service, raw in self._performance_response.items()}
 
 
 class _FakeRRDFetchData:
     def __init__(
         self,
-        performance_response: Mapping[Service, RawPerformanceData] | None = None,
+        performance_response: Mapping[Service, Mapping[MetricName, PerformanceData]] | None = None,
         time_series_response: Mapping[RRDMetric, TimeSeries] | None = None,
     ) -> None:
         self.performance_response = performance_response or {}
@@ -174,20 +174,7 @@ class _FakeRRDFetchData:
                 continue
             service = Service(host_name=metric.host_name, service_name=metric.service_name)
             raw = self.performance_response.get(service)
-            raw_value = None if raw is None else raw.values.get(metric.metric_name)
-            performance_data = (
-                None
-                if raw_value is None
-                else PerformanceData(
-                    value=raw_value.value,
-                    lower_warning=raw_value.lower_warning,
-                    lower_critical=raw_value.lower_critical,
-                    warning=raw_value.warning,
-                    critical=raw_value.critical,
-                    minimum=raw_value.minimum,
-                    maximum=raw_value.maximum,
-                )
-            )
+            performance_data = None if raw is None else raw.get(metric.metric_name)
             series = self._time_series_response.get(metric)
             if performance_data is None and series is None:
                 continue

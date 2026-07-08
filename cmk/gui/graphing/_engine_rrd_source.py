@@ -22,8 +22,6 @@ from cmk.graphing_engine import (
     Metric,
     MetricName,
     PerformanceData,
-    RawPerformanceData,
-    RawPerformanceValue,
     RRDMetric,
     Service,
     TimeRange,
@@ -37,6 +35,8 @@ from cmk.gui.log import logger
 from ._engine_rrd_resample import merge_series, resample, scaled_series
 from ._engine_rrd_translate import (
     originals_for_metric_name,
+    RawPerformanceData,
+    RawPerformanceValue,
     translate_metric_names,
     translate_performance_data,
 )

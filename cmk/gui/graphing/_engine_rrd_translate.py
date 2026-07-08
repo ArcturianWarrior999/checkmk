@@ -9,7 +9,25 @@ from dataclasses import dataclass
 from typing import assert_never
 
 from cmk.graphing.v1 import translations as translations_v1
-from cmk.graphing_engine import MetricName, PerformanceData, RawPerformanceValue
+from cmk.graphing_engine import MetricName, PerformanceData
+
+
+@dataclass(frozen=True, kw_only=True)
+class RawPerformanceValue:
+    value: float
+    warning: float | None = None
+    critical: float | None = None
+    lower_warning: float | None = None
+    lower_critical: float | None = None
+    minimum: float | None = None
+    maximum: float | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class RawPerformanceData:
+    check_command: str
+    values: Mapping[MetricName, RawPerformanceValue]
+
 
 _PREDICT_PREFIXES = ("predict_lower_", "predict_")
 
