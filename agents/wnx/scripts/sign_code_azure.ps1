@@ -5,6 +5,8 @@
 # Sign a Windows binary using Azure Artifact Signing via the ArtifactSigning
 # PowerShell module (Install-Module -Name ArtifactSigning, https://www.powershellgallery.com/packages/ArtifactSigning).
 #
+# See also README_AZURE_SIGNING.md for more information on how to set up Azure Artifact Signing.
+#
 # Prerequisites:
 #   - ArtifactSigning PS module:  Install-Module -Name ArtifactSigning
 #   - dotnet runtime (.NET 8):    shipped with Visual Studio 2022, or https://dotnet.microsoft.com/download/dotnet/8.0
