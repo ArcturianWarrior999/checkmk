@@ -1534,6 +1534,7 @@ allows = [
 [components."cmk.licensing.nonfree"]
 allows = [
   "@crypto",
+  "@livestatus_client",
   "cmk.ccc.exceptions",
   "cmk.ccc.i18n",
   "cmk.ccc.site",
@@ -1545,7 +1546,6 @@ allows = [
   "cmk.utils.mail",
   "cmk.utils.password_store",
   "cmk.utils.paths",
-  "livestatus",
 ]
 
 [components."cmk.licensing"]
