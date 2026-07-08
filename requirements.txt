@@ -4524,6 +4524,7 @@ pyyaml==6.0.3 \
     #   -r non-free/packages/cmk-bakery/requirements.in
     #   -r non-free/packages/cmk-otel-collector/requirements.in
     #   -r non-free/packages/cmk-robotmk/requirements.in
+    #   -r packages/cmk-wsgi/requirements.in
     #   bandit
     #   cmk-werk-zeug
     #   datamodel-code-generator

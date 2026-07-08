@@ -5,4 +5,5 @@ opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-wsgi
 pyprof2calltree
+pyyaml
 werkzeug

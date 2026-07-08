@@ -4611,6 +4611,7 @@ pyyaml==6.0.3 \
     # via
     #   -c requirements.txt
     #   -r cmk/requirements.in
+    #   -r packages/cmk-wsgi/requirements.in
     #   bandit
     #   cmk-werk-zeug
     #   datamodel-code-generator

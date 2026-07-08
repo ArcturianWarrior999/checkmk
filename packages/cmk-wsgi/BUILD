@@ -81,6 +81,7 @@ py_library(
         requirement("opentelemetry-instrumentation-requests"),
         requirement("opentelemetry-instrumentation-wsgi"),
         requirement("pyprof2calltree"),
+        requirement("pyyaml"),
         requirement("werkzeug"),
     ],
 )
