@@ -51,9 +51,8 @@ def _assert_uniform_unit(graph: Graph) -> None:
     units = {curve.attributes.unit for curve in drawn}
     if len(units) > 1:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Cannot create graph with metrics of different units: %s")
-            % ", ".join(sorted(repr(unit) for unit in units))
+            _("Cannot create graph with metrics of different units: %(units)s")
+            % {"units": ", ".join(sorted(repr(unit) for unit in units))}
         )
 
 

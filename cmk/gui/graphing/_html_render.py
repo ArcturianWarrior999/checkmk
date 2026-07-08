@@ -593,8 +593,8 @@ def _render_time_range_selection(
                     artwork_or_errors.annotations,
                     expandable_legend_appearance,
                 ),
-                # astrein: disable=localization-named-placeholder
-                title=_("Change graph time range to: %s") % timerange_attrs["title"],
+                title=_("Change graph time range to: %(title)s")
+                % {"title": timerange_attrs["title"]},
             )
         )
     return HTMLWriter.render_table(
@@ -621,11 +621,10 @@ def _render_graph_content_html(
     if artwork_or_errors.errors:
         if url := render_state.specification.url():
             output = HTMLWriter.render_div(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Cannot render complete graph. See graph '<a href='%s'>%s</a>' for further details."
+                    "Cannot render complete graph. See graph '<a href='%(url)s'>%(title)s</a>' for further details."
                 )
-                % (url, render_state.recipe.title),
+                % {"url": url, "title": render_state.recipe.title},
                 class_="error",
             )
         else:
@@ -641,33 +640,33 @@ def _render_graph_content_html(
     if show_limits_if_reached and artwork_or_errors.graph_metric_limits_reached:
         if url := render_state.specification.url():
             output += HTMLWriter.render_div(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The result of your query hit the maximum number of %s time series."
+                    "The result of your query hit the maximum number of %(count)s time series."
                     " Please narrow down your query."
-                    " See graph '<a href='%s'>%s</a>' for further details."
+                    " See graph '<a href='%(url)s'>%(title)s</a>' for further details."
                 )
-                % (
-                    max(
+                % {
+                    "count": max(
                         limit.max_series_per_query
                         for limit in artwork_or_errors.graph_metric_limits_reached
                     ),
-                    url,
-                    render_state.recipe.title,
-                ),
+                    "url": url,
+                    "title": render_state.recipe.title,
+                },
                 class_="warning",
             )
         else:
             output += HTMLWriter.render_div(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The result of your query hit the maximum number of %s time series."
+                    "The result of your query hit the maximum number of %(count)s time series."
                     " Please narrow down your query."
                 )
-                % max(
-                    limit.max_series_per_query
-                    for limit in artwork_or_errors.graph_metric_limits_reached
-                ),
+                % {
+                    "count": max(
+                        limit.max_series_per_query
+                        for limit in artwork_or_errors.graph_metric_limits_reached
+                    )
+                },
                 class_="warning",
             )
         size_y_offset -= 8
@@ -888,22 +887,18 @@ def _compute_legend_titles(
         if consolidation_function is None or step == 60:
             return ""
         return (
-            # astrein: disable=localization-named-placeholder
             _(
-                'This graph is based on data consolidated with the function "%s". The '
-                'values in this column are the "%s" values of the "%s" values '
-                "aggregated in %s steps. Assuming a check interval of 1 minute, the %s "
-                "values here are based on the %s value out of %d raw values."
+                'This graph is based on data consolidated with the function "%(consolidation_function)s". The '
+                'values in this column are the "%(scalar_type)s" values of the "%(consolidation_function)s" values '
+                "aggregated in %(step_label)s steps. Assuming a check interval of 1 minute, the %(scalar_type)s "
+                "values here are based on the %(consolidation_function)s value out of %(raw_count)d raw values."
             )
-            % (
-                consolidation_function,
-                scalar_type,
-                consolidation_function,
-                get_step_label(step),
-                scalar_type,
-                consolidation_function,
-                (step / 60),
-            )
+            % {
+                "consolidation_function": consolidation_function,
+                "scalar_type": scalar_type,
+                "step_label": get_step_label(step),
+                "raw_count": (step / 60),
+            }
             + "\n\n"
             + _('Click here to change the graphs consolidation function to "%(scalar_type)s".')
             % {"scalar_type": scalar_type}
@@ -1326,43 +1321,44 @@ def render_graph_html(
     )
 
     if artwork_or_errors.errors:
-        # astrein: disable=localization-named-placeholder
         error_msg = _(
-            "Error while querying the following metrics: %s."
-            "<br>Last error message: %s."
+            "Error while querying the following metrics: %(metrics)s."
+            "<br>Last error message: %(error)s."
             "<br>See web.log for further details."
-        ) % (
-            ", ".join(f"{k.metric_name!r}" for e in artwork_or_errors.errors for k in e.keys),
-            str(artwork_or_errors.errors[-1].exception),
-        )
+        ) % {
+            "metrics": ", ".join(
+                f"{k.metric_name!r}" for e in artwork_or_errors.errors for k in e.keys
+            ),
+            "error": str(artwork_or_errors.errors[-1].exception),
+        }
     else:
         error_msg = ""
 
     if artwork_or_errors.graph_metric_limits_reached:
         if show_titles_if_limit_reached:
-            # astrein: disable=localization-named-placeholder
             warning_msg = _(
-                "The result of your query hit the maximum number of %s time series."
-                " Please narrow down your queries for the following metrics: %s"
-            ) % (
-                max(
+                "The result of your query hit the maximum number of %(count)s time series."
+                " Please narrow down your queries for the following metrics: %(metrics)s"
+            ) % {
+                "count": max(
                     limit.max_series_per_query
                     for limit in artwork_or_errors.graph_metric_limits_reached
                 ),
-                ", ".join(
+                "metrics": ", ".join(
                     f"{limit.graph_metric.title!r}"
                     for limit in artwork_or_errors.graph_metric_limits_reached
                 ),
-            )
+            }
         else:
-            # astrein: disable=localization-named-placeholder
             warning_msg = _(
-                "The result of your query hit the maximum number of %s time series."
+                "The result of your query hit the maximum number of %(count)s time series."
                 " Please narrow down your query."
-            ) % max(
-                limit.max_series_per_query
-                for limit in artwork_or_errors.graph_metric_limits_reached
-            )
+            ) % {
+                "count": max(
+                    limit.max_series_per_query
+                    for limit in artwork_or_errors.graph_metric_limits_reached
+                )
+            }
     else:
         warning_msg = ""
 

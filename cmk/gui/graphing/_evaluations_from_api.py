@@ -126,9 +126,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Warning (lower) of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Warning (lower) of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=Color.WARN.value,
@@ -159,9 +158,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Critical (lower) of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Critical (lower) of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=Color.CRIT.value,
@@ -192,9 +190,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Warning of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Warning of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=Color.WARN.value,
@@ -225,9 +222,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Critical of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Critical of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=Color.CRIT.value,
@@ -258,9 +254,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Minimum of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Minimum of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=parse_color_from_api(quantity.color).value,
@@ -291,9 +286,8 @@ def evaluate_quantity(
             return OK(
                 EvaluatedQuantity(
                     title=(
-                        # astrein: disable=localization-named-placeholder
-                        _("Maximum of %s")
-                        % get_metric_spec(quantity.metric_name, registered_metrics).title
+                        _("Maximum of %(title)s")
+                        % {"title": get_metric_spec(quantity.metric_name, registered_metrics).title}
                     ),
                     unit=result.ok.unit,
                     color=parse_color_from_api(quantity.color).value,

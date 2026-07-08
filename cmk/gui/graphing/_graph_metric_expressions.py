@@ -400,9 +400,8 @@ def _time_series_math(
     operators = time_series_operators()
     if operator_id not in operators:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Undefined operator '%s' in graph expression")
-            % escaping.escape_attribute(operator_id)
+            _("Undefined operator '%(operator)s' in graph expression")
+            % {"operator": escaping.escape_attribute(operator_id)}
         )
     # Test for correct arity on FOUND[evaluated] data
     if any(
