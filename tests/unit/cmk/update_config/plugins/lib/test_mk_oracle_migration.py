@@ -129,3 +129,28 @@ def test_unmappable_fields_ignored() -> None:
         "main": {"auth": {"auth_type": ("wallet", None)}, "connection": {}},
         "instances": [],
     }
+
+
+def test_discovery_not_mapped_when_nothing_defined() -> None:
+    assert "discovery" not in dump(convert({"sids": None}).rule)["main"]
+
+
+def test_discovery_include_mapped_when_sids_defined() -> None:
+    assert dump(convert({"sids": ("only", ["a", "b"])}).rule)["main"]["discovery"] == {
+        "enabled": True,
+        "include": ["a", "b"],
+    }
+
+
+def test_discovery_exclude_mapped_when_skip_defined() -> None:
+    assert dump(convert({"sids": ("skip", ["a"])}).rule)["main"]["discovery"] == {
+        "enabled": True,
+        "exclude": ["a"],
+    }
+
+
+def test_discovery_include_mapped_when_exclude_defined() -> None:
+    assert dump(convert({"sids": ("exclude", ["a"])}).rule)["main"]["discovery"] == {
+        "enabled": True,
+        "exclude": ["a"],
+    }

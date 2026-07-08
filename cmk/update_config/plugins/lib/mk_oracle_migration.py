@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import uuid
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any, Final, Literal, NamedTuple
 
 from cmk.gui.watolib.rulesets import Rule, RuleOptions, Ruleset
@@ -12,6 +12,7 @@ from cmk.plugins.oracle.bakery.mk_oracle_unified import (
     GuiAuthConf,
     GuiConfig,
     GuiConnectionConf,
+    GuiDiscoveryConf,
     GuiInstanceConf,
     GuiMainConf,
     OracleAuthType,
@@ -84,11 +85,17 @@ def convert(legacy: Mapping[str, Any]) -> MigratedRule:
 
     sections = _convert_sections(legacy["sections"], warnings) if legacy.get("sections") else None
 
+    discovery = _convert_discovery(legacy.get("sids"))
+
     auth = GuiAuthConf[RawSecret](auth_type=(OracleAuthType.WALLET, None))
     warnings.append("No auth defined in legacy rule. Defaulting to Oracle wallet.")
 
     main = GuiMainConf[RawSecret](
-        auth=auth, connection=GuiConnectionConf(), cache_age=cache_age, sections=sections
+        auth=auth,
+        connection=GuiConnectionConf(),
+        cache_age=cache_age,
+        discovery=discovery,
+        sections=sections,
     )
 
     warnings.extend(msg for key, msg in field_warning_messages.items() if key in legacy)
@@ -133,6 +140,19 @@ def _convert_sections(
         new_sections[section] = literal_mapping.get(setting, "disabled")
 
     return new_sections
+
+
+def _convert_discovery(sids: tuple[str, Sequence[str]] | None) -> GuiDiscoveryConf | None:
+    """Map the legacy (mode, names) sids tuple to the unified discovery include/exclude dict."""
+    if not sids:
+        return None
+
+    how, names = sids
+    if how == "only":
+        return GuiDiscoveryConf(enabled=True, include=list(names))
+    if how in ("skip", "exclude"):
+        return GuiDiscoveryConf(enabled=True, exclude=list(names))
+    return None
 
 
 def dump(config: GuiConfig[RawSecret]) -> dict[str, Any]:
