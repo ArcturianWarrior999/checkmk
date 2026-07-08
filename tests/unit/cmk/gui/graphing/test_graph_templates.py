@@ -1447,7 +1447,7 @@ def test__evaluate_graph_plugins_2(
                     ],
                 ),
                 GraphRecipe(
-                    title="Foo",
+                    title="foo",
                     unit_spec=ConvertibleUnitSpecification(
                         notation=DecimalNotation(symbol=""),
                         precision=AutoPrecision(digits=2),
@@ -1457,7 +1457,7 @@ def test__evaluate_graph_plugins_2(
                     omit_zero_metrics=False,
                     metrics=[
                         GraphMetric(
-                            title="Foo",
+                            title="foo",
                             line_type="area",
                             operation=GraphMetricRRDSource(
                                 site_id=SiteId("site_id"),
@@ -1477,7 +1477,7 @@ def test__evaluate_graph_plugins_2(
                     ],
                 ),
                 GraphRecipe(
-                    title="Prediction of Foo (upper levels)",
+                    title="Prediction of foo (upper levels)",
                     unit_spec=ConvertibleUnitSpecification(
                         notation=DecimalNotation(symbol=""),
                         precision=AutoPrecision(digits=2),
@@ -1494,7 +1494,7 @@ def test__evaluate_graph_plugins_2(
                     omit_zero_metrics=False,
                     metrics=[
                         GraphMetric(
-                            title="Prediction of Foo (upper levels)",
+                            title="Prediction of foo (upper levels)",
                             line_type="area",
                             operation=GraphMetricRRDSource(
                                 site_id=SiteId("site_id"),
@@ -1513,7 +1513,7 @@ def test__evaluate_graph_plugins_2(
                     ],
                 ),
                 GraphRecipe(
-                    title="Prediction of Foo (lower levels)",
+                    title="Prediction of foo (lower levels)",
                     unit_spec=ConvertibleUnitSpecification(
                         notation=DecimalNotation(symbol=""),
                         precision=AutoPrecision(digits=2),
@@ -1530,7 +1530,7 @@ def test__evaluate_graph_plugins_2(
                     omit_zero_metrics=False,
                     metrics=[
                         GraphMetric(
-                            title="Prediction of Foo (lower levels)",
+                            title="Prediction of foo (lower levels)",
                             line_type="area",
                             operation=GraphMetricRRDSource(
                                 site_id=SiteId("site_id"),
