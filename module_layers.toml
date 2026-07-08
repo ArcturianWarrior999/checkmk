@@ -149,6 +149,7 @@ allows = [
 # We cannot expect them to not depend on the core product.
 [plugin_families.violations.checkmk]
 allows = [
+  "@livestatus_client",
   # FIXME
   "cmk.agent_based.v1",
   "cmk.base",
@@ -161,7 +162,6 @@ allows = [
   "cmk.gui",
   "cmk.server_side_calls_backend",
   "cmk.utils",
-  "livestatus",
 ]
 
 # This hosts internal plugins. They can not be subjected to
