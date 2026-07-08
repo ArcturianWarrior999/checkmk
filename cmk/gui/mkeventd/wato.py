@@ -1856,8 +1856,7 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             rule_pack = self._rule_packs[nr]
             self._add_change(
                 action_name="delete-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Deleted rule pack %s") % rule_pack["id"],
+                text=_("Deleted rule pack %(rule_pack_id)s") % {"rule_pack_id": rule_pack["id"]},
                 pending_changes=pending_changes,
             )
             del self._rule_packs[nr]
@@ -1897,8 +1896,8 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             self._save_rules(config)
             self._add_change(
                 action_name="move-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Changed position of rule pack %s") % rule_pack["id"],
+                text=_("Changed position of rule pack %(rule_pack_id)s")
+                % {"rule_pack_id": rule_pack["id"]},
                 pending_changes=pending_changes,
             )
 
@@ -1915,8 +1914,8 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             self._save_rules(config)
             self._add_change(
                 action_name="export-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Made rule pack %s available for MKP export") % rule_pack["id"],
+                text=_("Made rule pack %(rule_pack_id)s available for MKP export")
+                % {"rule_pack_id": rule_pack["id"]},
                 pending_changes=pending_changes,
             )
 
@@ -1934,8 +1933,8 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             ec.remove_exported_rule_pack(self._rule_packs[nr], self._paths.mkp_rule_pack_dir.value)
             self._add_change(
                 action_name="dissolve-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Removed rule_pack %s from MKP export") % self._rule_packs[nr]["id"],
+                text=_("Removed rule_pack %(rule_pack_id)s from MKP export")
+                % {"rule_pack_id": self._rule_packs[nr]["id"]},
                 pending_changes=pending_changes,
             )
 
@@ -1950,8 +1949,8 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             self._save_rules(config)
             self._add_change(
                 action_name="reset-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Reset the rules of rule pack %s to the ones provided via MKP") % rp.id_,
+                text=_("Reset the rules of rule pack %(id_)s to the ones provided via MKP")
+                % {"id_": rp.id_},
                 pending_changes=pending_changes,
             )
 
@@ -1967,8 +1966,7 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
             self._save_rules(config)
             self._add_change(
                 action_name="synchronize-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Synchronized MKP with the modified rule pack %s") % rp.id_,
+                text=_("Synchronized MKP with the modified rule pack %(id_)s") % {"id_": rp.id_},
                 pending_changes=pending_changes,
             )
 
@@ -2085,8 +2083,7 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
                         suffix=rule_pack["title"],
                         message=_("ID: %(id_)s") % {"id_": id_}
                         + "<br>"
-                        # astrein: disable=localization-named-placeholder
-                        + _("Used rules: %d") % len(rule_pack["rules"]),
+                        + _("Used rules: %(count)d") % {"count": len(rule_pack["rules"])},
                     )
                     html.icon_button(
                         delete_url, _("Delete this rule pack"), StaticIcon(IconNames.delete)
@@ -2165,8 +2162,8 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
                     elif type_ == ec.RulePackType.unmodified_mkp:
                         html.static_icon(
                             StaticIcon(IconNames.mkps),
-                            # astrein: disable=localization-named-placeholder
-                            title=_("This rule pack is provided via the MKP %s.") % id_to_mkp[id_],
+                            title=_("This rule pack is provided via the MKP %(mkp)s.")
+                            % {"mkp": id_to_mkp[id_]},
                         )
                     elif type_ == ec.RulePackType.modified_mkp:
                         html.static_icon(
@@ -2174,11 +2171,10 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
                                 IconNames.mkps,
                                 emblem="warning",
                             ),
-                            # astrein: disable=localization-named-placeholder
                             title=_(
-                                "This rule pack is modified. Originally it was provided via the MKP %s."
+                                "This rule pack is modified. Originally it was provided via the MKP %(mkp)s."
                             )
-                            % id_to_mkp[id_],
+                            % {"mkp": id_to_mkp[id_]},
                         )
 
                 if rule_pack["disabled"]:
@@ -2226,10 +2222,9 @@ class ModeEventConsoleRulePacks(ABCEventConsoleMode):
                             if cancelling:
                                 msg += _(", first match is a cancelling match")
                             if groups:
-                                # astrein: disable=localization-named-placeholder
-                                msg += _(", match groups of decisive match: %s") % ",".join(
-                                    [g or _("&lt;None&gt;") for g in groups]
-                                )
+                                msg += _(", match groups of decisive match: %(groups)s") % {
+                                    "groups": ",".join([g or _("&lt;None&gt;") for g in groups])
+                                }
                             if have_match:
                                 msg += _(
                                     ", but it is overruled by a match in a previous rule pack."
@@ -2317,8 +2312,7 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
         self._rule_pack_nr, self._rule_pack = self._rule_pack_with_id(self._rule_pack_id)
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Rule pack %s") % self._rule_pack["title"]
+        return _("Rule pack %(title)s") % {"title": self._rule_pack["title"]}
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return PageMenu(
@@ -2420,12 +2414,14 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
 
                     self._add_change(
                         action_name="move-rule-to-pack",
-                        # astrein: disable=localization-named-placeholder
-                        text=_("Moved rule %s to pack %s") % (rule["id"], other_pack["id"]),
+                        text=_("Moved rule %(rule)s to pack %(pack)s")
+                        % {"rule": rule["id"], "pack": other_pack["id"]},
                         pending_changes=pending_changes,
                     )
-                    # astrein: disable=localization-named-placeholder
-                    flash(_("Moved rule %s to pack %s") % (rule["id"], other_pack["title"]))
+                    flash(
+                        _("Moved rule %(rule)s to pack %(pack)s")
+                        % {"rule": rule["id"], "pack": other_pack["title"]}
+                    )
                     return None
 
         if self._event_simulation_action():
@@ -2441,8 +2437,7 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
 
             self._add_change(
                 action_name="delete-rule",
-                # astrein: disable=localization-named-placeholder
-                text=_("Deleted rule %s") % rules[nr]["id"],
+                text=_("Deleted rule %(rule_id)s") % {"rule_id": rules[nr]["id"]},
                 pending_changes=pending_changes,
             )
             del rules[nr]
@@ -2476,8 +2471,7 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
 
             self._add_change(
                 action_name="move-rule",
-                # astrein: disable=localization-named-placeholder
-                text=_("Changed position of rule %s") % rule["id"],
+                text=_("Changed position of rule %(rule_id)s") % {"rule_id": rule["id"]},
                 pending_changes=pending_changes,
             )
         return redirect(self.mode_url(rule_pack=self._rule_pack_id))
@@ -2538,8 +2532,7 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
                         ],
                     ),
                     title=_("Delete rule #%(nr)d") % {"nr": nr},
-                    # astrein: disable=localization-named-placeholder
-                    message=_("ID: %s") % rule["id"],
+                    message=_("ID: %(id_)s") % {"id_": rule["id"]},
                     suffix=rule.get("description", ""),
                 )
                 drag_url = make_action_link(
@@ -2584,8 +2577,7 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
                     if not isinstance(result, ec.MatchSuccess):
                         html.static_icon(
                             StaticIcon(IconNames.hyphen),
-                            # astrein: disable=localization-named-placeholder
-                            title=_("Rule does not match: %s") % result.reason,
+                            title=_("Rule does not match: %(reason)s") % {"reason": result.reason},
                         )
                     else:
                         cancelling, groups = result.cancelling, result.match_groups
@@ -2600,10 +2592,9 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
                             icon = StaticIcon(IconNames.checkmark)
                             have_match = True
                         if groups:
-                            # astrein: disable=localization-named-placeholder
-                            msg += _(" Match groups: %s") % ",".join(
-                                [g or _("&lt;None&gt;") for g in groups]
-                            )
+                            msg += _(" Match groups: %(groups)s") % {
+                                "groups": ",".join([g or _("&lt;None&gt;") for g in groups])
+                            }
                         html.static_icon(icon, title=msg)
 
                 if rule.get("invert_matching"):
@@ -2614,9 +2605,8 @@ class ModeEventConsoleRules(ABCEventConsoleMode):
                 if rule.get("contact_groups") is not None:
                     html.static_icon(
                         StaticIcon(IconNames.contactgroups),
-                        # astrein: disable=localization-named-placeholder
-                        title=_("This rule attaches contact group(s) to the events: %s")
-                        % (", ".join(rule["contact_groups"]["groups"]) or _("(none)")),
+                        title=_("This rule attaches contact group(s) to the events: %(groups)s")
+                        % {"groups": ", ".join(rule["contact_groups"]["groups"]) or _("(none)")},
                     )
 
                 table.cell(_("ID"), HTMLWriter.render_a(rule["id"], edit_url))
@@ -2792,8 +2782,9 @@ class ModeEventConsoleEditRulePack(ABCEventConsoleMode):
     def title(self) -> str:
         if self._new:
             return _("Add rule pack")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit rule pack %s") % self._rule_packs[self._edit_nr]["id"]
+        return _("Edit rule pack %(rule_pack_id)s") % {
+            "rule_pack_id": self._rule_packs[self._edit_nr]["id"]
+        }
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         menu = make_simple_form_page_menu(
@@ -2865,8 +2856,8 @@ class ModeEventConsoleEditRulePack(ABCEventConsoleMode):
         if self._new:
             _add_change_for_sites(
                 action_name="new-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Created new rule pack with id %s") % self._rule_pack["id"],
+                text=_("Created new rule pack with id %(rule_pack_id)s")
+                % {"rule_pack_id": self._rule_pack["id"]},
                 rule_or_rulepack=self._rule_pack,
                 config_domain=self._config_domain,
                 pending_changes=pending_changes,
@@ -2874,8 +2865,8 @@ class ModeEventConsoleEditRulePack(ABCEventConsoleMode):
         else:
             _add_change_for_sites(
                 action_name="edit-rule-pack",
-                # astrein: disable=localization-named-placeholder
-                text=_("Modified rule pack %s") % self._rule_pack["id"],
+                text=_("Modified rule pack %(rule_pack_id)s")
+                % {"rule_pack_id": self._rule_pack["id"]},
                 rule_or_rulepack=self._rule_pack,
                 config_domain=self._config_domain,
                 pending_changes=pending_changes,
@@ -2952,8 +2943,9 @@ class ModeEventConsoleEditRule(ABCEventConsoleMode):
     def title(self) -> str:
         if self._new:
             return _("Add rule")
-        # astrein: disable=localization-named-placeholder
-        return _("Edit rule %s") % list(self._rule_pack["rules"])[self._edit_nr]["id"]
+        return _("Edit rule %(rule_id)s") % {
+            "rule_id": list(self._rule_pack["rules"])[self._edit_nr]["id"]
+        }
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         menu = make_simple_form_page_menu(
@@ -2993,9 +2985,10 @@ class ModeEventConsoleEditRule(ABCEventConsoleMode):
                     if r["id"] == rule["id"]:
                         raise MKUserError(
                             "rule_p_id",
-                            # astrein: disable=localization-named-placeholder
-                            _("A rule with this ID already exists in rule pack <b>%s</b>.")
-                            % pack["title"],
+                            _(
+                                "A rule with this ID already exists in rule pack <b>%(pack_title)s</b>."
+                            )
+                            % {"pack_title": pack["title"]},
                         )
         try:
             with warnings.catch_warnings(action="error", category=FutureWarning):
@@ -3196,15 +3189,16 @@ class ModeEventConsoleStatus(ABCEventConsoleMode):
         if repl_mode in ["sync", "takeover"]:
             html.open_li()
             html.write_text_permissive(
-                # astrein: disable=localization-named-placeholder
-                _("Status of last synchronization: <b>%s</b>")
-                % (status["status_replication_success"] and _("Success") or _("Failed!"))
+                _("Status of last synchronization: <b>%(status)s</b>")
+                % {"status": status["status_replication_success"] and _("Success") or _("Failed!")}
             )
             html.close_li()
             last_sync = status["status_replication_last_sync"]
             if last_sync:
-                # astrein: disable=localization-named-placeholder
-                html.li(_("Last successful sync %d seconds ago.") % (time.time() - last_sync))
+                html.li(
+                    _("Last successful sync %(seconds)d seconds ago.")
+                    % {"seconds": time.time() - last_sync}
+                )
             else:
                 html.li(_("No successful synchronization so far."))
 
@@ -3260,8 +3254,9 @@ class ModeEventConsoleSettings(ABCEventConsoleMode, ABCGlobalSettingsMode):
 
     def title(self) -> str:
         if self._search:
-            # astrein: disable=localization-named-placeholder
-            return html_escape(_("Event Console configuration matching '%s'") % self._search)
+            return html_escape(
+                _("Event Console configuration matching '%(search)s'") % {"search": self._search}
+            )
         return _("Event Console configuration")
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -3305,11 +3300,10 @@ class ModeEventConsoleSettings(ABCEventConsoleMode, ABCGlobalSettingsMode):
             self._current_settings[varname] = not self._current_settings[varname]
         else:
             self._current_settings[varname] = not def_value
-        # astrein: disable=localization-named-placeholder
-        msg = _("Changed Configuration variable %s to %s.") % (
-            varname,
-            self._current_settings[varname] and _("on") or _("off"),
-        )
+        msg = _("Changed Configuration variable %(varname)s to %(value)s.") % {
+            "varname": varname,
+            "value": self._current_settings[varname] and _("on") or _("off"),
+        }
 
         save_global_settings(self._current_settings)
 
@@ -3572,8 +3566,7 @@ class ModeEventConsoleMIBs(ABCEventConsoleMode):
                             request, [("mode", "mkeventd_mibs"), ("_delete", filename)]
                         ),
                         title=_("Delete MIB file"),
-                        # astrein: disable=localization-named-placeholder
-                        message=_("File name: %s") % str(filename),
+                        message=_("File name: %(filename)s") % {"filename": str(filename)},
                         suffix=mib.name,
                     )
                     html.icon_button(delete_url, _("Delete this MIB"), StaticIcon(IconNames.delete))
@@ -3803,15 +3796,15 @@ class ModeEventConsoleUploadMIBs(ABCEventConsoleMode):
         for name, mib_status in sorted(results.items()):
             if mibname == name and mib_status == "failed":
                 raise Exception(
-                    # astrein: disable=localization-named-placeholder
-                    _("Failed to compile your module: %s") % getattr(mib_status, "error")
+                    _("Failed to compile your module: %(error)s")
+                    % {"error": getattr(mib_status, "error")}
                 )
             if mib_status == "missing":
                 errors.append(_("%(name)s - Dependency missing") % {"name": name})
             elif mib_status == "failed":
                 errors.append(
-                    # astrein: disable=localization-named-placeholder
-                    _("%s - Failed to compile (%s)") % (name, getattr(mib_status, "error"))
+                    _("%(name)s - Failed to compile (%(error)s)")
+                    % {"name": name, "error": getattr(mib_status, "error")}
                 )
         msg = _("MIB file %(mibname)s uploaded.") % {"mibname": mibname}
         if errors:
@@ -4098,10 +4091,9 @@ ConfigVariableEventConsoleRemoteStatus = ConfigVariable(
             ],
         ),
         title=_("Access to event status via TCP"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "In graphical user interface (GUI) setups, if you want "
-            '<a href="%s">event status checks</a> for hosts that live on a '
+            '<a href="%(url)s">event status checks</a> for hosts that live on a '
             "remote site you need to activate remote access to the event "
             "status socket via TCP. This allows to query the current event "
             "status via TCP. If you do not restrict this to queries also "
@@ -4109,7 +4101,7 @@ ConfigVariableEventConsoleRemoteStatus = ConfigVariable(
             "used by the event status checks nor by GUI, so we propose "
             "not allowing commands via TCP."
         )
-        % "wato.py?mode=edit_ruleset&varname=active_checks%3Amkevents",
+        % {"url": "wato.py?mode=edit_ruleset&varname=active_checks%3Amkevents"},
         none_label=_("no access via TCP"),
     ),
 )
@@ -4772,12 +4764,11 @@ ConfigVariableEventConsoleLogLevel = ConfigVariable(
     ident="log_level",
     valuespec=lambda context: Dictionary(
         title=_("Log level"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "You can configure the Event Console to log more details about its actions. "
-            "This information is logged into the file <tt>%s</tt>."
+            "This information is logged into the file <tt>%(path)s</tt>."
         )
-        % site_neutral_path(cmk.utils.paths.log_dir / "mkeventd.log"),
+        % {"path": site_neutral_path(cmk.utils.paths.log_dir / "mkeventd.log")},
         elements=_ec_log_level_elements(),
         optional_keys=[],
     ),
@@ -5227,22 +5218,18 @@ ActiveCheckMKEventsRulespec = HostRulespec(
 
 
 def _sl_help() -> str:
-    return (
-        # astrein: disable=localization-named-placeholder
-        _(
-            "A service level is a number that describes the business impact of a host or "
-            "service. This level can be used in rules for notifications, as a filter in "
-            "views or as a criteria in rules for the Event Console. A higher service level "
-            "is assumed to be more business critical. This rule set allows to assign service "
-            "levels to hosts and/or services. Note: if you assign a service level to "
-            "a host with the rule set <i>Service level of hosts</i>, then this level is "
-            "inherited to all services that do <b>not</b> have explicitly assigned a service "
-            "with the rule set <i>Service level of services</i>. Assigning no service level "
-            "is equal to defining a level of 0.<br><br>The list of available service "
-            "levels is configured via a <a href='%s'>global option.</a>"
-        )
-        % "wato.py?varname=mkeventd_service_levels&mode=edit_configvar"
-    )
+    return _(
+        "A service level is a number that describes the business impact of a host or "
+        "service. This level can be used in rules for notifications, as a filter in "
+        "views or as a criteria in rules for the Event Console. A higher service level "
+        "is assumed to be more business critical. This rule set allows to assign service "
+        "levels to hosts and/or services. Note: if you assign a service level to "
+        "a host with the rule set <i>Service level of hosts</i>, then this level is "
+        "inherited to all services that do <b>not</b> have explicitly assigned a service "
+        "with the rule set <i>Service level of services</i>. Assigning no service level "
+        "is equal to defining a level of 0.<br><br>The list of available service "
+        "levels is configured via a <a href='%(url)s'>global option.</a>"
+    ) % {"url": "wato.py?varname=mkeventd_service_levels&mode=edit_configvar"}
 
 
 def _valuespec_extra_host_conf__ec_sl() -> DropdownChoice:
@@ -5544,8 +5531,8 @@ def query_ec_directly(query: bytes, connect_timeout: int) -> dict[str, Any]:
 
     except Exception as e:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Cannot connect to event daemon via %s: %s") % (_socket_path(), e)
+            _("Cannot connect to event daemon via %(socket_path)s: %(error)s")
+            % {"socket_path": _socket_path(), "error": e}
         )
 
 
@@ -5563,8 +5550,7 @@ def form_spec() -> DictionaryExtended:
                     ),
                     elements=[
                         SingleChoiceElementExtended(
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("%s") % title,
+                            title=Title("%(title)s") % {"title": title},
                             name=ident,
                         )
                         for ident, title in syslog_facilities

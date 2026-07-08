@@ -1302,16 +1302,15 @@ PermissionECUpdateContact = Permission(
 class ECCommand(Command):
     def affected(self, len_action_rows: int, cmdtag: Literal["HOST", "SVC"]) -> HTML:
         return HTML.with_escaping(
-            # astrein: disable=localization-named-placeholder
-            _("Affected %s: %s")
-            % (
-                ungettext(
+            _("Affected %(event_label)s: %(count)s")
+            % {
+                "event_label": ungettext(
                     "event",
                     "events",
                     len_action_rows,
                 ),
-                len_action_rows,
-            )
+                "count": len_action_rows,
+            }
         )
 
     def executor(self, command: CommandSpec, site: SiteId | None) -> None:
@@ -1422,14 +1421,15 @@ def command_change_state_confirm_dialog_additions(
     return (
         HTMLWriter.render_br()
         + HTMLWriter.render_br()
-        # astrein: disable=localization-named-placeholder
-        + _("New state: %s")
+        + _("New state: %(state)s")
         % {
-            0: _("OK"),
-            1: _("WARN"),
-            2: _("CRIT"),
-            3: _("UNKNOWN"),
-        }[value]
+            "state": {
+                0: _("OK"),
+                1: _("WARN"),
+                2: _("CRIT"),
+                3: _("UNKNOWN"),
+            }[value]
+        }
     )
 
 
@@ -1518,8 +1518,8 @@ CommandECCustomAction = ECCommand(
     ident="ec_custom_actions",
     title=_l("Custom action"),
     confirm_title=lambda: (
-        # astrein: disable=localization-named-placeholder
-        _l("Execute custom action '%s'?") % list(active_request.itervars(prefix="_action_"))[0][1]
+        _l("Execute custom action '%(action)s'?")
+        % {"action": list(active_request.itervars(prefix="_action_"))[0][1]}
     ),
     confirm_button=_l("Execute"),
     permission=PermissionECCustomActions,
@@ -1586,10 +1586,9 @@ def command_archive_events_of_host_confirm_dialog_additions(
     row: Row,
     action_rows: Rows,
 ) -> HTML:
-    # astrein: disable=localization-named-placeholder
     return HTML.empty() + _(
-        "All events of the host '%s' will be removed from the open events list. You can still access them in the archive."
-    ) % active_request.var("host")
+        "All events of the host '%(host)s' will be removed from the open events list. You can still access them in the archive."
+    ) % {"host": active_request.var("host")}
 
 
 def command_archive_events_of_host_render(what: str) -> None:

@@ -76,8 +76,7 @@ def _render_mkeventd_icon(
         ("host", row["host_name"]),
     ]
 
-    # astrein: disable=localization-named-placeholder
-    title = _("Events of host %s") % (row["host_name"])
+    title = _("Events of host %(host_name)s") % {"host_name": row["host_name"]}
 
     if len(args) >= 2:
         app = args[1].strip("'").replace("\\\\", "\\").replace("\\!", "!")
