@@ -163,13 +163,11 @@ def common(protocol: str, port_defaults: str) -> Dictionary:
     oauth, email_options = _oauth2_options() if protocol == "EWS" else ((), {})
 
     return Dictionary(
-        # astrein: disable=localization-named-placeholder
-        title=Title("%s") % protocol,
+        title=Title("%(protocol)s") % {"protocol": protocol},
         elements={
             "server": DictElement(
                 parameter_form=String(
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("%s server") % protocol,
+                    title=Title("%(protocol)s server") % {"protocol": protocol},
                     macro_support=True,
                     help_text=Help(
                         "You can specify a host name or IP address different from the IP "
@@ -197,9 +195,8 @@ def common(protocol: str, port_defaults: str) -> Dictionary:
                         "port": DictElement(
                             parameter_form=Integer(
                                 title=Title("TCP Port"),
-                                # astrein: disable=localization-named-placeholder
-                                label=Label("(default is %r for %s/TLS)")
-                                % (port_defaults, protocol),
+                                label=Label("(default is %(port_defaults)r for %(protocol)s/TLS)")
+                                % {"port_defaults": port_defaults, "protocol": protocol},
                                 custom_validate=(validators.NetworkPort(),),
                             )
                         ),
@@ -247,11 +244,10 @@ def _validate_common(params: Mapping[str, object]) -> None:
     match params:
         case {"auth": ("oauth2", _value), **rest} if "email_address" not in rest:
             raise ValueError(
-                # astrein: disable=localization-named-placeholder
                 Message(
-                    "With authentication type set to 'OAuth2' the option '%s' must be specified."
+                    "With authentication type set to 'OAuth2' the option '%(option)s' must be specified."
                 )
-                % Message("Email address used for account identification")
+                % {"option": Message("Email address used for account identification")}
             )
 
 
