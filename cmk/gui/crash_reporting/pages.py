@@ -134,8 +134,7 @@ class PageCrash(Page):
     @override
     def page(self, ctx: PageContext) -> None:
         report = CrashReport.build(ctx.request, CrashReportsRowTable())
-        # astrein: disable=localization-named-placeholder
-        title = _("Crash report: %s") % report.crash_id
+        title = _("Crash report: %(crash_id)s") % {"crash_id": report.crash_id}
 
         permissions = UserPermissions.from_config(ctx.config, permission_registry)
         breadcrumb = self._breadcrumb(ctx.request, title, permissions)
@@ -475,12 +474,11 @@ class PageCrash(Page):
             time_text: str = first_seen
         else:
             last_seen = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(crash_time["last_seen"]))
-            # astrein: disable=localization-named-placeholder
-            time_text = _("First: %s, last: %s (%d occurrences)") % (
-                first_seen,
-                last_seen,
-                crash_time["count"],
-            )
+            time_text = _("First: %(first_seen)s, last: %(last_seen)s (%(count)d occurrences)") % {
+                "first_seen": first_seen,
+                "last_seen": last_seen,
+                "count": crash_time["count"],
+            }
         _crash_row(
             _("Time"),
             time_text,
@@ -553,9 +551,10 @@ class ReportRendererGeneric(ABCReportRenderer):
 
         html.h3(_("Details"), class_="table")
         html.p(
-            # astrein: disable=localization-named-placeholder
-            _("No detail renderer for crash of type '%s' available. Details structure is:")
-            % crash_info["crash_type"]
+            _(
+                "No detail renderer for crash of type '%(crash_type)s' available. Details structure is:"
+            )
+            % {"crash_type": crash_info["crash_type"]}
         )
         html.pre(pprint.pformat(crash_info["details"]))
 
@@ -696,8 +695,11 @@ class ReportRendererCheck(ABCReportRenderer):
 
         section_keys = [k for k in details if k == "section" or k.startswith("section_")]
         for key in section_keys:
-            # astrein: disable=localization-named-placeholder
-            title = _("Section") if key == "section" else _("Section: %s") % key[len("section_") :]
+            title = (
+                _("Section")
+                if key == "section"
+                else _("Section: %(section_name)s") % {"section_name": key[len("section_") :]}
+            )
             _crash_row(title, _format_log_output(pprint.pformat(details[key]).encode()))
 
         html.close_table()
