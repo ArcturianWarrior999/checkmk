@@ -61,14 +61,13 @@ class HelperExecutor(AutomationExecutor):
             response = session.post(f"{self._BASE_URL}/automation", json=payload)
         except requests.ConnectionError as e:
             raise AutomationHelperUnavailable(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "Could not connect to automation helper. "
                     "Possibly the service <tt>automation-helper</tt> is not started, "
                     "please make sure that all site services are started. "
-                    "Tried to connect via <tt>%s</tt>. Reported error was: %s."
+                    "Tried to connect via <tt>%(socket_path)s</tt>. Reported error was: %(error)s."
                 )
-                % (self._SOCKET_PATH, e)
+                % {"socket_path": self._SOCKET_PATH, "error": e}
             )
         response.raise_for_status()
         response_data = AutomationResponse.model_validate(response.json())
