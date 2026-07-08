@@ -2829,6 +2829,10 @@ msgid "API (via Unix socket)"
 msgstr "Accès par socket UNIX"
 
 #, fuzzy
+msgid "API access token"
+msgstr "Token d'accès à l'API"
+
+#, fuzzy
 msgid "API cache is disabled."
 msgstr "Le graphique est désactivé"
 
@@ -3749,7 +3753,7 @@ msgstr ""
 "Activez la surveillance de l'hôte via une connexion HTTP au HiveManager"
 
 #, fuzzy
-msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
+msgid "Activate monitoring of the HiveManagerNG cloud."
 msgstr "Activez la surveillance du nuage HiveManagerNG."
 
 msgid "Activate on selected sites"
@@ -5061,8 +5065,8 @@ msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
 #, fuzzy
-msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
-msgstr "Aerohive HiveManager NG"
+msgid "Aerohive HiveManager NG"
+msgstr "Aerohive HiveManager"
 
 #, python-format
 msgid "Affected %s: %s"
@@ -7876,6 +7880,10 @@ msgstr "Port FC Atto Fibrebridge"
 msgid "Attribute"
 msgstr "Attribut"
 
+#, fuzzy
+msgid "Attribute Sync Connections"
+msgstr "Connexions actives"
+
 msgid "Attribute match value"
 msgstr "Valeur correspondant à l'attribut"
 
@@ -9838,10 +9846,6 @@ msgstr "OID de base"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "URL de base pour le moteur API de Docker"
-
-msgid ""
-"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
-msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -11974,6 +11978,14 @@ msgstr ""
 msgid ""
 "Cannot activate changes, the peer-to-peer connection %(connection_id)s is "
 "between sites of different customers."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot assign this connection to customer %(customer)s. The following sites "
+"use it for login (authentication connections) but belong to a different "
+"customer: %(sites)s. Remove the connection from the configuration of these "
+"sites first."
 msgstr ""
 
 #, python-format
@@ -22970,6 +22982,10 @@ msgstr "Modifier la collection de graphiques"
 msgid "Edit graph tuning"
 msgstr "Modifier le réglage du graphique"
 
+#, fuzzy
+msgid "Edit host"
+msgstr "Modifier cet hôte"
+
 msgid "Edit host attribute"
 msgstr "Modifier l'attribut hôte"
 
@@ -25635,14 +25651,6 @@ msgid ""
 msgstr ""
 "Extrait les données de performance de la SGA dans un service séparé et "
 "affiche en plus les données de performance de la PGA"
-
-#, fuzzy
-msgid "ExtremeCloud IQ password"
-msgstr "Entrez le mot de passe de l'utilisateur"
-
-#, fuzzy
-msgid "ExtremeCloud IQ username"
-msgstr "Entrer le nom de l'utilisateur"
 
 msgid "Extremes only"
 msgstr "Les extrêmes seulement"
@@ -35494,6 +35502,10 @@ msgstr "Par rapport à l'intervalle normal de contrôle"
 
 msgid "In relation to standard deviation"
 msgstr "Par rapport à l'écart-type"
+
+#, fuzzy
+msgid "In scheduled downtime"
+msgstr "Ignorer les temps d'arrêt programmés"
 
 #, fuzzy
 msgid "In service details"
@@ -47978,6 +47990,9 @@ msgstr "Nombre à créer"
 msgid "Numeric value"
 msgstr "Valeur numérique"
 
+msgid "Numerical ID of the VHM, e.g. 102"
+msgstr "ID numérique du VHM, par exemple 102"
+
 #, fuzzy
 msgid "Nutanix Cluster CPU utilization"
 msgstr "Utilisation des clusters"
@@ -51986,10 +52001,8 @@ msgid "Periodic service discovery"
 msgstr "Découverte périodique des services"
 
 msgid ""
-"Periodic user attribute synchronization keeps user attributes (alias, email, "
-"roles, contact groups) up to date on this site. This is primarily relevant "
-"for LDAP connections. SAML connections update attributes only when a user "
-"logs in, so they do not need to be listed here."
+"Periodic user attribute synchronization keeps existing user attributes "
+"(alias, email, roles, contact groups) up to date on this site."
 msgstr ""
 
 #, fuzzy
@@ -55338,6 +55351,9 @@ msgstr "Découverte du compteur MSSQL"
 msgid "Redirect URI"
 msgstr "Bénéficiaire"
 
+msgid "Redirect URL (has to be https)"
+msgstr "URL de redirection (doit être https)"
+
 msgid "Redis clients"
 msgstr "Clients Redis"
 
@@ -57373,6 +57389,10 @@ msgid ""
 "note that the subscription ID is not needed if you intend to only monitor "
 "resources through the Graph API."
 msgstr ""
+
+#, fuzzy
+msgid "Return to standard view"
+msgstr "Par rapport à l'écart-type"
 
 msgid ""
 "Returns the current state of DCD cycles and batches. Executes the commands "
@@ -59471,9 +59491,10 @@ msgid ""
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP and SAML connections. Each SAML entry may optionally override "
-"the SP entity ID, which is useful when multiple sites share the same SAML "
-"connection but need to be registered separately at the IdP."
+"specific LDAP and SAML connections. <br>Authentication connections are "
+"responsible of creating the user and the initial user setup.<br>SAML "
+"connection are only authorized to overwrite user attributes if no other "
+"Attribute Sync Connection is configured for that user."
 msgstr ""
 
 msgid ""
@@ -59481,7 +59502,8 @@ msgid ""
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP connections."
+"specific LDAP connections.<br>Authentication connections are responsible of "
+"creating the user and the initial user setup."
 msgstr ""
 
 #, fuzzy
@@ -65812,7 +65834,7 @@ msgid "Sync attributes for all LDAP connections"
 msgstr "Synchronisation avec les connexions LDAP suivantes"
 
 #, fuzzy
-msgid "Sync attributes only for the following connections"
+msgid "Sync attributes only for the following LDAP connections"
 msgstr "Synchronisation avec les connexions LDAP suivantes"
 
 #, fuzzy
@@ -76603,6 +76625,14 @@ msgstr ""
 "Cet élément de la barre latérale est uniquement disponible sur le site "
 "central du gestionnaire."
 
+#, python-format
+msgid ""
+"This site belongs to customer %(customer)s but uses the following login "
+"connections (authentication connections) that belong to a different "
+"customer: %(connections)s. Remove these connections from the site or assign "
+"them to a matching customer first."
+msgstr ""
+
 msgid "This site does not exist."
 msgstr "Ce site n'existe pas."
 
@@ -81232,6 +81262,10 @@ msgid "Try pattern match"
 msgstr "Essayer de faire correspondre les motifs"
 
 #, fuzzy
+msgid "Try the new \"All hosts\" view"
+msgstr "Tous les hôtes"
+
+#, fuzzy
 msgid "Try to detect MSSQL instances present on server"
 msgstr ""
 "Nécessaire uniquement si vous avez plusieurs instances MySQL sur un serveur"
@@ -81532,6 +81566,9 @@ msgstr "Préfixe d'URL pour les liens vers Checkmk"
 #, fuzzy
 msgid "URL server address"
 msgstr "Adresse URL personnalisée du serveur"
+
+msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+msgstr "URL vers HiveManagerNG, par exemple https://cloud.aerohive.com"
 
 #, fuzzy
 msgid ""
@@ -84539,10 +84576,6 @@ msgstr "Utilisateur et mot de passe"
 #, fuzzy
 msgid "User asserts"
 msgstr "%s Assertions"
-
-#, fuzzy
-msgid "User attribute synchronization"
-msgstr "Synchronisation des utilisateurs"
 
 msgid "User base DN"
 msgstr "Base d'utilisateurs DN"
@@ -97532,6 +97565,10 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Modes"
+msgstr "Modems"
+
+#, fuzzy
 msgid "Number of services in OK state"
 msgstr "Nombre de services dans l'État OK"
 
@@ -97554,6 +97591,9 @@ msgstr "Nombre de services dans l'État OK"
 #, fuzzy
 msgid "Unhandled Problems"
 msgstr "Problèmes d'hôte non gérés"
+
+msgid "Give feedback on the new view"
+msgstr ""
 
 #, fuzzy
 msgid "Search hosts…"
@@ -98724,26 +98764,29 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-#~ msgid "API access token"
-#~ msgstr "Token d'accès à l'API"
+#~ msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
+#~ msgstr "Aerohive HiveManager NG"
+
+#, fuzzy
+#~ msgid "ExtremeCloud IQ password"
+#~ msgstr "Entrez le mot de passe de l'utilisateur"
+
+#, fuzzy
+#~ msgid "ExtremeCloud IQ username"
+#~ msgstr "Entrer le nom de l'utilisateur"
+
+#, fuzzy
+#~ msgid "User attribute synchronization"
+#~ msgstr "Synchronisation des utilisateurs"
 
 #~ msgid "Name of the enclosure, e.g. Enclosure 1"
 #~ msgstr "Nom de l'enceinte, par ex. enceinte 1"
-
-#~ msgid "Numerical ID of the VHM, e.g. 102"
-#~ msgstr "ID numérique du VHM, par exemple 102"
 
 #~ msgid ""
 #~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
 #~ msgstr ""
 #~ "Veuillez saisir <tt>Drives</tt>, <tt>Mdisques</tt> ou <tt>VDisques</tt> "
 #~ "ici."
-
-#~ msgid "Redirect URL (has to be https)"
-#~ msgstr "URL de redirection (doit être https)"
-
-#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-#~ msgstr "URL vers HiveManagerNG, par exemple https://cloud.aerohive.com"
 
 #~ msgid "active hosts"
 #~ msgstr "hôtes actifs"
@@ -107828,10 +107871,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Changes activated"
 #~ msgstr "N'a jamais été activé"
-
-#, fuzzy
-#~ msgid "Go to \"All hosts\""
-#~ msgstr "Tous les hôtes"
 
 #~ msgid "Another omd config change job is already running."
 #~ msgstr ""

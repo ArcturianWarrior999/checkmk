@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
 "Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2026-07-07 13:22+0000\n"
+"PO-Revision-Date: 2026-07-08 14:52+0000\n"
 "Language-Team: German <https://translate.checkmk.com/projects/checkmk/dev/"
 "de/>\n"
 "Language: de\n"
@@ -1857,17 +1857,17 @@ msgstr ""
 "100 % ausgelastet ist, werden die Checks nicht rechtzeitig ausgeführt, die "
 "Latenzzeit für die Checks steigt und die Zustände sind nicht mehr aktuell.</"
 "p><p>Mögliche Aktionen:<ul><li>Prüfen Sie, ob Sie die Check-Timeouts "
-"verringen können</li><li>Prüfen Sie, welche Checks/Plugins <a "
-"href=\"view.py?view_name=service_check_durations\">viel Zeit der Helper-"
-"Prozesse verbrauchen</a></li><li>Erhöhen Sie die <a "
-"href=\"wato.py?mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der "
-"Checkmk Checker-Prozesse</a></li></ul></p><p>Sie müssen jedoch darauf "
-"achten, dass Sie nicht zu viele Checkmk-Checker-Helper konfigurieren, da "
-"diese sehr viel Speicher verbrauchen. Ihr System muss in der Lage sein, den "
-"Speicherbedarf für alle auf einmal zu bewältigen. Ein weiteres Problem "
-"besteht darin, dass die Checkmk-Helper beim Start des Micro Core parallel "
-"initialisiert werden, was zu Lastspitzen führen kann, wenn viele Checkmk-"
-"Helper-Prozesse konfiguriert sind.</p>"
+"verringen können</li><li>Prüfen Sie, welche Checks/Plugins <a href=\"view.py?"
+"view_name=service_check_durations\">viel Zeit der Helper-Prozesse "
+"verbrauchen</a></li><li>Erhöhen Sie die <a href=\"wato.py?"
+"mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der Checkmk Checker-"
+"Prozesse</a></li></ul></p><p>Sie müssen jedoch darauf achten, dass Sie nicht "
+"zu viele Checkmk-Checker-Helper konfigurieren, da diese sehr viel Speicher "
+"verbrauchen. Ihr System muss in der Lage sein, den Speicherbedarf für alle "
+"auf einmal zu bewältigen. Ein weiteres Problem besteht darin, dass die "
+"Checkmk-Helper beim Start des Micro Core parallel initialisiert werden, was "
+"zu Lastspitzen führen kann, wenn viele Checkmk-Helper-Prozesse konfiguriert "
+"sind.</p>"
 
 #, no-python-format
 msgid ""
@@ -1896,10 +1896,10 @@ msgstr ""
 "aktuell.</p><p>Mögliche Aktionen:<ul><li>Prüfen Sie, ob Sie die Check-"
 "Timeouts verringern können</li><li>Prüfen Sie, welche Checks/Plugins <a "
 "href=\"view.py?view_name=service_check_durations\">viel Zeit der Helper-"
-"Prozesse verbrauchen</a></li><li>Erhöhen Sie die <a "
-"href=\"wato.py?mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der "
-"Checkmk-Fetcher</a></li></ul></p><p>Sie müssen jedoch darauf achten, dass "
-"Sie nicht zu viele Checkmk-Fetcher-Helper konfigurieren, da diese Ressourcen "
+"Prozesse verbrauchen</a></li><li>Erhöhen Sie die <a href=\"wato.py?"
+"mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der Checkmk-"
+"Fetcher</a></li></ul></p><p>Sie müssen jedoch darauf achten, dass Sie nicht "
+"zu viele Checkmk-Fetcher-Helper konfigurieren, da diese Ressourcen "
 "verbrauchen. Ein zusätzliches Problem ist, dass die Checkmk-Fetcher beim "
 "Start des Micro Core parallel initialisiert werden, was zu Lastspitzen "
 "führen kann, wenn viele Checkmk-Helper-Prozesse konfiguriert sind.</p>"
@@ -1930,17 +1930,16 @@ msgstr ""
 "ausgelastet ist, werden die Checks nicht rechtzeitig ausgeführt, die "
 "Latenzzeit für die Checks steigt und die Zustände sind nicht mehr aktuell.</"
 "p><p>Mögliche Aktionen:<ul><li>Prüfen Sie, ob Sie die Check-Timeouts "
-"verringen können</li><li>Prüfen Sie, welche Checks/Plugins <a "
-"href=\"view.py?view_name=service_check_durations\">viel Zeit der Helper-"
-"Prozesse verbrauchen</a></li><li>Erhöhen Sie die <a "
-"href=\"wato.py?mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der "
-"Checkmk-Helper</a></li></ul></p><p>Sie müssen jedoch darauf achten, dass Sie "
-"nicht zu viele Checkmk-Check-Helper konfigurieren, da diese viel Speicher "
-"verbrauchen. Ihr System muss in der Lage sein, den Speicherbedarf für alle "
-"auf einmal zu bewältigen. Ein weiteres Problem besteht darin, dass die "
-"Checkmk-Helper beim Start des Micro Core parallel initialisiert werden, was "
-"zu Lastspitzen führen kann, wenn viele Checkmk-Helper-Prozesse konfiguriert "
-"sind.</p>"
+"verringen können</li><li>Prüfen Sie, welche Checks/Plugins <a href=\"view.py?"
+"view_name=service_check_durations\">viel Zeit der Helper-Prozesse "
+"verbrauchen</a></li><li>Erhöhen Sie die <a href=\"wato.py?"
+"mode=edit_configvar&varname=cmc_checker_helpers\">Anzahl der Checkmk-Helper</"
+"a></li></ul></p><p>Sie müssen jedoch darauf achten, dass Sie nicht zu viele "
+"Checkmk-Check-Helper konfigurieren, da diese viel Speicher verbrauchen. Ihr "
+"System muss in der Lage sein, den Speicherbedarf für alle auf einmal zu "
+"bewältigen. Ein weiteres Problem besteht darin, dass die Checkmk-Helper beim "
+"Start des Micro Core parallel initialisiert werden, was zu Lastspitzen "
+"führen kann, wenn viele Checkmk-Helper-Prozesse konfiguriert sind.</p>"
 
 #, no-python-format
 msgid ""
@@ -2057,12 +2056,12 @@ msgstr ""
 "enthalten. In diesem Fall muss das Pattern ein regulärer Ausdruck mit dem "
 "Präfix ~ sein. Für jedes <tt>%s</tt> in der Beschreibung muss der Ausdruck "
 "eine \"Gruppe\" enthalten. Eine Gruppe ist ein in Klammern eingeschlossener "
-"Teilausdruck, zum Beispiel <tt>(.*)</tt> oder <tt>([a-zA-Z]+)</tt> oder <tt>"
-"(...)</tt>. Wenn das Inventar einen Task findet, der dem Pattern entspricht, "
-"ersetzt es bei der Erstellung des Checks alle solchen Gruppen durch die "
-"tatsächlichen Werte. Auf diese Weise kann eine Regel mehrere Checks für "
-"einen Host erstellen.</p><p>Wenn das Pattern mehr Gruppen enthält als "
-"Vorkommen von <tt>%s</tt> im Service-Namen, werden nur die ersten "
+"Teilausdruck, zum Beispiel <tt>(.*)</tt> oder <tt>([a-zA-Z]+)</tt> oder "
+"<tt>(...)</tt>. Wenn das Inventar einen Task findet, der dem Pattern "
+"entspricht, ersetzt es bei der Erstellung des Checks alle solchen Gruppen "
+"durch die tatsächlichen Werte. Auf diese Weise kann eine Regel mehrere "
+"Checks für einen Host erstellen.</p><p>Wenn das Pattern mehr Gruppen enthält "
+"als Vorkommen von <tt>%s</tt> im Service-Namen, werden nur die ersten "
 "übereinstimmenden Teilausdrücke für den Service-Namen verwendet. Die "
 "übereinstimmenden Teilausdrücke der übrigen Gruppen werden jedoch in den "
 "regulären Ausdruck übernommen.</p><p>Alternativ zu <tt>%s</tt> können Sie "
@@ -2121,14 +2120,14 @@ msgstr ""
 "(reguläre Ausdrücke) definieren. Diese Patterns werden auf die ausgewählten "
 "Log-Dateien angewendet, um die übereinstimmenden Log-Meldungen neu zu "
 "klassifizieren. Das erste Pattern, das mit einer Zeile übereinstimmt, wird "
-"zur Neuklassifizierung einer Meldung verwendet. Mit dem <a "
-"href=\"wato.py?mode=pattern_editor\">Log-Datei-Pattern-Analysator</a> können "
-"Sie die hier definierten Regeln testen. </p><p>Beachten Sie, dass Sie zur "
-"Suche nach einem speziellen Regex-Zeichen in Ihren Patterns einen Backslash "
-"verwenden müssen, um dessen Spezialbedeutung zu umgehen. Dies ist "
-"insbesondere für Windows-Dateipfade relevant. Um beispielsweise den Windows-"
-"Pfad „C:\\Users\\amdin\\Desktop“ abzugleichen, geben Sie „C:\\\\Users\\\\a"
-"dmin\\\\Desktop“ ein. </p><p>Wählen Sie als Status \"Ignorieren\", um die "
+"zur Neuklassifizierung einer Meldung verwendet. Mit dem <a href=\"wato.py?"
+"mode=pattern_editor\">Log-Datei-Pattern-Analysator</a> können Sie die hier "
+"definierten Regeln testen. </p><p>Beachten Sie, dass Sie zur Suche nach "
+"einem speziellen Regex-Zeichen in Ihren Patterns einen Backslash verwenden "
+"müssen, um dessen Spezialbedeutung zu umgehen. Dies ist insbesondere für "
+"Windows-Dateipfade relevant. Um beispielsweise den Windows-Pfad „C:"
+"\\Users\\amdin\\Desktop“ abzugleichen, geben Sie „C:\\\\Users\\\\admin\\"
+"\\Desktop“ ein. </p><p>Wählen Sie als Status \"Ignorieren\", um die "
 "übereinstimmenden Logs zu löschen. Bei anderen Status werden die Log-"
 "Einträge beibehalten, aber ihr Status wird neu klassifiziert.</p>"
 
@@ -2825,6 +2824,9 @@ msgstr "APC Automatischer Transfer-Switch-Ausgang"
 
 msgid "API (via Unix socket)"
 msgstr "API (über Unix-Socket)"
+
+msgid "API access token"
+msgstr "API Zugriffstoken"
 
 msgid "API cache is disabled."
 msgstr "API-Cache ist deaktiviert."
@@ -3661,7 +3663,8 @@ msgid "Activate monitoring of host via a HTTP connect to the HiveManager"
 msgstr ""
 "Monitoring eines Hosts durch einen HTTP-Zugang zum HiveManager aktivieren"
 
-msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
+#, fuzzy
+msgid "Activate monitoring of the HiveManagerNG cloud."
 msgstr ""
 "Aktivieren des Monitorings für die ExtremeCloud IQ (HiveManager NG) Cloud."
 
@@ -4902,8 +4905,9 @@ msgstr "Erneute Authentifizierung vor Beendigung empfehlen"
 msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
-msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
-msgstr "Aerohive HiveManager NG / ExtremeCloud IQ"
+#, fuzzy
+msgid "Aerohive HiveManager NG"
+msgstr "Aerohive HiveManager"
 
 #, python-format
 msgid "Affected %s: %s"
@@ -5154,7 +5158,7 @@ msgid "Age of last log backup"
 msgstr "Alter der letzten Log-Sicherung"
 
 msgid "Age of last operation"
-msgstr "Alter der letzten Operation"
+msgstr "Alter des letzten Vorgangs"
 
 msgid "Age of last partial backup"
 msgstr "Alter der letzten partiellen Sicherung"
@@ -6270,7 +6274,7 @@ msgid "Allowed number of regex groups ranges from %s to %s."
 msgstr "Erlaubte Anzahl an Regex Gruppen reicht von %s bis %s."
 
 msgid "Allowed operational states:"
-msgstr "Erlaubte Betriebs-Zustand:"
+msgstr "Erlaubte Betriebs-Zustände:"
 
 msgid "Allowed ports"
 msgstr "Erlaubte Ports"
@@ -7576,6 +7580,10 @@ msgstr "Atto Fibrebridge FC Port"
 
 msgid "Attribute"
 msgstr "Attribut"
+
+#, fuzzy
+msgid "Attribute Sync Connections"
+msgstr "Aktive Verbindungen"
 
 msgid "Attribute match value"
 msgstr "Attribut-Match-Wert"
@@ -9312,10 +9320,6 @@ msgstr "Basis-OID"
 msgid "Base URL for Docker API engine"
 msgstr "Basis-URL für die Docker API Engine"
 
-msgid ""
-"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
-msgstr "Basis-URL der ExtremeCloud IQ-API, z. B. https://api.extremecloudiq.com"
-
 msgid "Base directory for plug-ins and local"
 msgstr "Basisverzeichnis für Plugins und lokal"
 
@@ -9406,7 +9410,6 @@ msgstr "Bazel Cache-Benutzer"
 msgid "Bazel cache version"
 msgstr "Bazel Cache-Version"
 
-#, fuzzy
 msgid "Bazel remote cache"
 msgstr "Bazel Remote Cache"
 
@@ -9537,25 +9540,20 @@ msgstr "Blöcke lesen"
 msgid "Blue"
 msgstr "Blau"
 
-#, fuzzy
 msgid "Bluecat Command Server Settings"
-msgstr "Bluecat Command-Server-Einstellungen"
+msgstr "BlueCat Command-Server-Einstellungen"
 
-#, fuzzy
 msgid "Bluecat DHCP Settings"
-msgstr "Bluecat DHCP-Einstellungen"
+msgstr "BlueCat DHCP-Einstellungen"
 
-#, fuzzy
 msgid "Bluecat DNS Settings"
-msgstr "Bluecat DNS-Einstellungen"
+msgstr "BlueCat DNS-Einstellungen"
 
-#, fuzzy
 msgid "Bluecat HA Settings"
-msgstr "Bluecat HA-Einstellungen"
+msgstr "BlueCat HA-Einstellungen"
 
-#, fuzzy
 msgid "Bluecat NTP Settings"
-msgstr "Bluecat NTP-Einstellungen"
+msgstr "BlueCat NTP-Einstellungen"
 
 msgid "Body"
 msgstr "Inhalt"
@@ -9596,9 +9594,8 @@ msgstr "Rahmenbreite"
 msgid "Both"
 msgstr "Beide"
 
-#, fuzzy
 msgid "Both - display the information for both pod and container levels"
-msgstr "Beide - Zeige Informationen für das Pod- und das Container-Level"
+msgstr "Beide - zeige Informationen für Pod- und Container-Levels"
 
 msgid "Both conditions must match (defensive)"
 msgstr "Beide Bedingungen müssen zutreffen (defensiv)"
@@ -9685,20 +9682,16 @@ msgstr "Bucket-Größe"
 msgid "Buckets"
 msgstr "Buckets"
 
-#, fuzzy
 msgid "Buckets only: Levels for disk queue drain rate"
 msgstr "Nur für Buckets: Levels für die Abbaurate der Festplattenwarteschlange"
 
-#, fuzzy
 msgid "Buckets only: Levels for disk queue fill rate"
 msgstr ""
 "Nur für Buckets: Levels für die Auffüllrate der Festplattenwarteschlange"
 
-#, fuzzy
 msgid "Buckets only: Levels for length of disk write queue"
 msgstr "Nur für Buckets: Levels für die Länge der Festplattenwarteschlange"
 
-#, fuzzy
 msgid "Buckets only: Levels for number of items fetched from disk"
 msgstr ""
 "Nur für Buckets: Levels für Anzahl an abgerufenen Items von einer Festplatte"
@@ -9757,15 +9750,12 @@ msgstr "Sichtbarkeit mitgelieferter Symbole"
 msgid "Built-in time periods cannot be modified"
 msgstr "Mitgelieferte Zeitperioden können nicht modifiziert werden"
 
-#, fuzzy
 msgid "Built-in: force"
 msgstr "Mitgeliefert: Stärke"
 
-#, fuzzy
 msgid "Built-in: hierarchy"
 msgstr "Mitgeliefert: Hierarchie"
 
-#, fuzzy
 msgid "Built-in: radial"
 msgstr "Mitgeliefert: Radial"
 
@@ -9822,7 +9812,6 @@ msgstr "Bulk-Umbenennung von Hosts"
 msgid "Bulk walk: Limit SNMP OID ranges"
 msgstr "Bulk-Walk: SNMP-OID-Bereiche begrenzen"
 
-#, fuzzy
 msgid "Bulk walk: Number of OIDs per bulk"
 msgstr "Bulk-Walk: Anzahl von OIDs pro Bulk"
 
@@ -10070,7 +10059,6 @@ msgstr ""
 "Wenn Sie diese Regel für einen Host konfigurieren, so wird nicht der "
 "Check_MK-Agent abgefragt, sondern zufällige Monitoring-Daten erstellt."
 
-#, fuzzy
 msgid ""
 "By default Checkmk uses command line calls of Net-SNMP tools like snmpget or "
 "snmpwalk to gather SNMP information. For each request a new command line "
@@ -10119,7 +10107,6 @@ msgstr ""
 "einschränken, indem Sie ein Pattern angeben, nach dem Checkmk im Schlüssel "
 "der Annotation sucht."
 
-#, fuzzy
 msgid ""
 "By default, Checkmk does not use a specific context during SNMPv3 queries, "
 "but some devices are offering their information in different SNMPv3 "
@@ -10133,7 +10120,7 @@ msgstr ""
 "anhand von Host und SNMP-Sektionen konfiguriert werden, welche Kontexte "
 "Checkmk anfragen soll, um Informationen via SNMPv3 abzuholen."
 
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "By default, Checkmk imports all Azure tags as host/service labels. The "
 "imported tags are added as host labels for resource groups and VMs monitored "
@@ -10178,7 +10165,7 @@ msgstr ""
 "des AWS-Merkmal sucht, oder Sie können den Import von AWS-Merkmalen ganz "
 "deaktivieren."
 
-#, fuzzy, no-python-format
+#, no-python-format
 msgid ""
 "By default, Checkmk treats space that is reserved for the <tt>root</tt> user "
 "on Linux and Unix as used space. Usually, 5% are being reserved for root "
@@ -10186,13 +10173,12 @@ msgid ""
 "Checkmk exclude the current amount of reserved but yet unused space from the "
 "calculations regarding the used space percentage."
 msgstr ""
-"Standardmäßig behandelt Checkmk den auf Linux- und Unixsystemen für "
-"<tt>root</tt> reservierten Platz als benutzt. Üblicherweise werden bei der "
+"Standardmäßig behandelt Checkmk den auf Linux- und Unixsystemen für <tt>"
+"root</tt> reservierten Platz als benutzt. Üblicherweise werden bei der "
 "Erstellung eines neuen Dateisystems 5% für root reserviert. Mit dieser "
 "Option können Sie Checkmk so einstellen, dass es den momentan reservierten "
 "aber ungenutzten Platz von der Berechnung des benutzten Platzes ausschließt."
 
-#, fuzzy
 msgid ""
 "By default, Checkmk uses the community \"public\" to contact hosts via "
 "SNMPv1/v2. This rule can be used to customize the credentials to be used "
@@ -10283,13 +10269,11 @@ msgstr ""
 "Stadium nicht sicherheitsrelevant ist, siehe <a href=\"https://checkmk.com/"
 "werk/14715\" target=\"_blank\">Werk #14715</a>."
 
-#, fuzzy
 msgid "By default, crash reports will be sent to our crash reporting server."
 msgstr ""
 "Standardmäßig werden Absturzberichte an unseren Absturz-Reporting-Server "
 "gesendet."
 
-#, fuzzy
 msgid ""
 "By default, crash reports will be sent to our crash reporting server. In "
 "case this fails for some reason, the crash reports can be sent by mail to "
@@ -10408,7 +10392,6 @@ msgstr ""
 "eine oder mehrere Host-Adressen angeben, kann der Check einen oder mehrere "
 "Hosts überwachen."
 
-#, fuzzy
 msgid ""
 "By default, only the members of the owner contact group are permitted to use "
 "a a configured password. It is possible to share a password with other "
@@ -10419,7 +10402,6 @@ msgstr ""
 "andere Benutzergruppen freizugeben, damit diese ein Passwort in Checks "
 "verwenden können."
 
-#, fuzzy
 msgid ""
 "By default, only the members of the owner contact group are permitted to use "
 "a a predefined condition. It is possible to share it with other groups of "
@@ -10527,7 +10509,7 @@ msgstr ""
 "Deaktivierung dieses Filters positiv auf die Performance der ntopng-"
 "Integration auswirken"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "By default, the server will try to contact the monitored host and pull the "
 "data by initializing a TCP connection. In %s you can configure a push "
@@ -10549,7 +10531,6 @@ msgstr ""
 "werden kann, ist einer der Hauptgründe, warum Sie eine Push-Verbindung "
 "einsetzen wollen werden."
 
-#, fuzzy
 msgid ""
 "By default, the snapshot summary service is displayed on the vCenter. Users "
 "who run an ESX host on its own or do not include their vCenter in the "
@@ -10809,7 +10790,7 @@ msgid "CIFS latency"
 msgstr "CIFS-Latenz"
 
 msgid "CIFS operations"
-msgstr "CIFS-Operationen"
+msgstr "CIFS-Vorgänge"
 
 msgid "CIFS other data"
 msgstr "andere CIFS-Daten"
@@ -10850,7 +10831,6 @@ msgstr "CIFS-Schreibdurchsatz"
 msgid "CISCO Digital Optical Monitoring (DOM)"
 msgstr "CISCO Digital Optical Monitoring (DOM)"
 
-#, fuzzy
 msgid "CLI (Podman command)"
 msgstr "CLI (Podman-Kommando)"
 
@@ -11386,6 +11366,14 @@ msgid ""
 msgstr ""
 "Änderungen können nicht aktiviert werden, da die Peer-to-Peer-Verbindung "
 "%(connection_id)s zwischen Instanzen verschiedener Kunden besteht."
+
+#, python-format
+msgid ""
+"Cannot assign this connection to customer %(customer)s. The following sites "
+"use it for login (authentication connections) but belong to a different "
+"customer: %(sites)s. Remove the connection from the configuration of these "
+"sites first."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -15925,21 +15913,18 @@ msgstr "Couchbase-Knoten: Größe der Spacial Views"
 msgid "Couchbase Nodes: Items"
 msgstr "Couchbase-Knoten: Items"
 
-#, fuzzy
 msgid "Couchbase Operations"
-msgstr "Couchbase Operationen"
+msgstr "Couchbase-Vorgänge"
 
 #, fuzzy
 msgid "Couchbase Status"
 msgstr "Couchbase-Status"
 
-#, fuzzy
 msgid "Couchbase Total Bucket Operations"
-msgstr "Couchbase Summe der Bucket-Operationen"
+msgstr "Couchbase Summe der Bucket-Vorgänge"
 
-#, fuzzy
 msgid "Couchbase Total Node Operations"
-msgstr "Couchbase gesamte Knoten-Operationen"
+msgstr "Couchbase gesamte Knoten-Vorgänge"
 
 msgid "Couchbase servers"
 msgstr "Couchbase Server"
@@ -17546,7 +17531,7 @@ msgid "DDN S2A"
 msgstr "DDN S2A"
 
 msgid "DDN S2A I/O operations"
-msgstr "DDN S2A E/A-Operationen"
+msgstr "DDN S2A E/A-Vorgänge"
 
 msgid "DDN S2A port errors"
 msgstr "DDN S2A-Anschlussfehler"
@@ -19730,7 +19715,7 @@ msgstr ""
 "Standardzeitraums für das Reporting, Verknüpfung zum Berichtseditor."
 
 msgid "Direct and buffered I/O operations"
-msgstr "Direkte und gepufferte I/O-Operationen"
+msgstr "Direkte und gepufferte E/A-Vorgänge"
 
 msgid "Direct links to all service groups"
 msgstr "Links auf alle Service-Gruppen"
@@ -20137,7 +20122,7 @@ msgid "Disk I/O levels (old style checks)"
 msgstr "Festplatten E/A-Levels (Checks nach altem Muster)"
 
 msgid "Disk I/O operations"
-msgstr "Platten-I/O-Operationen"
+msgstr "Festplatten-E/A-Vorgänge"
 
 msgid "Disk I/O statistics for AIX"
 msgstr "Festplatten E/A-Statistiken für AIX"
@@ -20220,7 +20205,7 @@ msgid "Disk read latency"
 msgstr "Latenz beim Lesen der Festplatte"
 
 msgid "Disk read operations"
-msgstr "Lesevorgänge auf der Festplatte"
+msgstr "Festplatten-Lesevorgänge"
 
 msgid "Disk read throughput"
 msgstr "Lesedurchsatz der Festplatte"
@@ -20262,7 +20247,7 @@ msgid "Disk write latency"
 msgstr "Latenz beim Schreiben der Festplatte"
 
 msgid "Disk write operations"
-msgstr "Schreibvorgänge auf der Festplatte"
+msgstr "Festplatten-Schreibvorgänge"
 
 msgid "Disk write throughput"
 msgstr "Schreibdurchsatz der Festplatte"
@@ -21900,6 +21885,10 @@ msgstr "Graphensammlung bearbeiten"
 
 msgid "Edit graph tuning"
 msgstr "Graph-Tuning bearbeiten"
+
+#, fuzzy
+msgid "Edit host"
+msgstr "Diesen Host bearbeiten"
 
 msgid "Edit host attribute"
 msgstr "Host-Attribute bearbeiten"
@@ -24511,12 +24500,6 @@ msgstr ""
 "Extrahiert die SGA-Metriken in einen separaten Service und zeigt zusätzlich "
 "die PGA-Metriken an"
 
-msgid "ExtremeCloud IQ password"
-msgstr "Passwort für ExtremeCloud IQ"
-
-msgid "ExtremeCloud IQ username"
-msgstr "Benutzername für ExtremeCloud IQ"
-
 msgid "Extremes only"
 msgstr "Nur Extreme"
 
@@ -24574,7 +24557,7 @@ msgid "FCP latency"
 msgstr "FCP-Latenz"
 
 msgid "FCP operations"
-msgstr "FCP-Operationen"
+msgstr "FCP-Vorgänge"
 
 msgid "FCP other data"
 msgstr "andere FCP-Daten"
@@ -24702,7 +24685,7 @@ msgstr ""
 "erforderlich: %(tag_conditions)s)"
 
 msgid "Failed index operations"
-msgstr "Fehlgeschlagene Indexoperationen"
+msgstr "Fehlgeschlagene Indexvorgänge"
 
 msgid "Failed notification events of hosts and services."
 msgstr "Fehlgeschlagene Benachrichtigungsereignisse von Hosts und Services."
@@ -31010,9 +30993,8 @@ msgstr "IBM SVC / V7000: Gesamte Cache-Belegung"
 msgid "IBM SVC / V7000: Disk Throughput for Drives/MDisks/VDisks in Total"
 msgstr "IBM SVC / V7000: Plattendurchsatz von Drives/MDisks/VDisks gesamt"
 
-#, fuzzy
 msgid "IBM SVC / V7000: IO operations/sec for Drives/MDisks/VDisks in Total"
-msgstr "IBM SVC / V7000: E/A-Operationen/sec von Drives/MDisks/VDisks gesamt"
+msgstr "IBM SVC / V7000: E/A-Vorgänge/sec von Laufwerken/MDisks/VDisks gesamt"
 
 #, fuzzy
 msgid "IBM SVC / V7000: Latency for Drives/MDisks/VDisks in Total"
@@ -31181,7 +31163,7 @@ msgid "INotify Levels"
 msgstr "INotify-Levels"
 
 msgid "INotify Operation"
-msgstr ""
+msgstr "Inotify-Vorgang"
 
 msgid "IOPS"
 msgstr "IOPS"
@@ -32526,7 +32508,7 @@ msgid ""
 "the timeframe in which failures should be covered. The check will output the "
 "total number of failures and the number of failures in this given timeframe."
 msgstr ""
-"Wenn Sie sich für die Abfrage nach fehlgeschlagenen Indexoperationen "
+"Wenn Sie sich für die Abfrage nach fehlgeschlagenen Indexvorgängen "
 "entscheiden, verwenden Sie diese Option, um den Zeitrahmen festzulegen, in "
 "dem Fehler erfasst werden sollen. Die Prüfung gibt die Gesamtzahl der "
 "Ausfälle und die Anzahl der Ausfälle in diesem angegebenen Zeitrahmen aus."
@@ -33772,6 +33754,10 @@ msgstr "Im Verhältnis zum normalen Checkintervall"
 
 msgid "In relation to standard deviation"
 msgstr "im Verhältnis zur Standardabweichung"
+
+#, fuzzy
+msgid "In scheduled downtime"
+msgstr "Wartungszeiten ignorieren"
 
 msgid "In service details"
 msgstr "In den Service-Details"
@@ -36829,9 +36815,8 @@ msgstr "Levels für E/A-Zustand-Anfragen"
 msgid "Levels for IO latency."
 msgstr "Levels für die E/A-Latenz."
 
-#, fuzzy
 msgid "Levels for IO operations per second."
-msgstr "Levels für die E/A-Operationen pro Sekunde."
+msgstr "Levels für die E/A-Vorgänge pro Sekunde."
 
 #, fuzzy
 msgid "Levels for IO traffic per second."
@@ -41666,7 +41651,7 @@ msgid "Monitor file handles (Linux)"
 msgstr "Datei-Handles überwachen (Linux)"
 
 msgid "Monitor file operations with Inotify (Linux)"
-msgstr "Dateisystemoperationen mittels Inotify überwachen (Linux)"
+msgstr "Dateivorgänge mittels Inotify überwachen (Linux)"
 
 msgid "Monitor group quotas"
 msgstr "Gruppenkontingente überwachen"
@@ -42303,7 +42288,7 @@ msgid "NFS mounts"
 msgstr "NFS-Mounts"
 
 msgid "NFS operations"
-msgstr "NFS Operationen"
+msgstr "NFS-Vorgänge"
 
 msgid "NFS other data"
 msgstr "Weitere NFS-Daten"
@@ -42354,7 +42339,7 @@ msgid "NFSv4 latency"
 msgstr "NFSv4-Latenz"
 
 msgid "NFSv4 operations"
-msgstr "NFSv4-Operationen"
+msgstr "NFSv4-Vorgänge"
 
 msgid "NFSv4 other data"
 msgstr "Weitere NFSv4-Daten"
@@ -42402,7 +42387,7 @@ msgid "NFSv4.1 latency"
 msgstr "NFSv4.1-Latenz"
 
 msgid "NFSv4.1 operations"
-msgstr "NFSv4.1-Operationen"
+msgstr "NFSv4.1-Vorgänge"
 
 msgid "NFSv4.1 other data"
 msgstr "andere NFSv4.1-Daten"
@@ -45445,6 +45430,9 @@ msgstr "Zahl erstellen"
 msgid "Numeric value"
 msgstr "Numerischer Wert"
 
+msgid "Numerical ID of the VHM, e.g. 102"
+msgstr "Numerische ID der VHM, z.B. 102"
+
 msgid "Nutanix Cluster CPU utilization"
 msgstr "Nutanix Cluster CPU-Auslastung"
 
@@ -46358,13 +46346,13 @@ msgid "Operational status"
 msgstr "Betriebsstatus"
 
 msgid "Operations"
-msgstr "Operationen"
+msgstr "Vorgänge"
 
 msgid "Operations States"
-msgstr "Betriebszustände"
+msgstr "Zustände der Vorgänge"
 
 msgid "Operations per second"
-msgstr "Operationen pro Sekunde"
+msgstr "Vorgänge pro Sekunde"
 
 msgid "Operator"
 msgstr "Operator"
@@ -48935,7 +48923,7 @@ msgid "Percentage of queue depth"
 msgstr "Prozentsatz der Warteschlangenlänge"
 
 msgid "Percentage of read I/O operations per latency range"
-msgstr "Prozentsatz der Lese-E/A-Operationen pro Latenzbereich"
+msgstr "Prozentsatz der Lese-E/A-Vorgänge pro Latenzbereich"
 
 msgid "Percentage of total RAM"
 msgstr "Prozentsatz vom gesamten RAM"
@@ -48947,7 +48935,7 @@ msgid "Percentage of unhealthy access points"
 msgstr "Prozentsatz der problematischen Zugriffspunkte"
 
 msgid "Percentage of write I/O operations per latency range"
-msgstr "Prozentsatz der Schreib-E/A-Operationen pro Latenzbereich"
+msgstr "Prozentsatz der Schreib-E/A-Vorgänge pro Latenzbereich"
 
 msgid "Percentage used"
 msgstr "Prozentuale Nutzung"
@@ -49089,11 +49077,10 @@ msgstr "Regelmäßige Benachrichtigungen bei Service-Problemen"
 msgid "Periodic service discovery"
 msgstr "Periodische Service-Erkennung"
 
+#, fuzzy
 msgid ""
-"Periodic user attribute synchronization keeps user attributes (alias, email, "
-"roles, contact groups) up to date on this site. This is primarily relevant "
-"for LDAP connections. SAML connections update attributes only when a user "
-"logs in, so they do not need to be listed here."
+"Periodic user attribute synchronization keeps existing user attributes "
+"(alias, email, roles, contact groups) up to date on this site."
 msgstr ""
 "Durch die regelmäßige Synchronisierung der Benutzerattribute werden die "
 "Benutzerattribute (Alias, E-Mail, Rollen, Kontaktgruppen) auf dieser Instanz "
@@ -50987,16 +50974,14 @@ msgstr ""
 msgid "Provider"
 msgstr "Provider"
 
-#, fuzzy
 msgid "Provisioned IOPS SSD (io1) I/O operations per second"
-msgstr "Bereitgestellte IOPS-SSD (io1) E/A-Operationen pro Sekunde"
+msgstr "Bereitgestellte IOPS-SSD (io1) E/A-Vorgänge pro Sekunde"
 
 msgid "Provisioned IOPS SSD (io1) space"
 msgstr "Bereitgestellter IOPS-SSD (io1)-Speicherplatz"
 
-#, fuzzy
 msgid "Provisioned IOPS SSD (io2) I/O operations per second"
-msgstr "Bereitgestellte IOPS-SSD (io2) E/A-Operationen pro Sekunde"
+msgstr "Bereitgestellte IOPS-SSD (io2) E/A-Vorgänge pro Sekunde"
 
 msgid "Provisioned IOPS SSD (io2) space"
 msgstr "Bereitgestellter IOPS SSD (io2)-Platz"
@@ -51773,9 +51758,8 @@ msgstr "Lesen"
 msgid "Read / Write queue length"
 msgstr "Lese/Schreib-Warteschlange"
 
-#, fuzzy
 msgid "Read IO operations per second"
-msgstr "Lesende E/A-Operationen pro Sekunde"
+msgstr "Lesende E/A-Vorgänge pro Sekunde"
 
 msgid "Read Latency"
 msgstr "Leselatenz"
@@ -51875,10 +51859,10 @@ msgid "Read only mode"
 msgstr "Schreibschutz"
 
 msgid "Read operations"
-msgstr "Lesezugriffe"
+msgstr "Lesevorgänge"
 
 msgid "Read operations /s"
-msgstr "Lesezugriffe pro Sekunde"
+msgstr "Lesevorgänge /s"
 
 msgid "Read queue length"
 msgstr "Länge der Lese-Warteschlange"
@@ -52184,6 +52168,9 @@ msgstr "Erkennung des Redfish Volumes"
 
 msgid "Redirect URI"
 msgstr "Redirect-URI"
+
+msgid "Redirect URL (has to be https)"
+msgstr "URL für die Umleitung (muss HTTPS verwenden)"
 
 msgid "Redis clients"
 msgstr "Redis-Clients"
@@ -53077,7 +53064,7 @@ msgid "Renamed site %(old_site_id)s"
 msgstr "Instanz %(old_site_id)s umbenannt"
 
 msgid "Renaming Operations"
-msgstr "Umbenennungsoperationen"
+msgstr "Umbenennungsvorgänge"
 
 msgid "Renaming Setup configuration..."
 msgstr "Umbenennung der Setup-Konfiguration..."
@@ -54128,6 +54115,10 @@ msgstr ""
 "Subskriptions-ID nicht benötigt wird, wenn Sie nur Ressourcen über die Graph-"
 "API überwachen wollen."
 
+#, fuzzy
+msgid "Return to standard view"
+msgstr "im Verhältnis zur Standardabweichung"
+
 msgid ""
 "Returns the current state of DCD cycles and batches. Executes the commands "
 "cmk-dcd -Bv and cmk-dcd -Cv."
@@ -54747,7 +54738,7 @@ msgid "SAN latency"
 msgstr "SAN-Latenz"
 
 msgid "SAN operations"
-msgstr "SAN-Operationen"
+msgstr "SAN-Vorgänge"
 
 msgid "SAN other data"
 msgstr "andere SAN-Daten"
@@ -56083,14 +56074,16 @@ msgstr ""
 "Verbindungen ermöglichen die Verbindung über einen Proxy-Server; es werden "
 "nur globale und manuelle Proxy-Konfigurationen unterstützt."
 
+#, fuzzy
 msgid ""
 "Select the connections that are available for login on this site. Choose "
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP and SAML connections. Each SAML entry may optionally override "
-"the SP entity ID, which is useful when multiple sites share the same SAML "
-"connection but need to be registered separately at the IdP."
+"specific LDAP and SAML connections. <br>Authentication connections are "
+"responsible of creating the user and the initial user setup.<br>SAML "
+"connection are only authorized to overwrite user attributes if no other "
+"Attribute Sync Connection is configured for that user."
 msgstr ""
 "Wählen Sie die Verbindungen aus, die für das Login auf dieser Instanz "
 "verfügbar sind. Wählen Sie <i>Die gleichen Verbindungen wie die "
@@ -56102,12 +56095,14 @@ msgstr ""
 "überschreiben. Dies ist nützlich, wenn mehrere Instanzen dieselbe SAML-"
 "Verbindung nutzen, aber separat beim IdP registriert werden müssen."
 
+#, fuzzy
 msgid ""
 "Select the connections that are available for login on this site. Choose "
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP connections."
+"specific LDAP connections.<br>Authentication connections are responsible of "
+"creating the user and the initial user setup."
 msgstr ""
 "Wählen Sie die Verbindungen aus, die für die Anmeldung auf dieser Instanz "
 "verfügbar sind. Wählen Sie <i>Die gleichen Verbindungen wie die "
@@ -62159,7 +62154,8 @@ msgstr "Symmetrische Verschlüsselung (Linux, Solaris, Windows)"
 msgid "Sync attributes for all LDAP connections"
 msgstr "Attribute aller LDAP-Verbindungen synchronisieren"
 
-msgid "Sync attributes only for the following connections"
+#, fuzzy
+msgid "Sync attributes only for the following LDAP connections"
 msgstr "Attribute nur für die folgenden Verbindungen synchronisieren"
 
 msgid "Sync disabled"
@@ -71560,7 +71556,7 @@ msgid ""
 "with the configuration rule in the Agent Bakery. "
 msgstr ""
 "Diese Regel erlaubt, Levels für spezifische Inotify-Änderungen zu setzen. Es "
-"können jedoch nur Operationen überwacht werden, die aktuell auch im Inotify-"
+"können jedoch nur Vorgänge überwacht werden, die aktuell auch im Inotify-"
 "Plugin aktiviert sind. Es wird empfohlen, diese Levels mit der "
 "Konfigurationsregel in der Agentenbäckerei abzugleichen. "
 
@@ -73014,6 +73010,14 @@ msgid "This sidebar element is only available on the manager's central site."
 msgstr ""
 "Dieses Seitenleistenelement ist nur auf der zentralen Instanz des Managers "
 "verfügbar."
+
+#, python-format
+msgid ""
+"This site belongs to customer %(customer)s but uses the following login "
+"connections (authentication connections) that belong to a different "
+"customer: %(connections)s. Remove these connections from the site or assign "
+"them to a matching customer first."
+msgstr ""
 
 msgid "This site does not exist."
 msgstr "Diese Instanz existiert nicht."
@@ -74647,9 +74651,8 @@ msgstr "Gesamtspeicherplatz für Allzweck-SSD (gp2)"
 msgid "Total General Purpose SSD (gp3) space"
 msgstr "Gesamtspeicherplatz der General Purpose SSD (gp3)"
 
-#, fuzzy
 msgid "Total IO operations per second"
-msgstr "Gesamte E/A-Operationen pro Sekunde"
+msgstr "Gesamte E/A-Vorgänge pro Sekunde"
 
 msgid "Total Index Size"
 msgstr "Gesamtindexgröße"
@@ -77006,6 +77009,10 @@ msgstr "Testen"
 msgid "Try pattern match"
 msgstr "Teste Pattern Match"
 
+#, fuzzy
+msgid "Try the new \"All hosts\" view"
+msgstr "Gehe zu \"Alle Hosts\""
+
 msgid "Try to detect MSSQL instances present on server"
 msgstr "Versuche, die auf dem Server vorhandenen MSSQL-Instanzen zu ermitteln"
 
@@ -77285,6 +77292,9 @@ msgstr "URL-Präfix für Links zu Checkmk"
 
 msgid "URL server address"
 msgstr "URL-Server-Adresse"
+
+msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+msgstr "URL zu HiveManagerNG, z.B. https://cloud.aerohive.com"
 
 msgid ""
 "URL to access the central site from the remote site, including the protocol "
@@ -80151,9 +80161,6 @@ msgstr "Benutzer und Passwort"
 msgid "User asserts"
 msgstr "Benutzer-Asserts"
 
-msgid "User attribute synchronization"
-msgstr "Synchronisierung der Benutzerattribute"
-
 msgid "User base DN"
 msgstr "Benutzer Base DN"
 
@@ -81683,7 +81690,7 @@ msgid "WLAN"
 msgstr "WLAN"
 
 msgid "WLAN errors, reset operations and transmission retries"
-msgstr "WLAN-Fehler, Reset-Operationen und Transmission-Retries"
+msgstr "WLAN-Fehler, Reset-Vorgänge und Transmission-Retries"
 
 msgid "WLAN physical errors"
 msgstr "physische Fehler des WLAN"
@@ -84088,9 +84095,8 @@ msgstr ""
 msgid "Write"
 msgstr "schreiben"
 
-#, fuzzy
 msgid "Write IO operations per second"
-msgstr "Schreibende E/A-Operationen pro Sekunde"
+msgstr "Schreibende E/A-Vorgänge pro Sekunde"
 
 msgid "Write Latency"
 msgstr "Schreiblatenz"
@@ -84184,10 +84190,10 @@ msgid "Write long output of services to monitoring history"
 msgstr "Mehrzeiligen Ausgabe von Services in die Monitoring-Historie schreiben"
 
 msgid "Write operations"
-msgstr "Schreibzugriffe"
+msgstr "Schreibvorgänge"
 
 msgid "Write operations/s"
-msgstr "Schreibzugriffe/s"
+msgstr "Schreibvorgänge/s"
 
 msgid "Write queue length"
 msgstr "Länge der Schreib-Warteschlange"
@@ -87429,7 +87435,7 @@ msgid "iSCSI latency"
 msgstr "iSCSI-Latenz"
 
 msgid "iSCSI operations"
-msgstr "iSCSI Operationen"
+msgstr "iSCSI-Vorgänge"
 
 msgid "iSCSI other data"
 msgstr "Andere iSCSI-Daten"
@@ -92437,6 +92443,10 @@ msgid ""
 msgstr ""
 "Das Relay wird offiziell für die folgenden Betriebssysteme unterstützt:"
 
+#, fuzzy
+msgid "Modes"
+msgstr "Modems"
+
 msgid "Number of services in OK state"
 msgstr "Anzahl von Services im Zustand OK"
 
@@ -92454,6 +92464,9 @@ msgstr "Anzahl von Services im Zustand PENDING"
 
 msgid "Unhandled Problems"
 msgstr "Unbehandelte Probleme"
+
+msgid "Give feedback on the new view"
+msgstr ""
 
 msgid "Search hosts…"
 msgstr "Hosts suchen…"
@@ -93682,26 +93695,31 @@ msgstr ""
 "Sie können später weiterhin über Hilfe > Checkmk erlernen > Willkommensseite "
 "darauf zugreifen"
 
-#~ msgid "API access token"
-#~ msgstr "API Zugriffstoken"
+#~ msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
+#~ msgstr "Aerohive HiveManager NG / ExtremeCloud IQ"
+
+#~ msgid ""
+#~ "Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
+#~ msgstr ""
+#~ "Basis-URL der ExtremeCloud IQ-API, z. B. https://api.extremecloudiq.com"
+
+#~ msgid "ExtremeCloud IQ password"
+#~ msgstr "Passwort für ExtremeCloud IQ"
+
+#~ msgid "ExtremeCloud IQ username"
+#~ msgstr "Benutzername für ExtremeCloud IQ"
+
+#~ msgid "User attribute synchronization"
+#~ msgstr "Synchronisierung der Benutzerattribute"
 
 #~ msgid "Name of the enclosure, e.g. Enclosure 1"
 #~ msgstr "Name des Gehäuses, z.B. \"Enclosure 1\""
-
-#~ msgid "Numerical ID of the VHM, e.g. 102"
-#~ msgstr "Numerische ID der VHM, z.B. 102"
 
 #~ msgid ""
 #~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
 #~ msgstr ""
 #~ "Bitte geben Sie hier <tt>Drives</tt>, <tt>Mdisks</tt> oder <tt>VDisks</"
 #~ "tt> an."
-
-#~ msgid "Redirect URL (has to be https)"
-#~ msgstr "URL für die Umleitung (muss HTTPS verwenden)"
-
-#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-#~ msgstr "URL zu HiveManagerNG, z.B. https://cloud.aerohive.com"
 
 #~ msgid "active hosts"
 #~ msgstr "aktiven Hosts"
@@ -104627,9 +104645,6 @@ msgstr ""
 
 #~ msgid "Changes activated"
 #~ msgstr "Änderungen aktiviert"
-
-#~ msgid "Go to \"All hosts\""
-#~ msgstr "Gehe zu \"Alle Hosts\""
 
 #, python-format
 #~ msgid ""

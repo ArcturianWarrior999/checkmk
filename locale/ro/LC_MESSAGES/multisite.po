@@ -2818,6 +2818,10 @@ msgid "API (via Unix socket)"
 msgstr "Acces prin socket UNIX"
 
 #, fuzzy
+msgid "API access token"
+msgstr "Token de acces la API"
+
+#, fuzzy
 msgid "API cache is disabled."
 msgstr "Graficul este dezactivat"
 
@@ -3739,7 +3743,7 @@ msgstr ""
 "HiveManager"
 
 #, fuzzy
-msgid "Activate monitoring of the ExtremeCloud IQ (HiveManager NG) cloud."
+msgid "Activate monitoring of the HiveManagerNG cloud."
 msgstr "Activați monitorizarea cloud-ului HiveManagerNG."
 
 msgid "Activate on selected sites"
@@ -5038,8 +5042,8 @@ msgid "Aerohive HiveManager"
 msgstr "Aerohive HiveManager"
 
 #, fuzzy
-msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
-msgstr "Aerohive HiveManager NG"
+msgid "Aerohive HiveManager NG"
+msgstr "Aerohive HiveManager"
 
 #, python-format
 msgid "Affected %s: %s"
@@ -7829,6 +7833,10 @@ msgstr "Portul Atto Fibrebridge FC"
 msgid "Attribute"
 msgstr "Atributul"
 
+#, fuzzy
+msgid "Attribute Sync Connections"
+msgstr "Conexiuni Active"
+
 msgid "Attribute match value"
 msgstr "Valoarea de potrivire a atributului"
 
@@ -9780,10 +9788,6 @@ msgstr "OID de bază"
 #, fuzzy
 msgid "Base URL for Docker API engine"
 msgstr "URL de bază pentru motorul API docker"
-
-msgid ""
-"Base URL of the ExtremeCloud IQ API, e.g. https://api.extremecloudiq.com"
-msgstr ""
 
 #, fuzzy
 msgid "Base directory for plug-ins and local"
@@ -11926,6 +11930,14 @@ msgstr ""
 msgid ""
 "Cannot activate changes, the peer-to-peer connection %(connection_id)s is "
 "between sites of different customers."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot assign this connection to customer %(customer)s. The following sites "
+"use it for login (authentication connections) but belong to a different "
+"customer: %(sites)s. Remove the connection from the configuration of these "
+"sites first."
 msgstr ""
 
 #, python-format
@@ -22825,6 +22837,10 @@ msgstr "Editarea colecției de grafice"
 msgid "Edit graph tuning"
 msgstr "Editarea reglajului grafic"
 
+#, fuzzy
+msgid "Edit host"
+msgstr "Editați această gazdă"
+
 msgid "Edit host attribute"
 msgstr "Editarea atributului gazdă"
 
@@ -25481,14 +25497,6 @@ msgid ""
 msgstr ""
 "Extrage datele de performanță SGA într-un serviciu separat și afișează "
 "suplimentar datele de performanță PGA"
-
-#, fuzzy
-msgid "ExtremeCloud IQ password"
-msgstr "Introduceți parola de utilizator"
-
-#, fuzzy
-msgid "ExtremeCloud IQ username"
-msgstr "Introduceți numele de utilizator"
 
 msgid "Extremes only"
 msgstr "Doar extreme"
@@ -35284,6 +35292,10 @@ msgstr "În raport cu intervalul normal de verificare"
 
 msgid "In relation to standard deviation"
 msgstr "În raport cu abaterea standard"
+
+#, fuzzy
+msgid "In scheduled downtime"
+msgstr "Ignorați perioadele de întrerupere programate"
 
 msgid "In service details"
 msgstr "Detalii în serviciu"
@@ -47687,6 +47699,9 @@ msgstr "Număr de creat"
 msgid "Numeric value"
 msgstr "Valoare numerică"
 
+msgid "Numerical ID of the VHM, e.g. 102"
+msgstr "Numărul de identificare numerică al VHM, de exemplu 102"
+
 msgid "Nutanix Cluster CPU utilization"
 msgstr "Utilizare CPU a clusterului Nutanix Cluster"
 
@@ -51650,10 +51665,8 @@ msgid "Periodic service discovery"
 msgstr "Descoperirea periodică a serviciilor"
 
 msgid ""
-"Periodic user attribute synchronization keeps user attributes (alias, email, "
-"roles, contact groups) up to date on this site. This is primarily relevant "
-"for LDAP connections. SAML connections update attributes only when a user "
-"logs in, so they do not need to be listed here."
+"Periodic user attribute synchronization keeps existing user attributes "
+"(alias, email, roles, contact groups) up to date on this site."
 msgstr ""
 
 #, fuzzy
@@ -54974,6 +54987,9 @@ msgstr "Descoperirea contorului MSSQL"
 msgid "Redirect URI"
 msgstr "Destinatarul"
 
+msgid "Redirect URL (has to be https)"
+msgstr "URL de redirecționare (trebuie să fie https)"
+
 msgid "Redis clients"
 msgstr "Clienți Redis"
 
@@ -56973,6 +56989,10 @@ msgid ""
 "note that the subscription ID is not needed if you intend to only monitor "
 "resources through the Graph API."
 msgstr ""
+
+#, fuzzy
+msgid "Return to standard view"
+msgstr "În raport cu abaterea standard"
 
 msgid ""
 "Returns the current state of DCD cycles and batches. Executes the commands "
@@ -59056,9 +59076,10 @@ msgid ""
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP and SAML connections. Each SAML entry may optionally override "
-"the SP entity ID, which is useful when multiple sites share the same SAML "
-"connection but need to be registered separately at the IdP."
+"specific LDAP and SAML connections. <br>Authentication connections are "
+"responsible of creating the user and the initial user setup.<br>SAML "
+"connection are only authorized to overwrite user attributes if no other "
+"Attribute Sync Connection is configured for that user."
 msgstr ""
 
 msgid ""
@@ -59066,7 +59087,8 @@ msgid ""
 "<i>Use same connections as the central site</i> to inherit the central "
 "site's selection (changes made on the central site take effect after the "
 "next configuration sync), or <i>Use the following connections</i> to pick "
-"specific LDAP connections."
+"specific LDAP connections.<br>Authentication connections are responsible of "
+"creating the user and the initial user setup."
 msgstr ""
 
 #, fuzzy
@@ -65383,7 +65405,7 @@ msgid "Sync attributes for all LDAP connections"
 msgstr "Sincronizare cu următoarele conexiuni LDAP"
 
 #, fuzzy
-msgid "Sync attributes only for the following connections"
+msgid "Sync attributes only for the following LDAP connections"
 msgstr "Sincronizare cu următoarele conexiuni LDAP"
 
 msgid "Sync disabled"
@@ -76118,6 +76140,14 @@ msgstr ""
 "Acest element de bară laterală este disponibil numai pe site-ul central al "
 "managerului."
 
+#, python-format
+msgid ""
+"This site belongs to customer %(customer)s but uses the following login "
+"connections (authentication connections) that belong to a different "
+"customer: %(connections)s. Remove these connections from the site or assign "
+"them to a matching customer first."
+msgstr ""
+
 msgid "This site does not exist."
 msgstr "Acest site nu există."
 
@@ -80670,6 +80700,10 @@ msgid "Try pattern match"
 msgstr "Încercați potrivirea modelului"
 
 #, fuzzy
+msgid "Try the new \"All hosts\" view"
+msgstr "Toate gazdele"
+
+#, fuzzy
 msgid "Try to detect MSSQL instances present on server"
 msgstr "Încercați să detectați instanțele MS SQL prezentate pe server"
 
@@ -80969,6 +81003,9 @@ msgstr "Prefixul URL pentru legăturile către Checkmk"
 #, fuzzy
 msgid "URL server address"
 msgstr "Adresa serverului URL personalizat"
+
+msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
+msgstr "URL către HiveManagerNG, de exemplu https://cloud.aerohive.com"
 
 #, fuzzy
 msgid ""
@@ -83945,10 +83982,6 @@ msgstr "Utilizator și parolă"
 #, fuzzy
 msgid "User asserts"
 msgstr "%s Afirmă"
-
-#, fuzzy
-msgid "User attribute synchronization"
-msgstr "Sincronizarea utilizatorilor"
 
 msgid "User base DN"
 msgstr "Baza de utilizatori DN"
@@ -96846,6 +96879,10 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Modes"
+msgstr "Modemuri"
+
+#, fuzzy
 msgid "Number of services in OK state"
 msgstr "Numărul de servicii în stat OK"
 
@@ -96868,6 +96905,9 @@ msgstr "Numărul de servicii în stat OK"
 #, fuzzy
 msgid "Unhandled Problems"
 msgstr "Probleme de gazde nerezolvate"
+
+msgid "Give feedback on the new view"
+msgstr ""
 
 #, fuzzy
 msgid "Search hosts…"
@@ -98053,26 +98093,29 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-#~ msgid "API access token"
-#~ msgstr "Token de acces la API"
+#~ msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
+#~ msgstr "Aerohive HiveManager NG"
+
+#, fuzzy
+#~ msgid "ExtremeCloud IQ password"
+#~ msgstr "Introduceți parola de utilizator"
+
+#, fuzzy
+#~ msgid "ExtremeCloud IQ username"
+#~ msgstr "Introduceți numele de utilizator"
+
+#, fuzzy
+#~ msgid "User attribute synchronization"
+#~ msgstr "Sincronizarea utilizatorilor"
 
 #~ msgid "Name of the enclosure, e.g. Enclosure 1"
 #~ msgstr "Denumirea incintei, de exemplu, Incinta 1"
-
-#~ msgid "Numerical ID of the VHM, e.g. 102"
-#~ msgstr "Numărul de identificare numerică al VHM, de exemplu 102"
 
 #~ msgid ""
 #~ "Please enter <tt>Drives</tt>, <tt>Mdisks</tt> or <tt>VDisks</tt> here."
 #~ msgstr ""
 #~ "Vă rugăm să introduceți aici <tt>Drive-uri</tt>, <tt>Miscuri</tt> sau "
 #~ "<tt>VDiscuri</tt>."
-
-#~ msgid "Redirect URL (has to be https)"
-#~ msgstr "URL de redirecționare (trebuie să fie https)"
-
-#~ msgid "URL to HiveManagerNG, e.g. https://cloud.aerohive.com"
-#~ msgstr "URL către HiveManagerNG, de exemplu https://cloud.aerohive.com"
 
 #~ msgid "active hosts"
 #~ msgstr "gazde active"
@@ -107812,10 +107855,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Changes activated"
 #~ msgstr "Nu a fost niciodată activat"
-
-#, fuzzy
-#~ msgid "Go to \"All hosts\""
-#~ msgstr "Toate gazdele"
 
 #~ msgid "Another omd config change job is already running."
 #~ msgstr ""
