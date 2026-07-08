@@ -48,3 +48,16 @@ def test_check_ups_bat_temp_crit(value_store_patch: None) -> None:
 
 def test_check_ups_bat_temp_item_not_found(value_store_patch: None) -> None:
     assert list(check_ups_bat_temp("Battery 9", {"levels": (40.0, 50.0)}, [["1", "25"]])) == []
+
+
+def test_check_ups_bat_temp_empty_temperature(value_store_patch: None) -> None:
+    assert (
+        list(
+            check_ups_bat_temp(
+                "Battery CS141 SNMP/WEB Adapter",
+                {"levels": (40.0, 50.0)},
+                [["CS141 SNMP/WEB Adapter", ""]],
+            )
+        )
+        == []
+    )

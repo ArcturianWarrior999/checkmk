@@ -52,8 +52,13 @@ def check_ups_bat_temp(item: str, params: TempParamType, section: StringTable) -
     for line in section:
         name = format_item_ups_bat_temp(line[0], "Battery" in item)
         if name == item:
+            try:
+                temperature = int(line[1])
+            except ValueError:
+                # Skip instead of crashing for empty battery temperature.
+                return
             yield from check_temperature(
-                int(line[1]),
+                temperature,
                 params,
                 unique_name="ups_bat_temp_%s" % item,
                 value_store=get_value_store(),
