@@ -130,8 +130,7 @@ def create_snapshot(
     )
 
     data: SnapshotData = {}
-    # astrein: disable=localization-named-placeholder
-    data["comment"] = _("Activated changes by %s.") % (created_by or "")
+    data["comment"] = _("Activated changes by %(created_by)s.") % {"created_by": created_by or ""}
 
     if comment:
         data["comment"] += _("Comment: %(comment)s") % {"comment": comment}
@@ -562,8 +561,10 @@ def extract_snapshot(
                 if os.access("/".join(path_tokens), os.W_OK):
                     return True  # exists and writable
 
-                # astrein: disable=localization-named-placeholder
-                errors.append(_("Permission problem: Path not writable %s") % "/".join(path_tokens))
+                errors.append(
+                    _("Permission problem: Path not writable %(path)s")
+                    % {"path": "/".join(path_tokens)}
+                )
                 return False  # not writable
 
             return check_exists_or_writable(path_tokens[:-1])
@@ -580,8 +581,7 @@ def extract_snapshot(
             check=False,
         )
         if completed_process.stderr:
-            # astrein: disable=localization-named-placeholder
-            errors.append(_("Contains corrupt file %s") % tar_member.name)
+            errors.append(_("Contains corrupt file %(name)s") % {"name": tar_member.name})
             return errors
 
         for line in completed_process.stdout.splitlines():
@@ -702,8 +702,8 @@ def extract_snapshot(
                 )
             if abort_on_error:
                 raise MKGeneralException(
-                    # astrein: disable=localization-named-placeholder
-                    _("%s - Unable to restore snapshot:<br>%s") % (what, "<br>".join(errors))
+                    _("%(what)s - Unable to restore snapshot:<br>%(errors)s")
+                    % {"what": what, "errors": "<br>".join(errors)}
                 )
             total_errors.extend(errors)
 
@@ -712,8 +712,7 @@ def extract_snapshot(
 
     if total_errors:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Errors on restoring snapshot:<br>%s") % "<br>".join(total_errors)
+            _("Errors on restoring snapshot:<br>%(errors)s") % {"errors": "<br>".join(total_errors)}
         )
 
 

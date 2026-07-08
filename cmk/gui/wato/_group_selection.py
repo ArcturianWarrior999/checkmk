@@ -31,12 +31,11 @@ class _GroupSelection(ElementSelection):
     ) -> None:
         kwargs.setdefault(
             "empty_text",
-            # astrein: disable=localization-named-placeholder
             _(
-                "You have not defined any %s group yet. Please "
-                '<a href="wato.py?mode=edit_%s_group">create</a> at least one first.'
+                "You have not defined any %(what)s group yet. Please "
+                '<a href="wato.py?mode=edit_%(what_url)s_group">create</a> at least one first.'
             )
-            % (what, what),
+            % {"what": what, "what_url": what},
         )
         super().__init__(**kwargs)
         self._what = what

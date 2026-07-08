@@ -96,8 +96,7 @@ def _get_free_used_dynamic_form_spec(
             parameter_form=TupleLevels(
                 elements=[
                     Percentage(
-                        # astrein: disable=localization-named-placeholder
-                        title=Title("Warning if %s") % course,
+                        title=Title("Warning if %(course)s") % {"course": course},
                         custom_validate=[
                             validators.NumberInRange(
                                 min_value=0.0 if level_perspective == "used" else 0.0001,
@@ -107,8 +106,7 @@ def _get_free_used_dynamic_form_spec(
                         prefill=DefaultValue(percentage_levels[0]),
                     ),
                     Percentage(
-                        # astrein: disable=localization-named-placeholder
-                        title=Title("Critical if %s") % course,
+                        title=Title("Critical if %(course)s") % {"course": course},
                         custom_validate=[
                             validators.NumberInRange(
                                 min_value=0.0 if level_perspective == "used" else 0.0001,
@@ -129,8 +127,7 @@ def _get_free_used_dynamic_form_spec(
                 parameter_form=TupleLevels(
                     elements=[
                         Integer(
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("Warning if %s") % course,
+                            title=Title("Warning if %(course)s") % {"course": course},
                             unit_symbol="MB",
                             custom_validate=[
                                 validators.NumberInRange(
@@ -140,8 +137,7 @@ def _get_free_used_dynamic_form_spec(
                             ],
                         ),
                         Integer(
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("Critical if %s") % course,
+                            title=Title("Critical if %(course)s") % {"course": course},
                             unit_symbol="MB",
                             custom_validate=[
                                 validators.NumberInRange(
@@ -164,8 +160,7 @@ def _get_free_used_dynamic_form_spec(
 
     return enable_deprecated_alternative(
         wrapped_form_spec=CascadingSingleChoice(
-            # astrein: disable=localization-named-placeholder
-            title=Title("Levels for %s") % title,
+            title=Title("Levels for %(title)s") % {"title": title},
             prefill=DefaultValue("alternative_percentage"),
             elements=vs_subgroup
             + [

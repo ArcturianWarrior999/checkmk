@@ -382,36 +382,39 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
         job_interface.send_progress_update(_("Bulk discovery finished."))
 
         job_interface.send_progress_update(
-            # astrein: disable=localization-named-placeholder
-            _("Hosts: %d total (%d succeeded, %d skipped, %d failed)")
-            % (
-                self._num_hosts_total,
-                self._num_hosts_succeeded,
-                self._num_hosts_skipped,
-                self._num_hosts_failed,
+            _(
+                "Hosts: %(total)d total (%(succeeded)d succeeded, %(skipped)d skipped, %(failed)d failed)"
             )
+            % {
+                "total": self._num_hosts_total,
+                "succeeded": self._num_hosts_succeeded,
+                "skipped": self._num_hosts_skipped,
+                "failed": self._num_hosts_failed,
+            }
         )
         job_interface.send_progress_update(
-            # astrein: disable=localization-named-placeholder
-            _("Host labels: %d total (%d added, %d changed, %d removed, %d kept)")
-            % (
-                self._num_host_labels.total,
-                self._num_host_labels.new,
-                self._num_host_labels.changed,
-                self._num_host_labels.removed,
-                self._num_host_labels.kept,
+            _(
+                "Host labels: %(total)d total (%(added)d added, %(changed)d changed, %(removed)d removed, %(kept)d kept)"
             )
+            % {
+                "total": self._num_host_labels.total,
+                "added": self._num_host_labels.new,
+                "changed": self._num_host_labels.changed,
+                "removed": self._num_host_labels.removed,
+                "kept": self._num_host_labels.kept,
+            }
         )
         job_interface.send_progress_update(
-            # astrein: disable=localization-named-placeholder
-            _("Services: %d total (%d added, %d changed, %d removed, %d kept)")
-            % (
-                self._num_services.total,
-                self._num_services.new,
-                self._num_services.changed,
-                self._num_services.removed,
-                self._num_services.kept,
+            _(
+                "Services: %(total)d total (%(added)d added, %(changed)d changed, %(removed)d removed, %(kept)d kept)"
             )
+            % {
+                "total": self._num_services.total,
+                "added": self._num_services.new,
+                "changed": self._num_services.changed,
+                "removed": self._num_services.removed,
+                "kept": self._num_services.kept,
+            }
         )
 
         job_interface.send_result_message(_("Bulk discovery successful"))
@@ -470,14 +473,14 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
     ) -> None:
         self._num_hosts_failed += len(task.host_names)
         if task.site_id:
-            # astrein: disable=localization-named-placeholder
-            msg = _("Error during discovery of %s on site %s") % (
-                ", ".join(task.host_names),
-                task.site_id,
-            )
+            msg = _("Error during discovery of %(host_names)s on site %(site_id)s") % {
+                "host_names": ", ".join(task.host_names),
+                "site_id": task.site_id,
+            }
         else:
-            # astrein: disable=localization-named-placeholder
-            msg = _("Error during discovery of %s") % (", ".join(task.host_names))
+            msg = _("Error during discovery of %(host_names)s") % {
+                "host_names": ", ".join(task.host_names)
+            }
         self._logger.warning("%(msg)s, Error: %(error)s", {"msg": msg, "error": exception[0]})
         job_interface.send_progress_update(f"{msg}, Error: {exception[0]}")
 
@@ -568,32 +571,30 @@ class BulkDiscoveryBackgroundJob(BackgroundJob):
             self._num_hosts_failed += 1
             if not host.locked():
                 host.set_discovery_failed(pprint_value=pprint_value, acting_user=user)
-            # astrein: disable=localization-named-placeholder
-            return _("discovery failed: %s") % result.error_text
+            return _("discovery failed: %(error_text)s") % {"error_text": result.error_text}
 
         self._num_hosts_succeeded += 1
 
         pending_changes.add(
             Change(
                 action_name="bulk-discovery",
-                # astrein: disable=localization-named-placeholder
                 text=_(
-                    "Discovery on host %s: %d services (%d added, %d changed, %d removed, %d kept)"
-                    "and %d host labels (%d added, %d changed, %d removed, %d kept)"
+                    "Discovery on host %(host)s: %(services_total)d services (%(services_added)d added, %(services_changed)d changed, %(services_removed)d removed, %(services_kept)d kept)"
+                    "and %(labels_total)d host labels (%(labels_added)d added, %(labels_changed)d changed, %(labels_removed)d removed, %(labels_kept)d kept)"
                 )
-                % (
-                    host.name(),
-                    result.services.total,
-                    result.services.new,
-                    result.services.changed,
-                    result.services.removed,
-                    result.services.kept,
-                    result.host_labels.total,
-                    result.host_labels.new,
-                    result.host_labels.changed,
-                    result.host_labels.removed,
-                    result.host_labels.kept,
-                ),
+                % {
+                    "host": host.name(),
+                    "services_total": result.services.total,
+                    "services_added": result.services.new,
+                    "services_changed": result.services.changed,
+                    "services_removed": result.services.removed,
+                    "services_kept": result.services.kept,
+                    "labels_total": result.host_labels.total,
+                    "labels_added": result.host_labels.new,
+                    "labels_changed": result.host_labels.changed,
+                    "labels_removed": result.host_labels.removed,
+                    "labels_kept": result.host_labels.kept,
+                },
                 object_ref=host.object_ref(),
                 diff_text=result.diff_text,
                 domains=[CORE_DOMAIN],

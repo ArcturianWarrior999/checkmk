@@ -71,8 +71,7 @@ def _parameter_valuespec_jvm_memory() -> Dictionary:
                 "non-heap and total memory area usage on web application servers."
             )
             + " "
-            # astrein: disable=localization-named-placeholder
-            + _("Other keywords for this rule: %s") % "Tomcat, Jolokia, JMX"
+            + _("Other keywords for this rule: %(keywords)s") % {"keywords": "Tomcat, Jolokia, JMX"}
         ),
         elements=[
             element
@@ -110,8 +109,7 @@ def _parameter_valuespec_jvm_memory_pools() -> Dictionary:
                 " pools on web application servers."
             )
             + " "
-            # astrein: disable=localization-named-placeholder
-            + _("Other keywords for this rule: %s") % "Tomcat, Jolokia, JMX"
+            + _("Other keywords for this rule: %(keywords)s") % {"keywords": "Tomcat, Jolokia, JMX"}
         ),
         elements=_get_memory_level_elements("used"),
     )

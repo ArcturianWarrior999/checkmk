@@ -177,8 +177,7 @@ def perform_rename_hosts(
             )
 
             for hook in rename_host_hook_registry.hooks_by_phase(RenamePhase.SETUP):
-                # astrein: disable=localization-named-placeholder
-                update_interface(_("Renaming host(s) in %s...") % hook.title)
+                update_interface(_("Renaming host(s) in %(title)s...") % {"title": hook.title})
                 actions += hook.func(oldname, newname)
 
             actions += this_host_actions
@@ -212,8 +211,7 @@ def perform_rename_hosts(
 
     # 4. Trigger updates in decoupled (e.g. edition specific) features
     for hook in rename_host_hook_registry.hooks_by_phase(RenamePhase.POST_CMK_BASE):
-        # astrein: disable=localization-named-placeholder
-        update_interface(_("Renaming host(s) in %s...") % hook.title)
+        update_interface(_("Renaming host(s) in %(title)s...") % {"title": hook.title})
         actions += hook.func(oldname, newname)
 
     # 5. Update UUID links
@@ -352,9 +350,8 @@ def _rename_host_in_rulesets(
             pending_changes.add(
                 Change(
                     action_name="edit-ruleset",
-                    # astrein: disable=localization-named-placeholder
-                    text=_l("Renamed host in %d rule sets of folder %s")
-                    % (len(changed_folder_rulesets), folder.title()),
+                    text=_l("Renamed host in %(count)d rule sets of folder %(folder)s")
+                    % {"count": len(changed_folder_rulesets), "folder": folder.title()},
                     object_ref=folder.object_ref(),
                     domains=[CORE],
                 ),
@@ -386,10 +383,9 @@ def _rename_hosts_in_check_mk(
 ) -> dict[str, int]:
     action_counts: dict[str, int] = {}
     for site_id, name_pairs in renamings_by_site.items():
-        # astrein: disable=localization-named-placeholder
-        message = _l("Renamed host %s") % ", ".join(
-            [f"{oldname} into {newname}" for (oldname, newname) in name_pairs]
-        )
+        message = _l("Renamed host %(hosts)s") % {
+            "hosts": ", ".join([f"{oldname} into {newname}" for (oldname, newname) in name_pairs])
+        }
 
         # Restart is done by remote automation (below), so don't do it during rename/sync
         # The sync is automatically done by the remote automation call
@@ -701,17 +697,21 @@ def rename_hosts_job_entry_point(
             ActivateChanges.confirm_site_changes(site_id)
 
         action_txt = "".join(["<li>%s</li>" % a for a in actions])
-        # astrein: disable=localization-named-placeholder
-        message = _("Renamed %d %s at the following places:<br><ul>%s</ul>") % (
-            len(renamings),
-            ungettext("host", "hosts", len(renamings)),
-            action_txt,
-        )
+        message = _(
+            "Renamed %(count)d %(host_word)s at the following places:<br><ul>%(actions)s</ul>"
+        ) % {
+            "count": len(renamings),
+            "host_word": ungettext("host", "hosts", len(renamings)),
+            "actions": action_txt,
+        }
         if auth_problems:
-            # astrein: disable=localization-named-placeholder
             message += _(
-                "The following hosts could not be renamed because of missing permissions: %s"
-            ) % ", ".join([f"{host_name} ({reason})" for (host_name, reason) in auth_problems])
+                "The following hosts could not be renamed because of missing permissions: %(hosts)s"
+            ) % {
+                "hosts": ", ".join(
+                    [f"{host_name} ({reason})" for (host_name, reason) in auth_problems]
+                )
+            }
         job_interface.send_result_message(message)
 
 
@@ -789,13 +789,9 @@ def render_renaming_actions(action_counts: Mapping[str, int]) -> list[str]:
     texts = []
     for what, count in sorted(action_counts.items()):
         if what.startswith("dnsfail-"):
-            text = (
-                # astrein: disable=localization-named-placeholder
-                _(
-                    "<b>Warning: </b> the IP address lookup of <b>%s</b> has failed. The core has been started by using the address <tt>0.0.0.0</tt> for the while. Please update your DNS or configure an IP address for the affected host."
-                )
-                % what.split("-", 1)[1]
-            )
+            text = _(
+                "<b>Warning: </b> the IP address lookup of <b>%(host)s</b> has failed. The core has been started by using the address <tt>0.0.0.0</tt> for the while. Please update your DNS or configure an IP address for the affected host."
+            ) % {"host": what.split("-", 1)[1]}
         else:
             text = action_titles.get(what, what)
 

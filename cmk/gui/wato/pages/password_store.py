@@ -108,16 +108,16 @@ class ModePasswords(SimpleListMode[PasswordConfig]):
         if is_locked_by_quick_setup(entry.get("locked_by")):
             raise MKUserError(
                 "_delete",
-                # astrein: disable=localization-named-placeholder
-                _("Cannot delete %s because it is managed by Quick Setup.")
-                % self._mode_type.name_singular(),
+                _("Cannot delete %(name_singular)s because it is managed by Quick Setup.")
+                % {"name_singular": self._mode_type.name_singular()},
             )
         if is_locked_by_oauth2_connection(entry.get("locked_by")):
             raise MKUserError(
                 "_delete",
-                # astrein: disable=localization-named-placeholder
-                _("Cannot delete %s because it is managed by an existing OAuth2 connection.")
-                % self._mode_type.name_singular(),
+                _(
+                    "Cannot delete %(name_singular)s because it is managed by an existing OAuth2 connection."
+                )
+                % {"name_singular": self._mode_type.name_singular()},
             )
 
     def _delete_confirm_message(self) -> str:
@@ -136,18 +136,16 @@ class ModePasswords(SimpleListMode[PasswordConfig]):
         if is_locked_by_quick_setup(entry.get("locked_by")):
             html.icon_button(
                 url="",
-                # astrein: disable=localization-named-placeholder
-                title=_("%s can only be deleted via Quick Setup")
-                % self._mode_type.name_singular().title(),
+                title=_("%(name_singular)s can only be deleted via Quick Setup")
+                % {"name_singular": self._mode_type.name_singular().title()},
                 icon=StaticIcon(IconNames.delete),
                 class_=["disabled"],
             )
         elif is_locked_by_oauth2_connection(entry.get("locked_by")):
             html.icon_button(
                 url="",
-                # astrein: disable=localization-named-placeholder
-                title=_("%s can only be deleted via OAuth2 connection")
-                % self._mode_type.name_singular().title(),
+                title=_("%(name_singular)s can only be deleted via OAuth2 connection")
+                % {"name_singular": self._mode_type.name_singular().title()},
                 icon=StaticIcon(IconNames.delete),
                 class_=["disabled"],
             )

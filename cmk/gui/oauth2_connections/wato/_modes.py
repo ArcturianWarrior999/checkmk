@@ -155,8 +155,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         SingleChoiceElementExtended(
                             name=name,
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("%s") % title,
+                            title=Title("%(title)s") % {"title": title},
                         )
                         for name, title in sorted_contact_group_choices()
                         if name in user_contact_groups
@@ -190,8 +189,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         SingleChoiceElementExtended(
                             name=site_id,
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("%s") % name,
+                            title=Title("%(name)s") % {"name": name},
                         )
                         for site_id, name in configured_site_choices
                     ],
@@ -231,8 +229,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                     elements=[
                         MultipleChoiceElementExtended(
                             name=name,
-                            # astrein: disable=localization-named-placeholder
-                            title=Title("%s") % title,
+                            title=Title("%(title)s") % {"title": title},
                         )
                         for name, title in sorted_contact_group_choices()
                     ],
@@ -266,8 +263,7 @@ def get_oauth2_connection_form_spec(ident: str | None = None) -> Dictionary:
                                 elements=[
                                     MultipleChoiceElementExtended(
                                         name=site_id,
-                                        # astrein: disable=localization-named-placeholder
-                                        title=Title("%s") % name,
+                                        title=Title("%(name)s") % {"name": name},
                                     )
                                     for site_id, name in get_configured_site_choices()
                                 ],
@@ -569,8 +565,7 @@ class ModeOAuth2Connections(SimpleListMode[OAuth2Connection]):
         if ident not in entries:
             raise MKUserError(
                 "_delete",
-                # astrein: disable=localization-named-placeholder
-                _("This %s does not exist.") % self._mode_type.name_singular(),
+                _("This %(name)s does not exist.") % {"name": self._mode_type.name_singular()},
             )
 
         found_rules = []
@@ -608,13 +603,12 @@ class ModeOAuth2Connections(SimpleListMode[OAuth2Connection]):
             )
             raise MKUserError(
                 "_delete",
-                # astrein: disable=localization-named-placeholder
                 ungettext(
-                    "OAuth2 connection '%s' is still being used by this rule: %s",
-                    "OAuth2 connection '%s' is still being used by these rules: %s",
+                    "OAuth2 connection '%(title)s' is still being used by this rule: %(rules)s",
+                    "OAuth2 connection '%(title)s' is still being used by these rules: %(rules)s",
                     len(found_rules),
                 )
-                % (entries[ident]["title"], html.render_ul(content)),
+                % {"title": entries[ident]["title"], "rules": html.render_ul(content)},
             )
 
         pending_changes = PendingChanges(
@@ -711,15 +705,15 @@ class ModeCreateOAuth2Connection(SimpleEditMode[OAuth2Connection]):
         if editable_by is None:
             raise MKUserError(
                 "",
-                # astrein: disable=localization-named-placeholder
-                _("You don't have permission to edit this %s.") % self._mode_type.name_singular(),
+                _("You don't have permission to edit this %(name)s.")
+                % {"name": self._mode_type.name_singular()},
             )
         assert user.id
         if editable_by not in userdb.contactgroups_of_user(user.id):
             raise MKUserError(
                 "",
-                # astrein: disable=localization-named-placeholder
-                _("You don't have permission to edit this %s.") % self._mode_type.name_singular(),
+                _("You don't have permission to edit this %(name)s.")
+                % {"name": self._mode_type.name_singular()},
             )
 
     @override
@@ -731,9 +725,8 @@ class ModeCreateOAuth2Connection(SimpleEditMode[OAuth2Connection]):
         ):
             raise MKUserError(
                 "",
-                # astrein: disable=localization-named-placeholder
-                _("You need to be a member of at least one contact group to create a %s.")
-                % self._mode_type.name_singular(),
+                _("You need to be a member of at least one contact group to create a %(name)s.")
+                % {"name": self._mode_type.name_singular()},
             )
 
         if self._new and not self._clone:

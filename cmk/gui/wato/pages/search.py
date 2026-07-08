@@ -63,8 +63,7 @@ class ModeSearch(WatoMode):
         )
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Search for hosts below %s") % self._folder.title()
+        return _("Search for hosts below %(folder_title)s") % {"folder_title": self._folder.title()}
 
     def action(self, config: Config) -> ActionResult:
         check_csrf_token()

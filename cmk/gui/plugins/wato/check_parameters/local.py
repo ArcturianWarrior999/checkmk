@@ -27,10 +27,9 @@ rulespec_registry.register(
 
 
 def _deprecation_message() -> str:
-    # astrein: disable=localization-named-placeholder
-    return _('This rule set is deprecated. Please use the rule set <i>"%s"</i> instead.') % _(
-        "Aggregation options for clustered services"
-    )
+    return _(
+        'This rule set is deprecated. Please use the rule set <i>"%(ruleset)s"</i> instead.'
+    ) % {"ruleset": _("Aggregation options for clustered services")}
 
 
 def _parameter_valuespec_local() -> Dictionary:

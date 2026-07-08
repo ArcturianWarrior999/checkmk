@@ -74,14 +74,15 @@ class ABCEventsMode[T_EventSpec: EventRule | dict](WatoMode, abc.ABC):
                 ListChoice(
                     title=_("Match host event type"),
                     help=(
-                        # astrein: disable=localization-named-placeholder
                         _(
                             "Select the host event types and transitions this rule should handle.<br>"
                             "Note: If you activate this option and do <b>not</b> also specify service event "
                             "types then this rule will never hold for service notifications!<br>"
-                            'Note: You can only match on event types <a href="%s">created by the core</a>.'
+                            'Note: You can only match on event types <a href="%(url)s">created by the core</a>.'
                         )
-                        % "wato.py?mode=edit_ruleset&varname=extra_host_conf%3Anotification_options"
+                        % {
+                            "url": "wato.py?mode=edit_ruleset&varname=extra_host_conf%3Anotification_options"
+                        }
                     ),
                     choices=_get_host_event_choices(add_choices),
                     default_value=[
@@ -96,14 +97,15 @@ class ABCEventsMode[T_EventSpec: EventRule | dict](WatoMode, abc.ABC):
                 ListChoice(
                     title=_("Match service event type"),
                     help=(
-                        # astrein: disable=localization-named-placeholder
                         _(
                             "Select the service event types and transitions this rule should handle.<br>"
                             "Note: If you activate this option and do <b>not</b> also specify host event "
                             "types then this rule will never hold for host notifications!<br>"
-                            'Note: You can only match on event types <a href="%s">created by the core</a>.'
+                            'Note: You can only match on event types <a href="%(url)s">created by the core</a>.'
                         )
-                        % "wato.py?mode=edit_ruleset&varname=extra_service_conf%3Anotification_options"
+                        % {
+                            "url": "wato.py?mode=edit_ruleset&varname=extra_service_conf%3Anotification_options"
+                        }
                     ),
                     choices=_get_service_event_choices(flavour, add_choices),
                     default_value=[

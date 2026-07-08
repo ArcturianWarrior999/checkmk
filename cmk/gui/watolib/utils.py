@@ -35,8 +35,7 @@ def mk_eval(s: bytes | str) -> Any:
     try:
         return ast.literal_eval(base64.b64decode(s).decode())
     except Exception:
-        # astrein: disable=localization-named-placeholder
-        raise MKGeneralException(_("Unable to parse provided data: %s") % repr(s))
+        raise MKGeneralException(_("Unable to parse provided data: %(data)s") % {"data": repr(s)})
 
 
 def site_neutral_path(path: Path) -> Path:

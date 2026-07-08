@@ -934,14 +934,13 @@ def _do_config_change(config_change_commands: Sequence[str], omd_logger: logging
     omd_logger.debug("  Output: %(output)r", {"output": completed_process.stdout})
     if completed_process.returncode:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
             _(
                 "Failed to activate changed site "
-                "configuration.\nExit code: %d\nConfig: %s\nOutput: %s"
+                "configuration.\nExit code: %(exit_code)d\nConfig: %(config)s\nOutput: %(output)s"
             )
-            % (
-                completed_process.returncode,
-                config_change_commands,
-                completed_process.stdout,
-            )
+            % {
+                "exit_code": completed_process.returncode,
+                "config": config_change_commands,
+                "output": completed_process.stdout,
+            }
         )

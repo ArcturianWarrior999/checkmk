@@ -105,14 +105,13 @@ class FetchAgentOutputRequest:
         host = folder_tree().host(HostName(host_name))
         if host is None:
             raise MKGeneralException(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Host %s does not exist on remote site %s. This "
+                    "Host %(host_name)s does not exist on remote site %(site)s. This "
                     "may be caused by a failed configuration synchronization. Have a look at "
                     'the <a href="wato.py?folder=&mode=changelog">activate changes page</a> '
                     "for further information."
                 )
-                % (host_name, omd_site())
+                % {"host_name": host_name, "site": omd_site()}
             )
         host.permissions.need_permission("read", user)
 
@@ -163,9 +162,8 @@ class AgentOutputPage(Page, abc.ABC):
         )
         if not host:
             raise MKGeneralException(
-                # astrein: disable=localization-named-placeholder
-                _('Host is not managed by Setup. Click <a href="%s">here</a> to go back.')
-                % self._back_url
+                _('Host is not managed by Setup. Click <a href="%(back_url)s">here</a> to go back.')
+                % {"back_url": self._back_url}
             )
         host.permissions.need_permission("read", user)
 
@@ -226,8 +224,7 @@ class PageFetchAgentOutput(AgentOutputPage):
         html.footer()
 
     def _title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("%s: Download agent output") % self._request.host.name()
+        return _("%(host_name)s: Download agent output") % {"host_name": self._request.host.name()}
 
     def _breadcrumb(self, title: str, user_permissions: UserPermissions) -> Breadcrumb:
         breadcrumb = make_host_breadcrumb(self._request.host.name(), user_permissions)
@@ -311,8 +308,9 @@ class ABCAutomationFetchAgentOutput(AutomationCommand[FetchAgentOutputRequest]):
 
         ascii_input = request.get_ascii_input("request")
         if ascii_input is None:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError("request", _('The parameter "%s" is missing.') % "request")
+            raise MKUserError(
+                "request", _('The parameter "%(parameter)s" is missing.') % {"parameter": "request"}
+            )
         return FetchAgentOutputRequest.deserialize(
             ast.literal_eval(ascii_input),
             default_debug=config.debug,
@@ -345,13 +343,12 @@ def start_fetch_agent_job(api_request: FetchAgentOutputRequest) -> None:
                 ),
             ),
             InitialStatusArgs(
-                # astrein: disable=localization-named-placeholder
-                title=_("Fetching %s of %s / %s")
-                % (
-                    api_request.agent_type,
-                    api_request.host.site_id(),
-                    api_request.host.name(),
-                ),
+                title=_("Fetching %(agent_type)s of %(site_id)s / %(host_name)s")
+                % {
+                    "agent_type": api_request.agent_type,
+                    "site_id": api_request.host.site_id(),
+                    "host_name": api_request.host.name(),
+                },
                 user=str(user.id) if user.id else None,
             ),
         )
@@ -421,8 +418,9 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
         debug: bool,
         timeout: int,
     ) -> None:
-        # astrein: disable=localization-named-placeholder
-        job_interface.send_progress_update(_("Fetching '%s'...") % self._agent_type)
+        job_interface.send_progress_update(
+            _("Fetching '%(agent_type)s'...") % {"agent_type": self._agent_type}
+        )
 
         agent_output_result = get_agent_output(
             LocalAutomationConfig(),
@@ -434,8 +432,8 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
 
         if not agent_output_result.success:
             job_interface.send_progress_update(
-                # astrein: disable=localization-named-placeholder
-                _("Failed: %s") % agent_output_result.service_details
+                _("Failed: %(service_details)s")
+                % {"service_details": agent_output_result.service_details}
             )
             # Specifically catch the phrase used in the job timeout message.
             # It is not enough to catch a generic "timed out" phrase.
@@ -448,15 +446,16 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
                     result = (
                         _("Background job timed out due to the global setting ")
                         + f"'<a href=\"{url}\">{global_setting_name}</a>'. "
-                        # astrein: disable=localization-named-placeholder
-                        + _("%s Click on the icon to review.")
-                        % HTMLGenerator.render_icon_button(
-                            url=url,
-                            title=_("Global setting '%(global_setting_name)s'")
-                            % {"global_setting_name": global_setting_name},
-                            icon=StaticIcon(IconNames.configuration),
-                            theme=make_theme(validate_choices=False),
-                        )
+                        + _("%(icon_button)s Click on the icon to review.")
+                        % {
+                            "icon_button": HTMLGenerator.render_icon_button(
+                                url=url,
+                                title=_("Global setting '%(global_setting_name)s'")
+                                % {"global_setting_name": global_setting_name},
+                                icon=StaticIcon(IconNames.configuration),
+                                theme=make_theme(validate_choices=False),
+                            )
+                        }
                     )
 
                 job_interface.send_result_message(result)
@@ -481,14 +480,15 @@ class FetchAgentOutputBackgroundJob(BackgroundJob):
 
         job_interface.send_progress_update("Job finished.")
         job_interface.send_result_message(
-            # astrein: disable=localization-named-placeholder
-            _("%s Click on the icon to download the agent output.")
-            % HTMLGenerator.render_icon_button(
-                url=download_url,
-                title=_("Download"),
-                icon=StaticIcon(IconNames.agent_output),
-                theme=make_theme(validate_choices=False),
-            )
+            _("%(icon_button)s Click on the icon to download the agent output.")
+            % {
+                "icon_button": HTMLGenerator.render_icon_button(
+                    url=download_url,
+                    title=_("Download"),
+                    icon=StaticIcon(IconNames.agent_output),
+                    theme=make_theme(validate_choices=False),
+                )
+            }
         )
 
 

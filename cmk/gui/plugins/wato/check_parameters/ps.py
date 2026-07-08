@@ -350,22 +350,21 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
             DropdownChoice(
                 title=_("Enable per-process details in long-output"),
                 label=_("Enable per-process details"),
-                # astrein: disable=localization-named-placeholder
                 help=_(
                     "If active, the long output of this service will contain a list of all the "
                     "matching processes and their details (i.e. PID, CPU usage, memory usage). "
                     "Please note that HTML output will only work if rules in the rule sets "
-                    '"%s" or "%s" are created or the global setting "%s" is disabled. '
+                    '"%(host_ruleset)s" or "%(service_ruleset)s" are created or the global setting "%(global_setting)s" is disabled. '
                     "This might expose you to cross-site-scripting attacks (everyone with "
                     "write-access to checks could get scripts executed on the monitoring site "
                     "in the context of the user of the monitoring site), so please do this only if "
                     "you understand the consequences."
                 )
-                % (
-                    _("Escape HTML codes in host output"),
-                    _("Escape HTML codes in service output"),
-                    _("Escape HTML codes in service output"),
-                ),
+                % {
+                    "host_ruleset": _("Escape HTML codes in host output"),
+                    "service_ruleset": _("Escape HTML codes in service output"),
+                    "global_setting": _("Escape HTML codes in service output"),
+                },
                 choices=[
                     (None, _("Disable")),
                     ("text", _("Text output")),
@@ -580,16 +579,15 @@ def cgroup_match_options() -> Tuple[tuple[str, ValueSpec]]:
                     ),
                 ],
                 match=match_alt,
-                # astrein: disable=localization-named-placeholder
                 help=_(
                     "<p>The control group information is currently only specified by the Linux agent"
                     " (cgroup). If it is present and this rule is set, the inventory will only trigger"
                     " if the control group of the corresponding process matches."
                     " For instance: you can use this rule to exclude all processes belonging to"
-                    ' a Docker container by specifying the expression "%s" (without the quotes),'
-                    ' and selecting "%s".</p>'
+                    ' a Docker container by specifying the expression "%(expression)s" (without the quotes),'
+                    ' and selecting "%(option)s".</p>'
                 )
-                % (r".*/docker/", _("Invert matching")),
+                % {"expression": r".*/docker/", "option": _("Invert matching")},
             ),
             Checkbox(label=_("Invert matching"), default_value=False),
         ],

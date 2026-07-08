@@ -25,8 +25,10 @@ def create_regex(
             MatchRegex(
                 regex=validate_pattern,
                 error_msg=error_message
-                # astrein: disable=localization-named-placeholder
-                or (Message("Invalid regex pattern. Expected: %s") % validate_pattern),
+                or (
+                    Message("Invalid regex pattern. Expected: %(pattern)s")
+                    % {"pattern": validate_pattern}
+                ),
             ),
         ]
         if validate_pattern

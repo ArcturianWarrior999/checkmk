@@ -159,8 +159,9 @@ class _ReadOnlyFormSpecAdapter(FormSpecAdapter[ReadOnlySpec, Catalog]):
 def _rw_users_choice() -> SingleChoiceExtended[str]:
     return SingleChoiceExtended(
         elements=[
-            # astrein: disable=localization-named-placeholder
-            SingleChoiceElementExtended(name=str(user_id), title=Title("%s") % alias)
+            SingleChoiceElementExtended(
+                name=str(user_id), title=Title("%(alias)s") % {"alias": alias}
+            )
             for user_id, alias in generate_wato_users_elements_function()()
             if user_id is not None
         ],

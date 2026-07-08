@@ -32,9 +32,12 @@ def UpperMemoryLevels(
         choices=[
             (
                 "perc_used",
-                # astrein: disable=localization-named-placeholder
-                _("Percentual levels%s")
-                % (of_what and (_(" in relation to %(of_what)s") % {"of_what": of_what}) or ""),
+                _("Percentual levels%(relation)s")
+                % {
+                    "relation": of_what
+                    and (_(" in relation to %(of_what)s") % {"of_what": of_what})
+                    or ""
+                },
                 UsedPercentage(default_percents, of_what),
             ),
             ("abs_used", _("Absolute levels"), UsedSize()),

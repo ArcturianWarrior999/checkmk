@@ -149,13 +149,12 @@ class ModeBulkRenameHost(WatoMode):
             return None
 
         message = HTMLWriter.render_b(
-            # astrein: disable=localization-named-placeholder
             _(
                 "Do you really want to rename the following hosts? "
-                "This involves a restart of the monitoring core and blocks %s "
+                "This involves a restart of the monitoring core and blocks %(discard_changes)s "
                 "until the next activation!"
             )
-            % HTMLWriter.render_tt("Discard Changes")
+            % {"discard_changes": HTMLWriter.render_tt("Discard Changes")}
         )
 
         rows = []
@@ -169,13 +168,14 @@ class ModeBulkRenameHost(WatoMode):
 
         nr_rename = len(renamings)
         c = _confirm(
-            # astrein: disable=localization-named-placeholder
-            _("Confirm renaming of %d %s") % (nr_rename, ungettext("host", "hosts", nr_rename)),
+            _("Confirm renaming of %(nr_rename)d %(hosts)s")
+            % {"nr_rename": nr_rename, "hosts": ungettext("host", "hosts", nr_rename)},
             message,
         )
         if c:
-            # astrein: disable=localization-named-placeholder
-            title = _("Renaming of %s") % ", ".join("%s → %s" % x[1:] for x in renamings)
+            title = _("Renaming of %(renamings)s") % {
+                "renamings": ", ".join("%s → %s" % x[1:] for x in renamings)
+            }
             host_renaming_job = RenameHostsBackgroundJob()
             if (
                 result := host_renaming_job.start(
@@ -475,11 +475,10 @@ class ModeRenameHost(WatoMode):
         self._host.permissions.need_permission("write", user)
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Rename %s %s") % (
-            _("Cluster") if self._host.is_cluster() else _("Host"),
-            self._host.name(),
-        )
+        return _("Rename %(host_type)s %(host_name)s") % {
+            "host_type": _("Cluster") if self._host.is_cluster() else _("Host"),
+            "host_name": self._host.name(),
+        }
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         menu = make_simple_form_page_menu(
@@ -535,9 +534,8 @@ class ModeRenameHost(WatoMode):
         if is_locked_by_quick_setup(self._host.locked_by()):
             raise MKUserError(
                 "host",
-                # astrein: disable=localization-named-placeholder
-                _('You cannot rename host "%s", because it is managed by Quick Setup.')
-                % self._host.name(),
+                _('You cannot rename host "%(host_name)s", because it is managed by Quick Setup.')
+                % {"host_name": self._host.name()},
             )
 
         newname = request.get_validated_type_input_mandatory(HostName, "newname")
@@ -568,8 +566,8 @@ class ModeRenameHost(WatoMode):
                     ),
                 ),
                 InitialStatusArgs(
-                    # astrein: disable=localization-named-placeholder
-                    title=_("Renaming of %s -> %s") % (self._host.name(), newname),
+                    title=_("Renaming of %(old_name)s -> %(new_name)s")
+                    % {"old_name": self._host.name(), "new_name": newname},
                     lock_wato=True,
                     stoppable=False,
                     estimated_duration=host_renaming_job.get_status().duration,
@@ -614,8 +612,7 @@ class ModeRenameHost(WatoMode):
                 cancelButtonText=_("No, keep current name"),
             ),
         ):
-            # astrein: disable=localization-named-placeholder
-            forms.header(_("Rename host %s") % self._host.name())
+            forms.header(_("Rename host %(host_name)s") % {"host_name": self._host.name()})
             forms.section(_("Current name"))
             html.write_text_permissive(self._host.name())
             forms.section(_("New name"))

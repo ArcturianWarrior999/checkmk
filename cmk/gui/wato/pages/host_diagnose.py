@@ -442,15 +442,16 @@ def _vs_rules(
                     minvalue=1,
                     maxvalue=65535,
                     default_value=agent_port if agent_port is not None else 6556,
-                    # astrein: disable=localization-named-placeholder
-                    title=_('Checkmk agent port (<a href="%s">rules</a>)')
-                    % folder_preserving_link(
-                        request,
-                        [
-                            ("mode", "edit_ruleset"),
-                            ("varname", "agent_ports"),
-                        ],
-                    ),
+                    title=_('Checkmk agent port (<a href="%(url)s">rules</a>)')
+                    % {
+                        "url": folder_preserving_link(
+                            request,
+                            [
+                                ("mode", "edit_ruleset"),
+                                ("varname", "agent_ports"),
+                            ],
+                        )
+                    },
                     help=_(
                         "This variable allows to specify the TCP port to "
                         "be used to connect to the agent on a per-host-basis."
@@ -465,15 +466,16 @@ def _vs_rules(
                     unit=_("sec"),
                     display_format="%.0f",  # show values consistent to
                     size=2,  # SNMP-Timeout
-                    # astrein: disable=localization-named-placeholder
-                    title=_('TCP connection timeout (<a href="%s">Rules</a>)')
-                    % folder_preserving_link(
-                        request,
-                        [
-                            ("mode", "edit_ruleset"),
-                            ("varname", "tcp_connect_timeouts"),
-                        ],
-                    ),
+                    title=_('TCP connection timeout (<a href="%(url)s">Rules</a>)')
+                    % {
+                        "url": folder_preserving_link(
+                            request,
+                            [
+                                ("mode", "edit_ruleset"),
+                                ("varname", "tcp_connect_timeouts"),
+                            ],
+                        )
+                    },
                     help=_(
                         "This variable allows to specify a timeout for the "
                         "TCP connection to the Checkmk agent on a per-host-basis. "
@@ -484,15 +486,16 @@ def _vs_rules(
             (
                 "snmp_timeout",
                 Integer(
-                    # astrein: disable=localization-named-placeholder
-                    title=_('SNMP-timeout (<a href="%s">Rules</a>)')
-                    % folder_preserving_link(
-                        request,
-                        [
-                            ("mode", "edit_ruleset"),
-                            ("varname", "snmp_timing"),
-                        ],
-                    ),
+                    title=_('SNMP-timeout (<a href="%(url)s">Rules</a>)')
+                    % {
+                        "url": folder_preserving_link(
+                            request,
+                            [
+                                ("mode", "edit_ruleset"),
+                                ("varname", "snmp_timing"),
+                            ],
+                        )
+                    },
                     help=_(
                         "After a request is sent to the remote SNMP agent, the service will wait up to "
                         "the provided timeout limit before assuming that the answer got lost and retrying."
@@ -506,15 +509,16 @@ def _vs_rules(
             (
                 "snmp_retries",
                 Integer(
-                    # astrein: disable=localization-named-placeholder
-                    title=_('SNMP-retries (<a href="%s">Rules</a>)')
-                    % folder_preserving_link(
-                        request,
-                        [
-                            ("mode", "edit_ruleset"),
-                            ("varname", "snmp_timing"),
-                        ],
-                    ),
+                    title=_('SNMP-retries (<a href="%(url)s">Rules</a>)')
+                    % {
+                        "url": folder_preserving_link(
+                            request,
+                            [
+                                ("mode", "edit_ruleset"),
+                                ("varname", "snmp_timing"),
+                            ],
+                        )
+                    },
                     default_value=snmp_retries if snmp_retries is not None else 5,
                     minvalue=0,
                     maxvalue=50,
@@ -596,13 +600,13 @@ class PageAjaxDiagHost(AjaxPage):
             # messages: the tuple carries the SNMPv3 password in plaintext.
             case tuple() as unexpected:
                 raise MKGeneralException(
-                    # astrein: disable=localization-named-placeholder
-                    _("Unexpected SNMPv3 credentials shape: tuple of length %d") % len(unexpected)
+                    _("Unexpected SNMPv3 credentials shape: tuple of length %(length)d")
+                    % {"length": len(unexpected)}
                 )
             case unexpected:
                 raise MKGeneralException(
-                    # astrein: disable=localization-named-placeholder
-                    _("Unexpected SNMPv3 credentials type: %s") % type(unexpected).__name__
+                    _("Unexpected SNMPv3 credentials type: %(type_name)s")
+                    % {"type_name": type(unexpected).__name__}
                 )
 
         result = diag_host(

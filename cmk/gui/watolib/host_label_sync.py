@@ -82,14 +82,13 @@ class SiteRequest:
             host = folder_tree().host(enforce_host.host_name)
             if host is None:
                 raise MKGeneralException(
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "Host %s does not exist on remote site %s. This "
+                        "Host %(host_name)s does not exist on remote site %(site_id)s. This "
                         "may be caused by a failed configuration synchronization. Have a look at "
                         'the <a href="wato.py?folder=&mode=changelog">activate changes page</a> '
                         "for further information."
                     )
-                    % (enforce_host.host_name, enforce_host.site_id)
+                    % {"host_name": enforce_host.host_name, "site_id": enforce_host.site_id}
                 )
             host.permissions.need_permission("read", user)
 
@@ -237,8 +236,9 @@ def _execute_site_sync(
 ) -> SiteResult:
     """Executes the sync with a site. Is executed in a dedicated subprocess (One per site)"""
     try:
-        # astrein: disable=localization-named-placeholder
-        logger.debug(_("[%s] Starting sync for site"), automation_config.site_id)
+        logger.debug(
+            _("[%(site_id)s] Starting sync for site"), {"site_id": automation_config.site_id}
+        )
 
         # timeout=100: Use a value smaller than the default apache request timeout
         raw_result = do_remote_automation(
@@ -253,8 +253,9 @@ def _execute_site_sync(
         assert isinstance(raw_result, dict)
         result = DiscoveredHostLabelSyncResponse(**raw_result)
 
-        # astrein: disable=localization-named-placeholder
-        logger.debug(_("[%s] Finished sync for site"), automation_config.site_id)
+        logger.debug(
+            _("[%(site_id)s] Finished sync for site"), {"site_id": automation_config.site_id}
+        )
         return SiteResult(
             site_id=automation_config.site_id,
             success=True,
@@ -322,8 +323,9 @@ class AutomationDiscoveredHostLabelSync(AutomationCommand[SiteRequest]):
     def get_request(self, config: Config, request: Request) -> SiteRequest:
         ascii_input = request.get_ascii_input("request")
         if ascii_input is None:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError("request", _('The parameter "%s" is missing.') % "request")
+            raise MKUserError(
+                "request", _('The parameter "%(parameter)s" is missing.') % {"parameter": "request"}
+            )
         return SiteRequest.deserialize(ast.literal_eval(ascii_input))
 
     def execute(self, api_request: SiteRequest) -> dict[str, Any]:

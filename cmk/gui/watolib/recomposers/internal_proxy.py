@@ -201,8 +201,7 @@ def recompose(
     global_proxy_choices: Sequence[SingleChoiceElementExtended[str]] = [
         SingleChoiceElementExtended(
             name=p["ident"],
-            # astrein: disable=localization-named-placeholder
-            title=Title("%s") % p["title"],
+            title=Title("%(title)s") % {"title": p["title"]},
         )
         for p in global_proxies
     ]
@@ -254,8 +253,7 @@ def recompose(
                             elements=[
                                 SingleChoiceElement(
                                     name=scheme.value,
-                                    # astrein: disable=localization-named-placeholder
-                                    title=Title("%s") % scheme.name,
+                                    title=Title("%(name)s") % {"name": scheme.name},
                                 )
                                 for scheme in InternalProxy.allowed_schemas
                             ],

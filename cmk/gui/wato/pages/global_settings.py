@@ -346,8 +346,7 @@ class ABCEditGlobalSettingMode(WatoMode):
         except KeyError:
             raise MKUserError(
                 "varname",
-                # astrein: disable=localization-named-placeholder
-                _('The global setting "%s" does not exist.') % self._varname,
+                _('The global setting "%(varname)s" does not exist.') % {"varname": self._varname},
             )
 
         if not self._may_edit_configvar(self._varname):
@@ -415,8 +414,8 @@ class ABCEditGlobalSettingMode(WatoMode):
                 pass
 
             msg = HTML.with_escaping(
-                # astrein: disable=localization-named-placeholder
-                _("Resetted configuration variable %s to its default.") % self._varname
+                _("Resetted configuration variable %(varname)s to its default.")
+                % {"varname": self._varname}
             )
         else:
             new_value = self._valuespec.from_html_vars("ve")
@@ -429,12 +428,11 @@ class ABCEditGlobalSettingMode(WatoMode):
 
             self._current_settings[self._varname] = new_value
             msg = HTML.without_escaping(
-                # astrein: disable=localization-named-placeholder
-                _("Changed global configuration variable %s to %s.")
-                % (
-                    escaping.escape_attribute(self._varname),
-                    escaping.escape_attribute(self._valuespec.value_to_html(new_value)),
-                )
+                _("Changed global configuration variable %(varname)s to %(value)s.")
+                % {
+                    "varname": escaping.escape_attribute(self._varname),
+                    "value": escaping.escape_attribute(self._valuespec.value_to_html(new_value)),
+                }
             )
 
         self._save(pprint_value=config.wato_pprint_config, use_git=config.wato_use_git)
@@ -542,9 +540,8 @@ class ABCEditGlobalSettingMode(WatoMode):
             forms.section(_("Current state"))
             if is_configured_globally:
                 html.write_text_permissive(
-                    # astrein: disable=localization-named-placeholder
-                    _('This variable is configured in <a href="%s">Global settings</a>.')
-                    % ("wato.py?mode=edit_configvar&varname=%s" % self._varname)
+                    _('This variable is configured in <a href="%(url)s">Global settings</a>.')
+                    % {"url": "wato.py?mode=edit_configvar&varname=%s" % self._varname}
                 )
             elif not is_configured:
                 html.write_text_permissive(_("This variable is at factory settings."))
@@ -591,8 +588,7 @@ class ModeEditGlobals(ABCGlobalSettingsMode):
 
     def title(self) -> str:
         if self._search:
-            # astrein: disable=localization-named-placeholder
-            return _("Global settings matching '%s'") % self._search
+            return _("Global settings matching '%(search)s'") % {"search": self._search}
         return _("Global settings")
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
@@ -648,11 +644,10 @@ class ModeEditGlobals(ABCGlobalSettingsMode):
             self._current_settings[varname] = not self._current_settings[varname]
         else:
             self._current_settings[varname] = not def_value
-        # astrein: disable=localization-named-placeholder
-        msg = _("Changed Configuration variable %s to %s.") % (
-            varname,
-            "on" if self._current_settings[varname] else "off",
-        )
+        msg = _("Changed Configuration variable %(varname)s to %(state)s.") % {
+            "varname": varname,
+            "state": "on" if self._current_settings[varname] else "off",
+        }
         save_global_settings(self._current_settings)
 
         add_global_settings_change(

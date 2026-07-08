@@ -47,8 +47,8 @@ def _validate_proxy_scheme(allowed_schemes: frozenset[ProxySchema], value: str) 
 
     if parts.scheme not in allowed_schemes:
         raise ValidationError(
-            # astrein: disable=localization-named-placeholder
-            Message("Invalid proxy scheme given. Must be one of: %s") % ", ".join(allowed_schemes)
+            Message("Invalid proxy scheme given. Must be one of: %(schemes)s")
+            % {"schemes": ", ".join(allowed_schemes)}
         )
     if not is_allowed_url(value, cross_domain=True, schemes=allowed_schemes):
         raise ValidationError(Message("Invalid proxy given: not an allowed URL"))
@@ -105,8 +105,7 @@ def recompose(
     global_proxy_choices: list[SingleChoiceElementExtended[str]] = [
         SingleChoiceElementExtended(
             name=p["ident"],
-            # astrein: disable=localization-named-placeholder
-            title=Title("%s") % p["title"],
+            title=Title("%(title)s") % {"title": p["title"]},
         )
         for p in global_proxies
     ]

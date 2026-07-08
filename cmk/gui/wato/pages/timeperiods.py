@@ -702,8 +702,9 @@ class ModeEditTimeperiod(WatoMode):
             )
 
         if value in ["name", "alias", "timeperiod_name", "register", "use", "exclude"]:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("<tt>%s</tt> is a reserved keyword."))
+            raise MKUserError(
+                varprefix, _("<tt>%(value)s</tt> is a reserved keyword.") % {"value": value}
+            )
 
         cfg = ConfigDomainOMD().default_globals()
         if cfg["site_core"] == "cmc":

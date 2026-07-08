@@ -62,9 +62,8 @@ class _FileSizeValidator:
             return
         if len(value[2]) > self._max_size:
             raise ValidationError(
-                # astrein: disable=localization-named-placeholder
-                Message("File size exceeds the maximum allowed size of %s bytes")
-                % filesize(self._max_size)
+                Message("File size exceeds the maximum allowed size of %(size)s bytes")
+                % {"size": filesize(self._max_size)}
             )
 
 
@@ -80,8 +79,8 @@ class _MimeTypeValidator:
             return
 
         raise ValidationError(
-            # astrein: disable=localization-named-placeholder
-            Message("Invalid mime type, supported types are: %s") % ", ".join(self._mime_types),
+            Message("Invalid mime type, supported types are: %(mime_types)s")
+            % {"mime_types": ", ".join(self._mime_types)},
         )
 
 
@@ -98,9 +97,8 @@ class _FileExtensionValidator:
             return
 
         raise ValidationError(
-            # astrein: disable=localization-named-placeholder
-            Message("Invalid extension type, supported types are: %s")
-            % ", ".join(self._extension_types),
+            Message("Invalid extension type, supported types are: %(extension_types)s")
+            % {"extension_types": ", ".join(self._extension_types)},
         )
 
 

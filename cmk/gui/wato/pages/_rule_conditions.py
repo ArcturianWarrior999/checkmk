@@ -77,9 +77,8 @@ def _validate_tag_list(
         if tag_id in seen:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The tag '%s' is selected multiple times. A tag may be selected only once.")
-                % dict(tag_choices)[tag_id],
+                _("The tag '%(tag)s' is selected multiple times. A tag may be selected only once.")
+                % {"tag": dict(tag_choices)[tag_id]},
             )
         seen.add(tag_id)
 

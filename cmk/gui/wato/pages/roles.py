@@ -161,8 +161,7 @@ class ModeRoles(WatoMode):
             ).add(
                 Change(
                     action_name="edit-roles",
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Created new role '%s'") % cloned_role.name,
+                    text=_("Created new role '%(name)s'") % {"name": cloned_role.name},
                     domains=[CORE],
                 ),
                 ChangeScope.sites(get_login_sites(config.sites)),
@@ -265,8 +264,7 @@ class ModeRoleTwoFactor(WatoMode):
         self._role: UserRole = userroles.get_role(self._role_id)
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Enforce two-factor on %s role") % self._role_id
+        return _("Enforce two-factor on %(role_id)s role") % {"role_id": self._role_id}
 
     def page(self, config: Config) -> None:
         request.get_ascii_input_mandatory("two_factor_enforce")
@@ -279,18 +277,16 @@ class ModeRoleTwoFactor(WatoMode):
         message = html.render_div(
             (
                 html.render_span(_("Warning:"), class_="underline")
-                # astrein: disable=localization-named-placeholder
                 + _(
-                    " Enforcing two-factor for the %s role will terminate any current sessions for users who have this role but have not enabled any two-factor."
+                    " Enforcing two-factor for the %(name)s role will terminate any current sessions for users who have this role but have not enabled any two-factor."
                 )
-                % self._role.name
+                % {"name": self._role.name}
             ),
             class_="confirm_info",
         )
 
         show_confirm_cancel_dialog(
-            # astrein: disable=localization-named-placeholder
-            _("Enforce two-factor on all users with %s role?") % self._role.name,
+            _("Enforce two-factor on all users with %(name)s role?") % {"name": self._role.name},
             confirm_url,
             cancel_url,
             message,
@@ -326,8 +322,7 @@ class ModeRoleTwoFactor(WatoMode):
         ).add(
             Change(
                 action_name="edit-roles",
-                # astrein: disable=localization-named-placeholder
-                text=_("Modified user role '%s'") % self._role_id,
+                text=_("Modified user role '%(role_id)s'") % {"role_id": self._role_id},
                 domains=[CORE],
             ),
             ChangeScope.sites(get_login_sites(config.sites)),
@@ -360,8 +355,7 @@ class ModeEditRole(WatoMode):
         self._role: UserRole = userroles.get_role(self._role_id)
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Edit role %s") % self._role_id
+        return _("Edit role %(role_id)s") % {"role_id": self._role_id}
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         menu = make_simple_form_page_menu(
@@ -533,8 +527,10 @@ class ModeEditRole(WatoMode):
                 choices: Choices = [
                     ("yes", _("yes")),
                     ("no", _("no")),
-                    # astrein: disable=localization-named-placeholder
-                    ("default", _("default (%s)") % (def_value and _("yes") or _("no"))),
+                    (
+                        "default",
+                        _("default (%(value)s)") % {"value": def_value and _("yes") or _("no")},
+                    ),
                 ]
 
                 deflt = {True: "yes", False: "no", None: "default"}[pvalue]
@@ -586,8 +582,7 @@ class ModeRoleMatrix(WatoMode):
 
                     html.help(
                         HTML.without_escaping("<br />").join(
-                            # astrein: disable=localization-named-placeholder
-                            (perm.description, _("Internal name: %s") % perm.name)
+                            (perm.description, _("Internal name: %(name)s") % {"name": perm.name})
                         )
                     )
 

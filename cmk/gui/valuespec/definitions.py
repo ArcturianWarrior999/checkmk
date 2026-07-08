@@ -405,8 +405,8 @@ class FixedValue[T](ValueSpec[T]):
         if not self._value == value:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Invalid value, must be '%r' but is '%r'") % (self._value, value),
+                _("Invalid value, must be '%(expected)r' but is '%(actual)r'")
+                % {"expected": self._value, "actual": value},
             )
 
 
@@ -503,8 +503,8 @@ class Age(ValueSpec[int]):
         if not isinstance(value, int):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The value %r has type %s, but must be of type int") % (value, type_name(value)),
+                _("The value %(value)r has type %(type)s, but must be of type int")
+                % {"value": value, "type": type_name(value)},
             )
 
     def _validate_value(self, value: int, varprefix: str) -> None:
@@ -619,9 +619,8 @@ class TimeSpan(ValueSpec[float]):
         if not isinstance(value, float):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The value %r has type %s, but must be of type float")
-                % (value, type_name(value)),
+                _("The value %(value)r has type %(type)s, but must be of type float")
+                % {"value": value, "type": type_name(value)},
             )
 
     def _validate_value(self, value: float, varprefix: str) -> None:
@@ -744,9 +743,8 @@ class Integer(ValueSpec[int]):
             return
         raise MKUserError(
             varprefix,
-            # astrein: disable=localization-named-placeholder
-            _("The value %r has the wrong type %s, but must be of type int")
-            % (value, type_name(value)),
+            _("The value %(value)r has the wrong type %(type)s, but must be of type int")
+            % {"value": value, "type": type_name(value)},
         )
 
     def _validate_value(self, value: int, varprefix: str) -> None:
@@ -1008,8 +1006,8 @@ class TextInput(ValueSpec[str]):
         if not isinstance(value, str):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The value must be of type str, but it has type %s") % type_name(value),
+                _("The value must be of type str, but it has type %(type)s")
+                % {"type": type_name(value)},
             )
 
     def _validate_value(self, value: str, varprefix: str) -> None:
@@ -1032,14 +1030,13 @@ class TextInput(ValueSpec[str]):
         if self._minlen is not None and len(value) < self._minlen:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("You need to provide at least %d characters.") % self._minlen,
+                _("You need to provide at least %(minlen)d characters.") % {"minlen": self._minlen},
             )
         if self._maxlen is not None and len(value) > self._maxlen:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("You must not provide more than %d characters.") % self._maxlen,
+                _("You must not provide more than %(maxlen)d characters.")
+                % {"maxlen": self._maxlen},
             )
 
     def value_to_json(self, value: str) -> JSONValue:
@@ -1316,22 +1313,20 @@ class RegExp(TextInput):
         if compiled.groups < self._mingroups:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Your regular expression containes <b>%d</b> groups. "
-                    "You need at least <b>%d</b> groups."
+                    "Your regular expression containes <b>%(groups)d</b> groups. "
+                    "You need at least <b>%(mingroups)d</b> groups."
                 )
-                % (compiled.groups, self._mingroups),
+                % {"groups": compiled.groups, "mingroups": self._mingroups},
             )
         if self._maxgroups is not None and compiled.groups > self._maxgroups:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Your regular expression containes <b>%d</b> groups. "
-                    "It must have at most <b>%d</b> groups."
+                    "Your regular expression containes <b>%(groups)d</b> groups. "
+                    "It must have at most <b>%(maxgroups)d</b> groups."
                 )
-                % (compiled.groups, self._maxgroups),
+                % {"groups": compiled.groups, "maxgroups": self._maxgroups},
             )
 
 
@@ -1642,9 +1637,8 @@ class HostAddress(TextInput):
 
         raise MKUserError(
             varprefix,
-            # astrein: disable=localization-named-placeholder
-            _("Invalid host address. You need to specify the address either as %s.")
-            % ", ".join(self._allowed_type_names()),
+            _("Invalid host address. You need to specify the address either as %(address_types)s.")
+            % {"address_types": ", ".join(self._allowed_type_names())},
         )
 
     def _is_valid_host_name(self, hostname: str) -> bool:
@@ -1798,8 +1792,8 @@ class Url(TextInput):
         if parts.scheme not in self._allowed_schemes:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Invalid URL scheme. Must be one of: %s") % ", ".join(self._allowed_schemes),
+                _("Invalid URL scheme. Must be one of: %(schemes)s")
+                % {"schemes": ", ".join(self._allowed_schemes)},
             )
         if not is_allowed_url(value, cross_domain=True, schemes=self._allowed_schemes):
             raise MKUserError(varprefix, _("Invalid URL given"))
@@ -2138,14 +2132,13 @@ class ListOfStrings(ValueSpec[Sequence[str]]):
 
         if self._split_on_paste:
             help_texts.append(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "You may paste a text from your clipboard which contains several "
-                    'parts separated by "%s" characters into the last input field. The text will '
+                    'parts separated by "%(separators)s" characters into the last input field. The text will '
                     "then be split by these separators and the single parts are added into dedicated "
                     "input fields."
                 )
-                % self._split_separators
+                % {"separators": self._split_separators}
             )
 
         return " ".join("%s" % t for t in help_texts if t)
@@ -2225,8 +2218,8 @@ class ListOfStrings(ValueSpec[Sequence[str]]):
         if not isinstance(value, list):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Expected data type is list, but your type is %s.") % type_name(value),
+                _("Expected data type is list, but your type is %(type)s.")
+                % {"type": type_name(value)},
             )
         for nr, s in enumerate(value):
             self._valuespec.validate_datatype(s, varprefix + "_%d" % nr)
@@ -2239,8 +2232,8 @@ class ListOfStrings(ValueSpec[Sequence[str]]):
         if self._max_entries is not None and len(value) > self._max_entries:
             raise MKUserError(
                 varprefix + "_%d" % self._max_entries,
-                # astrein: disable=localization-named-placeholder
-                _("You can specify at most %d entries") % self._max_entries,
+                _("You can specify at most %(max_entries)d entries")
+                % {"max_entries": self._max_entries},
             )
 
         for nr, s in enumerate(value):
@@ -2602,8 +2595,9 @@ class ListOf[T](ValueSpec[ListOfModel[T]]):
 
     def validate_datatype(self, value: ListOfModel[T], varprefix: str) -> None:
         if not isinstance(value, list):
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("The type must be list, but is %s") % type_name(value))
+            raise MKUserError(
+                varprefix, _("The type must be list, but is %(type)s") % {"type": type_name(value)}
+            )
         for n, v in enumerate(value):
             self._valuespec.validate_datatype(v, varprefix + "_%d" % (n + 1))
 
@@ -2817,8 +2811,9 @@ class ListOfMultiple(ValueSpec[ListOfMultipleModel]):
 
     def validate_datatype(self, value: ListOfMultipleModel, varprefix: str) -> None:
         if not isinstance(value, dict):
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("The type must be dict, but is %s") % type_name(value))
+            raise MKUserError(
+                varprefix, _("The type must be dict, but is %(type)s") % {"type": type_name(value)}
+            )
         for ident, val in value.items():
             self._choice_dict[ident].validate_datatype(val, varprefix + "_" + ident)
 
@@ -2901,9 +2896,12 @@ class Float(ValueSpec[float]):
             return
         raise MKUserError(
             varprefix,
-            # astrein: disable=localization-named-placeholder
-            _("The value %r has type %s, but must be of type float%s")
-            % (value, type_name(value), _(" or int") if self._allow_int else ""),
+            _("The value %(value)r has type %(type)s, but must be of type float%(int_suffix)s")
+            % {
+                "value": value,
+                "type": type_name(value),
+                "int_suffix": _(" or int") if self._allow_int else "",
+            },
         )
 
     def _validate_value(self, value: float, varprefix: str) -> None:
@@ -2954,9 +2952,8 @@ class Percentage(Float):
             if not isinstance(value, int | float):
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("The value %r has type %s, but must be either float or int")
-                    % (value, type_name(value)),
+                    _("The value %(value)r has type %(type)s, but must be either float or int")
+                    % {"value": value, "type": type_name(value)},
                 )
         else:
             super().validate_datatype(value, varprefix)
@@ -3012,8 +3009,8 @@ class Checkbox(ValueSpec[bool]):
         if not isinstance(value, bool):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The value %r has type %s, but must be of type bool") % (value, type_name(value)),
+                _("The value %(value)r has type %(type)s, but must be of type bool")
+                % {"value": value, "type": type_name(value)},
             )
 
 
@@ -3081,14 +3078,14 @@ class DropdownChoice[T](ValueSpec[T | None]):
         self._invalid_choice_title = (
             invalid_choice_title
             if invalid_choice_title is not None
-            # astrein: disable=localization-named-placeholder
-            else _("Element %r does not exist anymore")
+            else _("Element %(value)r does not exist anymore")
         )
         self._invalid_choice_error = (
             invalid_choice_error
             if invalid_choice_error is not None
-            # astrein: disable=localization-named-placeholder
-            else _("The selected element %r is not longer available. Please select something else.")
+            else _(
+                "The selected element %(value)r is not longer available. Please select something else."
+            )
         )
         self._no_preselect_title = no_preselect_title
         self._on_change = on_change
@@ -3171,12 +3168,15 @@ class DropdownChoice[T](ValueSpec[T | None]):
             return
         raise MKUserError(
             varprefix,
-            # astrein: disable=localization-named-placeholder
-            _("The value %r has type %s, but does not match any of the available choice types.")
-            % (value, type_name(value)),
+            _(
+                "The value %(value)r has type %(type)s, but does not match any of the available choice types."
+            )
+            % {"value": value, "type": type_name(value)},
         )
 
     def _get_invalid_choice_text(self, tmpl: str, value: object) -> str:
+        if "%(value)s" in tmpl or "%(value)r" in tmpl:
+            return tmpl % {"value": value}
         return tmpl % (value,) if "%s" in tmpl or "%r" in tmpl else tmpl
 
     def mask(self, value: T | None) -> T | None:
@@ -3315,8 +3315,8 @@ class AjaxDropdownChoice(DropdownChoice[str]):
         if not isinstance(value, str):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The value must be of type str, but it has type %s") % type_name(value),
+                _("The value must be of type str, but it has type %(type)s")
+                % {"type": type_name(value)},
             )
 
     def _validate_value(self, value: str | None, varprefix: str) -> None:
@@ -3459,8 +3459,8 @@ class DropdownChoiceWithHostAndServiceHints(AjaxDropdownChoice):
         )
 
         vs_host = MonitoredHostname(
-            # astrein: disable=localization-named-placeholder
-            label=_("Filter %s selection by host name: ") % self._hint_label,
+            label=_("Filter %(hint_label)s selection by host name: ")
+            % {"hint_label": self._hint_label},
             strict="True",
         )
         html.br()
@@ -3473,8 +3473,8 @@ class DropdownChoiceWithHostAndServiceHints(AjaxDropdownChoice):
                 strict=True,
                 dynamic_params_callback_name="host_hinted_autocompleter",
             ),
-            # astrein: disable=localization-named-placeholder
-            label=_("Filter %s selection by service: ") % self._hint_label,
+            label=_("Filter %(hint_label)s selection by service: ")
+            % {"hint_label": self._hint_label},
         )
         html.br()
         vs_service.render_input(varprefix + "_service_hint", "")
@@ -4138,8 +4138,7 @@ class ListChoice(ValueSpec[ListChoiceModel]):
         if not isinstance(value, list):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The data type must be list, but is %s") % type_name(value),
+                _("The data type must be list, but is %(type)s") % {"type": type_name(value)},
             )
 
     def _validate_value(self, value: ListChoiceModel, varprefix: str) -> None:
@@ -4582,8 +4581,7 @@ class RelativeDate(OptionalDropdownChoice[int]):
             if w < 2:
                 title = _(" next week")
             else:
-                # astrein: disable=localization-named-placeholder
-                title = _(" in %d days") % (w + 7)
+                title = _(" in %(days)d days") % {"days": w + 7}
             choices.append((w + 7, dateutils.weekday_name(wd) + title))
 
         super().__init__(
@@ -4626,8 +4624,7 @@ class RelativeDate(OptionalDropdownChoice[int]):
         if reldays == -2:
             return _("two days ago")
         if reldays < 0:
-            # astrein: disable=localization-named-placeholder
-            return _("%d days ago") % -reldays
+            return _("%(days)d days ago") % {"days": -reldays}
         choices = self.choices()  # TODO: Is this correct when no_preselect_title is not None?
         if reldays < len(choices):
             return choices[reldays][1]
@@ -4871,8 +4868,8 @@ class AbsoluteDate(ValueSpec[None | float]):
         if not isinstance(value, int | float):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The type of the timestamp must be int or float, but is %s") % type_name(value),
+                _("The type of the timestamp must be int or float, but is %(type)s")
+                % {"type": type_name(value)},
             )
 
     def _validate_value(self, value: float | None, varprefix: str) -> None:
@@ -4959,23 +4956,22 @@ class Timeofday(ValueSpec[TimeofdayValue]):
         if not isinstance(value, tuple):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The data type must be tuple, but is %s") % type_name(value),
+                _("The data type must be tuple, but is %(type)s") % {"type": type_name(value)},
             )
 
         if len(value) != 2:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The tuple must contain two elements, but you have %d") % len(value),
+                _("The tuple must contain two elements, but you have %(count)d")
+                % {"count": len(value)},
             )
 
         for x in value:
             if not isinstance(x, int):
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("All elements of the tuple must be of type int, you have %s") % type_name(x),
+                    _("All elements of the tuple must be of type int, you have %(type)s")
+                    % {"type": type_name(x)},
                 )
 
     def _validate_value(self, value: TimeofdayValue, varprefix: str) -> None:
@@ -4990,8 +4986,8 @@ class Timeofday(ValueSpec[TimeofdayValue]):
         if value > max_value:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The time must not be greater than %02d:%02d.") % max_value,
+                _("The time must not be greater than %(hours)02d:%(minutes)02d.")
+                % {"hours": max_value[0], "minutes": max_value[1]},
             )
         if value[0] < 0 or value[1] < 0 or value[0] > 24 or value[1] > 59:
             raise MKUserError(varprefix, _("Hours/Minutes out of range"))
@@ -5072,15 +5068,14 @@ class TimeofdayRange(ValueSpec[TimeofdayRangeValue]):
         if not isinstance(value, tuple):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The data type must be tuple, but is %s") % type_name(value),
+                _("The data type must be tuple, but is %(type)s") % {"type": type_name(value)},
             )
 
         if len(value) != 2:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The tuple must contain two elements, but you have %d") % len(value),
+                _("The tuple must contain two elements, but you have %(count)d")
+                % {"count": len(value)},
             )
 
         self._bounds[0].validate_datatype(value[0], varprefix + "_from")
@@ -5994,14 +5989,13 @@ class Tuple[TT: tuple[Any, ...]](ValueSpec[TT]):
         if not isinstance(value, tuple):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The data type must be a tuple, but is %s") % type_name(value),
+                _("The data type must be a tuple, but is %(type)s") % {"type": type_name(value)},
             )
         if len(value) != len(self._elements):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The number of elements in the tuple must be exactly %d.") % len(self._elements),
+                _("The number of elements in the tuple must be exactly %(count)d.")
+                % {"count": len(self._elements)},
             )
 
         for idx, el, val in self._iter_value(value):
@@ -6426,8 +6420,8 @@ class Dictionary(ValueSpec[DictionaryModel]):
         if not isinstance(value, dict):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The type must be a dictionary, but it is a %s") % type_name(value),
+                _("The type must be a dictionary, but it is a %(type)s")
+                % {"type": type_name(value)},
             )
 
         for param, vs in self._get_elements():
@@ -6435,11 +6429,13 @@ class Dictionary(ValueSpec[DictionaryModel]):
                 try:
                     vs.validate_datatype(value[param], f"{varprefix}_p_{param}")
                 except MKUserError as e:
-                    # astrein: disable=localization-named-placeholder
-                    raise MKUserError(e.varname, _("%s: %s") % (vs.title(), e))
+                    raise MKUserError(
+                        e.varname, _("%(title)s: %(error)s") % {"title": vs.title(), "error": e}
+                    )
             elif not self._optional_keys or param in self._required_keys:
-                # astrein: disable=localization-named-placeholder
-                raise MKUserError(varprefix, _("The entry %s is missing") % vs.title())
+                raise MKUserError(
+                    varprefix, _("The entry %(title)s is missing") % {"title": vs.title()}
+                )
 
         # Check for exceeding keys
         allowed_keys = [p for p, _v in self._get_elements()]
@@ -6449,9 +6445,8 @@ class Dictionary(ValueSpec[DictionaryModel]):
             if param not in allowed_keys:
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("Undefined key '%s' in the dictionary. Allowed are %s.")
-                    % (param, ", ".join(allowed_keys)),
+                    _("Undefined key '%(key)s' in the dictionary. Allowed are %(allowed_keys)s.")
+                    % {"key": param, "allowed_keys": ", ".join(allowed_keys)},
                 )
 
     def _validate_value(self, value: DictionaryModel, varprefix: str) -> None:
@@ -6461,8 +6456,9 @@ class Dictionary(ValueSpec[DictionaryModel]):
             if param in value:
                 vs.validate_value(value[param], f"{varprefix}_p_{param}")
             elif not self._optional_keys or param in self._required_keys:
-                # astrein: disable=localization-named-placeholder
-                raise MKUserError(varprefix, _("The entry %s is missing") % vs.title())
+                raise MKUserError(
+                    varprefix, _("The entry %(title)s is missing") % {"title": vs.title()}
+                )
 
     def transform_value(self, value: DictionaryModel) -> DictionaryModel:
         if not isinstance(value, dict):
@@ -6575,8 +6571,8 @@ class ElementSelection(ValueSpec[None | str]):
         if not isinstance(value, str):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The data type must be str (string), but is %s") % type_name(value),
+                _("The data type must be str (string), but is %(type)s")
+                % {"type": type_name(value)},
             )
 
 
@@ -6896,8 +6892,9 @@ class LDAPDistinguishedName(TextInput):
             and value
             and not value.lower().endswith(self.enforce_suffix.lower())
         ):
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _('Does not ends with "%s".') % self.enforce_suffix)
+            raise MKUserError(
+                varprefix, _('Does not ends with "%(suffix)s".') % {"suffix": self.enforce_suffix}
+            )
 
 
 class Password(TextInput):
@@ -7169,12 +7166,11 @@ class FileUpload(ValueSpec[FileUploadModel]):
         ):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Invalid file type expected %s received '%s'")
-                % (
-                    ", ".join(extension for extension in self._allowed_extensions),
-                    Path(file_name).suffix,
-                ),
+                _("Invalid file type expected %(expected)s received '%(received)s'")
+                % {
+                    "expected": ", ".join(extension for extension in self._allowed_extensions),
+                    "received": Path(file_name).suffix,
+                },
             )
 
         if self._allowed_mime_types is not None and mime not in self._allowed_mime_types:
@@ -7464,14 +7460,18 @@ class Labels(ValueSpec[LabelsModel]):
             if not isinstance(k, str):
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("The label ID %r is of type %s, but should be %s") % (k, type(k), str),
+                    _(
+                        "The label ID %(label_id)r is of type %(type)s, but should be %(expected_type)s"
+                    )
+                    % {"label_id": k, "type": type(k), "expected_type": str},
                 )
             if not isinstance(v, str):
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
-                    _("The label value %r is of type %s, but should be %s") % (k, type(v), str),
+                    _(
+                        "The label value %(label_value)r is of type %(type)s, but should be %(expected_type)s"
+                    )
+                    % {"label_value": k, "type": type(v), "expected_type": str},
                 )
 
     def mask(self, value: LabelsModel) -> LabelsModel:
@@ -7886,8 +7886,9 @@ class IconSelector(ValueSpec[IconSelectorModel]):
 
         if value:
             is_emblem = varprefix.endswith("emblem")
-            # astrein: disable=localization-named-placeholder
-            selection_text = _("Choose another %s") % ("Emblem" if is_emblem else "Icon")
+            selection_text = _("Choose another %(kind)s") % {
+                "kind": "Emblem" if is_emblem else "Icon"
+            }
             content = self._render_icon(value, "", selection_text, id_=varprefix + "_img")
         else:
             content = HTML.with_escaping(_("Select an Icon"))
@@ -8026,14 +8027,14 @@ class IconSelector(ValueSpec[IconSelectorModel]):
         if not (icon_dict["icon"] is None or isinstance(icon_dict["icon"], str)):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The icon type is %s, but should be str") % type(icon_dict["icon"]),
+                _("The icon type is %(type)s, but should be str")
+                % {"type": type(icon_dict["icon"])},
             )
         if not (icon_dict["emblem"] is None or isinstance(icon_dict["emblem"], str)):
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("The emblem type is %s, but should be str") % type(icon_dict["emblem"]),
+                _("The emblem type is %(type)s, but should be str")
+                % {"type": type(icon_dict["emblem"])},
             )
 
     def _validate_value(self, value: IconSelectorModel, varprefix: str) -> None:
@@ -8180,8 +8181,9 @@ class Color(ValueSpec[None | str]):
 
     def validate_datatype(self, value: str | None, varprefix: str) -> None:
         if value is not None and not isinstance(value, str):
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("The type is %s, but should be str") % type(value))
+            raise MKUserError(
+                varprefix, _("The type is %(type)s, but should be str") % {"type": type(value)}
+            )
 
     def _validate_value(self, value: str | None, varprefix: str) -> None:
         if not self._allow_empty and not value:
@@ -8244,8 +8246,9 @@ class SSHKeyPair(ValueSpec[None | SSHKeyPairValue]):
 
     def render_input(self, varprefix: str, value: SSHKeyPairValue | None) -> None:
         if value:
-            # astrein: disable=localization-named-placeholder
-            html.write_text_permissive(_("Fingerprint: %s") % self.value_to_html(value))
+            html.write_text_permissive(
+                _("Fingerprint: %(fingerprint)s") % {"fingerprint": self.value_to_html(value)}
+            )
             html.hidden_field(varprefix, self._encode_key_for_url(value), add_var=True)
         else:
             html.write_text_permissive(_("Key pair will be generated when you save."))
@@ -8526,12 +8529,11 @@ class _CAorCAChain(UploadOrPasteTextFile):
             cert_info["fingerprint"][:41], title=cert_info["fingerprint"]
         )
         show_info["validity"] = HTML.without_escaping(
-            # astrein: disable=localization-named-placeholder
-            _("Not before: %s - Not after: %s")
-            % (
-                cert_info["creation"],
-                cert_info["expiration"],
-            )
+            _("Not before: %(not_before)s - Not after: %(not_after)s")
+            % {
+                "not_before": cert_info["creation"],
+                "not_after": cert_info["expiration"],
+            }
         )
         rows = []
         for what, title in [
@@ -8636,8 +8638,7 @@ class SetupSiteChoice(DropdownChoice):
             prefix_values=prefix_values,
             empty_text=empty_text,
             invalid_choice=invalid_choice,
-            # astrein: disable=localization-named-placeholder
-            invalid_choice_title=_("Unknown site (%s)"),
+            invalid_choice_title=_("Unknown site (%(value)s)"),
             invalid_choice_error=(
                 _("The configured site is not known to this site.")
                 if invalid_choice_error is None

@@ -488,9 +488,10 @@ class UserTwoFactorOverview(Page):
             table.cell(
                 "",
                 html.render_i(
-                    # astrein: disable=localization-named-placeholder
-                    _("Click on 'Register %s' to enable two-factor authentication via %s.")
-                    % (name, name)
+                    _(
+                        "Click on 'Register %(name)s' to enable two-factor authentication via %(name)s."
+                    )
+                    % {"name": name}
                 ),
                 colspan=2,
             )
@@ -760,9 +761,8 @@ class UserTwoFactorEnforce(Page):
         table.cell(
             "",
             html.render_i(
-                # astrein: disable=localization-named-placeholder
-                _("Click on 'Register %s' to enable two-factor authentication via %s.")
-                % (name, name)
+                _("Click on 'Register %(name)s' to enable two-factor authentication via %(name)s.")
+                % {"name": name}
             ),
             colspan=2,
         )

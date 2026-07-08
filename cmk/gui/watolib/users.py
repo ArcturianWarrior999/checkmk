@@ -123,8 +123,7 @@ def delete_users(
         pending_changes.add(
             Change(
                 action_name="edit-users",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Deleted user: %s") % ", ".join(deleted_users),
+                text=_l("Deleted user: %(users)s") % {"users": ", ".join(deleted_users)},
                 domains=[CORE],
             ),
             ChangeScope.all_activation_sites()
@@ -337,8 +336,7 @@ def remove_custom_attribute_from_all_users(
         pending_changes.add(
             Change(
                 action_name="edit-users",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Modified users: %s") % ", ".join(modified_users_info),
+                text=_l("Modified users: %(users)s") % {"users": ", ".join(modified_users_info)},
                 domains=[CORE],
             ),
             ChangeScope.all_activation_sites()
@@ -499,23 +497,21 @@ def verify_password_policy(
     if result == PasswordPolicy.Result.TooShort:
         raise MKUserError(
             varname,
-            # astrein: disable=localization-named-placeholder
             _(
                 "The password does not comply with the configured password policy: "
-                "It must have at least %d characters."
+                "It must have at least %(min_length)d characters."
             )
-            % password_policy.min_length,
+            % {"min_length": password_policy.min_length},
         )
     if result == PasswordPolicy.Result.TooSimple:
         raise MKUserError(
             varname,
-            # astrein: disable=localization-named-placeholder
             _(
                 "The password does not comply with the configured password policy: "
-                "It must use at least %d different character groups, such as lowercase letters, "
+                "It must use at least %(min_groups)d different character groups, such as lowercase letters, "
                 "uppercase letters, digits or special characters."
             )
-            % password_policy.min_groups,
+            % {"min_groups": password_policy.min_groups},
         )
 
     if result == PasswordPolicy.Result.WordlistMatch:

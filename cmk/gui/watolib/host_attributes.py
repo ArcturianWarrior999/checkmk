@@ -953,14 +953,13 @@ class ABCHostAttributeText(ABCHostAttribute, abc.ABC):
         if self.is_mandatory() and not value:
             raise MKUserError(
                 varprefix + "attr_" + self.name(),
-                # astrein: disable=localization-named-placeholder
-                _("Please specify a value for %s") % self.title(),
+                _("Please specify a value for %(title)s") % {"title": self.title()},
             )
         if not self._allow_empty and (value is None or not value.strip()):
             raise MKUserError(
                 varprefix + "attr_" + self.name(),
-                # astrein: disable=localization-named-placeholder
-                _("%s may be missing, it must not be empty if it is set.") % self.title(),
+                _("%(title)s may be missing, it must not be empty if it is set.")
+                % {"title": self.title()},
             )
 
     def filter_matches(self, crit: str, value: str | None, hostname: HostName) -> bool:

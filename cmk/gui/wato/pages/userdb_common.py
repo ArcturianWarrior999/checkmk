@@ -163,8 +163,7 @@ def render_connections_page(
                 ),
                 title=_("Delete connection #%(display_index)d") % {"display_index": display_index},
                 suffix=connection.get("name", connection["id"]),
-                # astrein: disable=localization-named-placeholder
-                message=_("ID: %s") % connection["id"],
+                message=_("ID: %(connection_id)s") % {"connection_id": connection["id"]},
             )
             drag_url = make_action_link(
                 request,

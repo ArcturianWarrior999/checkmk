@@ -127,8 +127,7 @@ class ModeBulkEdit(WatoMode):
             # Either offer API in class Host for bulk change or
             # delay saving until end somehow
 
-        # astrein: disable=localization-named-placeholder
-        flash(_("Edited %d hosts") % len(host_names))
+        flash(_("Edited %(count)d hosts") % {"count": len(host_names)})
         return redirect(self._folder.url(request))
 
     @override
@@ -149,12 +148,11 @@ class ModeBulkEdit(WatoMode):
         html.p(
             "%s%s %s"
             % (
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "You have selected <b>%d</b> hosts for bulk edit. You can now change "
+                    "You have selected <b>%(count)d</b> hosts for bulk edit. You can now change "
                     "host attributes for all selected hosts at once. "
                 )
-                % len(hosts),
+                % {"count": len(hosts)},
                 _(
                     "If a selection is set to <i>, this value differs between the selected hosts.</i> "
                     "Then, currently not all selected hosts share the same setting for this attribute. "
@@ -279,14 +277,13 @@ class ModeBulkCleanup(WatoMode):
         hosts = get_hosts_from_checkboxes(self._folder)
 
         html.p(
-            # astrein: disable=localization-named-placeholder
             _(
-                "You have selected <b>%d</b> hosts for bulk cleanup. This means removing "
+                "You have selected <b>%(count)d</b> hosts for bulk cleanup. This means removing "
                 "explicit attribute values from hosts. The hosts will then inherit attributes "
                 "configured at the host list or folders or simply fall back to the built-in "
                 "default values."
             )
-            % len(hosts)
+            % {"count": len(hosts)}
         )
 
         with html.form_context("bulkcleanup", method="POST"):

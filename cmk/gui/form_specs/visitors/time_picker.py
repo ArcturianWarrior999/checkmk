@@ -32,8 +32,7 @@ class TimePickerVisitor(FormSpecVisitor[TimePicker, _ParsedValueModel, _Fallback
             time.strptime(raw_value.value, "%H:%M")
         except (ValueError, TypeError):
             return InvalidValue(
-                # astrein: disable=localization-named-placeholder
-                reason=_("Invalid time format %s") % raw_value.value,
+                reason=_("Invalid time format %(value)s") % {"value": raw_value.value},
                 fallback_value="",
             )
 

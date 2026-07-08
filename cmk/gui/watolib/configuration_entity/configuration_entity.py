@@ -240,8 +240,9 @@ def get_configuration_entity_schema(
 def get_readable_entity_selection(entity_type: ConfigEntityType, entity_type_specifier: str) -> str:
     match entity_type:
         case ConfigEntityType.notification_parameter:
-            # astrein: disable=localization-named-placeholder
-            return _("%s parameter") % notification_script_title(entity_type_specifier)
+            return _("%(title)s parameter") % {
+                "title": notification_script_title(entity_type_specifier)
+            }
         case ConfigEntityType.folder:
             return _("folder")
         case ConfigEntityType.oauth2_connection:
@@ -249,8 +250,7 @@ def get_readable_entity_selection(entity_type: ConfigEntityType, entity_type_spe
         case ConfigEntityType.passwordstore_password:
             return _("password")
         case ConfigEntityType.rule_form_spec:
-            # astrein: disable=localization-named-placeholder
-            return _("rule %s") % rule_form_spec_title(entity_type_specifier)
+            return _("rule %(title)s") % {"title": rule_form_spec_title(entity_type_specifier)}
         case other:
             assert_never(other)
 

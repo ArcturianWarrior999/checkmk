@@ -22,10 +22,9 @@ from cmk.gui.valuespec import (
 
 
 def _deprecation_message() -> str:
-    # astrein: disable=localization-named-placeholder
-    return _('This option is deprecated. Please use the rule set <i>"%s"</i> instead.') % _(
-        "Aggregation options for clustered services"
-    )
+    return _(
+        'This option is deprecated. Please use the rule set <i>"%(rule_set)s"</i> instead.'
+    ) % {"rule_set": _("Aggregation options for clustered services")}
 
 
 def _parameter_valuespec_job() -> Dictionary:

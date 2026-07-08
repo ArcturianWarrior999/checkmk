@@ -68,14 +68,13 @@ class ABCAppendStore[VT](abc.ABC):
         except SyntaxError as e:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
                 _(
                     "The audit log cannot be shown because of "
-                    "a syntax error in %s.<br><br>Please review and fix the file "
+                    "a syntax error in %(path)s.<br><br>Please review and fix the file "
                     "content or remove the file before you visit this page "
-                    "again.<br><br>The problematic entry is:<br>%s"
+                    "again.<br><br>The problematic entry is:<br>%(entry)s"
                 )
-                % (str(self._path), e.text),
+                % {"path": str(self._path), "entry": e.text},
             )
 
     def read(self) -> Sequence[VT]:
@@ -96,8 +95,9 @@ class ABCAppendStore[VT](abc.ABC):
         except Exception as e:
             # The _append_transaction context manager re-raises the original exception
             # after attempting to truncate. We catch it here and wrap it.
-            # astrein: disable=localization-named-placeholder
-            raise MKGeneralException(_('Cannot write file "%s": %s') % (self._path, e)) from e
+            raise MKGeneralException(
+                _('Cannot write file "%(path)s": %(error)s') % {"path": self._path, "error": e}
+            ) from e
 
     @contextmanager
     def mutable_view(self) -> Iterator[list[VT]]:

@@ -23,8 +23,7 @@ class EnforceSuffix:
         suffix: str,
         *,
         case: typing.Literal["ignore", "sensitive"],
-        # astrein: disable=localization-named-placeholder
-        error_msg: Message = Message("Does not end with %s"),
+        error_msg: Message = Message("Does not end with %(suffix)s"),
     ) -> None:
         self.suffix = suffix
         self.case = case
@@ -39,7 +38,7 @@ class EnforceSuffix:
             suffix = self.suffix
 
         if not to_check.endswith(suffix):
-            raise ValidationError(self.error_msg % suffix)
+            raise ValidationError(self.error_msg % {"suffix": suffix})
 
 
 class IsInteger:
@@ -141,8 +140,9 @@ class HostAddressList:
                     try:
                         re.compile(hostname[1:])
                     except re.error as e:
-                        # astrein: disable=localization-named-placeholder
-                        raise ValidationError(Message("Invalid regex pattern: %s") % str(e))
+                        raise ValidationError(
+                            Message("Invalid regex pattern: %(error)s") % {"error": str(e)}
+                        )
                 else:
                     try:
                         CheckmkHostAddress(hostname)

@@ -63,15 +63,14 @@ def _parameter_valuespec_windows_tasks() -> Dictionary:
                         optional_keys=["info_text"],
                     ),
                     title=_("Map exit code to monitoring state"),
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Specify how Checkmk will translate the exit code of a task into a monitoring state."
                         " This will overwrite the default mapping used by the check plug-in."
                         " You can also decide to only partially overwrite the default mapping by only specifying the new monitoring state."
                         " The default text will be kept as the summary, then.\n\n"
-                        " The defaults are shown in the checks manual page (see <i>%s</i>)."
+                        " The defaults are shown in the checks manual page (see <i>%(catalog)s</i>)."
                     )
-                    % _("Catalog of check plug-ins"),
+                    % {"catalog": _("Catalog of check plug-ins")},
                 ),
             ),
             (

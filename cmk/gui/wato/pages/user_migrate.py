@@ -146,13 +146,12 @@ class ModeUserMigrate(WatoMode):
             return
 
         html.show_message(
-            # astrein: disable=localization-named-placeholder
-            _("You have selected %d %s for migration: %s")
-            % (
-                len(selected_users),
-                ungettext("user", "users", len(selected_users)),
-                _format_users(selected_users),
-            )
+            _("You have selected %(count)d %(user_label)s for migration: %(user_list)s")
+            % {
+                "count": len(selected_users),
+                "user_label": ungettext("user", "users", len(selected_users)),
+                "user_list": _format_users(selected_users),
+            }
         )
 
         with html.form_context("user_migrate", method="POST"):
@@ -195,30 +194,35 @@ class ModeUserMigrate(WatoMode):
             pprint_value=config.wato_pprint_config,
         )
 
-        # astrein: disable=localization-named-placeholder
-        flashed_msg: str = _("Migrated %d %s to connector '%s': %s") % (
-            len(users_migrated),
-            ungettext("user", "users", len(users_migrated)),
-            connector,
-            _format_users(users_migrated),
-        )
+        flashed_msg: str = _(
+            "Migrated %(count)d %(user_label)s to connector '%(connector)s': %(user_list)s"
+        ) % {
+            "count": len(users_migrated),
+            "user_label": ungettext("user", "users", len(users_migrated)),
+            "connector": connector,
+            "user_list": _format_users(users_migrated),
+        }
 
         connection = get_connection(connector)
         if connection is not None and (connection_type := connection.type()) in [
             ConnectorType.SAML2,
             ConnectorType.LDAP,
         ]:
-            # astrein: disable=localization-named-placeholder
             flashed_msg += "<br>" + _(
-                "Please note: Connector-specific user attributes may be set on the next %s."
-            ) % (_("login") if connection_type == ConnectorType.SAML2 else _("synchronization"))
+                "Please note: Connector-specific user attributes may be set on the next %(event)s."
+            ) % {
+                "event": _("login")
+                if connection_type == ConnectorType.SAML2
+                else _("synchronization")
+            }
 
         if users_with_warning:
-            # astrein: disable=localization-named-placeholder
-            flashed_msg += "<br><br>" + _("The following %s could not be found: %s") % (
-                ungettext("user", "users", len(users_with_warning)),
-                _format_users(users_with_warning),
-            )
+            flashed_msg += "<br><br>" + _(
+                "The following %(user_label)s could not be found: %(user_list)s"
+            ) % {
+                "user_label": ungettext("user", "users", len(users_with_warning)),
+                "user_list": _format_users(users_with_warning),
+            }
 
         flash(flashed_msg, "warning" if users_with_warning else "message")
 

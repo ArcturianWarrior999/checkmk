@@ -2314,20 +2314,19 @@ class Folder:
 
         permitted_groups, _folder_contactgroups, _use_for_services = self.groups()
 
-        # astrein: disable=localization-named-placeholder
-        reason = _("Sorry, you have no permissions to the folder <b>%s</b>.") % self.alias_path()
+        reason = _("Sorry, you have no permissions to the folder <b>%(folder)s</b>.") % {
+            "folder": self.alias_path()
+        }
         if not permitted_groups:
             reason += " " + _("The folder is not permitted for any contact group.")
         else:
-            # astrein: disable=localization-named-placeholder
-            reason += " " + _("The folder's permitted contact groups are <b>%s</b>.") % ", ".join(
-                permitted_groups
-            )
+            reason += " " + _(
+                "The folder's permitted contact groups are <b>%(contact_groups)s</b>."
+            ) % {"contact_groups": ", ".join(permitted_groups)}
             if user_contactgroups := acting_user.contact_groups:
-                # astrein: disable=localization-named-placeholder
-                reason += " " + _("Your contact groups are <b>%s</b>.") % ", ".join(
-                    user_contactgroups
-                )
+                reason += " " + _("Your contact groups are <b>%(contact_groups)s</b>.") % {
+                    "contact_groups": ", ".join(user_contactgroups)
+                }
             else:
                 reason += " " + _("But you are not a member of any contact group.")
         reason += " " + _(
@@ -2354,20 +2353,22 @@ class Folder:
     def need_unlocked(self) -> None:
         if self.locked():
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
-                _("Sorry, you cannot edit the folder %s. It is locked.") % self.title()
+                _("Sorry, you cannot edit the folder %(folder)s. It is locked.")
+                % {"folder": self.title()}
             )
 
     def need_unlocked_hosts(self) -> None:
         if self.locked_hosts():
-            # astrein: disable=localization-named-placeholder
-            raise MKAuthException(_("Sorry, the hosts in the folder %s are locked.") % self.title())
+            raise MKAuthException(
+                _("Sorry, the hosts in the folder %(folder)s are locked.")
+                % {"folder": self.title()}
+            )
 
     def need_unlocked_subfolders(self) -> None:
         if self.locked_subfolders():
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
-                _("Sorry, the sub folders in the folder %s are locked.") % self.title()
+                _("Sorry, the sub folders in the folder %(folder)s are locked.")
+                % {"folder": self.title()}
             )
 
     def url(self, request: Request, add_vars: HTTPVariables | None = None) -> str:
@@ -2541,8 +2542,7 @@ class Folder:
         pending_changes.add(
             Change(
                 action_name="new-folder",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Created new folder %s") % new_subfolder.alias_path(),
+                text=_l("Created new folder %(folder)s") % {"folder": new_subfolder.alias_path()},
                 object_ref=new_subfolder.object_ref(),
                 diff_text=diff_attributes({}, None, new_subfolder.attributes, None),
                 domains=[CORE_DOMAIN],
@@ -2573,8 +2573,7 @@ class Folder:
         pending_changes.add(
             Change(
                 action_name="delete-folder",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Deleted folder %s") % subfolder.alias_path(),
+                text=_l("Deleted folder %(folder)s") % {"folder": subfolder.alias_path()},
                 object_ref=self.object_ref(),
                 domains=[CORE_DOMAIN],
             ),
@@ -2659,9 +2658,11 @@ class Folder:
         pending_changes.add(
             Change(
                 action_name="move-folder",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Moved folder %s to %s")
-                % (original_alias_path, target_folder.alias_path()),
+                text=_l("Moved folder %(folder)s to %(target_folder)s")
+                % {
+                    "folder": original_alias_path,
+                    "target_folder": target_folder.alias_path(),
+                },
                 object_ref=moved_subfolder.object_ref(),
                 domains=[CORE_DOMAIN],
             ),
@@ -2729,8 +2730,7 @@ class Folder:
         pending_changes.add(
             Change(
                 action_name="edit-folder",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Edited properties of folder %s") % self.title(),
+                text=_l("Edited properties of folder %(folder)s") % {"folder": self.title()},
                 object_ref=self.object_ref(),
                 diff_text=diff,
                 domains=[CORE_DOMAIN],
@@ -2915,16 +2915,15 @@ class Folder:
         # 2. check if hosts have parents
         if hosts_with_children := self._get_parents_of_hosts(self.tree, host_names):
             errors.extend(
-                # astrein: disable=localization-named-placeholder
-                _("%s is parent of %s.") % (parent, ", ".join(children))
+                _("%(parent)s is parent of %(children)s.")
+                % {"parent": parent, "children": ", ".join(children)}
                 for parent, children in sorted(hosts_with_children.items())
             )
 
         if errors:
             raise MKUserError(
                 "delete_host",
-                # astrein: disable=localization-named-placeholder
-                _("You cannot delete these hosts: %s") % ", ".join(errors),
+                _("You cannot delete these hosts: %(errors)s") % {"errors": ", ".join(errors)},
             )
 
     def _get_hosts_locked_by_quick_setup(
@@ -3018,14 +3017,16 @@ class Folder:
             pending_changes.add(
                 Change(
                     action_name="move-host",
-                    # astrein: disable=localization-named-placeholder
-                    text=_l('Moved host from "%s" (ID: %s) to "%s" (ID: %s)')
-                    % (
-                        old_folder_text,
-                        self._id,
-                        new_folder_text,
-                        target_folder._id,
-                    ),
+                    text=_l(
+                        'Moved host from "%(old_folder)s" (ID: %(old_id)s) '
+                        'to "%(new_folder)s" (ID: %(new_id)s)'
+                    )
+                    % {
+                        "old_folder": old_folder_text,
+                        "old_id": self._id,
+                        "new_folder": new_folder_text,
+                        "new_id": target_folder._id,
+                    },
                     object_ref=host.object_ref(),
                     domains=[CORE_DOMAIN],
                 ),
@@ -3095,9 +3096,12 @@ class Folder:
         pending_changes.add(
             Change(
                 action_name="rename-parent",
-                # astrein: disable=localization-named-placeholder
-                text=_l('Renamed parent from %s to %s in folder "%s"')
-                % (oldname, newname, self.alias_path()),
+                text=_l('Renamed parent from %(oldname)s to %(newname)s in folder "%(folder)s"')
+                % {
+                    "oldname": oldname,
+                    "newname": newname,
+                    "folder": self.alias_path(),
+                },
                 object_ref=self.object_ref(),
                 domains=[CORE_DOMAIN],
             ),
@@ -3340,16 +3344,15 @@ def validate_host_uniqueness(tree: FolderTree, varname: str, host_name: HostName
     if host:
         raise MKUserError(
             varname,
-            # astrein: disable=localization-named-placeholder
             _(
-                "A host with the name <b><tt>%s</tt></b> already "
-                'exists in the folder <a href="%s">%s</a>.'
+                "A host with the name <b><tt>%(host_name)s</tt></b> already "
+                'exists in the folder <a href="%(url)s">%(folder)s</a>.'
             )
-            % (
-                host_name,
-                _makeuri_to_wato([("mode", "folder"), ("folder", host.folder().path())]),
-                host.folder().alias_path(),
-            ),
+            % {
+                "host_name": host_name,
+                "url": _makeuri_to_wato([("mode", "folder"), ("folder", host.folder().path())]),
+                "folder": host.folder().alias_path(),
+            },
         )
 
 
@@ -3394,8 +3397,7 @@ class SearchFolder:
         return self._base_folder
 
     def title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Search results for folder %s") % self._base_folder.title()
+        return _("Search results for folder %(folder)s") % {"folder": self._base_folder.title()}
 
     def breadcrumb(self, request: Request) -> Breadcrumb:
         return _folder_breadcrumb(self, request)
@@ -3480,14 +3482,14 @@ class SearchFolder:
                 )
             except MKAuthException as e:
                 auth_errors.append(
-                    # astrein: disable=localization-named-placeholder
-                    _("<li>Cannot delete hosts in folder %s: %s</li>") % (folder.alias_path(), e)
+                    _("<li>Cannot delete hosts in folder %(folder)s: %(error)s</li>")
+                    % {"folder": folder.alias_path(), "error": e}
                 )
         self._invalidate_search()
         if auth_errors:
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
-                _("Some hosts could not be deleted:<ul>%s</ul>") % "".join(auth_errors)
+                _("Some hosts could not be deleted:<ul>%(errors)s</ul>")
+                % {"errors": "".join(auth_errors)}
             )
 
     def move_hosts(
@@ -3512,14 +3514,14 @@ class SearchFolder:
                 )
             except MKAuthException as e:
                 auth_errors.append(
-                    # astrein: disable=localization-named-placeholder
-                    _("<li>Cannot move hosts from folder %s: %s</li>") % (folder.alias_path(), e)
+                    _("<li>Cannot move hosts from folder %(folder)s: %(error)s</li>")
+                    % {"folder": folder.alias_path(), "error": e}
                 )
         self._invalidate_search()
         if auth_errors:
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
-                _("Some hosts could not be moved:<ul>%s</ul>") % "".join(auth_errors)
+                _("Some hosts could not be moved:<ul>%(errors)s</ul>")
+                % {"errors": "".join(auth_errors)}
             )
 
     def _group_hostnames_by_folder(
@@ -3783,20 +3785,18 @@ class Host:
             return
 
         if len(self.groups()[0]) > 0:
-            # astrein: disable=localization-named-placeholder
             group_sentence = _(
                 "To get access, ensure your user is in a contact "
-                "group specified in the host's permissions: <b>%s</b>."
-            ) % ", ".join(self.groups()[0])
+                "group specified in the host's permissions: <b>%(contact_groups)s</b>."
+            ) % {"contact_groups": ", ".join(self.groups()[0])}
         else:
             group_sentence = _(
                 "Access is restricted, but no contact groups are assigned in the host's permissions."
             )
 
         raise MKAuthException(
-            # astrein: disable=localization-named-placeholder
-            _("You cannot edit the configuration for host '<b>%s</b>'. %s")
-            % (self.name(), group_sentence)
+            _("You cannot edit the configuration for host '<b>%(host)s</b>'. %(group_sentence)s")
+            % {"host": self.name(), "group_sentence": group_sentence}
         )
 
     def is_contact(self, user_: LoggedInUser) -> bool:
@@ -3884,8 +3884,7 @@ class Host:
         pending_changes.add(
             Change(
                 action_name="edit-host",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Modified host %s.") % self.name(),
+                text=_l("Modified host %(host)s.") % {"host": self.name()},
                 object_ref=self.object_ref(),
                 diff_text=diff,
                 domains=[CORE_DOMAIN],
@@ -3953,8 +3952,7 @@ class Host:
         pending_changes.add(
             Change(
                 action_name="edit-host",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Removed explicit attributes of host %s.") % self.name(),
+                text=_l("Removed explicit attributes of host %(host)s.") % {"host": self.name()},
                 object_ref=self.object_ref(),
                 diff_text=diff_attributes(
                     old_attrs, old_nodes, self.attributes, self._cluster_nodes
@@ -4065,8 +4063,8 @@ class Host:
         pending_changes.add(
             Change(
                 action_name="rename-host",
-                # astrein: disable=localization-named-placeholder
-                text=_l("Renamed host from %s into %s.") % (self.name(), new_name),
+                text=_l("Renamed host from %(old_name)s into %(new_name)s.")
+                % {"old_name": self.name(), "new_name": new_name},
                 object_ref=self.object_ref(),
                 prevent_discard_changes=True,
                 domains=[CORE_DOMAIN],
@@ -4146,12 +4144,11 @@ def _must_be_in_contactgroups(
     for c in cgs:
         if c not in user_cgs:
             raise MKAuthException(
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Sorry, you cannot assign the contact group '<b>%s</b>' "
-                    "because you are not member in that group. Your groups are: <b>%s</b>"
+                    "Sorry, you cannot assign the contact group '<b>%(contact_group)s</b>' "
+                    "because you are not member in that group. Your groups are: <b>%(user_groups)s</b>"
                 )
-                % (c, ", ".join(user_cgs))
+                % {"contact_group": c, "user_groups": ", ".join(user_cgs)}
             )
 
 
@@ -4348,13 +4345,13 @@ def find_usages_of_contact_group_in_hosts_and_folders(
         used_in += find_usages_of_contact_group_in_hosts_and_folders(name, _settings, subfolder)
 
     if name in folder.attributes.get("contactgroups", {}).get("groups", []):
-        # astrein: disable=localization-named-placeholder
-        used_in.append((_("Folder: %s") % folder.alias_path(), folder.edit_url()))
+        used_in.append(
+            (_("Folder: %(folder)s") % {"folder": folder.alias_path()}, folder.edit_url())
+        )
 
     for host in folder.hosts().values():
         if name in host.attributes.get("contactgroups", {}).get("groups", []):
-            # astrein: disable=localization-named-placeholder
-            used_in.append((_("Host: %s") % host.name(), host.edit_url()))
+            used_in.append((_("Host: %(host)s") % {"host": host.name()}, host.edit_url()))
 
     return used_in
 

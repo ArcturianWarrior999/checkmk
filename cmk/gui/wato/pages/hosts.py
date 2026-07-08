@@ -335,22 +335,23 @@ class ABCHostMode(WatoMode, abc.ABC):
         def _get_is_or_is_not(is_ds: bool) -> str:
             return _("is") if is_ds else _("is <b>not</b>")
 
-        # astrein: disable=localization-named-placeholder
-        return _("The cluster %s while the node <b>%s</b> %s") % (
-            ", ".join(
+        return _(
+            "The cluster %(cluster_status)s while the node <b>%(node_name)s</b> %(node_status)s"
+        ) % {
+            "cluster_status": ", ".join(
                 [
                     f"{_get_is_or_is_not(diff_ds.myself_is)} '{diff_ds.name}'"
                     for diff_ds in differences
                 ]
             ),
-            node_name,
-            ", ".join(
+            "node_name": node_name,
+            "node_status": ", ".join(
                 [
                     f"{_get_is_or_is_not(diff_ds.other_is)} '{diff_ds.name}'"
                     for diff_ds in differences
                 ]
             ),
-        )
+        }
 
     # TODO: Extract cluster specific parts from this method
     def page(self, config: Config) -> None:
@@ -623,8 +624,8 @@ class ModeEditHost(ABCHostMode):
                             entries=list(page_menu_host_entries(self.name(), self._host)),
                         ),
                         PageMenuTopic(
-                            # astrein: disable=localization-named-placeholder
-                            title=_("For all hosts on site %s") % self._host.site_id(),
+                            title=_("For all hosts on site %(site_id)s")
+                            % {"site_id": self._host.site_id()},
                             entries=list(
                                 page_menu_all_hosts_entries(
                                     self._should_use_dns_cache(config.sites)
@@ -672,12 +673,11 @@ class ModeEditHost(ABCHostMode):
                     remaining = len(failed_hosts) - display_limit
                     hosts_display += _(", +%(remaining)d more") % {"remaining": remaining}
 
-                # astrein: disable=localization-named-placeholder
                 failed_warning_message = _(
-                    "<b>Lookup IPv4 addresses of %d hosts failed.</b><br>"
+                    "<b>Lookup IPv4 addresses of %(count)d hosts failed.</b><br>"
                     "Monitoring for these hosts may be incomplete.<br><br>"
-                    "<b>Affected hosts:</b> %s"
-                ) % (len(failed_hosts), hosts_display)
+                    "<b>Affected hosts:</b> %(hosts_display)s"
+                ) % {"count": len(failed_hosts), "hosts_display": hosts_display}
 
                 flash(failed_warning_message, msg_type="warning")
             return None
@@ -1091,8 +1091,7 @@ class ModeCreateHost(CreateHostMode):
 
     def title(self) -> str:
         if self._mode == "clone":
-            # astrein: disable=localization-named-placeholder
-            return _("Create clone of %s") % self._host.name()
+            return _("Create clone of %(host_name)s") % {"host_name": self._host.name()}
         return _("Add host")
 
     @classmethod
@@ -1154,8 +1153,7 @@ class ModeCreateCluster(CreateHostMode):
 
     def title(self) -> str:
         if self._mode == "clone":
-            # astrein: disable=localization-named-placeholder
-            return _("Create clone of %s") % self._host.name()
+            return _("Create clone of %(host_name)s") % {"host_name": self._host.name()}
         return _("Create cluster")
 
     @classmethod

@@ -789,8 +789,10 @@ class ModeFolder(WatoMode):
                 ),
                 acting_user=user,
             )
-            # astrein: disable=localization-named-placeholder
-            flash(_("Moved %d hosts to %s") % (len(selected_host_names), target_folder.title()))
+            flash(
+                _("Moved %(count)d hosts to %(target)s")
+                % {"count": len(selected_host_names), "target": target_folder.title()}
+            )
             return redirect(folder_url)
 
         # Deletion
@@ -1029,8 +1031,9 @@ class ModeFolder(WatoMode):
         if show_file_names:
             if num_hosts:
                 confirm_message += _("<br><br>")
-            # astrein: disable=localization-named-placeholder
-            confirm_message += _("Directory: <tt>%s</tt>.") % subfolder.filesystem_path()
+            confirm_message += _("Directory: <tt>%(path)s</tt>.") % {
+                "path": subfolder.filesystem_path()
+            }
 
         html.icon_button(
             make_confirm_delete_link(
@@ -1063,8 +1066,8 @@ class ModeFolder(WatoMode):
             html.br()
             if num > 1 and len(permitted_groups) > 4:
                 html.write_text_permissive(
-                    # astrein: disable=localization-named-placeholder
-                    _("<i>%d more contact groups</i><br>") % (len(permitted_groups) - num - 1)
+                    _("<i>%(count)d more contact groups</i><br>")
+                    % {"count": len(permitted_groups) - num - 1}
                 )
                 break
 
@@ -1235,8 +1238,7 @@ class ModeFolder(WatoMode):
             assert nodes is not None
             html.static_icon(
                 StaticIcon(IconNames.cluster),
-                # astrein: disable=localization-named-placeholder
-                title=_("This host is a cluster of %s") % ", ".join(nodes),
+                title=_("This host is a cluster of %(nodes)s") % {"nodes": ", ".join(nodes)},
             )
             html.nbsp()
 
@@ -1439,8 +1441,7 @@ class ModeFolder(WatoMode):
             pending_changes=pending_changes,
             acting_user=user,
         )
-        # astrein: disable=localization-named-placeholder
-        flash(_("Successfully deleted %d hosts") % len(host_names))
+        flash(_("Successfully deleted %(count)d hosts") % {"count": len(host_names)})
         return redirect(self._folder.url(request))
 
     def _render_bulk_move_form(self) -> HTML:

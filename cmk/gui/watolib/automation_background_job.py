@@ -103,9 +103,11 @@ class AutomationCheckmkAutomationStart(AutomationCommand[AutomationCheckmkAutoma
                     ),
                 ),
                 InitialStatusArgs(
-                    # astrein: disable=localization-named-placeholder
-                    title=_("Checkmk automation %s %s")
-                    % (request.api_request.command, automation_id),
+                    title=_("Checkmk automation %(command)s %(automation_id)s")
+                    % {
+                        "command": request.api_request.command,
+                        "automation_id": automation_id,
+                    },
                     user=str(user.id) if user.id else None,
                 ),
             )

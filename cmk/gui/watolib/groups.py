@@ -111,25 +111,25 @@ def edit_group(
             _add_group_change(
                 old_group_backup,
                 "edit-%sgroups" % group_type,
-                # astrein: disable=localization-named-placeholder
-                _l("Removed %sgroup %s from customer %s")
-                % (
-                    group_type,
-                    name,
-                    customer.get_customer_name_by_id(old_customer),
-                ),
+                _l("Removed %(group_type)sgroup %(name)s from customer %(customer)s")
+                % {
+                    "group_type": group_type,
+                    "name": name,
+                    "customer": customer.get_customer_name_by_id(old_customer),
+                },
                 pending_changes=pending_changes,
             )
             _add_group_change(
                 extra_info,
                 "edit-%sgroups" % group_type,
-                # astrein: disable=localization-named-placeholder
-                _l("Moved %sgroup %s to customer %s. Additional properties may have changed.")
-                % (
-                    group_type,
-                    name,
-                    customer.get_customer_name_by_id(new_customer),
-                ),
+                _l(
+                    "Moved %(group_type)sgroup %(name)s to customer %(customer)s. Additional properties may have changed."
+                )
+                % {
+                    "group_type": group_type,
+                    "name": name,
+                    "customer": customer.get_customer_name_by_id(new_customer),
+                },
                 pending_changes=pending_changes,
             )
         else:
@@ -178,9 +178,8 @@ def delete_group(
     if usages:
         raise GroupInUseException(
             None,
-            # astrein: disable=localization-named-placeholder
-            _("Unable to delete group. It is still in use by: %s")
-            % ", ".join([e[0] for e in usages]),
+            _("Unable to delete group. It is still in use by: %(usages)s")
+            % {"usages": ", ".join([e[0] for e in usages])},
         )
 
     # Delete group

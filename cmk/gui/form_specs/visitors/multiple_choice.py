@@ -169,8 +169,7 @@ class MultipleChoiceVisitor(
             no_elements_available=_("No elements available"),
             no_elements_selected=_("No elements selected"),
             autocompleter_loading=_("Loading"),
-            # astrein: disable=localization-named-placeholder
-            and_x_more=_("and %s more"),
+            and_x_more=_("and %(count)s more"),
         )
 
     @override

@@ -168,8 +168,8 @@ class ModeBulkDiscovery(WatoMode):
             logger.exception("Failed to start bulk discovery")
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("Failed to start discovery: %s") % ("%s" % e).replace("\n", "\n<br>"),
+                _("Failed to start discovery: %(error)s")
+                % {"error": ("%s" % e).replace("\n", "\n<br>")},
             )
 
         raise HTTPRedirect(self._job.detail_url())
@@ -180,9 +180,8 @@ class ModeBulkDiscovery(WatoMode):
 
         if self._job.is_active():
             html.show_message(
-                # astrein: disable=localization-named-placeholder
-                _('Bulk discovery currently running in <a href="%s">background</a>.')
-                % self._job.detail_url()
+                _('Bulk discovery currently running in <a href="%(url)s">background</a>.')
+                % {"url": self._job.detail_url()}
             )
             return
 
@@ -201,9 +200,8 @@ class ModeBulkDiscovery(WatoMode):
                 #   imported/selected hosts can be executed
                 vs = vs_bulk_discovery(render_form=True, include_subfolders=False)
                 msgs.append(
-                    # astrein: disable=localization-named-placeholder
-                    _("You have selected <b>%d</b> hosts for bulk discovery.")
-                    % len(self._get_hosts_to_discover(site_configs))
+                    _("You have selected <b>%(count)d</b> hosts for bulk discovery.")
+                    % {"count": len(self._get_hosts_to_discover(site_configs))}
                 )
                 # The cast is needed for the moment, because mypy does not understand our data structure here
                 selection = cast(

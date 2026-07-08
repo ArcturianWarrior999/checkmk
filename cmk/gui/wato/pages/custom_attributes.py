@@ -172,8 +172,8 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             if title == this_attr["title"] and self._name != this_attr["name"]:
                 raise MKUserError(
                     "alias",
-                    # astrein: disable=localization-named-placeholder
-                    _("This alias is already used by the attribute %s.") % this_attr["name"],
+                    _("This alias is already used by the attribute %(name)s.")
+                    % {"name": this_attr["name"]},
                 )
 
         topic = request.get_str_input_mandatory("topic", "").strip()
@@ -219,8 +219,8 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             ).add(
                 Change(
                     action_name="edit-%sattr" % self._type,
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Create new %s attribute %s") % (self._type, self._name),
+                    text=_("Create new %(type)s attribute %(name)s")
+                    % {"type": self._type, "name": self._name},
                     domains=[CORE],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -234,8 +234,8 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
             ).add(
                 Change(
                     action_name="edit-%sattr" % self._type,
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Modified %s attribute %s") % (self._type, self._name),
+                    text=_("Modified %(type)s attribute %(name)s")
+                    % {"type": self._type, "name": self._name},
                     domains=[CORE],
                 ),
                 ChangeScope.all_activation_sites(),
@@ -603,8 +603,7 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
                     url=makeactionuri(request, transactions, [("_delete", custom_attr["name"])]),
                     title=_("Delete custom attribute #%(nr)d") % {"nr": nr},
                     suffix=custom_attr["title"],
-                    # astrein: disable=localization-named-placeholder
-                    message=_("Name: %s") % custom_attr["name"],
+                    message=_("Name: %(name)s") % {"name": custom_attr["name"]},
                 )
                 html.icon_button(edit_url, _("Properties"), StaticIcon(IconNames.edit))
                 html.icon_button(delete_url, _("Delete"), StaticIcon(IconNames.delete))

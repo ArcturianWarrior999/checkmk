@@ -268,12 +268,11 @@ def _parameter_valuespec_checkmk_agent() -> Dictionary:
                 RegExp(
                     title=_("Agent plug-ins: Regular expression to exclude plug-ins"),
                     mode=RegExp.infix,
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Plug-ins matching this pattern will be excluded from the comparison with "
-                        "the required versions specified in '%s' and from the duplicates check."
+                        "the required versions specified in '%(section)s' and from the duplicates check."
                     )
-                    % _("Agent plug-ins: versions"),
+                    % {"section": _("Agent plug-ins: versions")},
                 ),
             ),
             (
@@ -281,12 +280,11 @@ def _parameter_valuespec_checkmk_agent() -> Dictionary:
                 RegExp(
                     title=_("Local checks: Regular expression to exclude files"),
                     mode=RegExp.infix,
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Local checks matching this pattern will be excluded from the comparison "
-                        "with the required versions specified in '%s' and from the duplicates check."
+                        "with the required versions specified in '%(section)s' and from the duplicates check."
                     )
-                    % _("Local checks: versions"),
+                    % {"section": _("Local checks: versions")},
                 ),
             ),
             (

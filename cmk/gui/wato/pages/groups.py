@@ -161,8 +161,8 @@ class ModeGroups(WatoMode, abc.ABC):
 
             if usages:
                 message = "<b>{}</b><br>{}:<ul>".format(
-                    # astrein: disable=localization-named-placeholder
-                    _("You cannot delete this %s group.") % self.type_name,
+                    _("You cannot delete this %(type_name)s group.")
+                    % {"type_name": self.type_name},
                     _("It is still in use by"),
                 )
                 for title, link in usages:
@@ -208,8 +208,7 @@ class ModeGroups(WatoMode, abc.ABC):
         )
         delete_url = make_confirm_delete_link(
             url=makeactionuri(request, transactions, [("_delete", name)]),
-            # astrein: disable=localization-named-placeholder
-            title=_("Delete %s group #%d") % (self.type_name, nr),
+            title=_("Delete %(type_name)s group #%(nr)d") % {"type_name": self.type_name, "nr": nr},
             suffix=group["alias"],
             message=_("Name: %(name)s") % {"name": name},
         )

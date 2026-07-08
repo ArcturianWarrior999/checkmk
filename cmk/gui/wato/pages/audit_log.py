@@ -459,8 +459,7 @@ class ModeAuditLog(WatoMode[AuditLogRequestData]):
         self._display_page_controls(*times)
 
         if display_options.enabled(display_options.T):
-            # astrein: disable=localization-named-placeholder
-            html.h3(_("Audit log for %s") % render.date(times[0]))
+            html.h3(_("Audit log for %(date)s") % {"date": render.date(times[0])})
 
         self._display_log(log)
 
@@ -471,9 +470,8 @@ class ModeAuditLog(WatoMode[AuditLogRequestData]):
 
         if display_options.enabled(display_options.T):
             html.h3(
-                # astrein: disable=localization-named-placeholder
-                _("Audit log for %s and %d days ago")
-                % (render.date(self._get_start_date()), self._options["display"][1])
+                _("Audit log for %(date)s and %(days)d days ago")
+                % {"date": render.date(self._get_start_date()), "days": self._options["display"][1]}
             )
 
         self._display_log(log)

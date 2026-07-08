@@ -584,15 +584,13 @@ class ACTestBackupNotEncryptedConfigured(ACTest):
             if job.is_encrypted():
                 yield ACSingleResult(
                     state=ACResultState.OK,
-                    # astrein: disable=localization-named-placeholder
-                    text=_('The job "%s" is encrypted') % job.title,
+                    text=_('The job "%(title)s" is encrypted') % {"title": job.title},
                     site_id=site_id,
                 )
             else:
                 yield ACSingleResult(
                     state=ACResultState.WARN,
-                    # astrein: disable=localization-named-placeholder
-                    text=_('There job "%s" is not encrypted') % job.title,
+                    text=_('There job "%(title)s" is not encrypted') % {"title": job.title},
                     site_id=site_id,
                 )
 
@@ -625,26 +623,24 @@ class ACTestEscapeHTMLDisabled(ACTest):
         if not self._get_effective_global_setting(site_id, config, "escape_plugin_output"):
             yield ACSingleResult(
                 state=ACResultState.CRIT,
-                # astrein: disable=localization-named-placeholder
                 text=_(
                     "Please consider configuring the host or service rule sets "
-                    '<a href="%s">Escape HTML in service output</a> or '
-                    '<a href="%s">Escape HTML in host output</a> instead '
-                    'of <a href="%s">disabling escaping globally</a>.'
+                    '<a href="%(service_url)s">Escape HTML in service output</a> or '
+                    '<a href="%(host_url)s">Escape HTML in host output</a> instead '
+                    'of <a href="%(global_url)s">disabling escaping globally</a>.'
                 )
-                % (
-                    "wato.py?mode=edit_ruleset&varname=extra_service_conf:_ESCAPE_PLUGIN_OUTPUT",
-                    "wato.py?mode=edit_ruleset&varname=extra_host_conf:_ESCAPE_PLUGIN_OUTPUT",
-                    "wato.py?mode=edit_configvar&varname=escape_plugin_output",
-                ),
+                % {
+                    "service_url": "wato.py?mode=edit_ruleset&varname=extra_service_conf:_ESCAPE_PLUGIN_OUTPUT",
+                    "host_url": "wato.py?mode=edit_ruleset&varname=extra_host_conf:_ESCAPE_PLUGIN_OUTPUT",
+                    "global_url": "wato.py?mode=edit_configvar&varname=escape_plugin_output",
+                },
                 site_id=site_id,
             )
         else:
             yield ACSingleResult(
                 state=ACResultState.OK,
-                # astrein: disable=localization-named-placeholder
-                text=_('Escaping is <a href="%s">enabled globally</a>')
-                % "wato.py?mode=edit_configvar&varname=escape_plugin_output",
+                text=_('Escaping is <a href="%(url)s">enabled globally</a>')
+                % {"url": "wato.py?mode=edit_configvar&varname=escape_plugin_output"},
                 site_id=site_id,
             )
 
@@ -716,18 +712,17 @@ class ACTestApacheNumberOfProcesses(ABCACApacheTest):
 
         yield ACSingleResult(
             state=ACResultState.WARN,
-            # astrein: disable=localization-named-placeholder
             text=_(
-                "The Apache may start up to %d processes while the current "
-                "average process size is %s. With these process limits the Apache may "
-                "use up to %s RAM. Please ensure that your system is able to "
+                "The Apache may start up to %(process_limit)d processes while the current "
+                "average process size is %(average_process_size)s. With these process limits the Apache may "
+                "use up to %(estimated_memory_size)s RAM. Please ensure that your system is able to "
                 "handle this."
             )
-            % (
-                process_limit,
-                cmk.utils.render.fmt_bytes(average_process_size),
-                cmk.utils.render.fmt_bytes(estimated_memory_size),
-            ),
+            % {
+                "process_limit": process_limit,
+                "average_process_size": cmk.utils.render.fmt_bytes(average_process_size),
+                "estimated_memory_size": cmk.utils.render.fmt_bytes(estimated_memory_size),
+            },
             site_id=site_id,
         )
 
@@ -1140,8 +1135,8 @@ class ACTestSizeOfExtensions(ACTest):
 
         yield ACSingleResult(
             state=state,
-            # astrein: disable=localization-named-placeholder
-            text=_("Your extensions have a size of %s.") % cmk.utils.render.fmt_bytes(size),
+            text=_("Your extensions have a size of %(size)s.")
+            % {"size": cmk.utils.render.fmt_bytes(size)},
             site_id=site_id,
         )
 
@@ -1220,8 +1215,8 @@ class ACTestESXDatasources(ACTest):
                 all_rules_ok = False
                 yield ACSingleResult(
                     state=ACResultState.CRIT,
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Rule %d in Folder %s is affected") % (rule_index + 1, folder.title()),
+                    text=_("Rule %(nr)d in Folder %(folder)s is affected")
+                    % {"nr": rule_index + 1, "folder": folder.title()},
                     site_id=site_id,
                 )
 
@@ -1266,8 +1261,8 @@ class ACTestDeprecatedRuleSets(ACTest):
             for rule_set in deprecated_rule_sets:
                 yield ACSingleResult(
                     state=ACResultState.WARN,
-                    # astrein: disable=localization-named-placeholder
-                    text=_("Found configured rules of deprecated rule set %r.") % rule_set.name,
+                    text=_("Found configured rules of deprecated rule set %(name)r.")
+                    % {"name": rule_set.name},
                     site_id=site_id,
                 )
             return
@@ -1333,24 +1328,23 @@ class ACTestDeprecatedV1CheckPlugins(ACTest):
         return _("Deprecated check plug-ins (v1)")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "The check plug-in API for plug-ins in <tt>%s</tt> is removed."
+            "The check plug-in API for plug-ins in <tt>%(plugins_dir)s</tt> is removed."
             " Plug-in files in this folder are ignored."
             " Please migrate the plug-ins to the new API."
             " More information can be found in"
-            " <a href='%s'>%s</a> and our"
-            " <a href='%s'>User Guide</a>."
-        ) % (
-            "/".join(local_agent_based_plugins_dir.parts[-4:]),
-            werk_reference_url(WerkReference.DECOMMISSION_V1_API),
-            WerkReference.DECOMMISSION_V1_API.ref(),
-            doc_reference_url(
+            " <a href='%(werk_url)s'>%(werk_ref)s</a> and our"
+            " <a href='%(guide_url)s'>User Guide</a>."
+        ) % {
+            "plugins_dir": "/".join(local_agent_based_plugins_dir.parts[-4:]),
+            "werk_url": werk_reference_url(WerkReference.DECOMMISSION_V1_API),
+            "werk_ref": WerkReference.DECOMMISSION_V1_API.ref(),
+            "guide_url": doc_reference_url(
                 user.language,
                 DocReferenceUtm(campaign="error_help", content="setup.deprecated_v1_plugins"),
                 DocReference.DEVEL_CHECK_PLUGINS,
             ),
-        )
+        }
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1390,20 +1384,19 @@ class ACTestDeprecatedCheckPlugins(ACTest):
         return _("Deprecated check plug-ins (legacy)")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "The check plug-in API for plug-ins in <tt>%s</tt> is deprecated."
+            "The check plug-in API for plug-ins in <tt>%(plugins_dir)s</tt> is deprecated."
             " Plug-in files in this folder are still considered, but the API they are using may change at any time without notice."
             " Please migrate the plug-ins to the new API."
-            " More information can be found in our <a href='%s'>User Guide</a>."
-        ) % (
-            "/".join(local_checks_dir.parts[-4:]),
-            doc_reference_url(
+            " More information can be found in our <a href='%(guide_url)s'>User Guide</a>."
+        ) % {
+            "plugins_dir": "/".join(local_checks_dir.parts[-4:]),
+            "guide_url": doc_reference_url(
                 user.language,
                 DocReferenceUtm(campaign="error_help", content="setup.deprecated_plugins"),
                 DocReference.DEVEL_CHECK_PLUGINS,
             ),
-        )
+        }
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1443,12 +1436,11 @@ class ACTestDeprecatedInventoryPlugins(ACTest):
         return _("Deprecated HW/SW inventory plug-ins")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
             "The old inventory plug-in API has been removed in Checkmk version 2.2."
-            " Plug-in files in <tt>'%s'</tt> are ignored."
+            " Plug-in files in <tt>'%(plugins_dir)s'</tt> are ignored."
             " Please migrate the plug-ins to the new API."
-        ) % str(local_inventory_dir)
+        ) % {"plugins_dir": str(local_inventory_dir)}
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1488,12 +1480,11 @@ class ACTestDeprecatedCheckManpages(ACTest):
         return _("Deprecated check manual pages")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "Check manual pages in <tt>'%s'</tt> are marked as "
+            "Check manual pages in <tt>'%(manpages_dir)s'</tt> are marked as "
             "'deprecated' and will be ignored in future Checkmk versions "
             "(official deprecation timeline not decided yet)."
-        ) % str(local_legacy_check_manpages_dir)
+        ) % {"manpages_dir": str(local_legacy_check_manpages_dir)}
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1540,12 +1531,11 @@ class ACTestDeprecatedGUIExtensions(ACTest):
         return _("Deprecated GUI extensions")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "GUI extensions in <tt>'%s'</tt> are marked as 'deprecated'"
+            "GUI extensions in <tt>'%(plugins_dir)s'</tt> are marked as 'deprecated'"
             " and will be ignored in future Checkmk versions"
             " (official deprecation timeline not decided yet)."
-        ) % str(local_gui_plugins_dir)
+        ) % {"plugins_dir": str(local_gui_plugins_dir)}
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1562,16 +1552,15 @@ class ACTestDeprecatedGUIExtensions(ACTest):
                 yield ACSingleResult(
                     state=ACResultState.WARN,
                     text=(
-                        # astrein: disable=localization-named-placeholder
                         _(
-                            "GUI extension in %r uses an API which is marked "
+                            "GUI extension in %(plugin_name)r uses an API which is marked "
                             "as deprecated and may not work anymore due to "
-                            "unknown imports or objects (file: %s)."
+                            "unknown imports or objects (file: %(file)s)."
                         )
-                        % (
-                            plugin_filepath.parent.name,
-                            try_relative_site_path(site_id, plugin_filepath),
-                        )
+                        % {
+                            "plugin_name": plugin_filepath.parent.name,
+                            "file": try_relative_site_path(site_id, plugin_filepath),
+                        }
                     ),
                     site_id=site_id,
                     path=plugin_filepath,
@@ -1595,8 +1584,10 @@ def _compute_deprecation_result_of_views_plugin(
             version=__version__,
             deprecated_version="2.6.0",
             removed_version="2.7.0",
-            # astrein: disable=localization-named-placeholder
-            title_entity=(_("HW/SW inventory display hints in %r") % plugin_filepath.parent.name),
+            title_entity=(
+                _("HW/SW inventory display hints in %(plugin_name)r")
+                % {"plugin_name": plugin_filepath.parent.name}
+            ),
             title_api=_("legacy"),
             site_id=site_id,
             path=plugin_filepath,
@@ -1604,16 +1595,15 @@ def _compute_deprecation_result_of_views_plugin(
     return ACSingleResult(
         state=ACResultState.WARN,
         text=(
-            # astrein: disable=localization-named-placeholder
             _(
-                "Legacy GUI extension in %r uses an API which is "
+                "Legacy GUI extension in %(plugin_name)r uses an API which is "
                 "marked as deprecated and may not work anymore due "
-                "to unknown imports or objects (file: %s)."
+                "to unknown imports or objects (file: %(file)s)."
             )
-            % (
-                plugin_filepath.parent.name,
-                try_relative_site_path(site_id, plugin_filepath),
-            )
+            % {
+                "plugin_name": plugin_filepath.parent.name,
+                "file": try_relative_site_path(site_id, plugin_filepath),
+            }
         ),
         site_id=site_id,
         path=plugin_filepath,
@@ -1628,12 +1618,11 @@ class ACTestDeprecatedLegacyGUIExtensions(ACTest):
         return _("Deprecated legacy GUI extensions")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "Legacy GUI extensions in <tt>'%s'</tt> are marked as 'deprecated'"
+            "Legacy GUI extensions in <tt>'%(web_dir)s'</tt> are marked as 'deprecated'"
             " and will be ignored in future Checkmk versions"
             " (official deprecation timeline not decided yet)."
-        ) % str(local_web_dir)
+        ) % {"web_dir": str(local_web_dir)}
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1654,8 +1643,8 @@ class ACTestDeprecatedLegacyGUIExtensions(ACTest):
                             deprecated_version="2.3.0",
                             removed_version="2.4.0",
                             title_entity=(
-                                # astrein: disable=localization-named-placeholder
-                                _("Legacy GUI extension in %r") % plugin_filepath.parent.name
+                                _("Legacy GUI extension in %(plugin_name)r")
+                                % {"plugin_name": plugin_filepath.parent.name}
                             ),
                             title_api=_("legacy"),
                             site_id=site_id,
@@ -1667,8 +1656,8 @@ class ACTestDeprecatedLegacyGUIExtensions(ACTest):
                             deprecated_version="2.4.0",
                             removed_version="2.5.0",
                             title_entity=(
-                                # astrein: disable=localization-named-placeholder
-                                _("Legacy GUI extension in %r") % plugin_filepath.parent.name
+                                _("Legacy GUI extension in %(plugin_name)r")
+                                % {"plugin_name": plugin_filepath.parent.name}
                             ),
                             title_api=_("legacy"),
                             site_id=site_id,
@@ -1680,17 +1669,16 @@ class ACTestDeprecatedLegacyGUIExtensions(ACTest):
                         yield ACSingleResult(
                             state=ACResultState.WARN,
                             text=(
-                                # astrein: disable=localization-named-placeholder
                                 _(
-                                    "Legacy GUI extension in %r uses an "
+                                    "Legacy GUI extension in %(plugin_name)r uses an "
                                     "API which is marked as deprecated "
                                     "and may not work anymore due to "
-                                    "unknown imports or objects (file: %s)."
+                                    "unknown imports or objects (file: %(file)s)."
                                 )
-                                % (
-                                    plugin_filepath.parent.name,
-                                    try_relative_site_path(site_id, plugin_filepath),
-                                )
+                                % {
+                                    "plugin_name": plugin_filepath.parent.name,
+                                    "file": try_relative_site_path(site_id, plugin_filepath),
+                                }
                             ),
                             site_id=site_id,
                             path=plugin_filepath,
@@ -1712,12 +1700,11 @@ class ACTestDeprecatedPNPTemplates(ACTest):
         return _("Deprecated PNP templates")
 
     def help(self) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "PNP templates in <tt>'%s'</tt> are marked as 'deprecated'"
+            "PNP templates in <tt>'%(templates_dir)s'</tt> are marked as 'deprecated'"
             " and will be ignored in future Checkmk versions"
             " (official deprecation timeline not decided yet)."
-        ) % str(local_pnp_templates_dir)
+        ) % {"templates_dir": str(local_pnp_templates_dir)}
 
     def _get_files(self) -> Sequence[Path]:
         try:
@@ -1734,12 +1721,11 @@ class ACTestDeprecatedPNPTemplates(ACTest):
                 yield ACSingleResult(
                     state=ACResultState.CRIT,
                     text=(
-                        # astrein: disable=localization-named-placeholder
                         _(
                             "PNP template uses an API which was removed in an earlier"
-                            " Checkmk version (file: %s)."
+                            " Checkmk version (file: %(file)s)."
                         )
-                        % try_relative_site_path(site_id, plugin_filepath)
+                        % {"file": try_relative_site_path(site_id, plugin_filepath)}
                     ),
                     site_id=site_id,
                     path=plugin_filepath,
@@ -1916,15 +1902,16 @@ class ACTestAutomationUserSecret(ACTest):
         for user_id, dangerous_perms in flagged_users.items():
             yield ACSingleResult(
                 state=ACResultState.WARN,
-                # astrein: disable=localization-named-placeholder
-                text=_("Automation user %s has stored secret with %d dangerous permission(s): %s")
-                % (
-                    user_id,
-                    len(dangerous_perms),
-                    ", ".join(
+                text=_(
+                    "Automation user %(user_id)s has stored secret with %(count)d dangerous permission(s): %(permissions)s"
+                )
+                % {
+                    "user_id": user_id,
+                    "count": len(dangerous_perms),
+                    "permissions": ", ".join(
                         (perm.title if (perm := permission_registry.get(p)) else p)
                         for p in dangerous_perms
                     ),
-                ),
+                },
                 site_id=site_id,
             )

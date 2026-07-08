@@ -424,29 +424,27 @@ class HostAttributeSNMPCommunity(ABCHostAttributeValueSpec):
 
     def valuespec(self) -> ValueSpec:
         return SNMPCredentials(
-            # astrein: disable=localization-named-placeholder
             help=_(
                 "Configure the community to be used when contacting this host via SNMPv1/v2 or "
-                "v3. You can also configure the SNMP community using the <a href='%s'>SNMP "
+                "v3. You can also configure the SNMP community using the <a href='%(url)s'>SNMP "
                 "credentials of monitored host</a> rule set. Configuring a community here explicitly "
                 "overrides the community defined by a rule. Communication via SNMPv1 and v2c "
                 "is unencrypted. Consider using SNMPv3 for a higher level of security."
             )
-            % "wato.py?mode=edit_ruleset&varname=snmp_communities",
+            % {"url": "wato.py?mode=edit_ruleset&varname=snmp_communities"},
             default_value=None,
         )
 
     def form_spec(self) -> TransformDataForLegacyFormatOrRecomposeFunction:
         return create_snmp_credentials(
-            # astrein: disable=localization-named-placeholder
             help_text=Help(
                 "Configure the community to be used when contacting this host via SNMPv1/v2 or "
-                "v3. You can also configure the SNMP community using the <a href='%s'>SNMP "
+                "v3. You can also configure the SNMP community using the <a href='%(url)s'>SNMP "
                 "credentials of monitored host</a> rule set. Configuring a community explicitly "
                 "here overrides the community defined by a rule. Communication via SNMPv1 and v2c "
                 "is unencrypted. Consider using SNMPv3 for a higher level of security."
             )
-            % "wato.py?mode=edit_ruleset&varname=snmp_communities",
+            % {"url": "wato.py?mode=edit_ruleset&varname=snmp_communities"},
             default_value="community",
         )
 
@@ -567,13 +565,16 @@ def validate_host_parents(host: Host) -> None:
         if host.site_id() != parent.site_id():
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "The parent '%s' is monitored on site '%s' while the host itself "
-                    "is monitored on site '%s'. Both must be monitored on the same site. Remember: The parent/child "
+                    "The parent '%(parent_name)s' is monitored on site '%(parent_site)s' while the host itself "
+                    "is monitored on site '%(host_site)s'. Both must be monitored on the same site. Remember: The parent/child "
                     "relation is used to describe the reachability of hosts by one monitoring daemon."
                 )
-                % (parent_name, parent.site_id(), host.site_id()),
+                % {
+                    "parent_name": parent_name,
+                    "parent_site": parent.site_id(),
+                    "host_site": host.site_id(),
+                },
             )
 
 

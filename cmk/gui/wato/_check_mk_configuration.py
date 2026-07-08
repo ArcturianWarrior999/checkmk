@@ -413,11 +413,10 @@ def _valuespec_log_levels(edition: Edition, context: GlobalSettingsContext) -> M
     return Migrate(
         valuespec=Dictionary(
             title=_("Logging"),
-            # astrein: disable=localization-named-placeholder
             help=_(
-                "This setting decides which types of messages to log into the web log <tt>%s</tt>."
+                "This setting decides which types of messages to log into the web log <tt>%(log_file)s</tt>."
             )
-            % (context.site_neutral_log_dir / "web.log"),
+            % {"log_file": context.site_neutral_log_dir / "web.log"},
             elements=_web_log_level_elements(edition),
             optional_keys=[],
         ),
@@ -470,12 +469,15 @@ def _web_log_level_elements(edition: Edition) -> list[tuple[str, DropdownChoice]
         (
             "cmk.web.ui-job-scheduler",
             _("Job scheduler"),
-            # astrein: disable=localization-named-placeholder
             _(
                 "The job scheduler manages regularly running tasks and the execution of "
-                "background jobs. Log entries of this component are written to <tt>%s</tt>."
+                "background jobs. Log entries of this component are written to <tt>%(log_file)s</tt>."
             )
-            % site_neutral_path(cmk.utils.paths.log_dir / "ui-job-scheduler/ui-job-scheduler.log"),
+            % {
+                "log_file": site_neutral_path(
+                    cmk.utils.paths.log_dir / "ui-job-scheduler/ui-job-scheduler.log"
+                )
+            },
         ),
         (
             "cmk.web.background-job",
@@ -566,17 +568,16 @@ ConfigVariableDebug = ConfigVariable(
 def _valuespec_profile(context: GlobalSettingsContext) -> DropdownChoice:
     return DropdownChoice(
         title=_("Profile requests"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "It is possible to profile the rendering process of graphical user interface (GUI) pages. This "
             "is done using the Python module cProfile. When profiling is performed "
-            "three files are created in <tt>%s</tt>: <tt>multisite.profile</tt>, "
+            "three files are created in <tt>%(var_dir)s</tt>: <tt>multisite.profile</tt>, "
             "<tt>multisite.cachegrind</tt> and <tt>multisite.py</tt>. By executing the latter "
             "file you can get runtime statistics about the last processed page. When "
             "enabled, by request the profiling mode is enabled by providing the HTTP "
             "variable <tt>_profile</tt> in the query parameters."
         )
-        % context.site_neutral_var_dir,
+        % {"var_dir": context.site_neutral_var_dir},
         choices=[
             (False, _("Disable profiling")),
             ("enable_by_var", _("Enable profiling by request")),
@@ -1050,12 +1051,11 @@ def _validate_virtual_host_trees(value: Any, varprefix: str) -> None:
             if element in seen:
                 raise MKUserError(
                     varprefix,
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "Found '%s' a second time in tree '%s'. Each element can only be "
+                        "Found '%(element)s' a second time in tree '%(tree_id)s'. Each element can only be "
                         "chosen once."
                     )
-                    % (element, tree["id"]),
+                    % {"element": element, "tree_id": tree["id"]},
                 )
 
             seen.add(element)
@@ -1478,14 +1478,13 @@ ConfigVariableCustomServiceAttributes = ConfigVariable(
                 optional_keys=[],
             ),
             title=_("Custom service attributes"),
-            # astrein: disable=localization-named-placeholder
             help=_(
-                'These custom service attributes can be assigned to services using the rule set <a href="%s">%s</a>.'
+                'These custom service attributes can be assigned to services using the rule set <a href="%(url)s">%(label)s</a>.'
             )
-            % (
-                "wato.py?mode=edit_ruleset&varname=custom_service_attributes",
-                _("Custom service attributes"),
-            ),
+            % {
+                "url": "wato.py?mode=edit_ruleset&varname=custom_service_attributes",
+                "label": _("Custom service attributes"),
+            },
             movable=False,
             # astrein: disable=localization-named-placeholder
             totext=_("%d custom service attributes"),
@@ -1519,8 +1518,7 @@ def _validate_unique_entries(value: Sequence[Mapping[str, object]], varprefix: s
         if entry["title"] in seen_titles:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Found multiple entries using the title '%s'") % entry["title"],
+                _("Found multiple entries using the title '%(title)s'") % {"title": entry["title"]},
             )
         seen_titles.append(entry["title"])
 
@@ -1531,8 +1529,9 @@ def _custom_service_attributes_validate_unique_entries(
     seen_ids = []
     for entry in value:
         if entry[0] in seen_ids:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("Found multiple entries using for '%s'") % entry[0])
+            raise MKUserError(
+                varprefix, _("Found multiple entries using for '%(ident)s'") % {"ident": entry[0]}
+            )
         seen_ids.append(entry[0])
 
 
@@ -1555,8 +1554,9 @@ def _service_tag_rules_validate_unique_entries(
     seen_ids = []
     for entry in value:
         if entry[0] in seen_ids:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError(varprefix, _("Found multiple entries using for '%s'") % entry[0])
+            raise MKUserError(
+                varprefix, _("Found multiple entries using for '%(ident)s'") % {"ident": entry[0]}
+            )
         seen_ids.append(entry[0])
 
 
@@ -1810,21 +1810,19 @@ ConfigVariableTrustedCertificateAuthorities = ConfigVariable(
     ident="trusted_certificate_authorities",
     valuespec=lambda context: Dictionary(
         title=_("Trusted certificate authorities for SSL"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "Whenever a server component of Checkmk opens an SSL connection, it uses the "
             "certificate authorities configured here for verifying the SSL certificate of "
             "the destination server. This is used for example when performing Setup "
             "replication to remote sites or when special agents are communicating via HTTPS. "
-            "The CA certificates configured here will be written to the CA bundle %s."
+            "The CA certificates configured here will be written to the CA bundle %(ca_bundle)s."
         )
-        % site_neutral_path(ConfigDomainCACertificates.trusted_cas_file),
+        % {"ca_bundle": site_neutral_path(ConfigDomainCACertificates.trusted_cas_file)},
         elements=[
             (
                 "use_system_wide_cas",
                 Checkbox(
                     title=_("Use system wide CAs"),
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "All supported Linux distributions provide a mechanism of managing "
                         "trusted CAs. Depending on your Linux distributions the paths where "
@@ -1832,9 +1830,13 @@ ConfigVariableTrustedCertificateAuthorities = ConfigVariable(
                         "Please check out the documentation of your Linux distribution "
                         "in case you want to customize trusted CAs system wide. You can "
                         "choose here to trust the system wide CAs here. Checkmk will search "
-                        "these directories for system wide CAs: %s"
+                        "these directories for system wide CAs: %(search_paths)s"
                     )
-                    % ", ".join(ConfigDomainCACertificates.system_wide_trusted_ca_search_paths),
+                    % {
+                        "search_paths": ", ".join(
+                            ConfigDomainCACertificates.system_wide_trusted_ca_search_paths
+                        )
+                    },
                     label=_("Trust system wide configured CAs"),
                 ),
             ),
@@ -2523,8 +2525,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "aix_memory",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Memory usage for %s hosts") % "AIX",
+                title=_("Memory usage for %(os)s hosts") % {"os": "AIX"},
                 label=_("Use the new service name"),
             ),
         ),
@@ -2546,24 +2547,21 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "cisco_mem",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Cisco memory usage (%s)") % "cisco_mem",
+                title=_("Cisco memory usage (%(check)s)") % {"check": "cisco_mem"},
                 label=_("Use the new service name"),
             ),
         ),
         (
             "cisco_mem_asa",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Cisco memory usage (%s)") % "cisco_mem_asa",
+                title=_("Cisco memory usage (%(check)s)") % {"check": "cisco_mem_asa"},
                 label=_("Use the new service name"),
             ),
         ),
         (
             "cisco_mem_asa64",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Cisco memory usage (%s)") % "cisco_mem_asa64",
+                title=_("Cisco memory usage (%(check)s)") % {"check": "cisco_mem_asa64"},
                 label=_("Use the new service name"),
             ),
         ),
@@ -2766,24 +2764,21 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "juniper_mem",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Juniper memory usage (%s)") % "juniper_mem",
+                title=_("Juniper memory usage (%(check)s)") % {"check": "juniper_mem"},
                 label=_("Use the new service name"),
             ),
         ),
         (
             "juniper_screenos_mem",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Juniper memory usage (%s)") % "juniper_screenos_mem",
+                title=_("Juniper memory usage (%(check)s)") % {"check": "juniper_screenos_mem"},
                 label=_("Use the new service name"),
             ),
         ),
         (
             "juniper_trpz_mem",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Juniper memory usage (%s)") % "juniper_trpz_mem",
+                title=_("Juniper memory usage (%(check)s)") % {"check": "juniper_trpz_mem"},
                 label=_("Use the new service name"),
             ),
         ),
@@ -2830,8 +2825,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "mem_win",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Memory usage for %s hosts") % "Windows",
+                title=_("Memory usage for %(os)s hosts") % {"os": "Windows"},
                 label=_("Use the new service name"),
             ),
         ),
@@ -2979,8 +2973,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "solaris_mem",
             Checkbox(
-                # astrein: disable=localization-named-placeholder
-                title=_("Memory usage for %s hosts") % "Solaris",
+                title=_("Memory usage for %(os)s hosts") % {"os": "Solaris"},
                 label=_("Use the new service name"),
             ),
         ),
@@ -3246,9 +3239,8 @@ ConfigVariableHTTPProxies = ConfigVariable(
                         "title",
                         TextInput(
                             title=_("Title"),
-                            # astrein: disable=localization-named-placeholder
-                            help=_("The title of the %s. It will be used as display name.")
-                            % _("HTTP proxy"),
+                            help=_("The title of the %(object)s. It will be used as display name.")
+                            % {"object": _("HTTP proxy")},
                             allow_empty=False,
                             size=80,
                         ),
@@ -3280,16 +3272,16 @@ def _validate_proxies(value: Sequence[Mapping[str, object]], varprefix: str) -> 
         if http_proxy["ident"] in seen_idents:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Found multiple proxies using the ID '%s'") % http_proxy["ident"],
+                _("Found multiple proxies using the ID '%(ident)s'")
+                % {"ident": http_proxy["ident"]},
             )
         seen_idents.append(http_proxy["ident"])
 
         if http_proxy["title"] in seen_titles:
             raise MKUserError(
                 varprefix,
-                # astrein: disable=localization-named-placeholder
-                _("Found multiple proxies using the title '%s'") % http_proxy["title"],
+                _("Found multiple proxies using the title '%(title)s'")
+                % {"title": http_proxy["title"]},
             )
         seen_titles.append(http_proxy["title"])
 
@@ -3312,17 +3304,16 @@ ConfigVariableInventoryCheckInterval = ConfigVariable(
             default_value=720,
         ),
         title=_("Enable regular service discovery checks (deprecated)"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "If enabled, Checkmk will create one additional service per host "
             "that does a regular check, if the service discovery would find new services "
             "currently un-monitored. <b>Note:</b> This option is deprecated and has been "
-            "replaced by the rule set <a href='%s'>Periodic Service Discovery</a>, "
+            "replaced by the rule set <a href='%(url)s'>Periodic Service Discovery</a>, "
             "which allows a per-host configuration and additional features such as "
             "automatic rediscovery. Rules in that rule set will override the global "
             "settings done here."
         )
-        % "wato.py?mode=edit_ruleset&varname=periodic_discovery",
+        % {"url": "wato.py?mode=edit_ruleset&varname=periodic_discovery"},
     ),
 )
 
@@ -4746,12 +4737,11 @@ def _valuespec_custom_service_attributes() -> ListOf:
             orientation="horizontal",
         ),
         title=_("Custom service attributes"),
-        # astrein: disable=localization-named-placeholder
-        help=_('Use this ruleset to assign <a href="%s">%s</a> to services.')
-        % (
-            "wato.py?mode=edit_configvar&varname=custom_service_attributes",
-            _("Custom service attributes"),
-        ),
+        help=_('Use this ruleset to assign <a href="%(url)s">%(label)s</a> to services.')
+        % {
+            "url": "wato.py?mode=edit_configvar&varname=custom_service_attributes",
+            "label": _("Custom service attributes"),
+        },
         allow_empty=False,
         validate=_custom_service_attributes_validate_unique_entries,
     )
@@ -4971,9 +4961,8 @@ def _valuespec_service_tag_rules() -> ListOf:
             orientation="horizontal",
         ),
         title=_("Service tags"),
-        # astrein: disable=localization-named-placeholder
-        help=_('Use this ruleset to assign <a href="%s">%s</a> to services.')
-        % ("wato.py?mode=tags", _("Tags")),
+        help=_('Use this ruleset to assign <a href="%(url)s">%(label)s</a> to services.')
+        % {"url": "wato.py?mode=tags", "label": _("Tags")},
         allow_empty=False,
         validate=_service_tag_rules_validate_unique_entries,
     )
@@ -5143,17 +5132,18 @@ def _valuespec_automatic_host_removal(edition: Edition) -> CascadingDropdown:
         help=_("Configure the automatic removal of monitored hosts.")
         + (
             (
-                # astrein: disable=localization-named-placeholder
                 _(
                     " <b>Note</b>: To restrict this rule to hosts created via "
-                    '<a href="%s">auto-registration</a>, use the host label '
+                    '<a href="%(url)s">auto-registration</a>, use the host label '
                     "<tt>cmk/agent_auto_registered:yes</tt>."
                 )
-                % makeuri_contextless(
-                    request,
-                    [("mode", "agent_registration")],
-                    filename="wato.py",
-                )
+                % {
+                    "url": makeuri_contextless(
+                        request,
+                        [("mode", "agent_registration")],
+                        filename="wato.py",
+                    )
+                }
             )
             if edition in (Edition.ULTIMATEMT, Edition.ULTIMATE)
             else ""
@@ -5216,11 +5206,10 @@ def AutomaticHostRemoval(edition: Edition) -> HostRulespec:
 def _valuespec_extra_host_conf_icon_image() -> IconSelector:
     return IconSelector(
         title=_("Icon image for hosts in status GUI"),
-        # astrein: disable=localization-named-placeholder
         help=_(
-            "You can assign icons to hosts for the status GUI. Put your images into <tt>%s</tt>. "
+            "You can assign icons to hosts for the status GUI. Put your images into <tt>%(path)s</tt>. "
         )
-        % str(cmk.utils.paths.omd_root / "local/share/check_mk/web/htdocs/images/icons"),
+        % {"path": str(cmk.utils.paths.omd_root / "local/share/check_mk/web/htdocs/images/icons")},
         with_emblem=False,
     )
 
@@ -5235,12 +5224,11 @@ ExtraHostConfIconImage = HostRulespec(
 def _valuespec_extra_service_conf_icon_image() -> IconSelector:
     return IconSelector(
         title=_("Icon image for services in status GUI"),
-        # astrein: disable=localization-named-placeholder
         help=_(
             "You can assign icons to services for the status GUI. "
-            "Put your images into <tt>%s</tt>. "
+            "Put your images into <tt>%(path)s</tt>. "
         )
-        % str(cmk.utils.paths.omd_root / "local/share/check_mk/web/htdocs/images/icons"),
+        % {"path": str(cmk.utils.paths.omd_root / "local/share/check_mk/web/htdocs/images/icons")},
         with_emblem=False,
         default_value=None,
     )
@@ -5255,14 +5243,10 @@ ExtraServiceConfIconImage = ServiceRulespec(
 
 
 def UserIconOrAction(title: str, help: str) -> DropdownChoice:
-    empty_text = (
-        # astrein: disable=localization-named-placeholder
-        _(
-            "In order to be able to choose actions here, you need to "
-            '<a href="%s">define your own actions</a>.'
-        )
-        % "wato.py?mode=edit_configvar&varname=user_icons_and_actions"
-    )
+    empty_text = _(
+        "In order to be able to choose actions here, you need to "
+        '<a href="%(url)s">define your own actions</a>.'
+    ) % {"url": "wato.py?mode=edit_configvar&varname=user_icons_and_actions"}
 
     return DropdownChoice(
         title=title,
@@ -5488,7 +5472,6 @@ SnmpCharacterEncodings = HostRulespec(
 
 
 def _help_enable_snmpv2c() -> str:
-    # astrein: disable=localization-named-placeholder
     return _(
         "Use this rule to enable the use of SNMP version 2c instead of the default SNMP version 1."
         " Checkmk defaults to SNMPv1 in order to support as many devices as possible."
@@ -5496,8 +5479,8 @@ def _help_enable_snmpv2c() -> str:
         ' It supports 64-bit counters and the "bulk walk" query, which is faster and saves CPU and network resources.'
         " Use this rule to configure SNMPv2c for as many devices as possible."
         ' However, please be aware that some buggy devices might not properly support "bulk walk" queries.'
-        ' For those, you may want to try disabling them using the rule set "%s".'
-    ) % _("Disable bulk walks")
+        ' For those, you may want to try disabling them using the rule set "%(ruleset)s".'
+    ) % {"ruleset": _("Disable bulk walks")}
 
 
 BulkwalkHosts = BinaryHostRulespec(
@@ -6025,9 +6008,8 @@ CheckMkExitStatus = HostRulespec(
 def _valuespec_check_mk_agent_target_versions() -> CascadingDropdown:
     return CascadingDropdown(
         title=_("Check for correct version of Checkmk agent"),
-        # astrein: disable=localization-named-placeholder
-        help=_('This ruleset is deprecated. Please use the ruleset <i>"%s"</i> instead.')
-        % _("Checkmk agent installation auditing"),
+        help=_('This ruleset is deprecated. Please use the ruleset <i>"%(ruleset)s"</i> instead.')
+        % {"ruleset": _("Checkmk agent installation auditing")},
         choices=[
             ("ignore", _("Ignore the version")),
             ("site", _("Same version as the monitoring site")),

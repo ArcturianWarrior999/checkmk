@@ -1044,8 +1044,10 @@ class PageAjaxStartActivation(AjaxPage):
         api_request = ctx.request.get_request()
         activate_until = api_request.get("activate_until")
         if not activate_until:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError("activate_until", _('Missing parameter "%s".') % "activate_until")
+            raise MKUserError(
+                "activate_until",
+                _('Missing parameter "%(parameter)s".') % {"parameter": "activate_until"},
+            )
 
         manager = activate_changes.ActivateChangesManager()
         manager.changes.load(list(ctx.config.sites))
@@ -1103,8 +1105,10 @@ class PageAjaxActivationState(AjaxPage):
 
         activation_id = api_request.get("activation_id")
         if not activation_id:
-            # astrein: disable=localization-named-placeholder
-            raise MKUserError("activation_id", _('Missing parameter "%s".') % "activation_id")
+            raise MKUserError(
+                "activation_id",
+                _('Missing parameter "%(parameter)s".') % {"parameter": "activation_id"},
+            )
 
         manager = activate_changes.ActivateChangesManager()
         manager.changes.load(list(ctx.config.sites))

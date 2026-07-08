@@ -201,9 +201,8 @@ class ACTest:
                 state=ACResultState.EXCEPTION,
                 text=(
                     "<pre>%s</pre>"
-                    # astrein: disable=localization-named-placeholder
-                    % _("Failed to execute the test %s: See web.log for further details")
-                    % escaping.escape_attribute(self.__class__.__name__)
+                    % _("Failed to execute the test %(test_name)s: See web.log for further details")
+                    % {"test_name": escaping.escape_attribute(self.__class__.__name__)}
                 ),
                 test_id=self.id(),
                 category=self.category(),

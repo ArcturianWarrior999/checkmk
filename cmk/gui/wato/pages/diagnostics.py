@@ -315,7 +315,6 @@ class ModeDiagnostics(WatoMode[object]):
         return Dictionary(
             title=_("Collect diagnostic dump"),
             render="form",
-            # astrein: disable=localization-named-placeholder
             help=_(
                 "Files collected by the support diagnostics tool are automatically categorized to"
                 " help you identify sensitive data. We recommend reviewing all files prior to"
@@ -328,11 +327,13 @@ class ModeDiagnostics(WatoMode[object]):
                 " extensions or modifications made by you.</li></ul>"
                 "<b>Note</b>: These classifications may differ from your organization's specific"
                 " data security classifications.<br><br>"
-                "The following files are created by built-in components:<ul><li>%s</li></ul>"
+                "The following files are created by built-in components:<ul><li>%(file_list)s</li></ul>"
             )
-            % "</li><li>".join(
-                [f"{s} {f}: {d}" for (r_s, f, d, s) in get_checkmk_file_description()]
-            ),
+            % {
+                "file_list": "</li><li>".join(
+                    [f"{s} {f}: {d}" for (r_s, f, d, s) in get_checkmk_file_description()]
+                )
+            },
             elements=[
                 (
                     "site",
@@ -357,7 +358,6 @@ class ModeDiagnostics(WatoMode[object]):
                                         "support diagnostics from command line "
                                         "(see inline help)."
                                     ),
-                                    # astrein: disable=localization-named-placeholder
                                     help=_(
                                         "The timeout in seconds when gathering the support "
                                         "diagnostics data. The default is 110 seconds. When "
@@ -365,20 +365,22 @@ class ModeDiagnostics(WatoMode[object]):
                                         "call the support diagnostics from the command line "
                                         "using the command 'cmk --create-diagnostics-dump' with "
                                         "appropriate parameters in the context of the affected "
-                                        "site. See the %s."
+                                        "site. See the %(user_manual)s."
                                     )
-                                    % html.render_a(
-                                        "user manual",
-                                        href=doc_reference_url(
-                                            user.language,
-                                            DocReferenceUtm(
-                                                campaign="inline_help",
-                                                content="setup.diagnostics",
+                                    % {
+                                        "user_manual": html.render_a(
+                                            "user manual",
+                                            href=doc_reference_url(
+                                                user.language,
+                                                DocReferenceUtm(
+                                                    campaign="inline_help",
+                                                    content="setup.diagnostics",
+                                                ),
+                                                DocReference.DIAGNOSTICS_CLI,
                                             ),
-                                            DocReference.DIAGNOSTICS_CLI,
-                                        ),
-                                        target="_blank",
-                                    ),
+                                            target="_blank",
+                                        )
+                                    },
                                     default_value=timeout_default,
                                     minvalue=60,
                                     unit=_("seconds"),
@@ -895,14 +897,15 @@ class DiagnosticsDumpBackgroundJob(BackgroundJob):
                 _("Dump file: %(tarfile_path)s") % {"tarfile_path": tarfile_path}
             )
             job_interface.send_result_message(
-                # astrein: disable=localization-named-placeholder
-                _("%s Retrieve created dump file")
-                % HTMLGenerator.render_icon_button(
-                    url=download_url,
-                    title=_("Download"),
-                    icon=StaticIcon(IconNames.diagnostics_dump_file),
-                    theme=make_theme(validate_choices=False),
-                )
+                _("%(icon_button)s Retrieve created dump file")
+                % {
+                    "icon_button": HTMLGenerator.render_icon_button(
+                        url=download_url,
+                        title=_("Download"),
+                        icon=StaticIcon(IconNames.diagnostics_dump_file),
+                        theme=make_theme(validate_choices=False),
+                    )
+                }
             )
 
         else:

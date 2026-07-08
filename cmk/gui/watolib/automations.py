@@ -81,14 +81,14 @@ def remote_automation_config_from_site_config(
 ) -> RemoteAutomationConfig:
     if "secret" not in site_config:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _('Cannot connect to site "%s": The site is not logged in') % site_config["alias"]
+            _('Cannot connect to site "%(alias)s": The site is not logged in')
+            % {"alias": site_config["alias"]}
         )
 
     if not is_replication_enabled(site_config):
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _('Cannot connect to site "%s": The replication is disabled') % site_config["alias"]
+            _('Cannot connect to site "%(alias)s": The replication is disabled')
+            % {"alias": site_config["alias"]}
         )
     return RemoteAutomationConfig(
         site_id=site_config["id"],
@@ -466,8 +466,11 @@ def get_url_raw(
         raise MKUserError(None, _("Site is not running"))
 
     if response.status_code != 200:
-        # astrein: disable=localization-named-placeholder
-        raise MKUserError(None, _("HTTP Error - %d: %s") % (response.status_code, response.text))
+        raise MKUserError(
+            None,
+            _("HTTP Error - %(status_code)d: %(text)s")
+            % {"status_code": response.status_code, "text": response.text},
+        )
 
     _verify_compatibility(response)
 
@@ -607,10 +610,9 @@ def do_site_login(site: SiteConfiguration, name: UserId, password: str, *, debug
         url, site.get("insecure", False), auth=(name, password), data=post_data
     ).strip()
     if "<html>" in response.lower():
-        # astrein: disable=localization-named-placeholder
-        message = _(
-            "Authentication to web service failed.<br>Message:<br>%s"
-        ) % escaping.strip_tags(escaping.strip_scripts(response))
+        message = _("Authentication to web service failed.<br>Message:<br>%(response)s") % {
+            "response": escaping.strip_tags(escaping.strip_scripts(response))
+        }
         if debug:
             message += "<br>" + _("Automation URL:") + " <tt>%s</tt><br>" % url
         raise MKAutomationException(message)

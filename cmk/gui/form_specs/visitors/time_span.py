@@ -84,21 +84,20 @@ class TimeSpanVisitor(FormSpecVisitor[TimeSpan, _ParsedValueModel, _FallbackMode
                     min_value, max_value = validator.range
 
                     if max_value is not None and min_value is not None:
-                        # astrein: disable=localization-named-placeholder
-                        message = Message("Allowed values range from %s to %s.") % (
-                            _render_value(min_value),
-                            _render_value(max_value),
-                        )
+                        message = Message(
+                            "Allowed values range from %(min_value)s to %(max_value)s."
+                        ) % {
+                            "min_value": _render_value(min_value),
+                            "max_value": _render_value(max_value),
+                        }
                     elif min_value is None and max_value is not None:
-                        # astrein: disable=localization-named-placeholder
-                        message = Message("The maximum allowed value is %s.") % _render_value(
-                            max_value
-                        )
+                        message = Message("The maximum allowed value is %(max_value)s.") % {
+                            "max_value": _render_value(max_value)
+                        }
                     elif min_value is not None and max_value is None:
-                        # astrein: disable=localization-named-placeholder
-                        message = Message("The minimum allowed value is %s.") % _render_value(
-                            min_value
-                        )
+                        message = Message("The minimum allowed value is %(min_value)s.") % {
+                            "min_value": _render_value(min_value)
+                        }
                     else:
                         raise RuntimeError  # is impossible because of NumberInRange init function
 

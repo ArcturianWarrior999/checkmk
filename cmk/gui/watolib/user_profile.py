@@ -150,8 +150,8 @@ def _synchronize_profiles_to_sites(
                 pending_changes.add(
                     Change(
                         action_name="edit-users",
-                        # astrein: disable=localization-named-placeholder
-                        text=_l("Password changed (sync failed: %s)") % result.error_text,
+                        text=_l("Password changed (sync failed: %(error_text)s)")
+                        % {"error_text": result.error_text},
                         force_restart=False,
                         domains=[CORE],
                     ),
@@ -183,8 +183,7 @@ def _sychronize_profile_worker(
     if site_status.get("state", "unknown") == "dead":
         return SynchronizationResult(
             automation_config.site_id,
-            # astrein: disable=localization-named-placeholder
-            error_text=_("Site %s is dead") % automation_config.site_id,
+            error_text=_("Site %(site_id)s is dead") % {"site_id": automation_config.site_id},
             failed=True,
         )
 

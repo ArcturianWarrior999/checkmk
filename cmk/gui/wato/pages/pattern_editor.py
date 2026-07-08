@@ -138,13 +138,13 @@ class ModePatternEditor(WatoMode):
         if not self._hostname and not self._item:
             return self.title_pattern_analyzer()
         if not self._hostname:
-            # astrein: disable=localization-named-placeholder
-            return _("Log file patterns of log file %s on all hosts") % (self._item)
+            return _("Log file patterns of log file %(item)s on all hosts") % {"item": self._item}
         if not self._item:
-            # astrein: disable=localization-named-placeholder
-            return _("Log file patterns of host %s") % (self._hostname)
-        # astrein: disable=localization-named-placeholder
-        return _("Log file patterns of log file %s on host %s") % (self._item, self._hostname)
+            return _("Log file patterns of host %(hostname)s") % {"hostname": self._hostname}
+        return _("Log file patterns of log file %(item)s on host %(hostname)s") % {
+            "item": self._item,
+            "hostname": self._hostname,
+        }
 
     def page_menu(self, config: Config, breadcrumb: Breadcrumb) -> PageMenu:
         return PageMenu(

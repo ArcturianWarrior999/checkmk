@@ -32,8 +32,9 @@ def recompose(form_spec: FormSpec[Any]) -> TransformDataForLegacyFormatOrRecompo
     for user_id, alias in generate_wato_users_elements_function(
         legacy_filter.only_contacts, legacy_filter.only_automation
     )():
-        # astrein: disable=localization-named-placeholder
-        elements.append(SingleChoiceElementExtended(name=user_id, title=Title("%s") % alias))
+        elements.append(
+            SingleChoiceElementExtended(name=user_id, title=Title("%(alias)s") % {"alias": alias})
+        )
 
     return TransformDataForLegacyFormatOrRecomposeFunction(
         wrapped_form_spec=SingleChoiceExtended(

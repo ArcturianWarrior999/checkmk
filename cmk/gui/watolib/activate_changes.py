@@ -438,9 +438,8 @@ def sync_changes_before_remote_automation(site_id: SiteId, debug: bool) -> None:
     state = manager.get_site_state(site_id)
     if state["_state"] != STATE_SUCCESS:
         logger.error(
-            # astrein: disable=localization-named-placeholder
-            _("Remote automation tried to sync pending changes but failed: %s"),
-            state["_status_details"],
+            _("Remote automation tried to sync pending changes but failed: %(status_details)s"),
+            {"status_details": state["_status_details"]},
         )
 
 
@@ -513,12 +512,11 @@ class PendingChangesInfo:
         if match is None:
             raise MKInternalError(
                 "pending_changes_str",
-                # astrein: disable=localization-named-placeholder
                 _(
-                    'The given str "%s" for the pending changes info does not match the required '
+                    'The given str "%(message)s" for the pending changes info does not match the required '
                     'pattern: "[number] change(s)"'
                 )
-                % self.message,
+                % {"message": self.message},
             )
         return match.groups()[1].strip()
 
@@ -563,16 +561,15 @@ def _lock_activation(site_activation_state: SiteActivationState) -> bool:
                 PHASE_DONE,
                 _("Locked"),
                 # Prevent key error for existing site_activation_states after update?!
-                # astrein: disable=localization-named-placeholder
                 status_details=_(
-                    "Activation blocked.<br>%s is currently activating "
+                    "Activation blocked.<br>%(current_user_id)s is currently activating "
                     "changes on this site.<br>Ongoing activation has been "
-                    "executed from Checkmk %s."
+                    "executed from Checkmk %(current_source)s."
                 )
-                % (
-                    repl_status.get("current_user_id", "UNKNOWN"),
-                    repl_status.get("current_source", "UNKNOWN"),
-                ),
+                % {
+                    "current_user_id": repl_status.get("current_user_id", "UNKNOWN"),
+                    "current_source": repl_status.get("current_source", "UNKNOWN"),
+                },
                 state=STATE_WARNING,
             )
             return False
@@ -637,23 +634,26 @@ def _calc_status_details(
     if phase == PHASE_QUEUED:
         value = _("Queued for update")
     elif time_started is not None:
-        # astrein: disable=localization-named-placeholder
-        value = _("Started at: %s.") % render.time_of_day(time_started)
+        value = _("Started at: %(time_started)s.") % {
+            "time_started": render.time_of_day(time_started)
+        }
     else:
         value = _("Not started.")
 
     if phase == PHASE_DONE:
         if time_ended is not None:
-            # astrein: disable=localization-named-placeholder
-            value += _(" Finished at: %s.") % render.time_of_day(time_ended)
+            value += _(" Finished at: %(time_ended)s.") % {
+                "time_ended": render.time_of_day(time_ended)
+            }
         else:
             value += _(" Finished.")
     elif phase != PHASE_QUEUED:
         assert isinstance(time_started, int | float)
         estimated_time_left = expected_duration - (time.time() - time_started)
         if estimated_time_left < 0:
-            # astrein: disable=localization-named-placeholder
-            value += " " + _("Takes %.1f seconds longer than expected") % abs(estimated_time_left)
+            value += " " + _("Takes %(seconds_longer).1f seconds longer than expected") % {
+                "seconds_longer": abs(estimated_time_left)
+            }
         else:
             value += " " + _("Approximately finishes in %(estimated_time_left).1f seconds") % {
                 "estimated_time_left": estimated_time_left
@@ -947,13 +947,12 @@ def synchronize_files(
 
             _set_sync_state(
                 site_activation_state,
-                # astrein: disable=localization-named-placeholder
-                _("Transferring: %d new, %d changed and %d vanished files")
-                % (
-                    len(sync_delta.to_sync_new),
-                    len(sync_delta.to_sync_changed),
-                    len(sync_delta.to_delete),
-                ),
+                _("Transferring: %(new)d new, %(changed)d changed and %(vanished)d vanished files")
+                % {
+                    "new": len(sync_delta.to_sync_new),
+                    "changed": len(sync_delta.to_sync_changed),
+                    "vanished": len(sync_delta.to_delete),
+                },
             )
             _synchronize_files(
                 site_id,
@@ -3051,8 +3050,7 @@ class ActivateChangesSchedulerBackgroundJob(BackgroundJob):
             )
 
             job_interface.send_progress_update(
-                # astrein: disable=localization-named-placeholder
-                _("Going to update %d sites") % len(site_snapshot_settings),
+                _("Going to update %(count)d sites") % {"count": len(site_snapshot_settings)},
                 with_timestamp=True,
             )
 
@@ -3302,8 +3300,9 @@ def _execute_cmk_update_config() -> None:
     )
 
     if completed_process.returncode:
-        # astrein: disable=localization-named-placeholder
-        raise MKGeneralException(_("Configuration update failed\n%s") % completed_process.stdout)
+        raise MKGeneralException(
+            _("Configuration update failed\n%(output)s") % {"output": completed_process.stdout}
+        )
 
 
 def _execute_update_passwords() -> None:
@@ -3314,8 +3313,9 @@ def _execute_update_passwords() -> None:
         logger.log(logging.DEBUG, msg_template, 0, out)
     except subprocess.CalledProcessError as e:
         logger.log(logging.WARNING, msg_template, e.returncode, e.output)
-        # astrein: disable=localization-named-placeholder
-        raise MKGeneralException(_("Collection of passwords failed\n%s") % e.output)
+        raise MKGeneralException(
+            _("Collection of passwords failed\n%(output)s") % {"output": e.output}
+        )
 
 
 def _has_local_file_changes(sync_archive: bytes, to_delete: list[str]) -> bool:
@@ -3365,13 +3365,12 @@ def _execute_post_config_sync_actions(
         hooks.call("snapshot-pushed")
     except Exception:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
             _(
-                'Failed to deploy configuration: "%s". '
+                'Failed to deploy configuration: "%(error)s". '
                 "Please note that the site configuration has been synchronized "
                 "partially."
             )
-            % traceback.format_exc()
+            % {"error": traceback.format_exc()}
         )
 
     log_audit(
@@ -3404,10 +3403,9 @@ def verify_remote_site_config(sites: Mapping[SiteId, SiteConfiguration], site_id
     changes.load(list(sites), sites)
     pending = list(reversed(changes.grouped_changes()))
     if pending:
-        # astrein: disable=localization-named-placeholder
         message = _(
-            "There are %d pending changes that would get lost. The most recent are: "
-        ) % len(pending)
+            "There are %(count)d pending changes that would get lost. The most recent are: "
+        ) % {"count": len(pending)}
         message += ", ".join(change["text"] for _change_id, change in pending[:10])
 
         raise MKGeneralException(message)
@@ -3556,9 +3554,11 @@ def _get_sync_archive(to_sync: list[str], base_dir: Path) -> bytes:
 
     if completed_process.returncode:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Failed to create sync archive [%d]: %s")
-            % (completed_process.returncode, completed_process.stderr.decode())
+            _("Failed to create sync archive [%(returncode)d]: %(error)s")
+            % {
+                "returncode": completed_process.returncode,
+                "error": completed_process.stderr.decode(),
+            }
         )
 
     return completed_process.stdout
@@ -3586,9 +3586,11 @@ def _unpack_sync_archive(sync_archive: bytes, base_dir: Path) -> None:
 
     if completed_process.returncode:
         raise MKGeneralException(
-            # astrein: disable=localization-named-placeholder
-            _("Failed to extract sync archive [%d]: %s")
-            % (completed_process.returncode, completed_process.stderr.decode())
+            _("Failed to extract sync archive [%(returncode)d]: %(error)s")
+            % {
+                "returncode": completed_process.returncode,
+                "error": completed_process.stderr.decode(),
+            }
         )
 
 
@@ -4252,8 +4254,7 @@ def activate_changes_start(
         if site_id not in all_site_configs:
             raise MKUserError(
                 None,
-                # astrein: disable=localization-named-placeholder
-                _("Unknown site %s") % escaping.escape_attribute(site_id),
+                _("Unknown site %(site_id)s") % {"site_id": escaping.escape_attribute(site_id)},
                 status=400,
             )
 

@@ -58,23 +58,24 @@ class AutodiscoveryBackgroundJob(BackgroundJob):
     def _get_discovery_message_text(
         hostname: str, discovery_result: SingleHostDiscoveryResult
     ) -> str:
-        # astrein: disable=localization-named-placeholder
         return _(
-            "Discovery on host %s: %d services (%d added, %d changed, %d removed, %d kept)"
-            " and %d host labels (%d added, %d changed, %d removed, %d kept)"
-        ) % (
-            hostname,
-            discovery_result.services.total,
-            discovery_result.services.new,
-            discovery_result.services.changed,
-            discovery_result.services.removed,
-            discovery_result.services.kept,
-            discovery_result.host_labels.total,
-            discovery_result.host_labels.new,
-            discovery_result.host_labels.changed,
-            discovery_result.host_labels.removed,
-            discovery_result.host_labels.kept,
-        )
+            "Discovery on host %(host_name)s: %(services_total)d services (%(services_added)d added,"
+            " %(services_changed)d changed, %(services_removed)d removed, %(services_kept)d kept)"
+            " and %(labels_total)d host labels (%(labels_added)d added, %(labels_changed)d changed,"
+            " %(labels_removed)d removed, %(labels_kept)d kept)"
+        ) % {
+            "host_name": hostname,
+            "services_total": discovery_result.services.total,
+            "services_added": discovery_result.services.new,
+            "services_changed": discovery_result.services.changed,
+            "services_removed": discovery_result.services.removed,
+            "services_kept": discovery_result.services.kept,
+            "labels_total": discovery_result.host_labels.total,
+            "labels_added": discovery_result.host_labels.new,
+            "labels_changed": discovery_result.host_labels.changed,
+            "labels_removed": discovery_result.host_labels.removed,
+            "labels_kept": discovery_result.host_labels.kept,
+        }
 
     def execute(
         self,

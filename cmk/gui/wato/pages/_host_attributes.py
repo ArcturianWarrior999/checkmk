@@ -109,14 +109,13 @@ def configure_attributes(
         )
 
         if topic_id == "management_board":
-            # astrein: disable=localization-named-placeholder
             message = _(
                 "<b>This feature will be deprecated in a future version of Checkmk.</b>"
                 "<br>Please do not configure management boards in here anymore. "
-                "Monitor the management boards via a dedicated host using <a href='%s'>IPMI</a>"
-                " or SNMP.<br><a href='%s' target='_blank'>Read more about management boards.</a>"
-            ) % (
-                makeuri_contextless(
+                "Monitor the management boards via a dedicated host using <a href='%(ipmi_url)s'>IPMI</a>"
+                " or SNMP.<br><a href='%(read_more_url)s' target='_blank'>Read more about management boards.</a>"
+            ) % {
+                "ipmi_url": makeuri_contextless(
                     request,
                     [
                         ("mode", "edit_ruleset"),
@@ -124,8 +123,8 @@ def configure_attributes(
                     ],
                     filename="wato.py",
                 ),
-                "https://checkmk.com/blog/monitoring-management-boards",
-            )
+                "read_more_url": "https://checkmk.com/blog/monitoring-management-boards",
+            }
             forms.warning_message(message)
 
         if topic_id == "basic":

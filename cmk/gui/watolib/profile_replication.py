@@ -251,17 +251,16 @@ class ProfileReplicationBackgroundJob(BackgroundJob):
                     pending_changes=pending_changes,
                 )
                 job_interface.send_progress_update(
-                    # astrein: disable=localization-named-placeholder
-                    _("Replication to %s failed: %s") % (site_result.site_id, site_result.error)
+                    _("Replication to %(site_id)s failed: %(error)s")
+                    % {"site_id": site_result.site_id, "error": site_result.error}
                 )
             else:
                 update_activation_time(
                     site_result.site_id, ACTIVATION_TIME_PROFILE_SYNC, site_result.duration
                 )
                 job_interface.send_progress_update(
-                    # astrein: disable=localization-named-placeholder
-                    _("Replication to %s successful (%.1fs)")
-                    % (site_result.site_id, site_result.duration)
+                    _("Replication to %(site_id)s successful (%(duration).1fs)")
+                    % {"site_id": site_result.site_id, "duration": site_result.duration}
                 )
 
         job_interface.send_result_message(_("Profile replication completed"))

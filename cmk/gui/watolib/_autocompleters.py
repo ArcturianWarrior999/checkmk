@@ -31,9 +31,8 @@ def hostgroup_autocompleter(config: Config, value: str, params: dict) -> Choices
     if group_type not in (valid_group_types := get_args(GroupType)):
         raise MKUserError(
             "params",
-            # astrein: disable=localization-named-placeholder
-            _("you need to set %s parameter to either %s.")
-            % ("group_type", str(valid_group_types)),
+            _("you need to set %(parameter)s parameter to either %(values)s.")
+            % {"parameter": "group_type", "values": str(valid_group_types)},
         )
     choices: Choices = sorted(
         (v for v in all_groups(group_type) if _matches_id_or_title(value, v)),

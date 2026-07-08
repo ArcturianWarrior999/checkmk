@@ -194,9 +194,14 @@ class SingleChoiceVisitor[T](
         message = (
             self.form_spec.invalid_element_validation
             and self.form_spec.invalid_element_validation.error_msg
-            # astrein: disable=localization-named-placeholder
-        ) or Message("Invalid choice %r")
+        ) or Message("Invalid choice %(invalid_value)r")
         message_localized = localize(message)
+        if "%(invalid_value)s" in message_localized or "%(invalid_value)r" in message_localized:
+            if invalid_value == NO_SELECTION:
+                return message_localized.replace("%(invalid_value)s", "").replace(
+                    "%(invalid_value)r", ""
+                )
+            return message_localized % {"invalid_value": invalid_value}
         if "%s" in message_localized or "%r" in message_localized:
             if invalid_value == NO_SELECTION:
                 return message_localized.replace("%s", "").replace("%r", "")
