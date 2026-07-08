@@ -5,7 +5,7 @@
 
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import assert_never
+from typing import assert_never, Protocol
 
 from cmk.graphing.v1 import graphs as graphs_v1
 from cmk.graphing.v1 import metrics as metrics_v1
@@ -49,16 +49,43 @@ type _ApiQuantity = (
 )
 
 
+class QuantityBuilder(Protocol):
+    def __call__(self, metrics: Sequence[RRDMetric]) -> Quantity: ...
+
+
+class _SingleQuantityBuilder:
+    def __call__(self, metrics: Sequence[RRDMetric]) -> Quantity:
+        (metric,) = metrics
+        return metric
+
+
+_SINGLE_QUANTITY_BUILDER = _SingleQuantityBuilder()
+
+
 @dataclass(frozen=True)
 class _ParseContext:
-    service: Service
+    services: Sequence[Service]
+    quantity_builder: QuantityBuilder
     localizer: Callable[[str], str]
     registered_metrics: Mapping[str, metrics_v1.Metric]
 
-    def rrd_metric(self, metric_name: str) -> RRDMetric:
+    def drawn(self, metric_name: str) -> Quantity:
+        return self.quantity_builder(
+            [
+                RRDMetric(
+                    host_name=service.host_name,
+                    service_name=service.service_name,
+                    metric_name=MetricName(metric_name),
+                )
+                for service in self.services
+            ]
+        )
+
+    def scalar(self, metric_name: str) -> RRDMetric:
+        service = self.services[0]
         return RRDMetric(
-            host_name=self.service.host_name,
-            service_name=self.service.service_name,
+            host_name=service.host_name,
+            service_name=service.service_name,
             metric_name=MetricName(metric_name),
         )
 
@@ -118,36 +145,36 @@ def _curve_display(quantity: _ApiQuantity, context: _ParseContext) -> CurveAttri
 def _parse_quantity(quantity: _ApiQuantity, context: _ParseContext) -> Quantity:
     match quantity:
         case str():
-            return context.rrd_metric(quantity)
+            return context.drawn(quantity)
         case metrics_v1.Constant():
             return Constant(quantity.value, display=_curve_display(quantity, context))
         case metrics_v2_unstable.LowerWarningOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name),
+                metric=context.scalar(quantity.metric_name),
                 scalar_type=ScalarType.LOWER_WARNING,
             )
         case metrics_v2_unstable.LowerCriticalOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name),
+                metric=context.scalar(quantity.metric_name),
                 scalar_type=ScalarType.LOWER_CRITICAL,
             )
         case metrics_v1.WarningOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name), scalar_type=ScalarType.WARNING
+                metric=context.scalar(quantity.metric_name), scalar_type=ScalarType.WARNING
             )
         case metrics_v1.CriticalOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name), scalar_type=ScalarType.CRITICAL
+                metric=context.scalar(quantity.metric_name), scalar_type=ScalarType.CRITICAL
             )
         case metrics_v1.MinimumOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name),
+                metric=context.scalar(quantity.metric_name),
                 scalar_type=ScalarType.MINIMUM,
                 color=parse_color(quantity.color),
             )
         case metrics_v1.MaximumOf():
             return ScalarOf(
-                metric=context.rrd_metric(quantity.metric_name),
+                metric=context.scalar(quantity.metric_name),
                 scalar_type=ScalarType.MAXIMUM,
                 color=parse_color(quantity.color),
             )
@@ -337,14 +364,16 @@ def parse_graph_from_api(
         | graphs_v2_unstable.Graph
         | graphs_v2_unstable.Bidirectional
     ),
-    service: Service,
+    services: Sequence[Service],
     localizer: Callable[[str], str],
     registered_metrics: Mapping[str, metrics_v1.Metric],
     *,
     graph_type: str,
+    quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Graph:
     context = _ParseContext(
-        service=service,
+        services=services,
+        quantity_builder=quantity_builder,
         localizer=localizer,
         registered_metrics=registered_metrics,
     )

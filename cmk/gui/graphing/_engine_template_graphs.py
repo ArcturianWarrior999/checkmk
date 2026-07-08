@@ -64,7 +64,7 @@ def build_template_graphs(
     fetch_metric_names: RRDFetchMetricNames,
 ) -> Sequence[Graph]:
     graphs = build_matched_graphs(
-        service=service,
+        services=[service],
         localizer=translate_to_current_language,
         fetch_metric_names=fetch_metric_names,
         graph_type="template",

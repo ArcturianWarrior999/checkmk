@@ -31,6 +31,7 @@ from cmk.graphing_engine import (
     Service,
     ServiceName,
     Stack,
+    Sum,
     TimeRange,
     TimeSeries,
 )
@@ -193,7 +194,7 @@ def _discover(
     fetch_data: _FakeRRDFetchData,
 ) -> Sequence[Graph]:
     return build_matched_graphs(
-        service=service,
+        services=[service],
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
         graph_type=_KIND,
@@ -254,7 +255,7 @@ def test_discover_template_graphs_matching_plugin_claims_its_metrics() -> None:
     discovered = _discover(service, registered_graphs, fetch_data=fetch_data)
 
     assert len(discovered) == 1
-    assert discovered[0] == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
+    assert discovered[0] == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
     # A plain title without expressions is carried through unchanged.
     assert _evaluate(discovered[0], fetch_data).title == "CPU"
     assert [line.curve.value for line in _evaluate(discovered[0], fetch_data).lines] == [1.0, 1.0]
@@ -272,7 +273,7 @@ def test_discover_template_graphs_emits_default_graph_for_unclaimed_metrics() ->
 
     [matched, fallback] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert matched == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
+    assert matched == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
     assert fallback == _fallback(extra)
 
 
@@ -304,7 +305,7 @@ def test_discover_template_graphs_optional_missing_metric_still_matches() -> Non
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_conflicting_metric_present_rejects_plugin() -> None:
@@ -341,7 +342,7 @@ def test_discover_template_graphs_matches_v2_unstable_graph() -> None:
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
@@ -361,7 +362,7 @@ def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, service, _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
 
 
 def test_discover_template_graphs_carries_scalars_for_v2_unstable_scalar_quantity() -> None:
@@ -566,7 +567,7 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
         performance_response={service: _perf_data(_perf(cpu_user, warning=80.0))}
     )
     graphs = build_matched_graphs(
-        service=service,
+        services=[service],
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
         graph_type=_KIND,
@@ -580,3 +581,142 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
         ScalarOf(metric=_rrd(cpu_user), scalar_type=scalar_type)
         for scalar_type in _FALLBACK_RULE_TYPES
     ]
+
+
+# --- multiple services -----------------------------------------------------------------------------
+
+
+def _services() -> tuple[Service, Service]:
+    return (
+        Service(host_name=HostName("h1"), service_name=ServiceName("svc")),
+        Service(host_name=HostName("h2"), service_name=ServiceName("svc")),
+    )
+
+
+def _rrd_on(service: Service, name: MetricName) -> RRDMetric:
+    return RRDMetric(
+        host_name=service.host_name, service_name=service.service_name, metric_name=name
+    )
+
+
+class _SumQuantityBuilder:
+    # Stand-in for a real aggregating QuantityBuilder (e.g. the pro _Aggregation): wraps the per-service
+    # RRDMetrics of one drawn metric in the engine's own Sum.
+    def __call__(self, metrics: Sequence[RRDMetric]) -> Quantity:
+        return Sum(summands=list(metrics))
+
+
+def _discover_combined(
+    services: Sequence[Service],
+    registered_graphs: Sequence[
+        graphs_v1.Graph
+        | graphs_v1.Bidirectional
+        | graphs_v2_unstable.Graph
+        | graphs_v2_unstable.Bidirectional
+    ],
+    *,
+    fetch_data: _FakeRRDFetchData,
+) -> Sequence[Graph]:
+    return build_matched_graphs(
+        services=services,
+        localizer=_id,
+        fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
+        graph_type=_KIND,
+        registered_graphs=registered_graphs,
+        registered_metrics=_METRICS,
+        quantity_builder=_SumQuantityBuilder(),
+    )
+
+
+def test_build_matched_graphs_aggregates_a_drawn_metric_across_services() -> None:
+    h1, h2 = _services()
+    cpu_user = MetricName("cpu_user")
+    plugin = graphs_v1.Graph(name="cpu", title=Title("CPU"), simple_lines=["cpu_user"])
+    fetch_data = _FakeRRDFetchData(
+        performance_response={h1: _perf_data(_perf(cpu_user)), h2: _perf_data(_perf(cpu_user))}
+    )
+
+    [discovered] = _discover_combined([h1, h2], [plugin], fetch_data=fetch_data)
+
+    # The drawn metric is wrapped in the builder's aggregation over both services' RRDMetrics.
+    [line] = discovered.lines
+    assert line.curve.quantity == Sum(summands=[_rrd_on(h1, cpu_user), _rrd_on(h2, cpu_user)])
+    # Both services contribute; the evaluated value is their sum.
+    assert [line.curve.value for line in _evaluate(discovered, fetch_data).lines] == [2.0]
+
+
+def test_build_matched_graphs_drops_rules_and_predictive_for_multiple_services() -> None:
+    h1, h2 = _services()
+    cpu_user = MetricName("cpu_user")
+    predict = MetricName("predict_cpu_user")
+    plugin = graphs_v1.Graph(
+        name="cpu",
+        title=Title("CPU"),
+        simple_lines=["cpu_user", metrics_v1.WarningOf("cpu_user")],
+    )
+    fetch_data = _FakeRRDFetchData(
+        performance_response={
+            h1: _perf_data(_perf(cpu_user, warning=80.0), _perf(predict)),
+            h2: _perf_data(_perf(cpu_user, warning=80.0)),
+        }
+    )
+
+    discovered = _discover_combined([h1, h2], [plugin], fetch_data=fetch_data)
+
+    # The scalar threshold would be a rule for a single service; across services it is dropped, and
+    # the predictive metric is neither drawn nor given a graph of its own.
+    assert [d.name for d in discovered] == ["cpu"]
+    assert discovered[0].rules == ()
+
+
+def test_build_matched_graphs_falls_back_across_services() -> None:
+    h1, h2 = _services()
+    extra = MetricName("extra")
+    fetch_data = _FakeRRDFetchData(
+        performance_response={h1: _perf_data(_perf(extra)), h2: _perf_data(_perf(extra))}
+    )
+
+    [discovered] = _discover_combined([h1, h2], [], fetch_data=fetch_data)
+
+    assert discovered.name == extra
+    [member] = discovered.stacks[0].members
+    assert member.quantity == Sum(summands=[_rrd_on(h1, extra), _rrd_on(h2, extra)])
+    assert discovered.rules == ()
+
+
+def test_build_matched_graphs_needs_all_required_metrics_on_one_service() -> None:
+    h1, h2 = _services()
+    cpu_user = MetricName("cpu_user")
+    cpu_system = MetricName("cpu_system")
+    plugin = graphs_v1.Graph(
+        name="cpu", title=Title("CPU"), simple_lines=["cpu_user", "cpu_system"]
+    )
+    fetch_data = _FakeRRDFetchData(
+        performance_response={h1: _perf_data(_perf(cpu_user)), h2: _perf_data(_perf(cpu_system))}
+    )
+
+    discovered = _discover_combined([h1, h2], [plugin], fetch_data=fetch_data)
+
+    # No single service has both required metrics, so the plugin is not matched (per-service, like
+    # legacy combined discovery); each metric falls back to its own aggregated single-metric graph.
+    assert {d.name for d in discovered} == {"cpu_user", "cpu_system"}
+
+
+def test_build_matched_graphs_matches_via_a_service_without_the_conflicting_metric() -> None:
+    h1, h2 = _services()
+    cpu_user = MetricName("cpu_user")
+    util = MetricName("util")
+    plugin = graphs_v1.Graph(
+        name="cpu", title=Title("CPU"), simple_lines=["cpu_user"], conflicting=["util"]
+    )
+    fetch_data = _FakeRRDFetchData(
+        performance_response={
+            h1: _perf_data(_perf(cpu_user)),
+            h2: _perf_data(_perf(cpu_user), _perf(util)),
+        }
+    )
+
+    discovered = _discover_combined([h1, h2], [plugin], fetch_data=fetch_data)
+
+    # h2 carries the conflicting metric, but h1 does not, so the plugin still matches via h1.
+    assert "cpu" in {d.name for d in discovered}

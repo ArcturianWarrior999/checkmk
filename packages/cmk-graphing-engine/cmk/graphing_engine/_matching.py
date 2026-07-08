@@ -11,13 +11,15 @@ from cmk.graphing.v1 import metrics as metrics_v1
 from cmk.graphing.v2_unstable import graphs as graphs_v2_unstable
 
 from ._from_api import (
+    _SINGLE_QUANTITY_BUILDER,
     build_curve,
     drawn_metric_names_of_graph,
     parse_graph_from_api,
+    QuantityBuilder,
 )
 from ._graph import Graph, Line, Rule, Stack
 from ._perfdata import MetricName, Service
-from ._quantities import RRDMetric, ScalarOf, ScalarType
+from ._quantities import Quantity, RRDMetric, ScalarOf, ScalarType
 from ._source import RRDFetchMetricNames
 
 _PREDICT_PREFIX = "predict_"
@@ -129,45 +131,104 @@ type _GraphPlugin = (
 )
 
 
+_FALLBACK_SCALAR_TYPES = (
+    ScalarType.WARNING,
+    ScalarType.CRITICAL,
+    ScalarType.LOWER_WARNING,
+    ScalarType.LOWER_CRITICAL,
+)
+
+
 def build_matched_graphs(
     *,
-    service: Service,
+    services: Sequence[Service],
     localizer: Callable[[str], str],
     fetch_metric_names: RRDFetchMetricNames,
     graph_type: str,
     registered_graphs: Sequence[_GraphPlugin],
     registered_metrics: Mapping[str, metrics_v1.Metric],
+    quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Sequence[Graph]:
-    metric_names = fetch_metric_names([service]).get(service, frozenset())
+    names_by_service = fetch_metric_names(services)
+    available: frozenset[MetricName] = (
+        frozenset[MetricName]().union(*names_by_service.values())
+        if names_by_service
+        else frozenset()
+    )
+    single_service = services[0] if len(services) == 1 else None
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
 
+    def _drawn(name: MetricName) -> Quantity:
+        return quantity_builder(
+            [
+                RRDMetric(
+                    host_name=service.host_name,
+                    service_name=service.service_name,
+                    metric_name=name,
+                )
+                for service in services
+            ]
+        )
+
     def _collect(base: Graph) -> None:
+        # Rules and predictive lines are single-service concepts; a graph over multiple services
+        # drops them.
+        if single_service is None:
+            matched_graphs.append(
+                Graph(
+                    name=base.name,
+                    title=base.title,
+                    graph_type=base.graph_type,
+                    vertical_range=base.vertical_range,
+                    stacks=base.stacks,
+                    lines=base.lines,
+                )
+            )
+            return
         graph, predictive_names = _add_predictive_lines(
-            base, service, metric_names, localizer, registered_metrics
+            base, single_service, available, localizer, registered_metrics
         )
         claimed.update(predictive_names)
         matched_graphs.append(graph)
 
+    def _fallback_rules(name: MetricName) -> Sequence[Rule]:
+        if single_service is None:
+            return []
+        metric = RRDMetric(
+            host_name=single_service.host_name,
+            service_name=single_service.service_name,
+            metric_name=name,
+        )
+        return [
+            Rule(
+                curve=build_curve(
+                    ScalarOf(metric=metric, scalar_type=scalar_type), localizer, registered_metrics
+                ),
+                inverse=False,
+            )
+            for scalar_type in _FALLBACK_SCALAR_TYPES
+        ]
+
     for plugin in registered_graphs:
-        walk = _walk(plugin, metric_names)
-        if not walk.matched:
+        walks = [_walk(plugin, names) for names in names_by_service.values()]
+        if not any(walk.matched for walk in walks):
             continue
-        claimed.update(walk.metric_names)
+        claimed.update(walks[0].metric_names)
         _collect(
             parse_graph_from_api(
-                plugin, service, localizer, registered_metrics, graph_type=graph_type
+                plugin,
+                services,
+                localizer,
+                registered_metrics,
+                graph_type=graph_type,
+                quantity_builder=quantity_builder,
             )
         )
 
-    for name in metric_names:
+    for name in available:
         if name in claimed or name.startswith(_PREDICT_PREFIX):
             continue
-        rrd_metric = RRDMetric(
-            host_name=service.host_name,
-            service_name=service.service_name,
-            metric_name=name,
-        )
         _collect(
             Graph(
                 name=name,
@@ -175,26 +236,11 @@ def build_matched_graphs(
                 graph_type=graph_type,
                 stacks=[
                     Stack(
-                        members=[build_curve(rrd_metric, localizer, registered_metrics)],
+                        members=[build_curve(_drawn(name), localizer, registered_metrics)],
                         inverse=False,
                     )
                 ],
-                rules=[
-                    Rule(
-                        curve=build_curve(
-                            ScalarOf(metric=rrd_metric, scalar_type=scalar_type),
-                            localizer,
-                            registered_metrics,
-                        ),
-                        inverse=False,
-                    )
-                    for scalar_type in (
-                        ScalarType.WARNING,
-                        ScalarType.CRITICAL,
-                        ScalarType.LOWER_WARNING,
-                        ScalarType.LOWER_CRITICAL,
-                    )
-                ],
+                rules=_fallback_rules(name),
             )
         )
 
