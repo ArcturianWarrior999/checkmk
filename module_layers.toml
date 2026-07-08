@@ -820,6 +820,7 @@ allows = [
 [components."cmk.gui.plugins"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "cmk.bi",
   "cmk.checkengine",
@@ -831,7 +832,6 @@ allows = [
   "cmk.utils.render",
   "cmk.utils.rulesets",
   "cmk.utils.tags",
-  "livestatus",
 ]
 
 [components."cmk.gui.nonfree.pro.plugins"]
