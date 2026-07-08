@@ -1842,6 +1842,7 @@ class OtelCollectorAPI(BaseAPI):
             f"objects/otel_collector_config_receivers/{ident}",
             api_version=APIVersion.INTERNAL,
             json=body,
+            headers={"If-Match": "*"},
         )
         if expect_ok and response.status_code != 200:
             raise UnexpectedResponse.from_response(response)
@@ -1872,6 +1873,7 @@ class OtelCollectorAPI(BaseAPI):
             f"objects/otel_collector_config_prom_scrape/{ident}",
             api_version=APIVersion.INTERNAL,
             json=body,
+            headers={"If-Match": "*"},
         )
         if expect_ok and response.status_code != 200:
             raise UnexpectedResponse.from_response(response)
@@ -1880,7 +1882,9 @@ class OtelCollectorAPI(BaseAPI):
     def delete_receivers(self, ident: str, expect_ok: bool = True) -> requests.Response:
         """Delete an OpenTelemetry collector receiver via REST API."""
         response = self.session.delete(
-            f"objects/otel_collector_config_receivers/{ident}", api_version=APIVersion.INTERNAL
+            f"objects/otel_collector_config_receivers/{ident}",
+            api_version=APIVersion.INTERNAL,
+            headers={"If-Match": "*"},
         )
         if expect_ok and response.status_code != 204:
             raise UnexpectedResponse.from_response(response)
@@ -1889,7 +1893,9 @@ class OtelCollectorAPI(BaseAPI):
     def delete_prom_scrape(self, ident: str, expect_ok: bool = True) -> requests.Response:
         """Delete an OpenTelemetry collector prometheus scraping via REST API."""
         response = self.session.delete(
-            f"objects/otel_collector_config_prom_scrape/{ident}", api_version=APIVersion.INTERNAL
+            f"objects/otel_collector_config_prom_scrape/{ident}",
+            api_version=APIVersion.INTERNAL,
+            headers={"If-Match": "*"},
         )
         if expect_ok and response.status_code != 204:
             raise UnexpectedResponse.from_response(response)
