@@ -961,8 +961,9 @@ def evaluate_stats(query: str, columns: list[ColumnName], result: ResultList) ->
     if columns:
         # We group by all distinct field values explicitly referenced in Columns:
         for key, group in itertools.groupby(sorted(result, key=key_func), key=key_func):
+            group_list = list(group)
             for count, reducer in enumerate(reducers, start=1):
-                aggregated.append({**dict(key), f"stat_{count}": reducer(list(group))})
+                aggregated.append({**dict(key), f"stat_{count}": reducer(group_list)})
     else:
         for count, reducer in enumerate(reducers, start=1):
             aggregated.append({f"stat_{count}": reducer(result)})

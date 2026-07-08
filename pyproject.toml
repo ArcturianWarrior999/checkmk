@@ -29,6 +29,7 @@ select = [
   "B023",   # flake8-bugbear: function-uses-loop-variable
   "B024",   # flake8-bugbear: abstract-base-class-without-abstract-method
   "B027",   # flake8-bugbear: empty-method-without-abstract-decorator
+  "B031",   # flake8-bugbear: reuse-of-groupby-generator
   "C4",     # flake8: comprehensions
   "C90",    # mccabe
   "E",      # pycodestyle (error)

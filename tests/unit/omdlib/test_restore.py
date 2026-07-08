@@ -122,7 +122,10 @@ def _merge_directories(dirs_one: Iterable[Directory], dirs_two: Iterable[Directo
         return dir_.name
 
     for name, dirs in groupby(sorted(chain(dirs_one, dirs_two), key=by_name), key=by_name):
-        match list(dirs):
+        # The purpose of the `dir_list` variable is to work around
+        # https://github.com/astral-sh/ruff/issues/26624
+        dir_list = list(dirs)
+        match dir_list:
             case [dir_]:
                 result.add(dir_)
             case [dir_one, dir_two]:
