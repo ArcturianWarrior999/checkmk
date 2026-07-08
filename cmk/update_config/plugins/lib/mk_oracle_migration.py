@@ -9,6 +9,7 @@ from typing import Any, Final, Literal, NamedTuple
 
 from cmk.gui.watolib.rulesets import Rule, RuleOptions, Ruleset
 from cmk.plugins.oracle.bakery.mk_oracle_unified import (
+    GuiAsmAuthConf,
     GuiAuthConf,
     GuiAuthUserPasswordData,
     GuiConfig,
@@ -96,6 +97,11 @@ def convert(legacy: Mapping[str, Any]) -> MigratedRule:
     instances.extend(
         _convert_remote_instances(legacy.get("remote_instances", []), login_exceptions, warnings)
     )
+
+    if asm_auth := _convert_login_asm(legacy.get("login_asm"), login_exceptions, warnings):
+        if auth is None:
+            auth = GuiAuthConf[RawSecret]()
+        auth.asm_auth = asm_auth
 
     instances.extend(_convert_login_exceptions(login_exceptions, warnings))
 
@@ -282,6 +288,36 @@ def _convert_login_exceptions(
         )
 
     return instances
+
+
+def _convert_login_asm(
+    login_asm: Mapping[str, Any] | None,
+    login_exceptions: dict[str, Any],
+    warnings: list[str],
+) -> GuiAsmAuthConf[RawSecret] | None:
+    """Route an ASM login either into login_exceptions as a '+ASM' fallback instance
+    (dedicated host, or wallet auth), or return an asm_auth object for the main section
+    (explicit auth without a dedicated host)."""
+    if not isinstance(login_asm, Mapping):
+        return None
+
+    asm_auth = login_asm.get("auth")
+    if "host" in login_asm or "port" in login_asm or asm_auth == "wallet":
+        login_exceptions["+ASM"] = login_asm
+        warnings.append(
+            "ASM login with dedicated host has been mapped to an instance in the new rule. "
+            "This requires a SID, thus +ASM has been specified. Please update the new rule "
+            "to the correct SID as needed."
+        )
+        return None
+
+    if isinstance(asm_auth, tuple) and asm_auth[0] == "explicit":
+        username, password = _convert_username_password(asm_auth)
+        return GuiAsmAuthConf[RawSecret](
+            username=username, password=password, role=login_asm.get("as") or None
+        )
+
+    return None
 
 
 def _convert_username_password(auth: tuple[Any, ...]) -> tuple[str, RawSecret]:

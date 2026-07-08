@@ -449,3 +449,67 @@ def test_converts_two_instances_when_remote_instance_cannot_reference_login_exce
     )
     assert len(dump(new_rule.rule)["instances"]) == 2
     assert new_rule.warnings[0] == "Could not find login for ORCL remote instance."
+
+
+def test_main_asm_auth_mapped_when_login_asm_present_without_host_and_port() -> None:
+    new_rule = convert(
+        {
+            "login_asm": {
+                "auth": ("explicit", ("asm_user", ("password", "asm_pass"))),
+                "as": "sysasm",
+            }
+        }
+    )
+    dumped = dump(new_rule.rule)
+    assert dumped["main"]["auth"]["asm_auth"] == {
+        "username": "asm_user",
+        "password": ("cmk_postprocessed", "explicit_password", ("", "asm_pass")),
+        "role": "sysasm",
+    }
+    assert dumped["instances"] == []
+
+
+def test_fallback_instance_created_when_login_asm_has_host_and_port() -> None:
+    new_rule = convert(
+        {"login_asm": {"auth": "wallet", "as": "sysasm", "host": "asmhost", "port": 1521}}
+    )
+    dumped = dump(new_rule.rule)
+    assert dumped["instances"] == [
+        {
+            "oracle_id": ("sid", {"sid": "+ASM"}),
+            "auth": {"auth_type": ("wallet", None), "role": "sysasm"},
+            "connection": {"host": "asmhost", "port": 1521},
+        }
+    ]
+    assert "asm_auth" not in dumped["main"].get("auth", {})
+
+
+def test_fallback_instance_created_when_login_asm_has_explicit_auth_and_host() -> None:
+    new_rule = convert(
+        {
+            "login_asm": {
+                "auth": ("explicit", ("asm_user", ("password", "asm_pass"))),
+                "as": "sysasm",
+                "host": "asmhost",
+                "port": 1521,
+            }
+        }
+    )
+    dumped = dump(new_rule.rule)
+    assert dumped["instances"] == [
+        {
+            "oracle_id": ("sid", {"sid": "+ASM"}),
+            "auth": {
+                "auth_type": (
+                    "standard",
+                    {
+                        "username": "asm_user",
+                        "password": ("cmk_postprocessed", "explicit_password", ("", "asm_pass")),
+                    },
+                ),
+                "role": "sysasm",
+            },
+            "connection": {"host": "asmhost", "port": 1521},
+        }
+    ]
+    assert "asm_auth" not in dumped["main"].get("auth", {})
