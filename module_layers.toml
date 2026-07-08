@@ -1241,6 +1241,7 @@ allows = [
 [components."cmk.update_config"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@messaging",
   "@mkp_tool",
   "@plugin_apis",
@@ -1263,7 +1264,6 @@ allows = [
   "cmk.robotmk",
   "cmk.utils",
   "cmk.validate_config",
-  "livestatus",
 ]
 
 [components."cmk.validate_config"]
