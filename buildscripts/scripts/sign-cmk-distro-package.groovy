@@ -16,6 +16,7 @@ void main() {
         ["VERSION", true],
     ]);
 
+    def artifacts_helper = load("${checkout_dir}/buildscripts/scripts/utils/upload_artifacts.groovy");
     def versioning = load("${checkout_dir}/buildscripts/scripts/utils/versioning.groovy");
     def package_helper = load("${checkout_dir}/buildscripts/scripts/utils/package_helper.groovy");
     def single_tests = load("${checkout_dir}/buildscripts/scripts/utils/single_tests.groovy");
@@ -143,14 +144,29 @@ void main() {
             }
 
             stage("Test package") {
-                package_helper.test_package(
-                    package_path: "${checkout_dir}/${package_name}",
-                    name: distro,
-                    workspace: checkout_dir,
-                    source_dir: checkout_dir,
-                    cmk_version: cmk_version,
-                    fake_artifacts: fake_artifacts,
-                );
+                artifacts_helper.withHotCache([
+                    download_dest: "~",
+                    remove_existing_cache: true,
+                    target_name: "sign-${package_type}",
+                    cache_prefix: "deb-package-signer",
+                    // When we mount the shared repository cache, we won't pack the repository cache under ~/.cache
+                    // into the hot cache and therefore we dont need to consider WORKSPACE and MODULE.bazel.lock
+                    files_to_consider: [
+                        '.bazelversion',
+                        'requirements.txt',
+                        'bazel/tools/package.json',
+                    ] + (env.MOUNT_SHARED_REPOSITORY_CACHE == "1" ? [] : ['WORKSPACE', 'MODULE.bazel.lock']),
+                    disable_hot_cache: env.USE_STASHED_BAZEL_FOLDER_CMK_DISTRO_SIGN == "0",
+                ]) {
+                    package_helper.test_package(
+                        package_path: "${checkout_dir}/${package_name}",
+                        name: distro,
+                        workspace: checkout_dir,
+                        source_dir: checkout_dir,
+                        cmk_version: cmk_version,
+                        fake_artifacts: fake_artifacts,
+                    );
+                }
             }
 
             stage("Archive stuff") {
