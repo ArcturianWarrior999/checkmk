@@ -116,7 +116,8 @@ def _run_new_plugin(oracle: OracleDatabase, config_path: Path | None = None) -> 
     """Run the mk-oracle binary inside the container and return its stdout."""
     cfg = (config_path or oracle.new_plugin_cfg).as_posix()
     rc, output = oracle.container.exec_run([oracle.new_plugin.as_posix(), "-c", cfg, "--no-spool"])
-    text: str = output.decode("utf-8")
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    text = output.decode("utf-8")
     assert rc == 0, f"mk-oracle plugin failed!\n{text}"
     return text
 
@@ -399,6 +400,7 @@ def test_docker_oracle(
     else:
         oracle.use_credentials()
     rc, output = oracle.container.exec_run([oracle.cmk_plugin.as_posix(), "-t"], user="root")
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
     agent_plugin_output = output.decode("utf-8")
     assert rc == 0 and "test login works" in agent_plugin_output, (
         f"Oracle plugin could not connect to database using {auth_mode} authentication!\n"
@@ -407,6 +409,7 @@ def test_docker_oracle(
     rc, output = oracle.container.exec_run(
         f"""bash -c '{oracle.cmk_plugin.as_posix()}'""", user="root"
     )
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
     agent_plugin_output = output.decode("utf-8")
     assert rc == 0, f"Oracle plugin failed!\n{agent_plugin_output}"
 
@@ -484,6 +487,7 @@ def _oracle_with_pdbs(oracle: OracleDatabase) -> OracleDatabase:
         f"""bash -c 'sqlplus -s "/ as sysdba" < "{container_sql_path.as_posix()}"'""",
         user="oracle",
     )
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
     assert rc == 0, f"Failed to create extra PDBs: {output.decode('utf-8')}"
     return oracle
 

@@ -50,6 +50,7 @@ def test_start_simple(checkmk: CheckmkApp) -> None:
 
     # Check omd standard config
     exit_code, output_bytes = checkmk.container.exec_run(["omd", "config", "show"], user="cmk")
+    assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
     output = output_bytes.decode("utf-8")
     assert "TMPFS: off" in output
     assert "APACHE_TCP_ADDR: 0.0.0.0" in output
@@ -62,8 +63,13 @@ def test_start_simple(checkmk: CheckmkApp) -> None:
         assert "CORE: cmc" in output
 
     # check sites uid/gid
-    assert checkmk.container.exec_run(["id", "-u", "cmk"])[1].decode("utf-8").rstrip() == "1000"
-    assert checkmk.container.exec_run(["id", "-g", "cmk"])[1].decode("utf-8").rstrip() == "1000"
+    _, output_bytes = checkmk.container.exec_run(["id", "-u", "cmk"])
+    assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
+    assert output_bytes.decode("utf-8").rstrip() == "1000"
+
+    _, output_bytes = checkmk.container.exec_run(["id", "-g", "cmk"])
+    assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
+    assert output_bytes.decode("utf-8").rstrip() == "1000"
 
     assert exit_code == 0
 
@@ -101,12 +107,14 @@ def test_start_enable_livestatus(client: docker.DockerClient) -> None:
             ["omd", "config", "show", "LIVESTATUS_TCP"], user="cmk"
         )
         assert exit_code == 0
+        assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
         assert output_bytes.decode("utf-8") == "on\n"
 
 
 def test_start_execute_custom_command(checkmk: CheckmkApp) -> None:
     exit_code, output_bytes = checkmk.container.exec_run(["echo", "1"], user="cmk")
     assert exit_code == 0
+    assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
     assert output_bytes.decode("utf-8") == "1\n"
 
 
@@ -133,6 +141,7 @@ def test_start_setting_custom_timezone(client: docker.DockerClient) -> None:
             user="cmk",
         )
         assert exit_code == 0, f"Did not find timezone setting in {config_file}"
+        assert isinstance(output_bytes, bytes)  # stream/socket/demux not used above
         assert output_bytes.decode("utf-8") == 'TZ="nonvalidatedvalue"\n'
 
 
@@ -194,14 +203,13 @@ def test_start_enable_mail(client: docker.DockerClient) -> None:
 
         assert cmk.container.exec_run(["which", "mail"], user="cmk")[0] == 0
 
-        assert (
-            cmk.container.exec_run(["postconf", "myorigin"])[1].decode("utf-8").rstrip()
-            == "myorigin = myhost.mydomain.com"
-        )
-        assert (
-            cmk.container.exec_run(["postconf", "relayhost"])[1].decode("utf-8").rstrip()
-            == "relayhost = mailrelay.mydomain.com"
-        )
+        _, output = cmk.container.exec_run(["postconf", "myorigin"])
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
+        assert output.decode("utf-8").rstrip() == "myorigin = myhost.mydomain.com"
+
+        _, output = cmk.container.exec_run(["postconf", "relayhost"])
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
+        assert output.decode("utf-8").rstrip() == "relayhost = mailrelay.mydomain.com"
 
 
 def test_http_access_base_redirects_work(checkmk: CheckmkApp) -> None:
@@ -222,7 +230,7 @@ def test_http_access_base_redirects_work(checkmk: CheckmkApp) -> None:
 # because most of our systems already have something listening on port 80
 def test_redirects_work_with_standard_port(checkmk: CheckmkApp) -> None:
     # Use no explicit port
-    assert "Location: http://127.0.0.1/cmk/\r\n" in checkmk.container.exec_run(
+    _, output = checkmk.container.exec_run(
         [
             "curl",
             "-D",
@@ -232,10 +240,12 @@ def test_redirects_work_with_standard_port(checkmk: CheckmkApp) -> None:
             "127.0.0.1:80:127.0.0.1:5000",
             "http://127.0.0.1",
         ],
-    )[-1].decode("utf-8")
+    )
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    assert "Location: http://127.0.0.1/cmk/\r\n" in output.decode("utf-8")
 
     # Use explicit standard port
-    assert "Location: http://127.0.0.1/cmk/\r\n" in checkmk.container.exec_run(
+    _, output = checkmk.container.exec_run(
         [
             "curl",
             "-D",
@@ -245,10 +255,12 @@ def test_redirects_work_with_standard_port(checkmk: CheckmkApp) -> None:
             "127.0.0.1:80:127.0.0.1:5000",
             "http://127.0.0.1:80",
         ],
-    )[-1].decode("utf-8")
+    )
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    assert "Location: http://127.0.0.1/cmk/\r\n" in output.decode("utf-8")
 
     # Use explicit host header with standard port
-    assert "Location: http://127.0.0.1/cmk/\r\n" in checkmk.container.exec_run(
+    _, output = checkmk.container.exec_run(
         [
             "curl",
             "-D",
@@ -260,7 +272,9 @@ def test_redirects_work_with_standard_port(checkmk: CheckmkApp) -> None:
             "127.0.0.1:80:127.0.0.1:5000",
             "http://127.0.0.1",
         ],
-    )[-1].decode("utf-8")
+    )
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    assert "Location: http://127.0.0.1/cmk/\r\n" in output.decode("utf-8")
 
 
 def test_redirects_work_with_custom_port(client: docker.DockerClient) -> None:
@@ -319,14 +333,14 @@ def test_http_access_login_screen(checkmk: CheckmkApp) -> None:
 
 def test_container_agent(checkmk: CheckmkApp) -> None:
     # Is the agent installed and executable?
-    assert (
-        checkmk.container.exec_run(["check_mk_agent"])[-1]
-        .decode("utf-8")
-        .startswith("<<<check_mk>>>\n")
-    )
+    _, output = checkmk.container.exec_run(["check_mk_agent"])
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    assert output.decode("utf-8").startswith("<<<check_mk>>>\n")
 
     # Check whether the agent port is opened
-    assert ":::6556" in checkmk.container.exec_run(["netstat", "-tln"])[-1].decode("utf-8")
+    _, output = checkmk.container.exec_run(["netstat", "-tln"])
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
+    assert ":::6556" in output.decode("utf-8")
 
 
 def test_update(client: docker.DockerClient) -> None:
@@ -368,9 +382,9 @@ def test_update(client: docker.DockerClient) -> None:
             volumes=container_volumes,
         ) as cmk_new:
             # 5. verify result
-            cmk_new.container.exec_run(["omd", "version"], user="cmk")[1].decode("utf-8").endswith(
-                "%s\n" % update_package.omd_version()
-            )
+            _, output = cmk_new.container.exec_run(["omd", "version"], user="cmk")
+            assert isinstance(output, bytes)  # stream/socket/demux not used above
+            output.decode("utf-8").endswith("%s\n" % update_package.omd_version())
             assert (
                 cmk_new.container.exec_run(
                     ["test", "-f", "pre-update-marker"], user="cmk", workdir="/omd/sites/cmk"

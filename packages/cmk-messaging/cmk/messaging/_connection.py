@@ -345,7 +345,9 @@ class Connection:
             raise CMKConnectionError(repr(e)) from e
 
     def channel[ModelT: BaseModel](self, model: type[ModelT]) -> Channel[ModelT]:
-        return Channel(self.app, self._pconnection.channel(), model)
+        # FIXME: Something weird is going on here regarding typing, suppressed for now:
+        # Value of type variable "_ChannelT" of "Channel" cannot be "BlockingChannel"
+        return Channel(self.app, self._pconnection.channel(), model)  # type: ignore[type-var]
 
     def __enter__(self) -> Self:
         self._pconnection.__enter__()

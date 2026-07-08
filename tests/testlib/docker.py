@@ -442,6 +442,7 @@ class CheckmkApp:
                 raise
 
         status_rc, status_output = c.exec_run(["omd", "status"], user=self.site_id)
+        assert isinstance(status_output, bytes)  # stream/socket/demux not used above
         assert status_rc == 0, f"Status is {status_rc}. Output: {status_output.decode('utf-8')}"
 
         # reload() to make sure all attributes are set (e.g. NetworkSettings)
@@ -529,6 +530,7 @@ class CheckmkApp:
             f"{'rpm' if agent_type == 'rpm' else 'dpkg'} --install '/{os.path.basename(agent_path)}'",
             user="root",
         )
+        assert isinstance(install_agent_output, bytes)  # stream/socket/demux not used above
         assert install_agent_rc == 0, (
             f"Error during agent installation: {install_agent_output.decode('utf-8')}"
         )
@@ -555,6 +557,7 @@ class CheckmkApp:
             cmd,
             user="root",
         )
+        assert isinstance(register_agent_output, bytes)  # stream/socket/demux not used above
         assert register_agent_rc == 0, (
             f"Error registering agent: {register_agent_output.decode('utf-8')}"
         )
@@ -572,6 +575,7 @@ class CheckmkApp:
             f"dnf install '{python_pkg_name}'",
             user="root",
         )
+        assert isinstance(install_python_output, bytes)  # stream/socket/demux not used above
         assert install_python_rc == 0, (
             f"Error during {python_pkg_name} setup: {install_python_output.decode('utf-8')}"
         )

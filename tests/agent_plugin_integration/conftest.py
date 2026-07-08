@@ -188,6 +188,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             f"""bash -c 'echo -e "{wallet_password}" | {" ".join(cmd)}'""", user="oracle"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error during wallet creation: {output.decode('UTF-8')}"
         logger.info("Creating Oracle wallet credential...")
         cmd = [
@@ -200,6 +201,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             f"""bash -c 'echo "{self.wallet_password}" | {" ".join(cmd)}'""", user="oracle"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error during wallet credential creation: {output.decode('UTF-8')}"
 
     def _init_envfiles(self) -> None:
@@ -288,8 +290,10 @@ class OracleDatabase:
 
         logger.info("Restart TNS listener")
         rc, output = self.container.exec_run("lsnrctl stop", user="oracle")
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to stop listener: {output.decode('UTF-8')}"
         rc, output = self.container.exec_run("lsnrctl start", user="oracle")
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to start listener: {output.decode('UTF-8')}"
 
         logger.info("Forcing listener registration...")
@@ -297,6 +301,7 @@ class OracleDatabase:
             f"""bash -c 'sqlplus -s "/ as sysdba" < "{self.ROOT}/register_listener.sql"'""",
             user="oracle",
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error during listener registration: {output.decode('UTF-8')}"
 
         logger.info('Creating Checkmk user "%s"...', self.cmk_username)
@@ -304,6 +309,7 @@ class OracleDatabase:
             f"""bash -c 'sqlplus -s "/ as sysdba" < "{self.ROOT}/create_user.sql"'""",
             user="oracle",
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error during user creation: {output.decode('UTF-8')}"
 
         login = f"{self.cmk_username}/{self.cmk_password}@{self.SID}"
@@ -312,6 +318,7 @@ class OracleDatabase:
             f"""bash -c 'sqlplus -s "{login}" < "{self.ROOT}/show_user.sql"'""",
             user="oracle",
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert f"{self.cmk_username}" in output.decode("UTF-8").lower(), (
             f"Error while checking user: {output.decode('UTF-8')}"
         )
@@ -344,12 +351,12 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'mkdir -p "{self.cmk_plugin_dir.as_posix()}"', user="root"
         )
-        assert rc == 0, f'Could not create folder "{self.cmk_plugin_dir}"! Reason: {output}'
+        assert rc == 0, f'Could not create folder "{self.cmk_plugin_dir}"! Reason: {output!r}'
         logger.info('Creating agent plugin configuration folder "%s"...', self.cmk_cfg_dir)
         rc, output = self.container.exec_run(
             rf'mkdir -p "{self.cmk_cfg_dir.as_posix()}"', user="root"
         )
-        assert rc == 0, f'Could not create "{self.cmk_cfg_dir}"! Reason: {output}'
+        assert rc == 0, f'Could not create "{self.cmk_cfg_dir}"! Reason: {output!r}'
 
         logger.info('Installing Oracle plugin "%s" to "%s"...', plugin_source_path, self.cmk_plugin)
         assert copy_to_container(
@@ -359,6 +366,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'chmod +x "{self.cmk_plugin.as_posix()}"', user="root"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error while setting ownership: {output.decode('UTF-8')}"
         logger.info("Installing Oracle plugin configuration files...")
         for cfg_file in self.cfg_files:
@@ -369,6 +377,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             r"""bash -c 'ln -s "${ORACLE_HOME}/perl/bin/perl" "/usr/bin/perl"'""", user="root"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error while creating a link to Perl: {output.decode('UTF-8')}"
 
     def __enter__(self):
@@ -389,6 +398,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'cp "{self.cmk_credentials_cfg.as_posix()}" "{self.cmk_cfg.as_posix()}"', user="root"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to copy cfg file: {output.decode('UTF-8')}"
 
     def use_wallet(self) -> None:
@@ -413,6 +423,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'cp "{self.cmk_wallet_cfg.as_posix()}" "{self.cmk_cfg.as_posix()}"', user="root"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to copy cfg file: {output.decode('UTF-8')}"
 
     def _new_plugin_credentials_yml(self) -> str:
@@ -461,7 +472,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'mkdir -p "{self.new_plugin_dir.as_posix()}"', user="root"
         )
-        assert rc == 0, f'Could not create folder "{self.new_plugin_dir}"! Reason: {output}'
+        assert rc == 0, f'Could not create folder "{self.new_plugin_dir}"! Reason: {output!r}'
 
         logger.info(
             'Installing mk-oracle binary from "%s" to "%s"...',
@@ -474,6 +485,7 @@ class OracleDatabase:
         rc, output = self.container.exec_run(
             rf'chmod +x "{self.new_plugin.as_posix()}"', user="root"
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Error while setting executable bit: {output.decode('UTF-8')}"
 
         logger.info("Installing mk-oracle plugin configuration templates...")
@@ -502,6 +514,7 @@ class OracleDatabase:
             rf'cp "{self.new_plugin_credentials_cfg.as_posix()}" "{self.new_plugin_cfg.as_posix()}"',
             user="root",
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to copy cfg file: {output.decode('UTF-8')}"
 
     def use_new_plugin_wallet(self) -> None:
@@ -527,6 +540,7 @@ class OracleDatabase:
             rf'cp "{self.new_plugin_wallet_cfg.as_posix()}" "{self.new_plugin_cfg.as_posix()}"',
             user="root",
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert rc == 0, f"Failed to copy cfg file: {output.decode('UTF-8')}"
 
 

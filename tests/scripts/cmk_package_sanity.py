@@ -131,12 +131,11 @@ class OsContainer:
 
     def run_ldd(self, binary_path: str, site_name: str) -> tuple[str, list[str]]:
         """Run ldd on a binary inside the container; return (path, missing libs)."""
-        result = self.container.exec_run(
+        _, output = self.container.exec_run(
             ["bash", "-c", f'sudo -i -u "{site_name}" ldd "{binary_path}" 2>&1']
         )
-        missing = [
-            line.strip() for line in result.output.decode().splitlines() if "not found" in line
-        ]
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
+        missing = [line.strip() for line in output.decode().splitlines() if "not found" in line]
         return binary_path, missing
 
     def write_text_file(

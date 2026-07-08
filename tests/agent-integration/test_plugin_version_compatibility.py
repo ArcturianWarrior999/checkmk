@@ -73,4 +73,5 @@ def test_agent_plugin_syntax_compatibility(
         workdir="/cmk",
     )
 
+    assert isinstance(output, bytes)  # stream/socket/demux not used above
     assert "SyntaxError: " not in output.decode("utf-8")

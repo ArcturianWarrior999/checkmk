@@ -386,6 +386,7 @@ def _create_cmk_image(
                 str(package_hash_path(package_info.version.version, package_info.edition)),
             ],
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         hash_entry = output.decode("ascii").strip()
         logger.info("Checkmk package hash entry: %s", hash_entry)
 

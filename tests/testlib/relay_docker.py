@@ -119,6 +119,7 @@ class DockerSnmpHost:
         exit_code, output = self._container.exec_run(
             ["snmpwalk", "-v2c", "-c", "public", "127.0.0.1", "1.3.6.1.2.1.2.2.1.1"],
         )
+        assert isinstance(output, bytes)  # stream/socket/demux not used above
         assert exit_code == 0, (
             f"snmpwalk failed (exit {exit_code}): {output.decode(errors='replace')}"
         )
