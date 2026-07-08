@@ -1748,7 +1748,6 @@ allows = [
   "cmk.gui",
   "cmk.shared_typing.vue_formspec_components",
   "cmk.telemetry.host_name_template",
-  "livestatus",
 ]
 
 [components."cmk.web"]
