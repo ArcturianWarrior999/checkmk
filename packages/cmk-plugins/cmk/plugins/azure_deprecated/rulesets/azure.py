@@ -304,15 +304,14 @@ def configuration_advanced() -> Mapping[str, DictElement]:
                 # of allowed API requests. At the time of this writing (11/2018)
                 # you can find the number here:
                 # https://docs.microsoft.com/de-de/azure/azure-resource-manager/resource-manager-request-limits
-                # astrein: disable=localization-named-placeholder
                 help_text=Help(
                     "By default, all resources associated to the configured tenant ID"
                     " will be monitored. "
-                    "However, since Microsoft limits API calls to %s per hour"
-                    " (%s per minute), you can restrict the monitoring to individual"
+                    "However, since Microsoft limits API calls to %(per_hour)s per hour"
+                    " (%(per_minute)s per minute), you can restrict the monitoring to individual"
                     " resource groups and resources."
                 )
-                % ("12000", "200"),
+                % {"per_hour": "12000", "per_minute": "200"},
                 elements={
                     "explicit": _special_agents_azure_explicit_config(),
                     "tag_based": _special_agents_azure_tag_based_config(),
