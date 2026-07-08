@@ -816,10 +816,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
         except (SERVER_DOWN, TIMEOUT, LOCAL_ERROR, LDAPError) as e:
             self._clear_nearest_dc_cache()
-            if hasattr(e, "message") and "desc" in e.message:
-                msg = e.message["desc"]
-            else:
-                msg = "%s" % e
+            msg = e.message["desc"] if hasattr(e, "message") and "desc" in e.message else "%s" % e
 
             return None, f"{uri}: {msg}"
 
@@ -880,10 +877,7 @@ class LDAPUserConnector(UserConnector[LDAPUserConnectionConfig]):
 
         try:
             errors = []
-            if enforce_server:
-                servers = [enforce_server]
-            else:
-                servers = self.servers()
+            servers = [enforce_server] if enforce_server else self.servers()
 
             for server in servers:
                 ldap_obj, error_msg = self.connect_server(server)

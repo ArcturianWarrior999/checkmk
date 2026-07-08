@@ -275,10 +275,7 @@ class ValueSpec[T](abc.ABC):
 
         This is optional and only used in the value editor for same cases where
         the default value is known."""
-        if callable(self._default_value):
-            value = self._default_value()
-        else:
-            value = self._default_value
+        value = self._default_value() if callable(self._default_value) else self._default_value
 
         if isinstance(value, Sentinel):
             return self.canonical_value()
@@ -1029,9 +1026,8 @@ class TextInput(ValueSpec[str]):
                 varprefix,
                 self._empty_text or _("An empty value is not allowed here."),
             )
-        if value and self._regex:
-            if not self._regex.match(value):
-                raise MKUserError(varprefix, self._regex_error)
+        if value and self._regex and not self._regex.match(value):
+            raise MKUserError(varprefix, self._regex_error)
 
         if self._minlen is not None and len(value) < self._minlen:
             raise MKUserError(
@@ -1820,10 +1816,7 @@ class Url(TextInput):
 
         try:
             parts = urllib.parse.urlparse(value)
-            if parts.path in ["", "/"]:
-                text = parts.netloc
-            else:
-                text = parts.netloc + parts.path
+            text = parts.netloc if parts.path in ["", "/"] else parts.netloc + parts.path
         except Exception:
             text = value[7:]
 
@@ -2240,10 +2233,7 @@ class ListOfStrings(ValueSpec[Sequence[str]]):
 
     def _validate_value(self, value: Sequence[str], varprefix: str) -> None:
         if len(value) == 0 and not self._allow_empty:
-            if self._empty_text:
-                msg = self._empty_text
-            else:
-                msg = _("Please specify at least one value")
+            msg = self._empty_text or _("Please specify at least one value")
             raise MKUserError(varprefix + "_0", msg)
 
         if self._max_entries is not None and len(value) > self._max_entries:
@@ -4462,10 +4452,7 @@ class OptionalDropdownChoice[T](DropdownChoice[T]):
         )
         html.nbsp()
 
-        if defval == "other":
-            input_value = value
-        else:
-            input_value = self._explicit.default_value()
+        input_value = value if defval == "other" else self._explicit.default_value()
         html.help(self._explicit.help())
         self._explicit.render_input(varprefix + "_ex", input_value)
         html.close_span()
@@ -4998,10 +4985,7 @@ class Timeofday(ValueSpec[TimeofdayValue]):
         if value is None:
             return
 
-        if self._allow_24_00:
-            max_value = (24, 0)
-        else:
-            max_value = (23, 59)
+        max_value = (24, 0) if self._allow_24_00 else (23, 59)
 
         if value > max_value:
             raise MKUserError(
@@ -5626,10 +5610,7 @@ class Optional[T](ValueSpec[None | T]):
         div_id = "option_" + varprefix
         checked = html.get_checkbox(varprefix + "_use")
         if checked is None:
-            if self._negate:
-                checked = value is None
-            else:
-                checked = value is not None
+            checked = value is None if self._negate else value is not None
 
         html.open_span()
         html.checkbox(
@@ -5644,10 +5625,7 @@ class Optional[T](ValueSpec[None | T]):
             html.br()
         html.close_span()
 
-        if self._indent:
-            indent = 40
-        else:
-            indent = 0
+        indent = 40 if self._indent else 0
 
         html.open_span(
             id_=div_id,

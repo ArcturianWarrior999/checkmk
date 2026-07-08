@@ -604,10 +604,7 @@ def _page_menu_entry_acknowledge(
     if not user.may("general.act") or (host_name and not may_see(site, host_name)):
         return
 
-    if int_filename:
-        label = _("Clear log")
-    else:
-        label = _("Clear logs")
+    label = _("Clear log") if int_filename else _("Clear logs")
 
     urivars: HTTPVariables = [("_ack", "1")]
     if int_filename:

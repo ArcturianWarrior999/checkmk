@@ -397,9 +397,6 @@ def paint_age(
         prefix = "in "
     else:
         prefix = ""
-    if age < bold_if_younger_than:
-        age_class = "age recent"
-    else:
-        age_class = "age"
+    age_class = "age recent" if age < bold_if_younger_than else "age"
 
     return age_class, prefix + (output_format % cmk.utils.render.approx_age(age)) + warn_txt

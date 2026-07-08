@@ -2687,9 +2687,10 @@ def _sync_and_activate(
         activate_changes.load(list(all_site_configs))
         activate_changes.load_changes_until(activation_id, site_snapshot_settings.keys())
 
-        if is_free(paths.omd_root):
-            if _handle_distributed_sites_in_free(site_snapshot_settings, time_started):
-                return
+        if is_free(paths.omd_root) and _handle_distributed_sites_in_free(
+            site_snapshot_settings, time_started
+        ):
+            return
 
         (site_central_file_infos, site_activation_states) = _prepare_for_activation_tasks(
             activate_changes,

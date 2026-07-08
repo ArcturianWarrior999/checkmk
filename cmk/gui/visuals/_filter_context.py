@@ -271,9 +271,8 @@ def get_singlecontext_vars(context: VisualContext, single_infos: SingleInfos) ->
     }
 
     def var_value(filter_name: FilterName) -> str:
-        if filter_vars := context.get(filter_name):
-            if filt := filter_registry.get(filter_name):
-                return filter_vars.get(filt.htmlvars[0], "")
+        if (filter_vars := context.get(filter_name)) and (filt := filter_registry.get(filter_name)):
+            return filter_vars.get(filt.htmlvars[0], "")
         return ""
 
     return {
