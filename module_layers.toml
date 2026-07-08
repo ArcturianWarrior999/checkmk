@@ -944,6 +944,7 @@ excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 [components."cmk.gui.nonfree.ultimatemt"]
 allows = [
   "@ccc",
+  "@livestatus_client",
   "@plugin_apis",
   "@crypto",
   "@messaging",
@@ -968,7 +969,6 @@ allows = [
   "cmk.utils.password_store",
   "cmk.utils.paths",
   "cmk.utils.redis",
-  "livestatus",
 ]
 excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 
