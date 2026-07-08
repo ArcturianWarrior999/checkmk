@@ -90,11 +90,10 @@ def _add_inventory_data(rows: Rows) -> None:
         user_errors.add(
             MKUserError(
                 "load_structured_data_tree",
-                # astrein: disable=localization-named-placeholder
                 _(
-                    "Cannot load HW/SW inventory of %s. Please remove the corrupted inventory or status data tree files."
+                    "Cannot load HW/SW inventory of %(hosts)s. Please remove the corrupted inventory or status data tree files."
                 )
-                % ", ".join(sorted(hosts_with_corrupted_trees)),
+                % {"hosts": ", ".join(sorted(hosts_with_corrupted_trees))},
             )
         )
 

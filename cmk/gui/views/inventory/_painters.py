@@ -75,9 +75,10 @@ def _validate_inventory_tree_uniqueness(row: Row) -> None:
         > 1
     ):
         html.show_error(
-            # astrein: disable=localization-named-placeholder
-            _("Cannot display inventory tree of host '%s': Found this host on multiple sites: %s")
-            % (raw_hostname, ", ".join(sites_with_same_named_hosts))
+            _(
+                "Cannot display inventory tree of host '%(host_name)s': Found this host on multiple sites: %(sites)s"
+            )
+            % {"host_name": raw_hostname, "sites": ", ".join(sites_with_same_named_hosts)}
         )
         raise MultipleInventoryTreesError
 

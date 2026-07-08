@@ -166,12 +166,15 @@ class SDItem:
                 html_values=[
                     HTMLWriter.render_span(
                         html_value,
-                        # astrein: disable=localization-named-placeholder
-                        title=_("Data was provided at %s and is considered valid until %s")
-                        % (
-                            cmk.utils.render.date_and_time(self.retention_interval.cached_at),
-                            cmk.utils.render.date_and_time(keep_until),
-                        ),
+                        title=_(
+                            "Data was provided at %(provided_at)s and is considered valid until %(valid_until)s"
+                        )
+                        % {
+                            "provided_at": cmk.utils.render.date_and_time(
+                                self.retention_interval.cached_at
+                            ),
+                            "valid_until": cmk.utils.render.date_and_time(keep_until),
+                        },
                         css=["muted_text"],
                     )
                 ],
@@ -442,11 +445,13 @@ def ajax_inv_render_tree(ctx: PageContext) -> None:
             user_errors.add(
                 MKUserError(
                     "load_inventory_delta_tree",
-                    # astrein: disable=localization-named-placeholder
                     _(
-                        "Cannot load HW/SW inventory history of %s. Please remove the corrupted files %s."
+                        "Cannot load HW/SW inventory history of %(host_name)s. Please remove the corrupted files %(corrupted_files)s."
                     )
-                    % (host_name, ", ".join(corrupted_history_files)),
+                    % {
+                        "host_name": host_name,
+                        "corrupted_files": ", ".join(corrupted_history_files),
+                    },
                 )
             )
             return

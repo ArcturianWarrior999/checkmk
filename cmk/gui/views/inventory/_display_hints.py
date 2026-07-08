@@ -934,8 +934,7 @@ class AttributeDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Inventory attribute: %s") % self.long_title
+        return _("Inventory attribute: %(long_title)s") % {"long_title": self.long_title}
 
 
 def _parse_attr_field_from_legacy(
@@ -979,8 +978,7 @@ class ColumnDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Inventory column: %s") % self.long_title
+        return _("Inventory column: %(long_title)s") % {"long_title": self.long_title}
 
 
 def _parse_col_field_from_legacy(
@@ -1139,8 +1137,7 @@ class ColumnDisplayHintOfView:
 
     @property
     def long_inventory_title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Inventory column: %s") % self.long_title
+        return _("Inventory column: %(long_title)s") % {"long_title": self.long_title}
 
 
 def _parse_col_field_from_legacy_of_view(
@@ -1237,8 +1234,7 @@ class TableWithView:
 
     @property
     def long_inventory_title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Inventory table: %s") % self.long_title
+        return _("Inventory table: %(long_title)s") % {"long_title": self.long_title}
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -1254,8 +1250,7 @@ class NodeDisplayHint:
 
     @property
     def long_inventory_title(self) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Inventory node: %s") % self.long_title
+        return _("Inventory node: %(long_title)s") % {"long_title": self.long_title}
 
     def get_attribute_hint(self, key: str) -> AttributeDisplayHint:
         def _default() -> AttributeDisplayHint:

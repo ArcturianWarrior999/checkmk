@@ -136,11 +136,10 @@ def _register_views(
     search_view_name = table.name + "_search"
     multisite_builtin_views[search_view_name] = {
         # General options
-        # astrein: disable=localization-named-placeholder
-        "title": _l("Search %s") % table.long_title.lower(),
+        "title": _l("Search %(title)s") % {"title": table.long_title.lower()},
         "description": (
-            # astrein: disable=localization-named-placeholder
-            _l("A view for searching in the inventory data for %s") % table.long_title.lower()
+            _l("A view for searching in the inventory data for %(title)s")
+            % {"title": table.long_title.lower()}
         ),
         "hidden": False,
         "hidebutton": False,
@@ -209,8 +208,7 @@ def _register_views(
     multisite_builtin_views[host_view_name] = {
         # General options
         "title": table.long_title,
-        # astrein: disable=localization-named-placeholder
-        "description": _l("A view for the %s of one host") % table.long_title,
+        "description": _l("A view for the %(title)s of one host") % {"title": table.long_title},
         "hidden": True,
         "hidebutton": False,
         "mustsearch": False,

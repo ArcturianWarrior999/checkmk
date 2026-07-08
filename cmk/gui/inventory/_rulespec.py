@@ -153,14 +153,13 @@ def _valuespec_inv_exports_software_csv() -> Dictionary:
                     title=_(
                         "Export file to create, containing <tt>&lt;HOST&gt;</tt> for the host name"
                     ),
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Please specify the path to the export file. The text <tt>[HOST]</tt> "
                         "will be replaced with the host name the inventory has been done for. "
                         "If you use a relative path then that will be relative to Checkmk's directory "
-                        "for variable data, which is <tt>%s</tt>."
+                        "for variable data, which is <tt>%(var_dir)s</tt>."
                     )
-                    % cmk.utils.paths.var_dir,
+                    % {"var_dir": cmk.utils.paths.var_dir},
                     allow_empty=False,
                     size=64,
                     default_value="csv-export/[HOST].csv",
