@@ -142,10 +142,9 @@ class Command(abc.ABC):
         if self._affected_output_cb:
             return self._affected_output_cb(len_action_rows, cmdtag)
         return HTML.with_escaping(
-            # astrein: disable=localization-named-placeholder
-            _("Affected %s: %s")
-            % (
-                (
+            _("Affected %(objects)s: %(count)s")
+            % {
+                "objects": (
                     ungettext(
                         "host",
                         "hosts",
@@ -158,8 +157,8 @@ class Command(abc.ABC):
                         len_action_rows,
                     )
                 ),
-                len_action_rows,
-            )
+                "count": len_action_rows,
+            }
         )
 
     def user_confirm_options(

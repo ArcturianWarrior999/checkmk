@@ -853,11 +853,9 @@ def ajax_snapin(ctx: PageContext) -> None:
                 snapin_instance.show(ctx.config)
             except Exception as e:
                 write_snapin_exception(e)
-                e_message = (
-                    # astrein: disable=localization-named-placeholder
-                    _("Exception during element refresh (element '%s')")
-                    % snapin_instance.type_name()
-                )
+                e_message = _("Exception during element refresh (element '%(type_name)s')") % {
+                    "type_name": snapin_instance.type_name()
+                }
                 logger.error(
                     "%s %s: %s",
                     request.requested_url,

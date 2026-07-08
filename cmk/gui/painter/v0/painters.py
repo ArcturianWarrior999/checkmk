@@ -763,8 +763,9 @@ class PainterSvcMetrics(Painter):
         )
 
         if row["service_perf_data"] and not translated_metrics:
-            # astrein: disable=localization-named-placeholder
-            return "", _("Failed to parse metrics string: %s") % row["service_perf_data"]
+            return "", _("Failed to parse metrics string: %(perf_data)s") % {
+                "perf_data": row["service_perf_data"]
+            }
 
         with output_funnel.plugged():
             self._show_metrics_table(
@@ -835,12 +836,10 @@ class PainterSvcPerfVal(Painter):
         return "svc_perf_val%02d" % self._num
 
     def title(self, cell: Cell) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Service metrics - value number %2d") % self._num
+        return _("Service metrics - value number %(nr)2d") % {"nr": self._num}
 
     def short_title(self, cell: Cell) -> str:
-        # astrein: disable=localization-named-placeholder
-        return _("Val. %d") % self._num
+        return _("Val. %(nr)d") % {"nr": self._num}
 
     @property
     def columns(self) -> Sequence[ColumnName]:

@@ -936,11 +936,9 @@ def _render_staleness_icon(
             title = _("This host is stale")
         else:
             title = _("This service is stale")
-            title += (
-                # astrein: disable=localization-named-placeholder
-                _(", no data has been received within the last %.1f check periods")
-                % icon_config.staleness_threshold
-            )
+            title += _(
+                ", no data has been received within the last %(staleness_threshold).1f check periods"
+            ) % {"staleness_threshold": icon_config.staleness_threshold}
         return StaticIcon(IconNames.stale), title
     return None
 

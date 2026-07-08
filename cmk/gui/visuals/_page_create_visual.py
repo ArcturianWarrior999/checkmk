@@ -105,8 +105,7 @@ def page_create_visual(
 def SingleInfoSelection(info_keys: SingleInfos) -> Transform:
     infos = [visual_info_registry[key]() for key in info_keys]
     manual_choices = [
-        # astrein: disable=localization-named-placeholder
-        (i.ident, _("Show information of a single %s") % i.title)
+        (i.ident, _("Show information of a single %(title)s") % {"title": i.title})
         for i in sorted(infos, key=lambda inf: (inf.sort_index, inf.title))
     ]
 

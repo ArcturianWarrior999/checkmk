@@ -1833,17 +1833,16 @@ class FilterCMKSiteStatisticsByCorePIDs(Filter):
                     + doc_ref
                 )
             raise MKMissingDataError(
-                # astrein: disable=localization-named-placeholder
                 _(
                     "As soon as you add your Checkmk server(s) to the "
                     "monitoring, a graph showing the history of your host "
                     "problems will appear here. Currently, the following Checkmk "
-                    "sites are not monitored: %s\n Please also be aware that "
+                    "sites are not monitored: %(sites)s\n Please also be aware that "
                     "this message might appear as a result of a filtered "
                     "dashboard. This widget currently only supports filtering "
                     "for sites."
                 )
-                % ", ".join(connected_sites - unique_sites_from_services)
+                % {"sites": ", ".join(connected_sites - unique_sites_from_services)}
                 + doc_ref
             )
 

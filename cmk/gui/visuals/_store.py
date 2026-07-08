@@ -604,6 +604,5 @@ def get_permissioned_visual[TVisual: Visual](
         return visual
     raise MKUserError(
         "%s_name" % what,
-        # astrein: disable=localization-named-placeholder
-        _("The requested %s %s does not exist") % (what, escape(item)),
+        _("The requested %(what)s %(item)s does not exist") % {"what": what, "item": escape(item)},
     )

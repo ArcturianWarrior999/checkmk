@@ -99,16 +99,15 @@ def _handle_ack_all() -> None:
         num = len([msg for msg in message.get_gui_messages() if not msg.get("acknowledged")])
         message.acknowledge_gui_message(None)
         html.show_message(
-            # astrein: disable=localization-named-placeholder
-            _("%d %s.")
-            % (
-                num,
-                ungettext(
+            _("%(count)d %(message)s.")
+            % {
+                "count": num,
+                "message": ungettext(
                     "received message has been acknowledged",
                     "received messages have been acknowledged",
                     num,
                 ),
-            )
+            }
         )
 
 
@@ -168,8 +167,7 @@ def show_user_messages() -> None:
                 _("Security message #%(security_count)d") % {"security_count": security_count}
             )
         else:
-            # astrein: disable=localization-named-placeholder
-            forms.header(_("Message #%d") % (num + 1 - security_count))
+            forms.header(_("Message #%(nr)d") % {"nr": num + 1 - security_count})
         forms.container()
         html.open_div(class_="container")
         msg_text = entry["text"]
@@ -191,16 +189,15 @@ def show_user_messages() -> None:
 
         html.open_div(class_="details")
         html.write_text(
-            # astrein: disable=localization-named-placeholder
-            _("Sent on: %s, expires on: %s")
-            % (
-                time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(entry["time"])),
-                (
+            _("Sent on: %(sent_on)s, expires on: %(expires_on)s")
+            % {
+                "sent_on": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(entry["time"])),
+                "expires_on": (
                     "-"
                     if (valid_till := entry["valid_till"]) is None
                     else time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(valid_till))
                 ),
-            )
+            }
         )
         html.close_div()
         html.close_div()

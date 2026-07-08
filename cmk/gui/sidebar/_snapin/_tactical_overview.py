@@ -541,18 +541,23 @@ class TacticalOverviewSnapin(CustomizableSidebarSnapin):
     ) -> None:
         html.open_div(class_="spacertop")
         html.open_div(class_=css_class)
-        # astrein: disable=localization-named-placeholder
-        message_template = ungettext("%d site is %s.", "%d sites are %s.", len(site_ids))
-        message = message_template % (len(site_ids), site_status)
-        # astrein: disable=localization-named-placeholder
-        tooltip_template = ungettext(
-            "Associated hosts, services and events are not included "
-            "in the Tactical Overview. The %s site is %s.",
-            "Associated hosts, services and events are not included "
-            "in the Tactical Overview. The %s sites are %s.",
+        message_template = ungettext(
+            "%(count)d site is %(site_status)s.",
+            "%(count)d sites are %(site_status)s.",
             len(site_ids),
         )
-        tooltip = tooltip_template % (site_status, ", ".join(site_ids))
+        message = message_template % {"count": len(site_ids), "site_status": site_status}
+        tooltip_template = ungettext(
+            "Associated hosts, services and events are not included "
+            "in the Tactical Overview. The %(site_status)s site is %(site_ids)s.",
+            "Associated hosts, services and events are not included "
+            "in the Tactical Overview. The %(site_status)s sites are %(site_ids)s.",
+            len(site_ids),
+        )
+        tooltip = tooltip_template % {
+            "site_status": site_status,
+            "site_ids": ", ".join(site_ids),
+        }
 
         if user.may("wato.sites"):
             url = makeuri_contextless(request, [("mode", "sites")], filename="wato.py")

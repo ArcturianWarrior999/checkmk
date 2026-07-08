@@ -173,8 +173,8 @@ class MasterControlSnapin(SidebarSnapin):
             html.open_td()
             html.toggle_switch(
                 enabled=colvalue,
-                # astrein: disable=localization-named-placeholder
-                help_txt=_("Switch '%s' to '%s'") % (title, _("off") if colvalue else _("on")),
+                help_txt=_("Switch '%(title)s' to '%(state)s'")
+                % {"title": title, "state": _("off") if colvalue else _("on")},
                 onclick=onclick,
                 class_=["large"],
             )
@@ -233,13 +233,12 @@ class MasterControlSnapin(SidebarSnapin):
 
         log_audit(
             action="master-control-toggle",
-            # astrein: disable=localization-named-placeholder
-            message=_("Set '%s' to '%s' on site %s")
-            % (
-                dict(self._core_toggles())[column],
-                _("on") if state == 1 else _("off"),
-                site,
-            ),
+            message=_("Set '%(title)s' to '%(state)s' on site %(site)s")
+            % {
+                "title": dict(self._core_toggles())[column],
+                "state": _("on") if state == 1 else _("off"),
+                "site": site,
+            },
             user_id=user.id,
             use_git=False,
         )

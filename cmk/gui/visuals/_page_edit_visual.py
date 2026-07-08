@@ -86,8 +86,10 @@ def page_edit_visual(
 
     visual_type = visual_type_registry[what]()
     if not user.may("general.edit_" + what):
-        # astrein: disable=localization-named-placeholder
-        raise MKAuthException(_("You are not allowed to edit %s.") % visual_type.plural_title)
+        raise MKAuthException(
+            _("You are not allowed to edit %(plural_title)s.")
+            % {"plural_title": visual_type.plural_title}
+        )
     visual: dict[str, Any] = {
         "link_from": {},
         "context": {},
@@ -104,8 +106,7 @@ def page_edit_visual(
             return visual
         if mode == "clone":
             return _get_visual("", "builtins")
-        # astrein: disable=localization-named-placeholder
-        raise MKUserError(mode, _("The %s does not exist.") % visual_type.title)
+        raise MKUserError(mode, _("The %(title)s does not exist.") % {"title": visual_type.title})
 
     back_url = unquote(request.get_url_input("back", "edit_%s.py" % what))
 
@@ -117,12 +118,11 @@ def page_edit_visual(
             if owner_id != user.id:
                 if not user.may("general.edit_foreign_%s" % what):
                     raise MKAuthException(
-                        # astrein: disable=localization-named-placeholder
-                        _("You are not allowed to edit foreign %s.") % visual_type.plural_title
+                        _("You are not allowed to edit foreign %(plural_title)s.")
+                        % {"plural_title": visual_type.plural_title}
                     )
             owner_user_id = owner_id
-            # astrein: disable=localization-named-placeholder
-            title = _("Edit %s") % visual_type.title
+            title = _("Edit %(title)s") % {"title": visual_type.title}
         elif mode == "export":
             move_visual_to_local(
                 request.get_str_input_mandatory("load_name"),
@@ -135,8 +135,7 @@ def page_edit_visual(
             delete_local_file(what, visualname)
             raise HTTPRedirect(back_url)
         else:  # clone explicit or edit from built-in that needs copy
-            # astrein: disable=localization-named-placeholder
-            title = _("Clone %s") % visual_type.title
+            title = _("Clone %(title)s") % {"title": visual_type.title}
             visual = copy.deepcopy(visual)
             visual["public"] = False
 
@@ -154,8 +153,7 @@ def page_edit_visual(
         single_infos = visual["single_infos"]
 
     else:
-        # astrein: disable=localization-named-placeholder
-        title = _("Create %s") % visual_type.title
+        title = _("Create %(title)s") % {"title": visual_type.title}
         mode = "create"
         single_infos = []
         single_infos_raw = request.var("single_infos")
@@ -204,8 +202,7 @@ def page_edit_visual(
             "hidden",
             FixedValue(
                 value=True,
-                # astrein: disable=localization-named-placeholder
-                title=_("Hide this %s in the monitor menu") % visual_type.title,
+                title=_("Hide this %(title)s in the monitor menu") % {"title": visual_type.title},
                 totext="",
             ),
         ),
@@ -213,8 +210,7 @@ def page_edit_visual(
             "hidebutton",
             FixedValue(
                 value=True,
-                # astrein: disable=localization-named-placeholder
-                title=_("Hide this %s in drop-down menus") % visual_type.title,
+                title=_("Hide this %(title)s in drop-down menus") % {"title": visual_type.title},
                 totext="",
             ),
         ),
@@ -239,8 +235,8 @@ def page_edit_visual(
                 "public",
                 vs_no_permission_to_publish(
                     type_title=what[:-1],
-                    # astrein: disable=localization-named-placeholder
-                    title=_("Make this %s available for other users") % what[:-1].lower(),
+                    title=_("Make this %(type_title)s available for other users")
+                    % {"type_title": what[:-1].lower()},
                 ),
             )
         )
@@ -373,8 +369,7 @@ def page_edit_visual(
                     )
 
                 if not request.var("save_and_view"):
-                    # astrein: disable=localization-named-placeholder
-                    flash(_("Your %s has been saved.") % visual_type.title)
+                    flash(_("Your %(title)s has been saved.") % {"title": visual_type.title})
                 html.reload_whole_page(back_url)
                 html.footer()
                 return
@@ -622,14 +617,13 @@ def _vs_general(
                 DropdownChoice(
                     title=_("Topic in ’Monitor' menu"),
                     default_value="my_workplace",
-                    # astrein: disable=localization-named-placeholder
                     help=_(
                         "Dashboards will be visible in the ‘Monitor’ main menu. "
                         "With this option, you can select in which section of the menu this "
                         "dashboard should be accessible. If you want to define a new "
-                        "topic name you can do this <a href='%s'>here</a>."
+                        "topic name you can do this <a href='%(url)s'>here</a>."
                     )
-                    % "pagetype_topics.py",
+                    % {"url": "pagetype_topics.py"},
                     choices=PagetypeTopics.choices(user_permissions),
                 ),
             ),
@@ -638,28 +632,26 @@ def _vs_general(
                 Integer(
                     title=_("Sort index"),
                     default_value=99,
-                    # astrein: disable=localization-named-placeholder
                     help=_(
-                        "You can customize the order of the %s by changing "
+                        "You can customize the order of the %(title)s by changing "
                         "this number. Lower numbers will be sorted first. "
                         "Topics with the same number will be sorted alphabetically."
                     )
-                    % visual_type.title,
+                    % {"title": visual_type.title},
                 ),
             ),
             (
                 "is_show_more",
                 Checkbox(
                     title=_("Show more"),
-                    # astrein: disable=localization-named-placeholder
-                    label=_("Only show the %s if show more is active") % visual_type.title,
-                    # astrein: disable=localization-named-placeholder
+                    label=_("Only show the %(title)s if show more is active")
+                    % {"title": visual_type.title},
                     help=_(
                         "The navigation allows to hide items based on a show "
                         "less / show more toggle. You can specify here whether or "
-                        "not this %s should only be shown with show more %s."
+                        "not this %(title)s should only be shown with show more %(title_more)s."
                     )
-                    % (visual_type.title, visual_type.title),
+                    % {"title": visual_type.title, "title_more": visual_type.title},
                 ),
             ),
             (

@@ -318,19 +318,14 @@ class PageAjaxSidebarGetUnackIncompWerks(AjaxPage):
             raise MKAuthException(_("You are not allowed to acknowlegde werks"))
 
         num_unack_werks = num_unacknowledged_incompatible_werks()
-        tooltip_text = (
-            # astrein: disable=localization-named-placeholder
-            ungettext(
-                "%d unacknowledged incompatible werk",
-                "%d unacknowledged incompatible werks",
-                num_unack_werks,
-            )
-            % num_unack_werks
-        )
+        tooltip_text = ungettext(
+            "%(count)d unacknowledged incompatible werk",
+            "%(count)d unacknowledged incompatible werks",
+            num_unack_werks,
+        ) % {"count": num_unack_werks}
 
         return {
             "count": num_unack_werks,
-            # astrein: disable=localization-named-placeholder
-            "text": _("%d open incompatible werks") % num_unack_werks,
+            "text": _("%(count)d open incompatible werks") % {"count": num_unack_werks},
             "tooltip": tooltip_text,
         }
