@@ -140,6 +140,7 @@ def _main() -> None:
         )
     else:
         requirements_txt_path.write_text("")
+        subprocess.check_call(["bazel", "mod", "deps", "--lockfile_mode=update"])
         subprocess.check_call(["bazel", "run", "//:lock_python_requirements"])
 
     subprocess.check_call(["bazel", "mod", "deps", "--lockfile_mode=update"])
