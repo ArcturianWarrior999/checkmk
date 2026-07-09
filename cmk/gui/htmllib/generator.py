@@ -207,9 +207,13 @@ class HTMLWriter:
         attrs_type: dict[str, HTMLTagAttributeValue] = {"type": type_}
         self.write_html(HTMLWriter.render_javascript(data, **(attrs_type | attrs)))
 
-    def javascript_file(self, src: str, *, type_: str = "text/javascript") -> None:
+    def javascript_file(
+        self, src: str, *, type_: str = "text/javascript", async_: bool = False
+    ) -> None:
         """<script type="text/javascript" src="%(name)"/>\n"""
-        self.write_html(render_element("script", "", type_=type_, src=src))
+        self.write_html(
+            render_element("script", "", type_=type_, src=src, async_="" if async_ else None)
+        )
 
     def show_message_by_msg_type(
         self,

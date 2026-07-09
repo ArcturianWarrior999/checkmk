@@ -339,7 +339,7 @@ class HTMLGenerator(HTMLWriter):
             # across the two injections so a shared stylesheet is linked once,
             # keeping its earlier (nav_sidebar) cascade position.
             injected: set[str] = set()
-            self.javascript_file(manifest.nav_sidebar, type_="module")
+            self.javascript_file(manifest.nav_sidebar, type_="module", async_=True)
             self.javascript_file(manifest.main, type_="module")
             for stylesheet in (*manifest.nav_sidebar_stylesheets, *manifest.main_stylesheets):
                 if stylesheet in injected:
