@@ -3448,7 +3448,7 @@ checkgroup_parameters['ibm_mq_queues'] = [
 checkgroup_parameters.setdefault('ibm_svc_enclosure', [])
 
 checkgroup_parameters['ibm_svc_enclosure'] = [
-{'id': 'e5723fa4-ab63-41ce-b505-a18cd215077b', 'value': {}, 'condition': {}, 'options': {'disabled': False}},
+{'id': 'e5723fa4-ab63-41ce-b505-a18cd215077b', 'value': {'levels_lower_online_canisters': ('all_online', None)}, 'condition': {}, 'options': {'disabled': False}},
 ] + checkgroup_parameters['ibm_svc_enclosure']
 
 
@@ -9352,7 +9352,7 @@ static_checks['ibm_mq_queues'] = [
 static_checks.setdefault('ibm_svc_enclosure', [])
 
 static_checks['ibm_svc_enclosure'] = [
-{'id': '80eccdce-6e36-4fc0-8c80-98f99b01452d', 'value': ('ibm_svc_enclosure', 'example', {}), 'condition': {}, 'options': {'disabled': False}},
+{'id': '80eccdce-6e36-4fc0-8c80-98f99b01452d', 'value': ('ibm_svc_enclosure', 'example', {'levels_lower_online_canisters': ('all_online', None)}), 'condition': {}, 'options': {'disabled': False}},
 ] + static_checks['ibm_svc_enclosure']
 
 
