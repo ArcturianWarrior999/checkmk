@@ -3,52 +3,68 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
-
 # cseSysMemoryUtilization   .1.3.6.1.4.1.9.9.305.1.1.2.0
 #
 
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
-from cmk.agent_based.v2 import render, SNMPTree, startswith, StringTable
+from collections.abc import Mapping
+from typing import Any
 
-check_info = {}
-
-
-def discover_cisco_sys_mem(info):
-    if info:
-        yield None, {}
-
-
-def check_cisco_sys_mem(_no_item, params, info):
-    if info[0][0]:
-        mem_used_percent = float(info[0][0])
-        return check_levels(
-            mem_used_percent,
-            "mem_used_percent",
-            params["levels"],
-            human_readable_func=render.percent,
-            infoname="Supervisor Memory used",
-            boundaries=(0, 100),
-        )
-    return None
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    render,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    startswith,
+    StringTable,
+)
 
 
-def parse_cisco_sys_mem(string_table: StringTable) -> StringTable:
+def discover_cisco_sys_mem(section: StringTable) -> DiscoveryResult:
+    yield Service()
+
+
+def check_cisco_sys_mem(params: Mapping[str, Any], section: StringTable) -> CheckResult:
+    mem_used_percent = float(section[0][0])
+    yield from check_levels(
+        mem_used_percent,
+        "mem_used_percent",
+        params["levels"],
+        human_readable_func=render.percent,
+        infoname="Supervisor Memory used",
+        boundaries=(0, 100),
+    )
+
+
+def parse_cisco_sys_mem(string_table: StringTable) -> StringTable | None:
+    if not string_table or not string_table[0][0]:
+        return None
     return string_table
 
 
-check_info["cisco_sys_mem"] = LegacyCheckDefinition(
+snmp_section_cisco_sys_mem = SimpleSNMPSection(
     name="cisco_sys_mem",
-    parse_function=parse_cisco_sys_mem,
     detect=startswith(".1.3.6.1.2.1.1.1.0", "Cisco NX-OS"),
     fetch=SNMPTree(
         base=".1.3.6.1.4.1.9.9.305.1.1.2",
         oids=["0"],
     ),
+    parse_function=parse_cisco_sys_mem,
+)
+
+
+check_plugin_cisco_sys_mem = CheckPlugin(
+    name="cisco_sys_mem",
     service_name="Supervisor Mem Used",
     discovery_function=discover_cisco_sys_mem,
     check_function=check_cisco_sys_mem,
-    check_ruleset_name="cisco_supervisor_mem",  # separate group since only percentage,
+    check_ruleset_name="cisco_supervisor_mem",
     check_default_parameters={"levels": (80.0, 90.0)},
 )
