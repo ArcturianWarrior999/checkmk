@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
-from cmk.legacy_checks.cisco_prime_wifi_connections import (
+from cmk.plugins.cisco_prime.agent_based.cisco_prime_wifi_connections import (
     check_cisco_prime_wifi_connections,
     discover_cisco_prime_wifi_connections,
     parse_cisco_prime_wifi_connections,
