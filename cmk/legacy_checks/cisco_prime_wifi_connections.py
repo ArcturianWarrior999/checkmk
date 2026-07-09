@@ -3,8 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="type-arg"
-
 """Cisco prime connection count check
 This check will compare the sum of all 'count' entries against lower levels and additionally
 output the sums of all individual connection types
@@ -12,35 +10,44 @@ output the sums of all individual connection types
 see: https://d1nmyq4gcgsfi5.cloudfront.net/media/pi_3_3_devnet/api/v2/data/ClientCounts@_docs.html
 """
 
+import json
 from collections.abc import Mapping
 from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import (
-    check_levels,
-    LegacyCheckDefinition,
-    LegacyCheckResult,
-    LegacyDiscoveryResult,
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
 )
-from cmk.agent_based.v2 import StringTable
-from cmk.legacy_includes.cisco_prime import parse_cisco_prime
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Metric,
+    Result,
+    Service,
+    State,
+    StringTable,
+)
 
-check_info = {}
-
-Section = Mapping
+Section = Mapping[str, Mapping[str, object]]
 
 
 def parse_cisco_prime_wifi_connections(string_table: StringTable) -> Section:
-    return parse_cisco_prime("clientCountsDTO", string_table)
+    """Parse JSON and return queryResponse/entity entries keyed by "@id".
+
+    See https://solutionpartner.cisco.com/media/prime-infrastructure-api-reference-v3-0/192.168.115.187/webacs/api/v1/data/ClientCountscc3b.html
+    """
+    elements = json.loads(string_table[0][0])["queryResponse"]["entity"]
+    return {elem["clientCountsDTO"]["@id"]: elem["clientCountsDTO"] for elem in elements}
 
 
-def discover_cisco_prime_wifi_connections(section: Section) -> LegacyDiscoveryResult:
+def discover_cisco_prime_wifi_connections(section: Section) -> DiscoveryResult:
     if section:
-        yield None, {}
+        yield Service()
 
 
-def check_cisco_prime_wifi_connections(
-    item: None, params: Mapping[str, Any], parsed: Section
-) -> LegacyCheckResult:
+def check_cisco_prime_wifi_connections(params: Mapping[str, Any], section: Section) -> CheckResult:
     """Sum up all individual counts for each connection type (as well as their sums
     indicated by 'count')"""
     keys = {
@@ -59,7 +66,7 @@ def check_cisco_prime_wifi_connections(
         # and return only the it's value (a dict) with keys lowered for comparison
         sum_entry = next(
             {ctype.lower(): cname for ctype, cname in v.items()}
-            for k, v in parsed.items()
+            for k, v in section.items()
             if v.get("key") == "All SSIDs"
         )
     except StopIteration:
@@ -73,9 +80,10 @@ def check_cisco_prime_wifi_connections(
             count = sum_entry[full_type_name]
         except KeyError:
             continue
+        assert isinstance(count, int | float)
         lower_levels = params.get("levels_lower")
         if ctype == "":
-            yield check_levels(
+            yield from check_levels(
                 count,
                 "wifi_connection_total",
                 (None, None) + (lower_levels or (None, None)),
@@ -83,12 +91,18 @@ def check_cisco_prime_wifi_connections(
                 infoname=cname,
             )
         else:
-            yield 0, "%s: %d" % (cname, count), [("wifi_connection_" + ctype, count)]
+            yield Result(state=State.OK, summary=f"{cname}: {int(count)}")
+            yield Metric(f"wifi_connection_{ctype}", count)
 
 
-check_info["cisco_prime_wifi_connections"] = LegacyCheckDefinition(
+agent_section_cisco_prime_wifi_connections = AgentSection(
     name="cisco_prime_wifi_connections",
     parse_function=parse_cisco_prime_wifi_connections,
+)
+
+
+check_plugin_cisco_prime_wifi_connections = CheckPlugin(
+    name="cisco_prime_wifi_connections",
     service_name="Cisco Prime WiFi Connections",
     discovery_function=discover_cisco_prime_wifi_connections,
     check_function=check_cisco_prime_wifi_connections,
