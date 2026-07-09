@@ -22,6 +22,14 @@ _KNOWN_DIVERGENT_PATHS = frozenset(
         ("cloud", "post", "/domain-types/otel_collector_config_receivers/collections/all"),
         ("cloud", "delete", "/objects/otel_collector_config_receivers/{config_id}"),
         ("cloud", "get", "/objects/otel_collector_config_receivers/{config_id}"),
+        # The DCD metric-backend connection endpoints are published in the unstable version for
+        # the Ultimate editions but held back on the internal version for the Cloud edition
+        # (CMK-36377). This only changes the "added in version" annotation, so drop the Cloud
+        # copy in favour of the (identical, apart from that marker) Ultimate one.
+        ("cloud", "get", "/domain-types/dcd_metric_backend/collections/all"),
+        ("cloud", "post", "/domain-types/dcd_metric_backend/collections/all"),
+        ("cloud", "get", "/objects/dcd_metric_backend/{dcd_id}"),
+        ("cloud", "delete", "/objects/dcd_metric_backend/{dcd_id}"),
     }
 )
 _KNOWN_DIVERGENT_COMPONENTS = frozenset(
