@@ -72,8 +72,8 @@ filegroup(
 )
 
 [py_wheel(
-    name = "wheel-for-f12-%s" % family,
-    distribution = "cmk-plugins-%s-f12" % family,
+    name = "wheel-%s" % family,
+    distribution = "cmk-plugins-%s" % family,
     entry_points = {
         "cmk.special_agent_supported_on_relay": [
             "%s = %s" % (family, family),
@@ -93,13 +93,13 @@ filegroup(
 
 build_test(
     name = "build_test",
-    targets = ["wheel-for-f12-{}".format(family) for family in FAMILIES],
+    targets = ["wheel-{}".format(family) for family in FAMILIES],
 )
 
 [package_wheel(
     name = "pkg_tar-%s" % family,
     visibility = ["//visibility:public"],
-    whl = "wheel-for-f12-%s" % family,
+    whl = "wheel-%s" % family,
 ) for family in FAMILIES]
 
 pkg_tar(

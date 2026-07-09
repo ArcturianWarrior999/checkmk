@@ -13,7 +13,7 @@ SITE=${SITE:-$(omd sites --bare | head -n 1)}
 ROOT=/omd/sites/$SITE
 test -d "${ROOT}" || exit 1
 
-WHEEL_TARGETS=$(bazel query --ui_event_filters=-info --noshow_progress 'filter(":wheel-for-f12-\w*$", //packages/cmk-plugins/...)')
+WHEEL_TARGETS=$(bazel query --ui_event_filters=-info --noshow_progress 'filter(":wheel-\w*$", //packages/cmk-plugins/...)')
 # shellcheck disable=SC2086
 bazel build $WHEEL_TARGETS
 
