@@ -408,7 +408,6 @@ def _do_notify_via_automation(options: dict, args: list[str]) -> int | None:
             command=AutomationID("notify"),
             args=args,
             stdin="",
-            logger=logger,
             timeout=None,
         )
     except AutomationHelperUnavailable:

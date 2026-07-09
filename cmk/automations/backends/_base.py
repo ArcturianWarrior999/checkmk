@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol
@@ -25,7 +24,6 @@ class AutomationExecutor(Protocol):
         command: AutomationID,
         args: Sequence[str],
         stdin: str,
-        logger: logging.Logger,
         timeout: int | None,
     ) -> LocalAutomationResult: ...
 
@@ -33,7 +31,6 @@ class AutomationExecutor(Protocol):
         self,
         command: AutomationID,
         args: Sequence[str],
-        logger: logging.Logger,
         timeout: int | None,
     ) -> str: ...
 

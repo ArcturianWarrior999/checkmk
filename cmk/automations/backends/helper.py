@@ -28,6 +28,8 @@ from cmk.ccc.i18n import _
 from cmk.utils import paths
 from cmk.utils.unixsocket_http import make_session as make_unixsocket_session
 
+logger = logging.getLogger(__name__)
+
 
 class AutomationHelperUnavailable(MKGeneralException):
     """Raised when the automation helper service cannot be reached."""
@@ -42,7 +44,6 @@ class HelperExecutor(AutomationExecutor):
         command: AutomationID,
         args: Sequence[str],
         stdin: str,
-        logger: logging.Logger,
         timeout: int | None,
     ) -> LocalAutomationResult:
         session = make_unixsocket_session(
@@ -77,14 +78,14 @@ class HelperExecutor(AutomationExecutor):
                 return LocalAutomationResult(
                     exit_code=0,
                     output=response_data.serialized_result_or_error_code,
-                    command_description=self.command_description(command, args, logger, timeout),
+                    command_description=self.command_description(command, args, timeout),
                     error=response_data.stderr,
                 )
             case int():
                 return LocalAutomationResult(
                     exit_code=response_data.serialized_result_or_error_code,
                     output=response_data.stdout,
-                    command_description=self.command_description(command, args, logger, timeout),
+                    command_description=self.command_description(command, args, timeout),
                     error=response_data.stderr,
                 )
             case _:
@@ -94,7 +95,6 @@ class HelperExecutor(AutomationExecutor):
         self,
         command: AutomationID,
         args: Sequence[str],
-        logger: logging.Logger,
         timeout: int | None,
     ) -> str:
         return repr({"command": command, "args": arguments_with_timeout(args, timeout)})

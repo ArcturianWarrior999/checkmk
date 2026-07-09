@@ -150,7 +150,7 @@ def check_mk_local_automation_serialized(
         )
 
         try:
-            result = executor.execute(command, args, stdin_data, auto_logger, timeout)
+            result = executor.execute(command, args, stdin_data, timeout)
         except Exception as e:
             match e:
                 case RequestException(response=response) if response is not None:
@@ -163,7 +163,7 @@ def check_mk_local_automation_serialized(
 
                     msg = get_local_automation_failure_message(
                         command=command,
-                        cmdline=executor.command_description(command, args, logger, timeout),
+                        cmdline=executor.command_description(command, args, timeout),
                         code=response.status_code,
                         err=error_text,
                         debug=debug,
@@ -173,7 +173,7 @@ def check_mk_local_automation_serialized(
                     # Case 2: Network error (Timeout, DNS, Connection Refused) - No response object
                     msg = get_local_automation_failure_message(
                         command=command,
-                        cmdline=executor.command_description(command, args, logger, timeout),
+                        cmdline=executor.command_description(command, args, timeout),
                         exc=e,
                         debug=debug,
                     )
