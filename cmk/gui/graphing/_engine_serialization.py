@@ -318,8 +318,8 @@ def _fraction_from_json(data: Mapping[str, object], codec: QuantityCodec) -> Fra
     )
 
 
-def engine_quantity_codec(additional: QuantityCodec | None = None) -> QuantityCodec:
-    # The standard engine quantities, optionally combined with a consumer's additional codec (e.g. the
+def engine_quantity_codec(additional: Sequence[QuantitySpec] = ()) -> QuantityCodec:
+    # The standard engine quantities, optionally combined with a consumer's additional specs (e.g. the
     # pro quantities), so a caller never has to reconstruct the engine set.
     engine_specs = (
         QuantitySpec("rrd_metric", RRDMetric, _rrd_metric_to_json, _rrd_metric_from_json),
@@ -330,9 +330,7 @@ def engine_quantity_codec(additional: QuantityCodec | None = None) -> QuantityCo
         QuantitySpec("difference", Difference, _difference_to_json, _difference_from_json),
         QuantitySpec("fraction", Fraction, _fraction_to_json, _fraction_from_json),
     )
-    return QuantityCodec(
-        engine_specs if additional is None else (*engine_specs, *additional._specs)
-    )
+    return QuantityCodec((*engine_specs, *additional))
 
 
 def _curve_to_json(curve: Curve, codec: QuantityCodec) -> Json:
