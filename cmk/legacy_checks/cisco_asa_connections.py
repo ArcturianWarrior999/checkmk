@@ -8,49 +8,53 @@
 # .1.3.6.1.4.1.9.9.147.1.2.2.2.1.5.40.6  1045
 # .1.3.6.1.4.1.9.9.147.1.2.2.2.1.5.40.7  2816
 
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any
 
-from cmk.agent_based.legacy.v0_unstable import (
-    check_levels,
-    LegacyCheckDefinition,
-    LegacyCheckResult,
-    LegacyDiscoveryResult,
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
 )
-from cmk.agent_based.v2 import any_of, contains, SNMPTree, startswith, StringTable
+from cmk.agent_based.v2 import (
+    any_of,
+    CheckPlugin,
+    CheckResult,
+    contains,
+    DiscoveryResult,
+    Result,
+    Service,
+    SimpleSNMPSection,
+    SNMPTree,
+    startswith,
+    State,
+    StringTable,
+)
 
-check_info = {}
+
+def discover_cisco_asa_connections(section: StringTable) -> DiscoveryResult:
+    yield Service()
 
 
-def discover_cisco_asa_connections(info: StringTable) -> LegacyDiscoveryResult:
-    return [(None, {})]
+def check_cisco_asa_connections(params: Mapping[str, Any], section: StringTable) -> CheckResult:
+    used_conns = int(section[0][0])
+    overall_used_conns = section[1][0]
 
-
-def check_cisco_asa_connections(
-    _no_item: str | None, params: Mapping[str, Any], info: StringTable
-) -> LegacyCheckResult:
-    used_conns = int(info[0][0])
-    overall_used_conns = info[1][0]
-
-    yield check_levels(
+    yield from check_levels(
         used_conns,
         "fw_connections_active",
         params.get("connections"),
         infoname="Currently used",
     )
 
-    yield 0, f"Max. since system startup: {overall_used_conns}"
+    yield Result(state=State.OK, summary=f"Max. since system startup: {overall_used_conns}")
 
 
 def parse_cisco_asa_connections(string_table: StringTable) -> StringTable | None:
     return string_table or None
 
 
-check_info["cisco_asa_connections"] = LegacyCheckDefinition(
+snmp_section_cisco_asa_connections = SimpleSNMPSection(
     name="cisco_asa_connections",
-    parse_function=parse_cisco_asa_connections,
     detect=any_of(
         startswith(".1.3.6.1.2.1.1.1.0", "cisco adaptive security"),
         startswith(".1.3.6.1.2.1.1.1.0", "cisco firewall services"),
@@ -60,8 +64,15 @@ check_info["cisco_asa_connections"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.9.9.147.1.2.2.2.1",
         oids=["5"],
     ),
+    parse_function=parse_cisco_asa_connections,
+)
+
+
+check_plugin_cisco_asa_connections = CheckPlugin(
+    name="cisco_asa_connections",
     service_name="Connections",
     discovery_function=discover_cisco_asa_connections,
     check_function=check_cisco_asa_connections,
     check_ruleset_name="cisco_fw_connections",
+    check_default_parameters={},
 )
