@@ -11,12 +11,12 @@ from cmk.agent_based.internal import evaluate_snmp_detection
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
 from cmk.agent_based.v2 import SimpleSNMPSection, SNMPSection, StringTable
 from cmk.legacy_checks.cisco_cpu import check_info as cisco_cpu_check_info
-from cmk.legacy_checks.cisco_nexus_cpu import Section as CiscoNexusCpuSection
-from cmk.legacy_checks.cisco_nexus_cpu import snmp_section_cisco_nexus_cpu
 from cmk.plugins.cisco.agent_based.cisco_cpu_multiitem import (
     Section,
     snmp_section_cisco_cpu_multiitem,
 )
+from cmk.plugins.cisco.agent_based.cisco_nexus_cpu import Section as CiscoNexusCpuSection
+from cmk.plugins.cisco.agent_based.cisco_nexus_cpu import snmp_section_cisco_nexus_cpu
 
 
 @pytest.mark.parametrize(
