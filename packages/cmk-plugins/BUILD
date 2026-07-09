@@ -91,46 +91,15 @@ filegroup(
     ],
 ) for family in FAMILIES]
 
-[py_wheel(
-    name = "wheel-for-pkg_tar-%s" % family,
-    distribution = "cmk-plugins-%s-tar" % family,
-    entry_points = {
-        "cmk.special_agent_supported_on_relay": [
-            "%s = %s" % (family, family),
-        ] if family in RELAY_SUPPORTED_PLUGIN_FAMILIES else [],
-    },
-    strip_path_prefixes = ["packages/cmk-plugins"],
-    version = "1.0.0",
-    deps = [
-        "//packages/cmk-plugins/cmk/plugins/%s" % family,
-        "//packages/cmk-plugins/cmk/plugins/%s:agent" % family,
-        "//packages/cmk-plugins/cmk/plugins/%s:checkman" % family,
-    ],
-) for family in FAMILIES]
-
 build_test(
     name = "build_test",
-    targets = ["wheel-for-f12-{}".format(family) for family in FAMILIES] + [
-        "wheel-for-pkg_tar-{}".format(family)
-        for family in FAMILIES
-    ],
+    targets = ["wheel-for-f12-{}".format(family) for family in FAMILIES],
 )
 
-# Here comes the HACK to work around CMK-27714.
-# `package_wheel` will not preserve the +x flag
-# on the libexec files.
-# To fix this we
-# * create a dedicated wheel *without* the libexec files
-# * add an additional target to contain *just* the libexec files
-# * build the pkg_tar from those.
-# Once `package_wheel` is fixed, this can be simplified.
 [package_wheel(
     name = "pkg_tar-%s" % family,
-    additional_files = [
-        "//packages/cmk-plugins/cmk/plugins/%s:libexec-for-pkg_tar" % family,
-    ],
     visibility = ["//visibility:public"],
-    whl = "wheel-for-pkg_tar-%s" % family,
+    whl = "wheel-for-f12-%s" % family,
 ) for family in FAMILIES]
 
 pkg_tar(
