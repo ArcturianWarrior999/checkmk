@@ -5,7 +5,7 @@
  */
 import { fromAbsolute } from '@internationalized/date'
 
-import { isoDate, pad2, shortWeekday, stepLabel } from '@/graphing/utils/timeFormat'
+import { isoDate, isoTime, pad2, shortWeekday, stepLabel } from '@/graphing/utils/timeFormat'
 
 // 2026-06-15 00:00:00 UTC
 const JUNE_15_MIDNIGHT_UTC = 1781481600
@@ -40,6 +40,18 @@ describe('isoDate', () => {
     const unix = (JUNE_15_MIDNIGHT_UTC - 3600) * 1000
     expect(isoDate(fromAbsolute(unix, 'UTC'))).toBe('2026-06-14')
     expect(isoDate(fromAbsolute(unix, 'Europe/Berlin'))).toBe('2026-06-15')
+  })
+})
+
+describe('isoTime', () => {
+  test('formats a ZonedDateTime as HH:MM:SS on a 24h clock', () => {
+    const unix = JUNE_15_MIDNIGHT_UTC + 12 * 3600 + 34 * 60 + 56
+    expect(isoTime(fromAbsolute(unix * 1000, 'UTC'))).toBe('12:34:56')
+  })
+
+  test('pads single-digit hours, minutes and seconds', () => {
+    const unix = JUNE_15_MIDNIGHT_UTC + 1 * 3600 + 2 * 60 + 3
+    expect(isoTime(fromAbsolute(unix * 1000, 'UTC'))).toBe('01:02:03')
   })
 })
 

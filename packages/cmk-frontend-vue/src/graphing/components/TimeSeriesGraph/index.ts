@@ -13,6 +13,7 @@ export type {
   Metric,
   MetricMetadata,
   MetricRender,
+  PinPayload,
   RequestedTimeRange,
   Size,
   SizeMode,

@@ -45,6 +45,10 @@ export interface ZoomPayload {
   valueRange?: ValueRange
 }
 
+export interface PinPayload {
+  time: number
+}
+
 export interface TimeSeriesGraphProps extends Pick<CmkTimeSeriesGraph, 'size' | 'options'> {
   time_range: TimeRange
   metrics: Metric[]
@@ -58,4 +62,6 @@ export interface TimeSeriesGraphProps extends Pick<CmkTimeSeriesGraph, 'size' | 
   inspecting: boolean
   panEnabled: boolean
   highlightedMetricName: string | null
+  showPin?: boolean
+  pinTime?: number | null
 }

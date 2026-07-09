@@ -21,6 +21,7 @@ import TimeSeriesGraph, {
   type HorizontalLine,
   type LineInterpolator,
   type Metric,
+  type PinPayload,
   type RequestedTimeRange,
   type Size,
   type TimeRange,
@@ -48,11 +49,13 @@ const props = defineProps<{
   overview?: { metrics: Metric[]; timeRange: TimeRange }
   showBrush?: boolean
   brushWindow?: { start: number; end: number }
+  showPin?: boolean
 }>()
 
 const emit = defineEmits<{
   'update:requestedTimeRange': [RequestedTimeRange]
   'update:view': [TimeRange]
+  pinAction: [PinPayload]
 }>()
 
 const {
@@ -75,6 +78,12 @@ const peakZoomActive = computed({
 const { _t } = usei18n()
 const timeZoomLabel = _t('Time zoom')
 const peakZoomLabel = _t('Peak zoom')
+
+const pinTime = ref<number | null>(null)
+function onPinAction(payload: PinPayload): void {
+  pinTime.value = null
+  emit('pinAction', payload)
+}
 
 watch(
   () => props.timeRange,
@@ -105,9 +114,13 @@ watch(
       :size="size"
       :options="graphOptions"
       :highlighted-metric-name="null"
+      :show-pin="showPin"
+      :pin-time="pinTime"
       @zoom="(payload) => handleIntent({ kind: 'zoomTransient', ...payload })"
       @pan="(payload) => handleIntent({ kind: 'pan', ...payload })"
       @reset="() => handleIntent({ kind: 'reset' })"
+      @pin-create="pinTime = $event.time"
+      @pin-action="onPinAction"
     />
 
     <!--

@@ -13,6 +13,10 @@ export function isoDate(zdt: ZonedDateTime): string {
   return `${zdt.year}-${pad2(zdt.month)}-${pad2(zdt.day)}`
 }
 
+export function isoTime(zdt: ZonedDateTime): string {
+  return `${pad2(zdt.hour)}:${pad2(zdt.minute)}:${pad2(zdt.second)}`
+}
+
 // Mirrors the backend's get_step_label()
 export function stepLabel(step: number): string {
   const fmt = (n: number) => (n % 1 === 0 ? String(n) : n.toFixed(1))

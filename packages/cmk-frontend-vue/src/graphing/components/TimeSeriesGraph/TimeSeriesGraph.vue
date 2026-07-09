@@ -19,12 +19,21 @@ import { computeTimeAxis } from './axes/timeAxis'
 import { computeYDomain } from './axes/valueAxis'
 import { downsampleToColumns, m4 } from './decimation/decimate'
 import type { M4Cache } from './decimation/types'
+import OverlayLayer from './overlay/OverlayLayer.vue'
+import PinHandle from './overlay/PinHandle.vue'
 import { drawData } from './render'
 import { invertBucket } from './render/bucket'
 import { drawHorizontalLines } from './render/horizontalLines'
 import { computeStackedSeries } from './render/stacked'
-import type { ConsolidationFn, TimeRange, TimeSeriesGraphProps, ZoomPayload } from './types'
+import type {
+  ConsolidationFn,
+  PinPayload,
+  TimeRange,
+  TimeSeriesGraphProps,
+  ZoomPayload
+} from './types'
 import { useAxes } from './useAxes'
+import { useHover } from './useHover'
 import { usePanGesture } from './usePanGesture'
 import { useZoomGesture } from './useZoomGesture'
 
@@ -34,11 +43,14 @@ const emit = defineEmits<{
   pan: [{ timeRange: TimeRange }]
   zoom: [ZoomPayload]
   reset: []
+  pinCreate: [PinPayload]
+  pinAction: [PinPayload]
 }>()
 
 const consolidationFn = computed<ConsolidationFn>(() => props.consolidationFunction ?? 'avg')
 
 const MARGIN = { top: 5, right: CANVAS_MARGIN_RIGHT, bottom: 24, left: CANVAS_MARGIN_LEFT } as const
+const PIN_HANDLE_HEADROOM = 24
 // Top/bottom canvas padding so lines at the domain min/max are not clipped.
 const CANVAS_Y_PADDING = 4
 // Bucket count for the M4 cache built on receive (4000 is the default, consider changing
@@ -51,7 +63,26 @@ const axesContainer = ref<SVGGElement | null>(null)
 const plotWidth = computed(() => props.size.width)
 const plotHeight = computed(() => props.size.height)
 const figureWidth = computed(() => plotWidth.value + MARGIN.left + MARGIN.right)
-const figureHeight = computed(() => plotHeight.value + MARGIN.top + MARGIN.bottom)
+const plotTop = computed(() => MARGIN.top + (props.showPin ? PIN_HANDLE_HEADROOM : 0))
+const figureHeight = computed(() => plotHeight.value + plotTop.value + MARGIN.bottom)
+
+const pinVisible = computed(
+  () =>
+    props.showPin === true &&
+    typeof props.pinTime === 'number' &&
+    props.pinTime >= props.time_range.start &&
+    props.pinTime <= props.time_range.end
+)
+const pinX = computed<number | null>(() => {
+  if (!pinVisible.value || typeof props.pinTime !== 'number') {
+    return null
+  }
+  const span = props.time_range.end - props.time_range.start
+  if (span <= 0) {
+    return null
+  }
+  return ((props.pinTime - props.time_range.start) / span) * plotWidth.value
+})
 
 // 'iec' notation is 1024-based so its ticks step in binary; every other notation is decimal.
 const yStepping = computed((): 'binary' | 'decimal' =>
@@ -79,7 +110,27 @@ const { prepareValueDomain, drawValueGrid, drawValueAxis, drawTimeAxis } = useAx
   yTickFormatter
 )
 
-const { selectionBand, plotCursor, onPlotMouseDown } = useZoomGesture({
+const {
+  hoverState,
+  recordDrawnGeometry,
+  moveHoverTo,
+  clearHover,
+  cancelPendingHoverClear,
+  clearHoverAfterDelay
+} = useHover({
+  metrics: () => props.metrics,
+  consolidation: () => consolidationFn.value,
+  plotWidth,
+  plotHeight,
+  xScale,
+  yScale
+})
+
+const {
+  selectionBand,
+  plotCursor,
+  onPlotMouseDown: startZoomSelection
+} = useZoomGesture({
   zoomMode: () => props.zoomMode,
   timeRange: () => props.time_range,
   minTimeRange: () => props.minTimeRange,
@@ -100,7 +151,7 @@ const { panActive, panDx, panRulerTicks, panClipId, panCursor, panTickX, onPanMo
     plotWidth,
     xScale,
     plotCoords,
-    onStart: () => {},
+    onStart: clearHover,
     onCommit: (timeRange) => emit('pan', { timeRange })
   })
 
@@ -135,6 +186,7 @@ function draw(): void {
     props.metrics[i]!.render.inverse ? buckets.map((bucket) => invertBucket(bucket)) : buckets
   )
   const stacks = computeStackedSeries(props.metrics, inverted, consolidationFn.value)
+  recordDrawnGeometry(downsampledMetrics, stacks)
 
   xScale
     .domain([new Date(props.time_range.start * 1000), new Date(props.time_range.end * 1000)])
@@ -209,6 +261,30 @@ function plotCoords(ev: MouseEvent): { x: number; y: number } | null {
   return { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
 }
 
+function onMouseMove(ev: MouseEvent): void {
+  if (selectionBand.value) {
+    return
+  }
+  moveHoverTo(plotCoords(ev))
+}
+
+function onPlotMouseDown(ev: MouseEvent): void {
+  clearHover()
+  startZoomSelection(ev)
+}
+
+function onPinAddClick(): void {
+  const snapTime = hoverState.value?.snapTime
+  if (typeof snapTime === 'number') {
+    emit('pinCreate', { time: snapTime })
+  }
+}
+function onPinActionClick(): void {
+  if (typeof props.pinTime === 'number') {
+    emit('pinAction', { time: props.pinTime })
+  }
+}
+
 const { _t } = usei18n()
 const resetLabel = _t('Reset zoom')
 function onResetClick(): void {
@@ -278,24 +354,24 @@ watch(
         <clipPath :id="panClipId">
           <rect
             :x="MARGIN.left"
-            :y="MARGIN.top + plotHeight"
+            :y="plotTop + plotHeight"
             :width="plotWidth"
             :height="MARGIN.bottom"
           />
         </clipPath>
       </defs>
-      <g ref="axesContainer" :transform="`translate(${MARGIN.left},${MARGIN.top})`" />
+      <g ref="axesContainer" :transform="`translate(${MARGIN.left},${plotTop})`" />
       <!-- Ruler-scrub overlay (pan preview): a shaded band plus ticks/labels that slide
            with the cursor, clipped to the plot width. Only mounted while dragging. -->
       <g v-if="panActive" :clip-path="`url(#${panClipId})`">
         <rect
           class="graphing-time-series-graph__pan-band"
           :x="MARGIN.left"
-          :y="MARGIN.top + plotHeight + 1"
+          :y="plotTop + plotHeight + 1"
           :width="plotWidth"
           :height="MARGIN.bottom - 1"
         />
-        <g :transform="`translate(${MARGIN.left + panDx},${MARGIN.top})`">
+        <g :transform="`translate(${MARGIN.left + panDx},${plotTop})`">
           <template v-for="(tick, index) in panRulerTicks" :key="index">
             <line
               v-if="tick.lineWidth > 0"
@@ -322,16 +398,25 @@ watch(
       ref="canvas"
       class="graphing-time-series-graph__canvas"
       tabindex="0"
-      :style="{ left: `${MARGIN.left}px`, top: `${MARGIN.top}px`, cursor: plotCursor }"
+      :style="{ left: `${MARGIN.left}px`, top: `${plotTop}px`, cursor: plotCursor }"
+      @mousemove="onMouseMove"
+      @mouseleave="clearHoverAfterDelay"
       @mousedown="onPlotMouseDown"
       @keydown="onPlotKeydown"
+    />
+    <OverlayLayer
+      :hover-state="hoverState"
+      :plot-width="plotWidth"
+      :plot-height="plotHeight"
+      :pin-x="pinX"
+      :style="{ left: `${MARGIN.left}px`, top: `${plotTop}px` }"
     />
     <div
       v-if="selectionBand"
       class="graphing-time-series-graph__zoom-band"
       :style="{
         left: `${MARGIN.left + selectionBand.x}px`,
-        top: `${MARGIN.top + selectionBand.y}px`,
+        top: `${plotTop + selectionBand.y}px`,
         width: `${selectionBand.width}px`,
         height: `${selectionBand.height}px`
       }"
@@ -342,7 +427,7 @@ watch(
       class="graphing-time-series-graph__pan-zone"
       :style="{
         left: `${MARGIN.left}px`,
-        top: `${MARGIN.top + plotHeight}px`,
+        top: `${plotTop + plotHeight}px`,
         width: `${plotWidth}px`,
         height: `${MARGIN.bottom}px`,
         cursor: panCursor
@@ -354,7 +439,7 @@ watch(
       variant="secondary"
       size="small"
       class="graphing-time-series-graph__reset"
-      :style="{ top: `${MARGIN.top + 6}px`, right: `${MARGIN.right + 6}px` }"
+      :style="{ top: `${plotTop + 6}px`, right: `${MARGIN.right + 6}px` }"
       :title="resetLabel"
       :aria-label="resetLabel"
       @click="onResetClick"
@@ -362,6 +447,20 @@ watch(
       <CmkIcon name="reload" size="small" />
       <span>{{ resetLabel }}</span>
     </CmkButton>
+    <PinHandle
+      v-if="pinX !== null"
+      variant="remove"
+      :style="{ left: `${MARGIN.left + pinX}px`, top: `${plotTop}px` }"
+      @action="onPinActionClick"
+    />
+    <PinHandle
+      v-if="showPin && hoverState"
+      variant="add"
+      :style="{ left: `${MARGIN.left + hoverState.snapX}px`, top: `${plotTop}px` }"
+      @action="onPinAddClick"
+      @mouseenter="cancelPendingHoverClear"
+      @mouseleave="clearHoverAfterDelay"
+    />
   </div>
 </template>
 
