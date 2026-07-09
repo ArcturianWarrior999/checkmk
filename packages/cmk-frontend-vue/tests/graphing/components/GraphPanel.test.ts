@@ -58,7 +58,7 @@ const BURGER_GROUPS: BurgerMenuGroup[] = [
 
 test('does not render the legend when showLegend is not set', () => {
   render(GraphPanel, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
   expect(document.querySelector('.graphing-graph-panel__legend')).not.toBeInTheDocument()
 })
@@ -67,7 +67,7 @@ test('renders the legend when showLegend is true', () => {
   render(GraphPanel, {
     props: {
       metrics: [CPU],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       showLegend: true
     }
@@ -77,7 +77,7 @@ test('renders the legend when showLegend is true', () => {
 
 test('does not render GraphBurgerMenu when showBurgerMenu is not set', () => {
   render(GraphPanel, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
   expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })
@@ -86,7 +86,7 @@ test('renders GraphBurgerMenu when showBurgerMenu is true', () => {
   render(GraphPanel, {
     props: {
       metrics: [CPU],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       showBurgerMenu: true,
       burgerMenuGroups: BURGER_GROUPS
@@ -99,7 +99,7 @@ test('renders title when showTitle is true', () => {
   render(GraphPanel, {
     props: {
       metrics: [CPU],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       title: 'Panel Title',
       showTitle: true
@@ -112,7 +112,7 @@ test('applies legend-right modifier class when legendPosition is "right"', () =>
   render(GraphPanel, {
     props: {
       metrics: [CPU],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       legendPosition: 'right'
     }
@@ -126,7 +126,7 @@ test('does not apply legend-right modifier class when legendPosition is "bottom"
   render(GraphPanel, {
     props: {
       metrics: [CPU],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       legendPosition: 'bottom'
     }
@@ -138,7 +138,7 @@ test('does not apply legend-right modifier class when legendPosition is "bottom"
 
 test('the renderer receives the baseline view without inspection', () => {
   render(GraphPanel, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
 
   expect(screen.getByTestId('view-start')).toHaveTextContent(String(TIME_RANGE.start))
@@ -147,7 +147,7 @@ test('the renderer receives the baseline view without inspection', () => {
 
 test('a zoom intent from the renderer overlays the view and activates inspection', async () => {
   render(GraphPanel, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
 
   await fireEvent.click(screen.getByTestId('emit-zoom'))
@@ -158,7 +158,7 @@ test('a zoom intent from the renderer overlays the view and activates inspection
 
 test('a reset intent from the renderer restores the baseline view', async () => {
   render(GraphPanel, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
   await fireEvent.click(screen.getByTestId('emit-zoom'))
 
@@ -170,7 +170,7 @@ test('a reset intent from the renderer restores the baseline view', async () => 
 
 test('the renderer receives every metric when none are hidden', () => {
   render(GraphPanel, {
-    props: { metrics: [CPU, MEM], timeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
+    props: { metrics: [CPU, MEM], dataTimeRange: TIME_RANGE, requestedTimeRange: REQUESTED }
   })
 
   expect(screen.getByTestId('time-series-graph')).toHaveTextContent('CPU,Memory')
@@ -180,7 +180,7 @@ test('hiding a metric via the legend eye removes it from what TimeSeriesGraph re
   render(GraphPanel, {
     props: {
       metrics: [CPU, MEM],
-      timeRange: TIME_RANGE,
+      dataTimeRange: TIME_RANGE,
       requestedTimeRange: REQUESTED,
       showLegend: true
     }

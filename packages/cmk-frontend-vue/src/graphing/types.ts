@@ -30,9 +30,10 @@ export interface BurgerMenuGroup {
 // Props shared by GraphFigure and (via extension) GraphPanel.
 export interface GraphFigureProps {
   metrics: Metric[]
+  // The range the fetched data actually covers (as opposed to requestedTimeRange).
   // Absent until the first data fetch completes. Explicit undefined is accepted
-  // so that parent components can forward their own optional timeRange prop directly.
-  timeRange?: TimeRange | undefined
+  // so that parent components can forward their own optional range prop directly.
+  dataTimeRange?: TimeRange | undefined
   interactive?: boolean
   title?: string
   showTitle?: boolean

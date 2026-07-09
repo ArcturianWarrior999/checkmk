@@ -28,7 +28,7 @@ const {
   onReset,
   onPinCreate,
   clearPin
-} = useGraphInteraction(() => props.timeRange)
+} = useGraphInteraction(() => props.dataTimeRange)
 </script>
 
 <template>
@@ -36,12 +36,12 @@ const {
     <div v-if="showTitle || showTimestamp" class="graphing-graph-figure__header">
       <div class="graphing-graph-figure__meta">
         <GraphTitle v-if="showTitle" :title="title ?? ''" />
-        <GraphTimestamp v-if="showTimestamp && timeRange" :time-range="timeRange" />
+        <GraphTimestamp v-if="showTimestamp && dataTimeRange" :time-range="dataTimeRange" />
       </div>
     </div>
 
     <TimeSeriesGraph
-      v-if="timeRange"
+      v-if="dataTimeRange"
       :time_range="viewTimeRange"
       :metrics="metrics"
       :horizontal_lines="horizontalLines ?? []"

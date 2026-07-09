@@ -37,43 +37,43 @@ const CPU: Metric = {
   data_points: [1, 2, 3]
 }
 
-test('does not render TimeSeriesGraph when timeRange is absent', () => {
+test('does not render TimeSeriesGraph when dataTimeRange is absent', () => {
   render(GraphFigure, { props: { metrics: [CPU] } })
   expect(screen.queryByTestId('time-series-graph')).not.toBeInTheDocument()
 })
 
-test('renders TimeSeriesGraph when timeRange is provided', () => {
-  render(GraphFigure, { props: { metrics: [CPU], timeRange: TIME_RANGE } })
+test('renders TimeSeriesGraph when dataTimeRange is provided', () => {
+  render(GraphFigure, { props: { metrics: [CPU], dataTimeRange: TIME_RANGE } })
   expect(screen.getByTestId('time-series-graph')).toBeInTheDocument()
 })
 
 test('does not render header when neither showTitle nor showTimestamp is set', () => {
-  render(GraphFigure, { props: { metrics: [CPU], timeRange: TIME_RANGE } })
+  render(GraphFigure, { props: { metrics: [CPU], dataTimeRange: TIME_RANGE } })
   expect(document.querySelector('.graphing-graph-figure__header')).not.toBeInTheDocument()
 })
 
 test('renders title when showTitle is true', () => {
   render(GraphFigure, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, title: 'My Graph', showTitle: true }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, title: 'My Graph', showTitle: true }
   })
   expect(screen.getByText('My Graph')).toBeInTheDocument()
 })
 
 test('does not render title when showTitle is false', () => {
   render(GraphFigure, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, title: 'My Graph', showTitle: false }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, title: 'My Graph', showTitle: false }
   })
   expect(screen.queryByText('My Graph')).not.toBeInTheDocument()
 })
 
-test('renders GraphTimestamp when showTimestamp is true and timeRange is provided', () => {
+test('renders GraphTimestamp when showTimestamp is true and dataTimeRange is provided', () => {
   render(GraphFigure, {
-    props: { metrics: [CPU], timeRange: TIME_RANGE, showTimestamp: true }
+    props: { metrics: [CPU], dataTimeRange: TIME_RANGE, showTimestamp: true }
   })
   expect(document.querySelector('.graphing-graph-timestamp')).toBeInTheDocument()
 })
 
-test('does not render GraphTimestamp when showTimestamp is true but timeRange is absent', () => {
+test('does not render GraphTimestamp when showTimestamp is true but dataTimeRange is absent', () => {
   render(GraphFigure, { props: { metrics: [CPU], showTimestamp: true } })
   expect(document.querySelector('.graphing-graph-timestamp')).not.toBeInTheDocument()
 })

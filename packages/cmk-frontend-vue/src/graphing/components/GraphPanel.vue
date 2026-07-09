@@ -40,7 +40,7 @@ const {
   onReset,
   onPinCreate,
   clearPin
-} = useGraphInteraction(() => props.timeRange)
+} = useGraphInteraction(() => props.dataTimeRange)
 
 const { setActiveTimeRange } = useGraphTimeRange(() => props.requestedTimeRange)
 
@@ -82,7 +82,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           class="graphing-graph-panel__header"
           :title="title"
           :show-title="showTitle"
-          :time-range="timeRange"
+          :time-range="dataTimeRange"
           :show-timestamp="showTimestamp"
           :show-controls="interactive"
           :show-burger-menu="showBurgerMenu"
@@ -90,7 +90,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
         />
 
         <div
-          v-if="timeRange && visibleMetrics.length === 0"
+          v-if="dataTimeRange && visibleMetrics.length === 0"
           class="graphing-graph-panel__empty-state"
           :style="{ height: `${canvasHeight}px` }"
         >
@@ -98,7 +98,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
         </div>
 
         <TimeSeriesGraph
-          v-else-if="timeRange"
+          v-else-if="dataTimeRange"
           :time_range="viewTimeRange"
           :metrics="visibleMetrics"
           :horizontal_lines="visibleHorizontalLines"
@@ -132,7 +132,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
           from TimeSeriesGraph.vue (or deriving these) is a follow-up.
         -->
         <GraphBrush
-          v-if="showBrush && overview && timeRange"
+          v-if="showBrush && overview && dataTimeRange"
           class="graphing-graph-panel__brush"
           :metrics="overview.metrics"
           :domain="overview.timeRange"
