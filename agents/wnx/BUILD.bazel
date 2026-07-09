@@ -6,3 +6,16 @@ py_binary(
     main = "patch_windows_agent_version.py",
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "powershell_scripts",
+    srcs = [
+        "install/resources/configure_and_exec.ps1",
+        "parallel.ps1",
+        "run.ps1",
+        "run_tests.ps1",
+        "test_files/tools/v/run.ps1",
+        "tests/files/regression/windows_if.ps1",
+    ],
+    tags = ["lint-with-psscriptanalyzer"],
+)

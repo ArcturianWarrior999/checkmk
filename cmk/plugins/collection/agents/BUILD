@@ -16,3 +16,9 @@ exports_files(
     ["iis_app_pool_state.ps1"],
     visibility = ["//agents/windows/plugins:__pkg__"],
 )
+
+filegroup(
+    name = "powershell_scripts",
+    srcs = ["iis_app_pool_state.ps1"],
+    tags = ["lint-with-psscriptanalyzer"],
+)

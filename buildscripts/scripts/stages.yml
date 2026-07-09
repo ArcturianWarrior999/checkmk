@@ -131,26 +131,6 @@ STAGES:
               --path "non-free/packages" \
               >> ${RESULTS}/results.txt || make_rc=$?
           ./scripts/in_bazel.sh ".ps1" "filegroup" \
-              `# CMK-35750` \
-              --known-offender agents/windows/unit_tests_ps1/hyperv_host.Tests.ps1 \
-              --known-offender agents/windows/unit_tests_ps1/kaspersky_av_client.Tests.ps1 \
-              --known-offender agents/windows/unit_tests_ps1/mk_inventory.Tests.ps1 \
-              --known-offender agents/windows/unit_tests_ps1/windows_updates.Tests.ps1 \
-              --known-offender agents/wnx/install/resources/configure_and_exec.ps1 \
-              --known-offender agents/wnx/parallel.ps1 \
-              --known-offender agents/wnx/run.ps1 \
-              --known-offender agents/wnx/run_tests.ps1 \
-              --known-offender agents/wnx/scripts/tools/findagentmsi.ps1 \
-              --known-offender agents/wnx/test_files/tools/v/run.ps1 \
-              --known-offender agents/wnx/tests/files/regression/windows_if.ps1 \
-              --known-offender cmk/plugins/collection/agents/iis_app_pool_state.ps1 \
-              --known-offender cmk/plugins/hyperv/agents/hyperv_vms.ps1 \
-              --known-offender cmk/plugins/hyperv/agents/hyperv_vms_guestinfos.ps1 \
-              --known-offender cmk/plugins/msexch/agents/msexch_dag.ps1 \
-              --known-offender cmk/plugins/msexch/agents/msexch_database.ps1 \
-              --known-offender cmk/plugins/windows/agents/windows_multipath.ps1 \
-              --known-offender cmk/plugins/windows/agents/windows_tasks.ps1 \
-              --known-offender cmk/plugins/windows/agents/windows_updates.ps1 \
               `# CMK-35751` \
               --known-offender packages/mk-oracle/references/mk_oracle.ps1 \
               --known-offender packages/mk-oracle/run.ps1 \

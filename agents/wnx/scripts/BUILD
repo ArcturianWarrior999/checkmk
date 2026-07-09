@@ -13,3 +13,9 @@ py_binary(
     main = "check_crlf.py",
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "powershell_scripts",
+    srcs = ["tools/findagentmsi.ps1"],
+    tags = ["lint-with-psscriptanalyzer"],
+)
