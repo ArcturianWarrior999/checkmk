@@ -24,7 +24,6 @@ import subprocess
 import sys
 import tempfile
 import tomllib
-import xml.etree.ElementTree as ET
 from collections.abc import Sequence
 from pathlib import Path
 from types import MappingProxyType
@@ -452,41 +451,6 @@ def _run_bazel_query(
 
 
 # ---------------------------------------------------------------------------
-# XML attribute extraction helpers (used for bazel query --output=xml
-# enrichment queries, NOT for initial spec loading)
-# ---------------------------------------------------------------------------
-
-
-def _parse_string(rule_elem: ET.Element, attr_name: str, default: str = "") -> str:
-    """Extract a string attribute from a Bazel query XML rule element."""
-    for child in rule_elem:
-        if child.tag == "string" and child.get("name") == attr_name:
-            return child.get("value", default)
-    return default
-
-
-def _parse_string_list(rule_elem: ET.Element, attr_name: str) -> list[str]:
-    """Extract a string_list attribute from a Bazel query XML rule element."""
-    for child in rule_elem:
-        if child.tag == "list" and child.get("name") == attr_name:
-            return [s.get("value", "") for s in child if s.tag == "string"]
-    return []
-
-
-def _parse_label_list(rule_elem: ET.Element, attr_name: str) -> list[str]:
-    """Extract a label_list attribute from a Bazel query XML rule element.
-
-    Bazel query XML represents label-list attrs (like ``srcs``) with
-    ``<label>`` children instead of ``<string>``.  This parser handles both
-    tags so it works for either representation.
-    """
-    for child in rule_elem:
-        if child.tag == "list" and child.get("name") == attr_name:
-            return [s.get("value", "") for s in child if s.tag in ("label", "string")]
-    return []
-
-
-# ---------------------------------------------------------------------------
 # Bazel cquery for packaging targets
 # ---------------------------------------------------------------------------
 
@@ -636,141 +600,6 @@ def _query_wheel_prefixes(repo_root: Path) -> list[str]:
 # ---------------------------------------------------------------------------
 # Enrichment from packaging targets
 # ---------------------------------------------------------------------------
-
-
-def _query_rule_attrs_xml(
-    targets: list[str],
-    repo_root: Path,
-) -> dict[str, ET.Element]:
-    """Query rule attributes via ``bazel query --output=xml`` for targets.
-
-    Used as a fallback for targets that don't provide ``PackageFilesInfo``
-    (e.g. ``pkg_tar`` rules where ``package_dir`` defines the deploy dest).
-
-    Returns:
-        Dict mapping target label to its XML rule element.
-    """
-    if not targets:
-        return {}
-
-    union_expr = " + ".join(targets)
-    result = _run_bazel_query(
-        ["bazel", "query", union_expr, "--output=xml", "--keep_going"],
-        repo_root,
-    )
-    if result is None:
-        return {}
-
-    root = ET.fromstring(result.stdout)
-    by_label: dict[str, ET.Element] = {}
-    for rule in root.iter("rule"):
-        label = rule.get("name", "")
-        if label:
-            by_label[label] = rule
-    return by_label
-
-
-def _enrich_config_specs(
-    specs: list[dict[str, Any]],
-    pkg_data: PackagingTargetIndex,
-    repo_root: Path,
-) -> None:
-    """Derive source_prefix, site_dest, mode, and files from package_target data.
-
-    First tries ``PackageFilesInfo`` (from ``pkg_files`` rules). For targets
-    without it (e.g. ``pkg_tar``), falls back to querying rule attributes
-    like ``package_dir``.
-
-    Modifies *specs* in-place.
-    """
-    # First pass: enrich from PackageFilesInfo (pkg_files targets)
-    unresolved: list[dict[str, Any]] = []
-    for spec in specs:
-        pt = spec.get("package_target", "")
-        if not pt:
-            continue
-
-        entries = pkg_data.get(pt)
-        if not entries:
-            unresolved.append(spec)
-            continue
-
-        src_paths = [src for _, _, src, _ in entries]
-        dest_paths = [dest for dest, _, _, _ in entries]
-        modes = [mode for _, mode, _, _ in entries if mode]
-
-        # Derive source_prefix (if not explicitly set)
-        if not spec.get("source_prefix"):
-            common_src = os.path.commonpath(src_paths)
-            # Ensure trailing slash for directory prefix
-            if not common_src.endswith("/"):
-                common_src += "/"
-            spec["source_prefix"] = common_src
-
-        # Derive site_dest (if sentinel/empty)
-        if not spec.get("site_dest"):
-            common_dest = os.path.commonpath(dest_paths)
-            if not common_dest.endswith("/"):
-                common_dest += "/"
-            spec["site_dest"] = common_dest
-
-        # Derive mode (if sentinel)
-        if spec.get("mode", -1) == -1 and modes:
-            spec["mode"] = int(modes[0], 8)
-
-        # Populate files list from PackageFilesInfo
-        enriched_files: list[dict[str, Any]] = [
-            {"src": src, "dest": dest, "mode": mode, "generated": not is_source}
-            for dest, mode, src, is_source in entries
-        ]
-        spec["files"] = sorted(
-            enriched_files,
-            key=lambda f: f["src"],
-        )
-
-    # Second pass: fall back to rule attributes for unresolved targets
-    # (e.g. pkg_tar with package_dir)
-    if not unresolved:
-        return
-
-    fallback_targets = [s["package_target"] for s in unresolved]
-    rule_attrs = _query_rule_attrs_xml(fallback_targets, repo_root)
-
-    for spec in unresolved:
-        pt = spec["package_target"]
-        rule_elem = rule_attrs.get(pt)
-        if rule_elem is None:
-            logger.warning(
-                "No PackageFilesInfo or rule attributes for package_target %(package_target)s (spec %(spec)s)",
-                {"package_target": pt, "spec": spec.get("name", "?")},
-            )
-            continue
-
-        # Derive site_dest from package_dir (pkg_tar convention)
-        if not spec.get("site_dest"):
-            package_dir = _parse_string(rule_elem, "package_dir")
-            if package_dir:
-                if not package_dir.endswith("/"):
-                    package_dir += "/"
-                spec["site_dest"] = package_dir
-
-        # Derive source_prefix from srcs labels
-        if not spec.get("source_prefix"):
-            srcs = _parse_label_list(rule_elem, "srcs")
-            if srcs:
-                # Extract package paths from labels like "//agents/windows/plugins"
-                src_paths = []
-                for src in srcs:
-                    src = src.lstrip("/")
-                    if ":" in src:
-                        src = src.split(":")[0]
-                    if src and src != "omd":
-                        src_paths.append(src)
-                if src_paths:
-                    common = os.path.commonpath(src_paths)
-                    if not common.endswith("/"):
-                        common += "/"
-                    spec["source_prefix"] = common
 
 
 def _label_to_package_path(label: str) -> str:
