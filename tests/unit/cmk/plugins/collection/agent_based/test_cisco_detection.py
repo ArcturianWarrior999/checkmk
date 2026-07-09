@@ -9,8 +9,8 @@ import pytest
 
 from cmk.agent_based.internal import evaluate_snmp_detection
 from cmk.agent_based.v2 import SimpleSNMPSection, SNMPSection, StringTable
-from cmk.legacy_checks.cisco_cpu import Section as CiscoCpuSection
-from cmk.legacy_checks.cisco_cpu import snmp_section_cisco_cpu
+from cmk.plugins.cisco.agent_based.cisco_cpu import Section as CiscoCpuSection
+from cmk.plugins.cisco.agent_based.cisco_cpu import snmp_section_cisco_cpu
 from cmk.plugins.cisco.agent_based.cisco_cpu_multiitem import (
     Section,
     snmp_section_cisco_cpu_multiitem,
