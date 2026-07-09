@@ -73,6 +73,7 @@ def test_hooks(site: Site) -> None:
     ):
         hooks += [
             "MCP_SERVER",
+            "MCP_TRACE_FORWARD_TOKEN",
             "MCP_TRACE_FORWARD_URL",
         ]
 

@@ -65,3 +65,13 @@ MCP_TRACE_FORWARD_URL = Hook(
     default=lambda _edition: "",
     activation=null_action,
 )
+
+# Bearer token sent as the Authorization header with every export to
+# MCP_TRACE_FORWARD_URL, for collectors that require authentication.
+# Empty (the default) sends no header. Charset per RFC 6750 token68.
+MCP_TRACE_FORWARD_TOKEN = Hook(
+    name="MCP_TRACE_FORWARD_TOKEN",
+    choices=re.compile(r"^[A-Za-z0-9._~+/-]*=*$"),
+    default=lambda _edition: "",
+    activation=null_action,
+)

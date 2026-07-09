@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from omdlib.mcp import MCP_SERVER, MCP_TRACE_FORWARD_URL
+from omdlib.mcp import MCP_SERVER, MCP_TRACE_FORWARD_TOKEN, MCP_TRACE_FORWARD_URL
 
 
 def test_mcp_conf_proxies_the_public_prm_route_when_enabled(tmp_path: Path) -> None:
@@ -59,5 +59,33 @@ def test_mcp_trace_forward_url_accepts(value: str) -> None:
 )
 def test_mcp_trace_forward_url_rejects(value: str) -> None:
     pattern = MCP_TRACE_FORWARD_URL.choices
+    assert isinstance(pattern, re.Pattern)
+    assert not pattern.match(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "",  # default: no Authorization header
+        "glsa_4kCEXAMPLEUAJ8LMY7Op_0AA00a0A",
+        "dGhpcyBpcyBhIHRva2Vu==",  # base64 with padding
+        "abc.DEF-123_~+/x==",  # full token68 charset
+    ],
+)
+def test_mcp_trace_forward_token_accepts(value: str) -> None:
+    pattern = MCP_TRACE_FORWARD_TOKEN.choices
+    assert isinstance(pattern, re.Pattern)
+    assert pattern.match(value)
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "this is a token",  # inner space
+        "token\nwith-newline",
+    ],
+)
+def test_mcp_trace_forward_token_rejects(value: str) -> None:
+    pattern = MCP_TRACE_FORWARD_TOKEN.choices
     assert isinstance(pattern, re.Pattern)
     assert not pattern.match(value)
