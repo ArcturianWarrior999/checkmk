@@ -113,10 +113,12 @@ class SiteConfiguration(TypedDict):
     # Absence of the key means "inherit from the central site": the central
     # resolves it from its own live config when building the remote's
     # `sitespecific.mk`, so the remote sees the resolved list at runtime via
-    # the propagated global. The form layer's ``"central_site" / "list"``
-    # discriminator is translated at the save/load boundary; it does not
-    # appear on disk.
-    authentication_connections: NotRequired[list[AuthenticationConnectionEntry]]
+    # the propagated global. ``"all"`` means "every configured connection,
+    # including ones added later"; it is expanded into a concrete list per
+    # site before propagation. The form layer's ``"central_site" / "all" /
+    # "list"`` discriminator is translated at the save/load boundary; only
+    # ``"all"`` and the bare list appear on disk.
+    authentication_connections: NotRequired[Literal["all"] | list[AuthenticationConnectionEntry]]
     # Connectors used for periodic user attribute synchronization on this
     # site. Absence of the key means "inherit from the propagated global"
     # (same propagation as `authentication_connections`).

@@ -2,26 +2,23 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
-"""Migrate the deprecated ``user_sync`` site field to the new authentication fields.
+"""Migrate the removed ``user_sync`` site field to ``authentication_connections``
+and ``user_attribute_sync_connections``.
 
-Every LDAP connection mentioned in an explicit ``("list", [...])`` form of
-``user_sync`` is copied into both ``authentication_connections`` and
-``user_attribute_sync_connections``. The legacy bare strings ``"all"`` and
-``"master"`` (on the central site) implied "every LDAP connection", so they are
-expanded into an explicit ``[("ldap", id), ...]`` list of every configured LDAP
-connection for ``authentication_connections`` and the ``"all"`` form for
-``user_attribute_sync_connections``. This preserves the prior behaviour where
-every LDAP connection could create users during the background sync — the new
-system gates user creation on ``authentication_connections`` membership, so
-leaving it unset would silently stop those sites from creating users on upgrade.
+One constraint shapes the mapping:
 
-Pre-existing values of the new fields are preserved — the migration only
-fills in fields that haven't been set yet, so a site that was already moved
-manually keeps its current configuration.
+* The new ``"all"`` shorthand for ``authentication_connections`` also enrolls
+  SAML connections, which before the upgrade authenticated only on the central
+  site. Remote sites therefore never get ``"all"`` (nor an absent key); they
+  get the explicit list of LDAP connections existing at upgrade time. That
+  freezes the list — LDAP connections added later no longer join remotes
+  automatically — but that fails loud (the admin notices when enabling one),
+  whereas enrolling SAML on remotes would fail silent.
+  ``user_attribute_sync_connections`` is LDAP-only and unaffected, so it may
+  keep ``"all"`` on remotes.
 
-The legacy ``user_sync`` key is removed from the on-disk site spec after the
-new fields have been derived; ``user_sync`` is no longer part of the
-``SiteConfiguration`` schema, so leaving it would just be dead data.
+Only fields not yet set are filled in, so manually migrated sites keep their
+configuration.
 """
 
 from logging import Logger
@@ -29,14 +26,18 @@ from typing import Literal, override
 
 from cmk.ccc.site import omd_site
 from cmk.gui.config import active_config
-from cmk.gui.userdb._connections import is_ldap, load_connection_config
+from cmk.gui.userdb._connections import (
+    is_ldap,
+    ldap_authentication_entries_for_site,
+    load_connection_config,
+)
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.livestatus_client import AuthenticationConnectionEntry
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.registry import update_action_registry, UpdateAction
 from cmk.utils.log import VERBOSE
 
-AuthConnectionsValue = list[AuthenticationConnectionEntry]
+AuthConnectionsValue = Literal["all"] | list[AuthenticationConnectionEntry]
 AttrSyncConnectionsValue = Literal["all"] | list[str]
 
 
@@ -47,12 +48,13 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
         configured_sites = site_mgmt.load_sites()
         central_site_id = omd_site()
 
-        # All configured LDAP connections, read from disk (independent of whether
-        # `active_config.user_connections` is populated during update-config).
-        # The legacy bare-string forms "all"/"master" implied "every LDAP
-        # connection", so they expand into this explicit list for
-        # `authentication_connections` (which has no "all" shorthand).
-        ldap_connection_ids = [c["id"] for c in load_connection_config() if is_ldap(c)]
+        # All configured LDAP connections, read from disk (independent of
+        # whether `active_config.user_connections` is populated during
+        # update-config). Remote sites freeze into an explicit list over
+        # these — including currently disabled connections: a disabled
+        # connection is inert at login time and joins again when re-enabled,
+        # as it would have under the legacy bare-string forms.
+        ldap_connections = {c["id"]: c for c in load_connection_config() if is_ldap(c)}
 
         migrated = False
         for site_id, site_spec in configured_sites.items():
@@ -65,7 +67,9 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
             auth_value, attr_sync_value = _derive_new_values(
                 user_sync,
                 is_central_site=(site_id == central_site_id),
-                ldap_connection_ids=ldap_connection_ids,
+                frozen_ldap_entries=ldap_authentication_entries_for_site(
+                    ldap_connections, site_spec
+                ),
             )
             did_set = user_sync is not None
             if "authentication_connections" not in site_spec and auth_value is not None:
@@ -104,43 +108,19 @@ def _derive_new_values(
     user_sync: object,
     *,
     is_central_site: bool,
-    ldap_connection_ids: list[str],
+    frozen_ldap_entries: list[AuthenticationConnectionEntry],
 ) -> tuple[AuthConnectionsValue | None, AttrSyncConnectionsValue | None]:
     """Map a ``user_sync`` value to the new fields.
 
-    Returning ``None`` for a field means "leave the key absent on disk" —
-    callers must skip the assignment so that the runtime falls back to the
-    propagated central-site value.
-
-    ``authentication_connections`` has no ``"all"`` shorthand — it is an
-    explicit list of connections. The legacy bare-string forms implied "every
-    LDAP connection", so they are expanded into an explicit
-    ``[("ldap", id), ...]`` list over ``ldap_connection_ids`` (all configured
-    LDAP connections). This preserves the prior behaviour where every LDAP
-    connection could create users during the background sync: the new system
-    gates creation on ``authentication_connections`` membership, so leaving it
-    unset would silently stop those sites from creating users on upgrade.
-
-    ``user_attribute_sync_connections`` keeps deriving automatically — ``"all"``
-    is a valid form there.
-
-    - ``"all"`` → ``([("ldap", id) ...], "all")``: every configured LDAP
-      connection both authenticates and attribute-syncs (prior behaviour).
-    - ``"master"`` on the central → ``([("ldap", id) ...], "all")``: same as
-      above; the central syncs and authenticates with every LDAP connection.
-    - ``"master"`` on a remote → ``(None, None)``: the master syncs, the
-      remote does not; both keys left unset (inherit from central).
-    - ``("list", [conn_ids])`` → ``([("ldap", id) ...], [conn_ids])``: the
-      legacy connection IDs are migrated faithfully as plain lists.
-    - Anything else (``None`` / unrecognized) → ``(None, None)``.
+    ``None`` for a field means "leave the key absent on disk" so the runtime
+    inherits the central site's value — callers must skip the assignment.
+    See the module docstring for why remotes get ``frozen_ldap_entries``
+    instead of ``"all"``.
     """
-    all_ldap_entries: list[AuthenticationConnectionEntry] = [
-        ("ldap", conn_id) for conn_id in ldap_connection_ids
-    ]
     if user_sync == "all":
-        return all_ldap_entries, "all"
+        return ("all", "all") if is_central_site else (frozen_ldap_entries, "all")
     if user_sync == "master":
-        return (all_ldap_entries, "all") if is_central_site else (None, None)
+        return ("all", "all") if is_central_site else (frozen_ldap_entries, None)
     if isinstance(user_sync, tuple) and user_sync[0] == "list":
         conn_ids: list[str] = list(user_sync[1])
         auth_entries: list[AuthenticationConnectionEntry] = [

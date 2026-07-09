@@ -39,6 +39,13 @@ def _has_distributed_wato_file() -> bool:
     return path.exists() and path.stat().st_size != 0
 
 
+def central_site_config(site_configs: SiteConfigurations) -> SiteConfiguration | None:
+    """The central site's own ``SiteConfiguration``, if it can be known here."""
+    if is_distributed_setup_remote_site(site_configs):
+        return None
+    return site_configs.get(omd_site())
+
+
 def get_login_sites(site_configs: SiteConfigurations) -> list[SiteId]:
     """Returns the distributed setup remote sites a user may login and the local site"""
     return login_enabled_distributed_remote_sites(site_configs) + [omd_site()]

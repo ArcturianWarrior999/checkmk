@@ -93,6 +93,7 @@ from cmk.gui.sites import states as sites_states
 from cmk.gui.type_defs import GlobalSettings, Users
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.userdb import (
+    effective_authentication_connections,
     get_user_attributes,
     load_users,
     user_sync_default_config,
@@ -3915,14 +3916,11 @@ def _active_connectors_for_user_preservation(
            those users arrive via the snapshot anyway. Falls through to
            ``default_sync_config`` when neither produces a list.
 
-    **Authentication contribution** — resolved with this precedence:
-        1. ``site_config["authentication_connections"]`` if the key is
-           present (the explicit per-site override).
-        2. ``active_config.authentication_connections`` (the global,
-           propagated on a remote via ``get_site_globals()``).
-
-       Each entry contributes one ID: ``("ldap", conn_id)`` and
-       ``("saml", {connection_id: ...})`` are flattened.
+    **Authentication contribution** — ``effective_authentication_connections``
+       resolves the per-site override / propagated-global precedence (and
+       expands a per-site ``"all"``). Each entry contributes one ID:
+       ``("ldap", conn_id)`` and ``("saml", {connection_id: ...})`` are
+       flattened.
     """
     result: set[str] = set()
 
@@ -3938,10 +3936,7 @@ def _active_connectors_for_user_preservation(
     elif isinstance(default_sync_config, tuple) and default_sync_config[0] == "list":
         result.update(default_sync_config[1])
 
-    auth_cfg = site_config.get("authentication_connections")
-    if auth_cfg is None:
-        auth_cfg = active_config.authentication_connections or []
-    for entry in auth_cfg:
+    for entry in effective_authentication_connections(site_config):
         if entry[0] == "ldap":
             result.add(entry[1])
         else:

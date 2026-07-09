@@ -95,15 +95,17 @@ def _remote_site_config() -> SiteConfiguration:
 
 
 def test_auth_connections_from_disk_translates_absent_to_central_site_choice() -> None:
-    """Absent key (loaded as ``None``) maps to the ``"central_site"`` form
-    choice with an empty mapping; the site-edit page injects the real
-    read-only connection data at render time."""
-    assert _auth_connections_from_disk(None) == ("central_site", {})
+    """Absent key (loaded as ``None``) maps to the ``"central_site"`` form choice."""
+    assert _auth_connections_from_disk(None) == ("central_site", True)
 
 
 def test_auth_connections_from_disk_wraps_bare_list() -> None:
     entries = [("ldap", "ldap_a"), ("saml", {"connection_id": "saml_a"})]
     assert _auth_connections_from_disk(entries) == ("list", entries)
+
+
+def test_auth_connections_from_disk_wraps_all_shorthand() -> None:
+    assert _auth_connections_from_disk("all") == ("all", True)
 
 
 def test_auth_connections_from_disk_passes_tuple_form_through() -> None:
@@ -118,6 +120,10 @@ def test_auth_connections_from_disk_passes_tuple_form_through() -> None:
 def test_auth_connections_to_disk_unwraps_list_choice() -> None:
     entries = [("ldap", "ldap_a")]
     assert _auth_connections_to_disk(("list", entries)) == entries
+
+
+def test_auth_connections_to_disk_unwraps_all_choice() -> None:
+    assert _auth_connections_to_disk(("all", True)) == "all"
 
 
 def test_auth_connections_to_disk_returns_drop_key_for_central_site() -> None:
@@ -143,26 +149,28 @@ def test_authentication_connections_form_spec_local_site_omits_central_site_choi
     be a self-reference."""
     assert _choice_names(
         SiteManagement.authentication_connections_form_spec(_local_site_config())
-    ) == ["list"]
+    ) == ["all", "list"]
 
 
-def test_authentication_connections_form_spec_remote_site_offers_both_choices(
+def test_authentication_connections_form_spec_remote_site_offers_all_choices(
     request_context: None,
 ) -> None:
-    """A remote site can either inherit from the central or pick its own list."""
+    """A remote site can inherit from the central, use all connections, or
+    pick its own list."""
     assert _choice_names(
         SiteManagement.authentication_connections_form_spec(_remote_site_config())
-    ) == ["central_site", "list"]
+    ) == ["central_site", "all", "list"]
 
 
-def test_authentication_connections_form_spec_no_site_config_offers_both_choices(
+def test_authentication_connections_form_spec_no_site_config_offers_all_choices(
     request_context: None,
 ) -> None:
-    """Without a site configuration (e.g. when adding a new connection), both
+    """Without a site configuration (e.g. when adding a new connection), all
     choices are available — the form cannot yet know whether it edits the
     central."""
     assert _choice_names(SiteManagement.authentication_connections_form_spec()) == [
         "central_site",
+        "all",
         "list",
     ]
 
@@ -228,27 +236,27 @@ def test_get_connected_sites_to_update_remote_auth_change_does_not_fan_out() -> 
     )
 
 
-def test_central_site_connections_readonly_data_empty(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(
-        "cmk.gui.watolib.sites.central_site_inherited_connections",
-        lambda callback_url: [],
-    )
-    assert SiteManagement.central_site_connections_readonly_data("http://remote/check_mk/") == {
-        "_placeholder": "-"
-    }
-
-
-def test_central_site_connections_readonly_data_builds_aligned_keys(
-    monkeypatch: pytest.MonkeyPatch,
+def test_central_site_connections_summary_empty(
+    request_context: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(
-        "cmk.gui.watolib.sites.central_site_inherited_connections",
-        lambda callback_url: [
-            ("saml", {"connection_id": "s", "metadata_endpoint": "m", "acs_endpoint": "a"}),
-            ("ldap", "l"),
+        "cmk.gui.watolib.sites.inherited_authentication_connections",
+        lambda central_config, site_config=None: [],
+    )
+    assert SiteManagement._central_site_connections_summary(None) == ""
+
+
+def test_central_site_connections_summary_lists_connection_ids(
+    request_context: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        "cmk.gui.watolib.sites.inherited_authentication_connections",
+        lambda central_config, site_config=None: [
+            ("ldap", "ldap_a"),
+            ("saml", {"connection_id": "saml_b"}),
         ],
     )
-    assert SiteManagement.central_site_connections_readonly_data("http://remote/check_mk/") == {
-        "connection_0": {"connection_id": "s", "metadata_endpoint": "m", "acs_endpoint": "a"},
-        "connection_1": {"connection_id": "l"},
-    }
+    assert (
+        SiteManagement._central_site_connections_summary(None)
+        == "Currently inherited: ldap_a, saml_b"
+    )

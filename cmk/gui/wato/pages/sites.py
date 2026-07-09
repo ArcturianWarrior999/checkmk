@@ -495,8 +495,7 @@ class ModeEditSite(WatoMode):
                     flat_catalog,
                     "_edit_site_id",
                     # Inject computed SAML SP endpoint URLs for the read-only
-                    # display fields, and the "inherit from central" summary
-                    # text for the central_site form choice.
+                    # display fields.
                     RawDiskData(self._form_data_for_render()),
                     do_validate=False,
                 )
@@ -509,21 +508,20 @@ class ModeEditSite(WatoMode):
         Translates the on-disk shapes of `status_host` and
         `authentication_connections` (absent ↔ inherit from central, present
         ↔ explicit list) into the cascading-choice tuples the form spec
-        expects, and fills SAML endpoint URLs / the central-site inherited
-        summary so the read-only display widgets show meaningful values.
+        expects, and fills SAML endpoint URLs so the read-only display
+        widgets show meaningful values.
         """
-        populated = populate_saml_site_endpoint_urls(self._site)
-        data: dict = dict(populated)
-        callback_url = populated.get("multisiteurl", "")
+        data: dict = dict(populate_saml_site_endpoint_urls(self._site))
         if "status_host" in data:
             data["status_host"] = self._status_host_adapter.to_form_spec(data["status_host"])
         if "authentication_connections" in data:
-            data["authentication_connections"] = ("list", data["authentication_connections"])
-        else:
+            value = data["authentication_connections"]
             data["authentication_connections"] = (
-                "central_site",
-                self._site_mgmt.central_site_connections_readonly_data(callback_url),
+                ("all", True) if value == "all" else ("list", value)
             )
+        else:
+            # Absent key = inherit from the central site.
+            data["authentication_connections"] = ("central_site", True)
         if "user_attribute_sync_connections" in data:
             value = data["user_attribute_sync_connections"]
             if isinstance(value, list):

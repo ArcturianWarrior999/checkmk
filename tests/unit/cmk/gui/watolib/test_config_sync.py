@@ -9,6 +9,7 @@ import re
 import time
 from collections.abc import Callable, Iterable
 from pathlib import Path
+from typing import cast
 
 import pytest
 import responses
@@ -25,6 +26,7 @@ from cmk.gui.watolib import activate_changes, config_sync
 from cmk.gui.watolib.automations import (
     remote_automation_config_from_site_config,
 )
+from cmk.livestatus_client import SiteConfiguration
 from cmk.utils.automation_config import RemoteAutomationConfig
 from tests.testlib.unit.gui.config_sync_test_helper import (
     create_sync_snapshot,
@@ -377,46 +379,6 @@ def test_replication_path_serialize_deserialize_error() -> None:
         config_sync.ReplicationPath.deserialize(("file", "ident", "some_path/x.mk"))
 
 
-class _FakeConfig:
-    def __init__(self, sites: dict) -> None:
-        self.sites = sites
-
-
-def _patch_central(monkeypatch: pytest.MonkeyPatch, authentication_connections: object) -> None:
-    monkeypatch.setattr(config_sync, "omd_site", lambda: SiteId("central"))
-    monkeypatch.setattr(
-        config_sync,
-        "active_config",
-        _FakeConfig(
-            {SiteId("central"): {"authentication_connections": authentication_connections}}
-        ),
-    )
-
-
-def test_central_site_inherited_connections_empty(monkeypatch: pytest.MonkeyPatch) -> None:
-    _patch_central(monkeypatch, [])
-    assert config_sync.central_site_inherited_connections("https://cb") == []
-
-
-def test_central_site_inherited_connections_saml_populates_endpoints(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    _patch_central(monkeypatch, [("saml", {"connection_id": "testsaml"})])
-    monkeypatch.setattr(
-        config_sync,
-        "_saml_endpoint_urls",
-        lambda callback_url, connection_id: (
-            f"https://meta/{connection_id}",
-            f"https://acs/{connection_id}",
-        ),
-    )
-    assert config_sync.central_site_inherited_connections("https://cb") == [
-        (
-            "saml",
-            {
-                "connection_id": "testsaml",
-                "metadata_endpoint": "https://meta/testsaml",
-                "acs_endpoint": "https://acs/testsaml",
-            },
-        )
-    ]
+def test_populate_saml_site_endpoint_urls_leaves_all_shorthand_untouched() -> None:
+    site_config = cast(SiteConfiguration, {"authentication_connections": "all"})
+    assert config_sync.populate_saml_site_endpoint_urls(site_config) == site_config

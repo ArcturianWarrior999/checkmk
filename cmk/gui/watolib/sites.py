@@ -42,13 +42,19 @@ from cmk.gui.http import request
 from cmk.gui.i18n import _
 from cmk.gui.log import logger
 from cmk.gui.site_config import (
+    central_site_config,
     distributed_setup_remote_sites,
     has_distributed_setup_remote_sites,
     is_distributed_setup_remote_site,
     is_replication_enabled,
     site_is_local,
 )
-from cmk.gui.userdb import connection_choices, saml_connection_choices
+from cmk.gui.userdb import (
+    connection_choices,
+    distributed_saml_supported,
+    inherited_authentication_connections,
+    saml_connection_choices,
+)
 from cmk.gui.utils.transaction_manager import transactions
 from cmk.gui.utils.urls import makeactionuri
 from cmk.gui.valuespec import (
@@ -77,7 +83,6 @@ from cmk.gui.watolib.config_domains import (
     ConfigDomainGUI,
 )
 from cmk.gui.watolib.config_sync import (
-    central_site_inherited_connections,
     create_distributed_wato_files,
 )
 from cmk.gui.watolib.global_settings import load_configuration_settings
@@ -172,7 +177,7 @@ def _auth_connections_from_disk(value: object) -> tuple[str, object]:
     """Translate the on-disk shape into the cascading-choice tuple.
 
     The site-edit page pre-renders the dict and converts list → ("list",
-    list) / absent → ("central_site", readonly-connection-data) before
+    list) / "all" → ("all", True) / absent → ("central_site", True) before
     passing to the form, so the typical input here is already a tuple. The
     bare-shape branches handle direct disk loads (legacy/migration paths)
     and form-resubmission after validation failure.
@@ -180,10 +185,10 @@ def _auth_connections_from_disk(value: object) -> tuple[str, object]:
     if isinstance(value, tuple) and len(value) == 2:
         return value[0], value[1]
     # Absent key → form shows "Use identity connectors from central site".
-    # The read-only connection data is injected by the site-edit page; here
-    # we fall back to an empty mapping.
     if value is None:
-        return "central_site", {}
+        return "central_site", True
+    if value == "all":
+        return "all", True
     assert isinstance(value, list)
     return "list", value
 
@@ -193,6 +198,8 @@ def _auth_connections_to_disk(value: object) -> object:
     choice, payload = value
     if choice == "central_site":
         return DROP_KEY
+    if choice == "all":
+        return "all"
     assert choice == "list"
     return payload
 
@@ -372,18 +379,6 @@ class SiteManagement:
             ),
         )
 
-    @staticmethod
-    def _distributed_saml_supported() -> bool:
-        """Whether per-site SAML authentication connections are available in this edition.
-
-        Disabled for Community and Cloud editions; available for Pro,
-        Ultimate, and Ultimate-MT.
-        """
-        return cmk_version.edition(paths.omd_root) not in (
-            cmk_version.Edition.COMMUNITY,
-            cmk_version.Edition.CLOUD,
-        )
-
     @classmethod
     def authentication_connections_form_spec(
         cls,
@@ -397,18 +392,30 @@ class SiteManagement:
         # it to the ``DROP_KEY`` sentinel that the save path translates to
         # key removal.
         is_local_site = site_configuration is not None and site_is_local(site_configuration)
-        callback_url = (
-            site_configuration.get("multisiteurl", "") if site_configuration is not None else ""
-        )
         elements: list[CascadingSingleChoiceElement[Any]] = []
         if not is_local_site:
             elements.append(
                 CascadingSingleChoiceElement(
                     name="central_site",
                     title=Title("Use same connections as the central site"),
-                    parameter_form=cls._central_site_connections_readonly_form_spec(callback_url),
+                    parameter_form=FixedValue(
+                        value=True,
+                        label=Label(  # astrein: disable=localization-checker
+                            cls._central_site_connections_summary(site_configuration)
+                        ),
+                    ),
                 ),
             )
+        elements.append(
+            CascadingSingleChoiceElement(
+                name="all",
+                title=Title("Use all connections"),
+                parameter_form=FixedValue(
+                    value=True,
+                    label=Label(""),
+                ),
+            ),
+        )
         elements.append(
             CascadingSingleChoiceElement(
                 name="list",
@@ -417,13 +424,15 @@ class SiteManagement:
             ),
         )
 
-        if cls._distributed_saml_supported():
+        if distributed_saml_supported():
             help_text = Help(
                 "Select the connections that are available for login on this site. "
                 "Choose <i>Use same connections as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), or <i>Use the following connections</i> to "
-                "pick specific LDAP and SAML connections. <br>Authentication connections are responsible "
+                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "every configured LDAP and SAML connection — including ones added later — "
+                "or <i>Use the following connections</i> to pick specific LDAP and SAML "
+                "connections. <br>Authentication connections are responsible "
                 "of creating the user and the initial user setup.<br>SAML connection are only authorized "
                 "to overwrite user attributes if no other Attribute Sync Connection is configured for that user."
             )
@@ -432,8 +441,10 @@ class SiteManagement:
                 "Select the connections that are available for login on this site. "
                 "Choose <i>Use same connections as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), or <i>Use the following connections</i> to "
-                "pick specific LDAP connections.<br>Authentication connections are responsible "
+                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "every configured LDAP connection — including ones added later — or "
+                "<i>Use the following connections</i> to pick specific LDAP connections."
+                "<br>Authentication connections are responsible "
                 "of creating the user and the initial user setup."
             )
 
@@ -494,7 +505,7 @@ class SiteManagement:
                 ),
             ),
         ]
-        if cls._distributed_saml_supported():
+        if distributed_saml_supported():
             saml_elements = [
                 SingleChoiceElementExtended(  # astrein: disable=localization-checker
                     name=id_,
@@ -537,78 +548,19 @@ class SiteManagement:
             editable_order=False,
         )
 
-    @classmethod
-    def _central_site_connections_readonly_form_spec(cls, callback_url: str) -> Dictionary:
-        """Read-only structured display of the connections inherited from the central site.
-
-        The field values are injected at render time by `central_site_connections_readonly_data`.
-        """
-        entries = central_site_inherited_connections(callback_url)
+    @staticmethod
+    def _central_site_connections_summary(site_configuration: SiteConfiguration | None) -> str:
+        """One-line summary of the connections the central site currently hands down when known."""
+        entries = inherited_authentication_connections(
+            central_site_config(active_config.sites), site_configuration
+        )
         if not entries:
-            return Dictionary(
-                elements={
-                    "_placeholder": DictElement(
-                        required=True,
-                        parameter_form=StaticText(title=Title("Inherited from central site")),
-                    ),
-                },
+            return ""
+        return _("Currently inherited: %(connections)s") % {
+            "connections": ", ".join(
+                entry[1] if entry[0] == "ldap" else entry[1]["connection_id"] for entry in entries
             )
-        elements: dict[str, DictElement] = {}
-        for idx, entry in enumerate(entries):
-            if entry[0] == "ldap":
-                elements[f"connection_{idx}"] = DictElement(
-                    required=True,
-                    parameter_form=Dictionary(
-                        title=Title("LDAP connection"),
-                        elements={
-                            "connection_id": DictElement(
-                                required=True,
-                                parameter_form=StaticText(title=Title("LDAP connection")),
-                            ),
-                        },
-                    ),
-                )
-                continue
-            elements[f"connection_{idx}"] = DictElement(
-                required=True,
-                parameter_form=Dictionary(
-                    title=Title("SAML connection"),
-                    elements={
-                        "connection_id": DictElement(
-                            required=True,
-                            parameter_form=StaticText(title=Title("SAML connection")),
-                        ),
-                        "metadata_endpoint": DictElement(
-                            required=True,
-                            parameter_form=cls._saml_metadata_endpoint_widget(),
-                        ),
-                        "acs_endpoint": DictElement(
-                            required=True,
-                            parameter_form=cls._saml_acs_endpoint_widget(),
-                        ),
-                    },
-                ),
-            )
-        return Dictionary(elements=elements)
-
-    @classmethod
-    def central_site_connections_readonly_data(cls, callback_url: str) -> dict[str, object]:
-        """Build the render data for `_central_site_connections_readonly_form_spec`."""
-        entries = central_site_inherited_connections(callback_url)
-        if not entries:
-            return {"_placeholder": "-"}
-        data: dict[str, object] = {}
-        for idx, entry in enumerate(entries):
-            if entry[0] == "ldap":
-                data[f"connection_{idx}"] = {"connection_id": entry[1]}
-                continue
-            saml_entry = entry[1]
-            data[f"connection_{idx}"] = {
-                "connection_id": saml_entry.get("connection_id", ""),
-                "metadata_endpoint": saml_entry.get("metadata_endpoint", ""),
-                "acs_endpoint": saml_entry.get("acs_endpoint", ""),
-            }
-        return data
+        }
 
     @classmethod
     def user_attribute_sync_connections_form_spec(cls) -> FormSpec[Any]:
