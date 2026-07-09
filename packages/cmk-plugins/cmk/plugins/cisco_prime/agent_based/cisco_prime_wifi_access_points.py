@@ -9,6 +9,7 @@ see https://solutionpartner.cisco.com/media/prime-infrastructure/api-reference/
 """
 
 import collections
+import json
 from collections.abc import Mapping
 from typing import Any
 
@@ -28,13 +29,17 @@ from cmk.agent_based.v2 import (
     State,
     StringTable,
 )
-from cmk.legacy_includes.cisco_prime import parse_cisco_prime
 
 Section = Mapping[str, Mapping[str, object]]
 
 
 def parse_cisco_prime_wifi_access_points(string_table: StringTable) -> Section:
-    return parse_cisco_prime("accessPointsDTO", string_table)
+    """Parse JSON and return queryResponse/entity entries keyed by "@id".
+
+    See https://solutionpartner.cisco.com/media/prime-infrastructure-api-reference-v3-0/192.168.115.187/webacs/api/v1/data/ClientCountscc3b.html
+    """
+    elements = json.loads(string_table[0][0])["queryResponse"]["entity"]
+    return {elem["accessPointsDTO"]["@id"]: elem["accessPointsDTO"] for elem in elements}
 
 
 def discover_cisco_prime_wifi_access_points(section: Section) -> DiscoveryResult:
