@@ -3,43 +3,55 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-# mypy: disable-error-code="no-untyped-def"
+import time
+from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Any
 
-
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
 from cmk.agent_based.v2 import (
     all_of,
+    CheckPlugin,
+    CheckResult,
     DiscoveryResult,
     exists,
+    get_value_store,
     Service,
+    SimpleSNMPSection,
     SNMPTree,
     startswith,
     StringTable,
 )
-from cmk.legacy_includes.cpu_util import check_cpu_util
-
-check_info = {}
+from cmk.plugins.lib.cpu_util import check_cpu_util
 
 # .1.3.6.1.4.1.9.2.1.57.0 13 --> OLD-CISCO-CPU-MIB::avgBusy1.0
 
 
-def discover_cisco_oldcpu(section: StringTable) -> DiscoveryResult:
-    if section and section[0][0]:
-        yield Service()
+@dataclass(frozen=True)
+class Section:
+    cpu_perc: float
 
 
-def check_cisco_oldcpu(_no_item, params, info):
-    return check_cpu_util(float(info[0][0]), params)
+def discover_cisco_oldcpu(section: Section) -> DiscoveryResult:
+    yield Service()
 
 
-def parse_cisco_oldcpu(string_table: StringTable) -> StringTable:
-    return string_table
+def check_cisco_oldcpu(params: Mapping[str, Any], section: Section) -> CheckResult:
+    yield from check_cpu_util(
+        util=section.cpu_perc,
+        params=params,
+        value_store=get_value_store(),
+        this_time=time.time(),
+    )
 
 
-check_info["cisco_oldcpu"] = LegacyCheckDefinition(
+def parse_cisco_oldcpu(string_table: StringTable) -> Section | None:
+    if not string_table or not string_table[0][0]:
+        return None
+    return Section(float(string_table[0][0]))
+
+
+snmp_section_cisco_oldcpu = SimpleSNMPSection(
     name="cisco_oldcpu",
-    parse_function=parse_cisco_oldcpu,
     detect=all_of(
         startswith(".1.3.6.1.2.1.1.2.0", ".1.3.6.1.4.1.9.1.1745"),
         exists(".1.3.6.1.4.1.9.9.109.1.1.1.1.2.*"),
@@ -49,6 +61,12 @@ check_info["cisco_oldcpu"] = LegacyCheckDefinition(
         base=".1.3.6.1.4.1.9.2.1",
         oids=["57"],
     ),
+    parse_function=parse_cisco_oldcpu,
+)
+
+
+check_plugin_cisco_oldcpu = CheckPlugin(
+    name="cisco_oldcpu",
     service_name="CPU utilization",
     discovery_function=discover_cisco_oldcpu,
     check_function=check_cisco_oldcpu,
