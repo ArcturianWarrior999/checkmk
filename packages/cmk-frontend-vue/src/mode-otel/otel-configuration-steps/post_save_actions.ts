@@ -17,13 +17,13 @@ const { _t } = usei18n()
  * Several REST API object DELETE endpoints enforce ETag locking: a DELETE
  * without an `If-Match` header is rejected with 428 Precondition Required. This
  * covers the standard password and folder endpoints as well as the internal
- * OTel collector receiver and Prometheus scrape config endpoints. We send the
- * star tag rather than a captured ETag because the Quick Setup mutates these
- * records after creating them — the configuration bundle stamps `locked_by` on
- * them, which is part of the hashed state — so an ETag captured at creation is
- * already stale by the time a rollback deletes the record. The star tag matches
- * any version. (The OTel bundle and DCD endpoints do not enforce ETag locking,
- * so their rollbacks omit the header.)
+ * OTel collector receiver, Prometheus scrape config, and DCD metric backend
+ * endpoints. We send the star tag rather than a captured ETag because the Quick
+ * Setup mutates these records after creating them — the configuration bundle
+ * stamps `locked_by` on them, which is part of the hashed state — so an ETag
+ * captured at creation is already stale by the time a rollback deletes the
+ * record. The star tag matches any version. (The OTel bundle endpoint does not
+ * enforce ETag locking, so its rollback omits the header.)
  */
 const IF_MATCH_ANY = { 'If-Match': '*' }
 
@@ -187,9 +187,12 @@ async function createDCDConnector(ctx: PostSaveContext): Promise<PostSaveResult>
     return {
       ok: true,
       rollback: async () => {
+        // The dcd_metric_backend DELETE endpoint enforces ETag locking — see IF_MATCH_ANY.
         await fetchRestAPI(
           `api/internal/objects/dcd_metric_backend/${encodeURIComponent(dcdId)}`,
-          'DELETE'
+          'DELETE',
+          undefined,
+          IF_MATCH_ANY
         )
       }
     }
