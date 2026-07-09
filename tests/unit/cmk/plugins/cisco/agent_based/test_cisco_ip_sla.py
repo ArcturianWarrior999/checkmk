@@ -6,7 +6,7 @@
 from collections.abc import Sequence
 
 from cmk.agent_based.v2 import Metric, Result, Service, State, StringByteTable
-from cmk.legacy_checks.cisco_ip_sla import (
+from cmk.plugins.cisco.agent_based.cisco_ip_sla import (
     check_cisco_ip_sla,
     discover_cisco_ip_sla,
     parse_cisco_ip_sla,
