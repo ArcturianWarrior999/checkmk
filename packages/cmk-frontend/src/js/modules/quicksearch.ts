@@ -82,8 +82,7 @@ function mkSearchKeyDown(e: KeyboardEvent, oField: HTMLInputElement): false | vo
       } else {
         if (oField.value == '') return /* search field empty, rather not show all services! */
         // When nothing selected, navigate with the current contents of the field
-        //@ts-ignore
-        top!.frames['main'].location.href = 'search_open.py?q=' + encodeURIComponent(oField.value)
+        window.location.href = 'search_open.py?q=' + encodeURIComponent(oField.value)
         close_popup()
       }
 
@@ -122,8 +121,7 @@ function mkSearchKeyDown(e: KeyboardEvent, oField: HTMLInputElement): false | vo
 
 // Navigate to the target of the selected event
 function mkSearchNavigate() {
-  //@ts-ignore
-  top!.frames['main'].location.href = oCurrent!.href
+  window.location.href = oCurrent!.href
 }
 
 // Move one step of given size in the result list
