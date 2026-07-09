@@ -9,9 +9,10 @@ import pytest
 
 from cmk.agent_based.internal import evaluate_snmp_detection
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.agent_based.v2 import SNMPSection, StringTable
+from cmk.agent_based.v2 import SimpleSNMPSection, SNMPSection, StringTable
 from cmk.legacy_checks.cisco_cpu import check_info as cisco_cpu_check_info
-from cmk.legacy_checks.cisco_nexus_cpu import check_info as cisco_nexus_cpu_check_info
+from cmk.legacy_checks.cisco_nexus_cpu import Section as CiscoNexusCpuSection
+from cmk.legacy_checks.cisco_nexus_cpu import snmp_section_cisco_nexus_cpu
 from cmk.plugins.cisco.agent_based.cisco_cpu_multiitem import (
     Section,
     snmp_section_cisco_cpu_multiitem,
@@ -82,10 +83,15 @@ def test_cisco_related_snmp_detection(
     detected: set[str],
     not_detected: set[str],
 ) -> None:
-    sections: Mapping[str, SNMPSection[StringTable, Section] | LegacyCheckDefinition] = {
+    sections: Mapping[
+        str,
+        SNMPSection[StringTable, Section]
+        | SimpleSNMPSection[StringTable, CiscoNexusCpuSection]
+        | LegacyCheckDefinition,
+    ] = {
         "cisco_cpu_multiitem": snmp_section_cisco_cpu_multiitem,
         "cisco_cpu": cisco_cpu_check_info["cisco_cpu"],
-        "cisco_nexus_cpu": cisco_nexus_cpu_check_info["cisco_nexus_cpu"],
+        "cisco_nexus_cpu": snmp_section_cisco_nexus_cpu,
     }
 
     for name in detected | not_detected:
