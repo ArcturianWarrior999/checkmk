@@ -71,14 +71,14 @@ def _as_number(value: object) -> int | float:
 
 
 # Quantity is an open protocol spanning packages, and the engine must stay serialization-free, so the
-# codec is an external registry keyed by type (forward) and by tag (reverse). The engine layer
-# registers its own quantities below; the pro layer composes its aggregation quantities on top.
+# codec is an external registry keyed by tag: it dispatches on each quantity's own type() forward and
+# on the serialized tag reverse. The engine layer registers its own quantities below; the pro layer
+# composes its aggregation quantities on top.
 
 
 @dataclass(frozen=True)
 class QuantitySpec:
     tag: str
-    cls: type
     to_dict: Callable[[Quantity, QuantityCodec], Json]
     from_dict: Callable[[Mapping[str, object], QuantityCodec], Quantity]
 
@@ -86,12 +86,11 @@ class QuantitySpec:
 class QuantityCodec:
     def __init__(self, specs: Sequence[QuantitySpec]) -> None:
         self._specs = tuple(specs)
-        self._by_type = {spec.cls: spec for spec in self._specs}
         self._by_tag = {spec.tag: spec for spec in self._specs}
 
     def serialize(self, quantity: Quantity) -> Json:
-        spec = self._by_type[type(quantity)]
-        return {"type": spec.tag, **spec.to_dict(quantity, self)}
+        tag = quantity.type()
+        return {"type": tag, **self._by_tag[tag].to_dict(quantity, self)}
 
     def deserialize(self, data: object) -> Quantity:
         data = _as_mapping(data)
@@ -322,13 +321,13 @@ def engine_quantity_codec(additional: Sequence[QuantitySpec] = ()) -> QuantityCo
     # The standard engine quantities, optionally combined with a consumer's additional specs (e.g. the
     # pro quantities), so a caller never has to reconstruct the engine set.
     engine_specs = (
-        QuantitySpec("rrd_metric", RRDMetric, _rrd_metric_to_json, _rrd_metric_from_json),
-        QuantitySpec("constant", Constant, _constant_to_json, _constant_from_json),
-        QuantitySpec("scalar_of", ScalarOf, _scalar_of_to_json, _scalar_of_from_json),
-        QuantitySpec("sum", Sum, _sum_to_json, _sum_from_json),
-        QuantitySpec("product", Product, _product_to_json, _product_from_json),
-        QuantitySpec("difference", Difference, _difference_to_json, _difference_from_json),
-        QuantitySpec("fraction", Fraction, _fraction_to_json, _fraction_from_json),
+        QuantitySpec("rrd_metric", _rrd_metric_to_json, _rrd_metric_from_json),
+        QuantitySpec("constant", _constant_to_json, _constant_from_json),
+        QuantitySpec("scalar_of", _scalar_of_to_json, _scalar_of_from_json),
+        QuantitySpec("sum", _sum_to_json, _sum_from_json),
+        QuantitySpec("product", _product_to_json, _product_from_json),
+        QuantitySpec("difference", _difference_to_json, _difference_from_json),
+        QuantitySpec("fraction", _fraction_to_json, _fraction_from_json),
     )
     return QuantityCodec((*engine_specs, *additional))
 
