@@ -11,6 +11,8 @@ import cmk.checkengine.snmp_backends
 from cmk.checkengine.snmplib import SNMPBackend, SNMPBackendEnum, SNMPHostConfig
 from cmk.checkengine.subclass_discovery import discover
 
+logger = logging.getLogger(__name__)
+
 
 def discover_backends() -> Mapping[SNMPBackendEnum, type[SNMPBackend]]:
     """Find every concrete `SNMPBackend` subclass exposed by `cmk.snmp_backends.*`.
@@ -30,7 +32,6 @@ _BACKENDS: Mapping[SNMPBackendEnum, type[SNMPBackend]] = discover_backends()
 
 def make_backend(
     snmp_config: SNMPHostConfig,
-    logger: logging.Logger,
     *,
     use_cache: bool = False,
 ) -> SNMPBackend:

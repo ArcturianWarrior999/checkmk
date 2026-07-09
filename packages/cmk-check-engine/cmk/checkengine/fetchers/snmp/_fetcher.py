@@ -235,7 +235,6 @@ class SNMPFetcher(Fetcher[SNMPRawData, SNMPFetcherParams]):
         )
         self._backend = make_backend(
             snmp_config,
-            self._logger,
             use_cache=self.force_stored_walks,
         )
 

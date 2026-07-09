@@ -37,7 +37,7 @@ def fixture_snmp_config(tmp_path: Path) -> SNMPHostConfig:
 
 def test_factory_snmp_backend_classic(snmp_config: SNMPHostConfig) -> None:
     assert isinstance(
-        make_backend(snmp_config, logging.getLogger()),
+        make_backend(snmp_config),
         ClassicSNMPBackend,
     )
 
@@ -61,7 +61,7 @@ def test_factory_snmp_backend_inline_unavailable(
     snmp_config = dataclasses.replace(snmp_config, snmp_backend=SNMPBackendEnum.INLINE)
     logger = logging.getLogger()
     with caplog.at_level(logging.ERROR, logger=logger.name):
-        backend = make_backend(snmp_config, logger)
+        backend = make_backend(snmp_config)
     assert isinstance(backend, ClassicSNMPBackend)
     assert any(
         record.levelno == logging.ERROR and "Unknown SNMP backend" in record.getMessage()
@@ -72,4 +72,4 @@ def test_factory_snmp_backend_inline_unavailable(
 def test_factory_snmp_backend_unknown_backend(snmp_config: SNMPHostConfig) -> None:
     with pytest.raises(AssertionError, match="Unknown SNMP backend"):
         snmp_config = dataclasses.replace(snmp_config, snmp_backend="bla")  # type: ignore[arg-type]
-        make_backend(snmp_config, logging.getLogger())
+        make_backend(snmp_config)

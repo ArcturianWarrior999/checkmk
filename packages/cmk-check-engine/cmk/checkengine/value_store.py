@@ -6,6 +6,7 @@
 # mypy: disable-error-code="no-untyped-call"
 
 import json
+import logging
 from ast import literal_eval
 from collections.abc import (
     Callable,
@@ -21,7 +22,6 @@ from typing import Final
 import cmk.utils.paths
 from cmk.ccc import store
 from cmk.ccc.hostaddress import HostName
-from cmk.utils.log import logger
 
 type _PluginName = str
 type _Item = str | None
@@ -29,6 +29,9 @@ type ValueStoreKey = tuple[HostName, _PluginName, _Item]
 # In practice this will be Checkplugin/Item, but the value_store doesn't care, really.
 type _ServiceID = tuple[object, _Item]
 type _SerializedValueStore = Mapping[str, str]
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

@@ -14,7 +14,6 @@ import pytest
 
 import cmk.ccc.resulttype as result
 import cmk.checkengine.fetchers.snmp._fetcher as _snmp_module
-import cmk.checkengine.sources._sources as _sources_module
 import cmk.utils.paths as cmk_paths
 from cmk.base import config
 from cmk.base.community_app import make_app
@@ -27,6 +26,7 @@ from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
 from cmk.checkengine.snmp_backend_builder import make_backend
 from cmk.checkengine.snmp_backends.classic import ClassicSNMPBackend
 from cmk.checkengine.snmp_backends.stored_walk import StoredWalkSNMPBackend
+from cmk.checkengine.sources._sources import SNMPSource
 from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from tests.testlib.common.empty_config import EMPTY_CONFIG
 from tests.testlib.unit.base_configuration_scenario import Scenario
@@ -218,13 +218,13 @@ class TestModeDumpAgentUseWalk:
 
         # Capture the SNMPSource that make_sources creates during mode_dump_agent
         captured_sources: list = []
-        original_snmp_source_init = _sources_module.SNMPSource.__init__
+        original_snmp_source_init = SNMPSource.__init__
 
         def capturing_snmp_source_init(self, *args, **kwargs):
             original_snmp_source_init(self, *args, **kwargs)
             captured_sources.append(self)
 
-        monkeypatch.setattr(_sources_module.SNMPSource, "__init__", capturing_snmp_source_init)
+        monkeypatch.setattr(SNMPSource, "__init__", capturing_snmp_source_init)
 
         app = replace(
             make_app(),

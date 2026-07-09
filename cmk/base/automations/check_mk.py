@@ -3139,7 +3139,7 @@ def _automation_diag_snmp(
                 oids=[BackendOIDSpec(c, "string", False) for c in "1456"],
             ),
             walk_cache={},
-            backend=make_snmp_backend(snmp_config, log.logger),
+            backend=make_snmp_backend(snmp_config),
             log=log.logger.debug,
         )
     except Exception as e:
@@ -3638,7 +3638,7 @@ class AutomationDiagHost:
                 oids=[BackendOIDSpec(c, "string", False) for c in "1456"],
             ),
             walk_cache={},
-            backend=make_snmp_backend(snmp_config, log.logger),
+            backend=make_snmp_backend(snmp_config),
             log=log.logger.debug,
         )
 
@@ -4086,7 +4086,7 @@ def _automation_get_agent_output(
             snmp_config = env.config_cache.make_snmp_config(
                 hostname, ip_family, ipaddress, SourceType.HOST, backend_override=None
             )
-            backend = make_snmp_backend(snmp_config, log.logger, use_cache=False)
+            backend = make_snmp_backend(snmp_config, use_cache=False)
 
             info, walk_errors = _execute_snmp_walk(snmp_config, backend)
             if walk_errors:
