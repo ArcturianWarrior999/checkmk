@@ -164,8 +164,6 @@ STAGES:
               --known-offender agents/windows/unit_tests_ps1/mk_mysql.Tests.ps1 \
               `# CMK-35755` \
               --known-offender cmk/plugins/nvidia/agents/nvidia_smi.ps1 \
-              `# CMK-35756` \
-              --known-offender cmk/plugins/printer/agents/win_printers.ps1 \
               `# CMK-35757` \
               --known-offender cmk/plugins/veeam/agents/veeam_backup_status.ps1 \
               `# pre-existing, not part of any CMK-3575x ticket; drained in a later commit` \
