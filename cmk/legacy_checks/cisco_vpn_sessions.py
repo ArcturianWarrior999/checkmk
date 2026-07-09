@@ -3,18 +3,26 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.legacy.conversion import (
+    # Temporary compatibility layer until we migrate the corresponding ruleset.
+    check_levels_legacy_compatible as check_levels,
+)
+from cmk.agent_based.v2 import CheckPlugin, CheckResult, DiscoveryResult, Result, Service, State
+
+Section = dict[str, dict[str, int]]
 
 
-from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
+def discover_cisco_vpn_sessions(section: Section) -> DiscoveryResult:
+    yield from (Service(item=item) for item in section)
 
-check_info = {}
 
-
-def check_cisco_vpn_sessions(item, params, parsed):
-    if not (data := parsed.get(item)):
+def check_cisco_vpn_sessions(item: str, params: Mapping[str, Any], section: Section) -> CheckResult:
+    if not (data := section.get(item)):
         return
-    yield check_levels(
+    yield from check_levels(
         data["active_sessions"],
         "active_sessions",
         params.get("active_sessions"),
@@ -23,7 +31,7 @@ def check_cisco_vpn_sessions(item, params, parsed):
     )
 
     if item != "Summary":
-        yield check_levels(
+        yield from check_levels(
             data["peak_sessions"],
             "active_sessions_peak",
             None,
@@ -32,19 +40,16 @@ def check_cisco_vpn_sessions(item, params, parsed):
         )
 
     if "maximum_sessions" in data:
-        yield 0, "Overall system maximum: %s" % data["maximum_sessions"]
+        yield Result(state=State.OK, summary=f"Overall system maximum: {data['maximum_sessions']}")
 
-    yield 0, "Cumulative count: %s" % data["cumulative_sessions"]
-
-
-def discover_cisco_vpn_sessions(section):
-    yield from ((item, {}) for item in section)
+    yield Result(state=State.OK, summary=f"Cumulative count: {data['cumulative_sessions']}")
 
 
-check_info["cisco_vpn_sessions"] = LegacyCheckDefinition(
+check_plugin_cisco_vpn_sessions = CheckPlugin(
     name="cisco_vpn_sessions",
     service_name="VPN Sessions %s",
     discovery_function=discover_cisco_vpn_sessions,
     check_function=check_cisco_vpn_sessions,
     check_ruleset_name="cisco_vpn_sessions",
+    check_default_parameters={},
 )

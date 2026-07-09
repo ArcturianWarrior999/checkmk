@@ -3,24 +3,21 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-call"
-
 # NOTE: This file has been created by an LLM (from something that was worse).
 # It mostly serves as test to ensure we don't accidentally break anything.
 # If you encounter something weird in here, do not hesitate to replace this
 # test by something more appropriate.
 
-from collections.abc import Mapping
-from typing import Any
-
+from cmk.agent_based.v2 import Result, Service, State
 from cmk.legacy_checks.cisco_vpn_sessions import (
     check_cisco_vpn_sessions,
     discover_cisco_vpn_sessions,
+    Section,
 )
 from cmk.plugins.cisco.agent_based.cisco_vpn_sessions import parse_cisco_vpn_sessions
 
 
-def parsed() -> Mapping[str, Any]:
+def parsed() -> Section:
     """Return parsed data from actual parse function."""
     section = parse_cisco_vpn_sessions(
         [["31", "100", "50", "2", "55", "11", "776", "10000", "800", "0", "0", "0", "12345"]]
@@ -31,11 +28,11 @@ def parsed() -> Mapping[str, Any]:
 
 def test_cisco_vpn_sessions_discovery() -> None:
     assert list(discover_cisco_vpn_sessions(parsed())) == [
-        ("IPsec RA", {}),
-        ("IPsec L2L", {}),
-        ("AnyConnect SVC", {}),
-        ("WebVPN", {}),
-        ("Summary", {}),
+        Service(item="IPsec RA"),
+        Service(item="IPsec L2L"),
+        Service(item="AnyConnect SVC"),
+        Service(item="WebVPN"),
+        Service(item="Summary"),
     ]
 
 
@@ -45,22 +42,11 @@ def test_cisco_vpn_sessions_check_ipsec_ra() -> None:
 
     results = list(check_cisco_vpn_sessions("IPsec RA", params, parsed()))
 
-    # Should have active sessions check with warning (31 > 10)
-    assert len(results) >= 2
-
-    # Handle variable result tuple formats
-    for result in results:
-        if len(result) == 2:
-            state, summary = result
-        elif len(result) == 3:
-            state, summary, metrics = result
-        else:
-            assert False, f"Unexpected result format: {result}"
-
-    # First result should be active sessions with warning
+    # First result should be active sessions with warning (31 >= warn threshold of 10)
     first_result = results[0]
-    assert first_result[0] == 1  # Warning state
-    assert "Active sessions: 31" in first_result[1]
+    assert isinstance(first_result, Result)
+    assert first_result.state == State.WARN
+    assert "Active sessions: 31" in first_result.summary
 
 
 def test_cisco_vpn_sessions_check_l2l() -> None:
@@ -69,22 +55,11 @@ def test_cisco_vpn_sessions_check_l2l() -> None:
 
     results = list(check_cisco_vpn_sessions("IPsec L2L", params, parsed()))
 
-    # Should have results for L2L sessions (2 sessions, under threshold)
-    assert len(results) >= 2
-
-    # Handle variable result tuple formats
-    for result in results:
-        if len(result) == 2:
-            state, summary = result
-        elif len(result) == 3:
-            state, summary, metrics = result
-        else:
-            assert False, f"Unexpected result format: {result}"
-
     # First result should be active sessions, no warning (2 < 10)
     first_result = results[0]
-    assert first_result[0] == 0  # OK state
-    assert "Active sessions: 2" in first_result[1]
+    assert isinstance(first_result, Result)
+    assert first_result.state == State.OK
+    assert "Active sessions: 2" in first_result.summary
 
 
 def test_cisco_vpn_sessions_check_summary() -> None:
@@ -93,15 +68,7 @@ def test_cisco_vpn_sessions_check_summary() -> None:
 
     # Summary has different behavior (no peak count)
     assert len(results) >= 1
-
-    # Handle variable result tuple formats
-    for result in results:
-        if len(result) == 2:
-            state, summary = result
-        elif len(result) == 3:
-            state, summary, metrics = result
-        else:
-            assert False, f"Unexpected result format: {result}"
+    assert any(isinstance(result, Result) for result in results)
 
 
 def test_cisco_vpn_sessions_check_missing_item() -> None:
