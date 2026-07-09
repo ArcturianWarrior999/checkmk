@@ -136,22 +136,22 @@ def test_fetch_graph_data_comprehensive_graph(
         "time_range": {"start": 0, "end": 60, "step": 10},
         "metrics": [
             {
-                "metadata": _metadata("-rrd_metric:h/s/ref"),
+                "metadata": _metadata("-rrd_metric(h/s/ref)"),
                 "render": {"stack": "stack-0", "inverse": True, "hidden": True},
                 "data_points": [None, None, None, None, None, None],
             },
             {
-                "metadata": _metadata("-sum(rrd_metric:h/s/m,constant:2)"),
+                "metadata": _metadata("-sum(rrd_metric(h/s/m),constant(2))"),
                 "render": {"stack": "stack-0", "inverse": True, "hidden": False},
                 "data_points": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
             },
             {
-                "metadata": _metadata("warning:rrd_metric:h/s/m"),
+                "metadata": _metadata("scalar_of(warning,rrd_metric(h/s/m))"),
                 "render": {"stack": None, "inverse": False, "hidden": False},
                 "data_points": [5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
             },
         ],
         "horizontal_lines": [
-            {"name": "-maximum:rrd_metric:h/s/m", "value": -100.0, "color": "#FFFFFF"}
+            {"name": "-scalar_of(maximum,rrd_metric(h/s/m))", "value": -100.0, "color": "#FFFFFF"}
         ],
     }

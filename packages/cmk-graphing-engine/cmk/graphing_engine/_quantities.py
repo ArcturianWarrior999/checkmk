@@ -19,8 +19,14 @@ from ._perfdata import FetchedData, HostName, MetricName, PerformanceData, Servi
 from ._units import CurveAttributes
 
 
+# The leaves a graph fetches data for: the keys of EvaluationContext.fetched and the elements
+# Quantity.metrics() yields. A metric is identified by its metric_name - that is what sets it apart
+# from a plain Quantity (an expression node) - and tagged by type() like any serialized quantity.
 class Metric(Protocol):
     def type(self) -> str: ...
+
+    @property
+    def metric_name(self) -> MetricName: ...
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -53,6 +59,8 @@ class EvaluatedQuantity:
 
 
 class Quantity(Protocol):
+    def type(self) -> str: ...
+
     def ident(self) -> str: ...
 
     def metrics(self) -> Iterable[Metric]: ...
@@ -135,8 +143,11 @@ class Constant:
     value: int | float
     display: CurveAttributes | None = None
 
+    def type(self) -> str:
+        return "constant"
+
     def ident(self) -> str:
-        return f"constant:{self.value}"
+        return f"{self.type()}({self.value})"
 
     def metrics(self) -> Iterable[Metric]:
         return ()
@@ -165,7 +176,7 @@ class RRDMetric:
         return "rrd_metric"
 
     def ident(self) -> str:
-        return f"rrd_metric:{self.host_name}/{self.service_name}/{self.metric_name}"
+        return f"{self.type()}({self.host_name}/{self.service_name}/{self.metric_name})"
 
     def metrics(self) -> Iterable[Metric]:
         yield self
@@ -207,8 +218,11 @@ class ScalarOf:
     scalar_type: ScalarType
     color: str | None = None
 
+    def type(self) -> str:
+        return "scalar_of"
+
     def ident(self) -> str:
-        return f"{self.scalar_type}:{self.metric.ident()}"
+        return f"{self.type()}({self.scalar_type},{self.metric.ident()})"
 
     def metrics(self) -> Iterable[Metric]:
         yield self.metric
@@ -270,8 +284,11 @@ class Sum:
     summands: Sequence[Quantity]
     display: CurveAttributes | None = None
 
+    def type(self) -> str:
+        return "sum"
+
     def ident(self) -> str:
-        return f"sum({','.join(summand.ident() for summand in self.summands)})"
+        return f"{self.type()}({','.join(summand.ident() for summand in self.summands)})"
 
     def metrics(self) -> Iterable[Metric]:
         for summand in self.summands:
@@ -296,8 +313,11 @@ class Product:
     factors: Sequence[Quantity]
     display: CurveAttributes | None = None
 
+    def type(self) -> str:
+        return "product"
+
     def ident(self) -> str:
-        return f"product({','.join(factor.ident() for factor in self.factors)})"
+        return f"{self.type()}({','.join(factor.ident() for factor in self.factors)})"
 
     def metrics(self) -> Iterable[Metric]:
         for factor in self.factors:
@@ -322,8 +342,11 @@ class Difference:
     subtrahend: Quantity
     display: CurveAttributes | None = None
 
+    def type(self) -> str:
+        return "difference"
+
     def ident(self) -> str:
-        return f"difference({self.minuend.ident()},{self.subtrahend.ident()})"
+        return f"{self.type()}({self.minuend.ident()},{self.subtrahend.ident()})"
 
     def metrics(self) -> Iterable[Metric]:
         yield from self.minuend.metrics()
@@ -351,8 +374,11 @@ class Fraction:
     divisor: Quantity
     display: CurveAttributes | None = None
 
+    def type(self) -> str:
+        return "fraction"
+
     def ident(self) -> str:
-        return f"fraction({self.dividend.ident()},{self.divisor.ident()})"
+        return f"{self.type()}({self.dividend.ident()},{self.divisor.ident()})"
 
     def metrics(self) -> Iterable[Metric]:
         yield from self.dividend.metrics()
