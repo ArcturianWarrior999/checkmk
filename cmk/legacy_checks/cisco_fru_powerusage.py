@@ -4,12 +4,21 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition, LegacyDiscoveryResult
-from cmk.agent_based.v2 import OIDEnd, SNMPTree, StringTable
-from cmk.legacy_includes.elphase import check_elphase
-from cmk.plugins.cisco.lib import DETECT_CISCO
+from collections.abc import Mapping, Sequence
+from typing import Any
 
-check_info = {}
+from cmk.agent_based.v2 import (
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    OIDEnd,
+    Service,
+    SNMPSection,
+    SNMPTree,
+    StringTable,
+)
+from cmk.plugins.cisco.lib import DETECT_CISCO
+from cmk.plugins.lib.elphase import check_elphase, ElPhase
 
 # .1.3.6.1.4.1.9.9.117.1.1.1.1.2.16  "centiAmpsAt12V"
 #  some more examples (but we dont know all):
@@ -31,7 +40,9 @@ check_info = {}
 # .1.3.6.1.4.1.9.9.117.1.1.4.1.4.13 0       <= exclude
 
 
-def parse_cisco_fru_powerusage(string_table: list[StringTable]) -> dict[str, dict[str, float]]:
+def parse_cisco_fru_powerusage(
+    string_table: Sequence[StringTable],
+) -> dict[str, dict[str, float]]:
     parsed: dict[str, dict[str, float]] = {}
     powerunit, powervals = string_table
     if powerunit and powervals:
@@ -69,13 +80,21 @@ def parse_cisco_fru_powerusage(string_table: list[StringTable]) -> dict[str, dic
     return parsed
 
 
-def discover_cisco_fru_powerusage(parsed: dict[str, dict[str, float]]) -> LegacyDiscoveryResult:
-    for what, data in parsed.items():
+def discover_cisco_fru_powerusage(section: dict[str, dict[str, float]]) -> DiscoveryResult:
+    for what, data in section.items():
         if data["current"] > 0:
-            yield what, {}
+            yield Service(item=what)
 
 
-check_info["cisco_fru_powerusage"] = LegacyCheckDefinition(
+def check_cisco_fru_powerusage(
+    item: str, params: Mapping[str, Any], section: dict[str, dict[str, float]]
+) -> CheckResult:
+    if item not in section:
+        return
+    yield from check_elphase(params, ElPhase.from_dict(section[item]))
+
+
+snmp_section_cisco_fru_powerusage = SNMPSection(
     name="cisco_fru_powerusage",
     detect=DETECT_CISCO,
     fetch=[
@@ -89,8 +108,14 @@ check_info["cisco_fru_powerusage"] = LegacyCheckDefinition(
         ),
     ],
     parse_function=parse_cisco_fru_powerusage,
+)
+
+
+check_plugin_cisco_fru_powerusage = CheckPlugin(
+    name="cisco_fru_powerusage",
     service_name="FRU power usage %s",
     discovery_function=discover_cisco_fru_powerusage,
-    check_function=check_elphase,
+    check_function=check_cisco_fru_powerusage,
     check_ruleset_name="el_inphase",
+    check_default_parameters={},
 )
