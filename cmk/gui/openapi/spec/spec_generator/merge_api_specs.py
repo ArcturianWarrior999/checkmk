@@ -31,6 +31,28 @@ _KNOWN_DIVERGENT_COMPONENTS = frozenset(
     }
 )
 
+# Editions ranked from least to most feature-complete. When two editions describe the same
+# endpoint identically except for its permission documentation, the higher-ranked edition's
+# copy wins: permissions declared via ``OkayToIgnorePerm`` only render in editions where the
+# component owning them is present (e.g. custom graphs in the commercial editions), so the
+# higher-ranked edition carries the most complete documentation.
+_EDITION_RANK: Mapping[str, int] = {
+    Edition.COMMUNITY.long: 0,
+    Edition.CLOUD.long: 1,
+    Edition.PRO.long: 2,
+    Edition.ULTIMATE.long: 3,
+    Edition.ULTIMATEMT.long: 4,
+}
+
+
+def _differ_only_in_description(first: object, second: object) -> bool:
+    """Return whether two operation objects are equal apart from their ``description``."""
+    if not (isinstance(first, Mapping) and isinstance(second, Mapping)):
+        return False
+    if set(first) != set(second):
+        return False
+    return all(key == "description" or first[key] == second[key] for key in first)
+
 
 class MergeConflictError(Exception):
     def __init__(
@@ -108,6 +130,24 @@ def merge_specs(
                 "/".join(location), origin[location], edition, container[key], value
             )
 
+    def merge_operation(path: str, method: str, operation: object, edition: str) -> None:
+        location = ("paths", path, method)
+        methods = paths.setdefault(path, {})
+        if method not in methods:
+            methods[method] = operation
+            origin[location] = edition
+        elif methods[method] == operation:
+            pass
+        elif _differ_only_in_description(methods[method], operation):
+            # Edition-dependent permission documentation only; keep the higher-ranked copy.
+            if _EDITION_RANK[edition] > _EDITION_RANK[origin[location]]:
+                methods[method] = operation
+                origin[location] = edition
+        else:
+            raise MergeConflictError(
+                "/".join(location), origin[location], edition, methods[method], operation
+            )
+
     ordered = [(edition, specs[edition]) for edition in sorted(specs)]
     metadata_keys = {key for _, spec in ordered for key in spec} - {
         "paths",
@@ -123,9 +163,7 @@ def merge_specs(
                 if (edition, method, path) in divergent_paths:
                     pending_paths.discard((edition, method, path))
                     continue
-                merge_entry(
-                    paths.setdefault(path, {}), method, operation, edition, ("paths", path, method)
-                )
+                merge_operation(path, method, operation, edition)
         for section, entries in _as_mapping(
             spec.get("components", {}), f"{edition}: components"
         ).items():

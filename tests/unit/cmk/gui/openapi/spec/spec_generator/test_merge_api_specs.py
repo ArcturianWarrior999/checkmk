@@ -126,6 +126,46 @@ def test_divergence_of_other_edition_still_raises() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    "editions",
+    [
+        ("community", "ultimatemt"),
+        ("ultimatemt", "community"),
+    ],
+)
+def test_description_only_divergence_prefers_higher_ranked_edition(
+    editions: tuple[str, str],
+) -> None:
+    # The same endpoint documents edition-specific permissions differently (a permission
+    # declared via OkayToIgnorePerm only renders where its component is present). The
+    # higher-ranked edition's copy wins regardless of input order.
+    base = _operation("list_dashboards")
+    lean = base | {"description": "requires: general.edit_dashboards"}
+    rich = base | {"description": "requires: general.edit_dashboards, general.edit_custom_graph"}
+    specs = {"community": _spec(paths={"/dash": {"get": lean}})}
+    specs["ultimatemt"] = _spec(paths={"/dash": {"get": rich}})
+
+    merged = merge_specs({edition: specs[edition] for edition in editions})
+
+    assert merged["paths"] == {"/dash": {"get": rich}}
+
+
+def test_divergence_beyond_description_still_raises() -> None:
+    # A difference outside the description is a real conflict, even when the description
+    # also differs.
+    with pytest.raises(MergeConflictError, match="paths//dash/get"):
+        merge_specs(
+            {
+                "community": _spec(
+                    paths={"/dash": {"get": _operation("read") | {"description": "a"}}}
+                ),
+                "ultimate": _spec(
+                    paths={"/dash": {"get": _operation("list") | {"description": "b"}}}
+                ),
+            }
+        )
+
+
 def test_unencountered_divergence_raises() -> None:
     with pytest.raises(ValueError, match="clean up the divergence entries"):
         merge_specs(
