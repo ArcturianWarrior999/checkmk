@@ -2,20 +2,22 @@
 # Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
-"""Tests for the ``authentication_connections`` form-spec chain in
+"""Tests for the ``authentication_connections`` and
+``user_attribute_sync_connections`` form-spec chains in
 ``cmk.gui.watolib.sites``.
 
-The chain has three parts that are independently testable:
+Each chain has independently testable parts:
 
-* ``_auth_connections_from_disk`` / ``_auth_connections_to_disk`` —
-  pure functions that bridge the on-disk representation (a bare
-  ``list[AuthenticationConnectionEntry]`` if the per-site override is
-  set, or the key being absent for "inherit from central") and the form
-  spec's cascading-choice tuple form.
-* ``SiteManagement.authentication_connections_form_spec`` — selects the
-  available top-level choices based on whether the edited site is the
-  central site itself (no ``"central_site"`` self-reference) or a remote
-  (both ``"central_site"`` and ``"list"``).
+* ``_auth_connections_from_disk`` / ``_auth_connections_to_disk`` and
+  ``_user_attribute_sync_from_disk`` / ``_user_attribute_sync_to_disk`` —
+  pure functions that bridge the on-disk representation (a bare value if
+  the per-site override is set, or the key being absent for "inherit
+  from central") and the form spec's cascading-choice tuple form.
+* ``SiteManagement.authentication_connections_form_spec`` /
+  ``SiteManagement.user_attribute_sync_connections_form_spec`` — select
+  the available top-level choices based on whether the edited site is
+  the central site itself (no ``"central_site"`` self-reference) or a
+  remote.
 """
 
 import pytest
@@ -27,6 +29,8 @@ from cmk.gui.form_specs.unstable.legacy_converter import (
 from cmk.gui.watolib.sites import (
     _auth_connections_from_disk,
     _auth_connections_to_disk,
+    _user_attribute_sync_from_disk,
+    _user_attribute_sync_to_disk,
     DROP_KEY,
     SiteManagement,
 )
@@ -234,6 +238,57 @@ def test_get_connected_sites_to_update_remote_auth_change_does_not_fan_out() -> 
         )
         == set()
     )
+
+
+@pytest.mark.parametrize(
+    ["disk_value", "form_value"],
+    [
+        (None, ("central_site", True)),
+        ("disabled", ("disabled", True)),
+        ("all", ("all", True)),
+        (["ldap_a", "ldap_b"], ("list", ["ldap_a", "ldap_b"])),
+    ],
+)
+def test_user_attribute_sync_from_disk(disk_value: object, form_value: tuple[str, object]) -> None:
+    assert _user_attribute_sync_from_disk(disk_value) == form_value
+
+
+def test_user_attribute_sync_from_disk_passes_tuple_form_through() -> None:
+    assert _user_attribute_sync_from_disk(("list", ["ldap_a"])) == ("list", ["ldap_a"])
+
+
+@pytest.mark.parametrize(
+    ["form_value", "disk_value"],
+    [
+        (("disabled", True), "disabled"),
+        (("all", True), "all"),
+        (("list", ["ldap_a", "ldap_b"]), ["ldap_a", "ldap_b"]),
+    ],
+)
+def test_user_attribute_sync_to_disk(form_value: tuple[str, object], disk_value: object) -> None:
+    assert _user_attribute_sync_to_disk(form_value) == disk_value
+
+
+def test_user_attribute_sync_to_disk_returns_drop_key_for_central_site() -> None:
+    """The "inherit from central site" choice is encoded as key absence on
+    disk, exactly like ``authentication_connections``."""
+    assert _user_attribute_sync_to_disk(("central_site", True)) is DROP_KEY
+
+
+def test_user_attribute_sync_form_spec_local_site_omits_central_site_choice(
+    request_context: None,
+) -> None:
+    assert _choice_names(
+        SiteManagement.user_attribute_sync_connections_form_spec(_local_site_config())
+    ) == ["disabled", "all", "list"]
+
+
+def test_user_attribute_sync_form_spec_remote_site_offers_central_site_choice(
+    request_context: None,
+) -> None:
+    assert _choice_names(
+        SiteManagement.user_attribute_sync_connections_form_spec(_remote_site_config())
+    ) == ["central_site", "disabled", "all", "list"]
 
 
 def test_central_site_connections_summary_empty(

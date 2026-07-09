@@ -13,7 +13,7 @@ import re
 import time
 from collections.abc import Collection, Mapping
 from multiprocessing import JoinableQueue, Process
-from typing import Any, cast, NamedTuple, Protocol
+from typing import Any, assert_never, cast, NamedTuple, Protocol
 
 import cmk.ccc.version as cmk_version
 import cmk.gui.sites
@@ -164,9 +164,9 @@ class DropKeySentinel:
 
     The save path in `cmk/gui/wato/pages/sites.py` checks for instances of
     this and `pop`s the key from the `SiteConfiguration` dict instead of
-    assigning it. Used to encode "inherit from central site" (for
-    ``authentication_connections``) and "disabled" (for
-    ``user_attribute_sync_connections``) as key absence on disk.
+    assigning it. Used to encode "inherit from central site" as key absence
+    on disk (for both ``authentication_connections`` and
+    ``user_attribute_sync_connections``).
     """
 
 
@@ -207,10 +207,14 @@ def _auth_connections_to_disk(value: object) -> object:
 def _user_attribute_sync_from_disk(value: object) -> tuple[str, object]:
     """Translate the on-disk shape into the cascading-choice tuple.
 
-    Form choices: ``"disabled"`` / ``"all"`` / ``"list"``. The disk shape
-    is ``Literal["all"] | list[str]`` with absence meaning "disabled".
+    Form choices: ``"central_site"`` / ``"disabled"`` / ``"all"`` /
+    ``"list"``. The disk shape is ``Literal["all", "disabled"] | list[str]``
+    with absence meaning "inherit from the central site".
     """
+    # Absent key → form shows "Use same connections as the central site".
     if value is None:
+        return "central_site", True
+    if value == "disabled":
         return "disabled", True
     if value == "all":
         return "all", True
@@ -225,14 +229,17 @@ def _user_attribute_sync_to_disk(value: object) -> object:
     """Translate the cascading-choice tuple back to the on-disk shape.
 
     The cascading choice always arrives as ``(choice_name, payload)``:
-    ``"disabled"`` → ``DROP_KEY`` (key absent on disk),
+    ``"central_site"`` → ``DROP_KEY`` (key absent on disk = inherit),
+    ``"disabled"`` → bare ``"disabled"``,
     ``"all"`` → bare ``"all"``,
     ``"list"`` → ``list[str]``.
     """
     assert isinstance(value, tuple) and len(value) == 2
     choice, payload = value
-    if choice == "disabled":
+    if choice == "central_site":
         return DROP_KEY
+    if choice == "disabled":
+        return "disabled"
     if choice == "all":
         return "all"
     assert choice == "list"
@@ -562,43 +569,75 @@ class SiteManagement:
             )
         }
 
+    @staticmethod
+    def _central_site_user_attribute_sync_summary() -> str:
+        # On a remote site the central's config is unknown; make no claim.
+        if (central_config := central_site_config(active_config.sites)) is None:
+            return ""
+        match central_config.get("user_attribute_sync_connections", "all"):
+            case "all" | "disabled":
+                return ""
+            case list() as value:
+                return _("Sync attributes for: %(connections)s") % {"connections": ", ".join(value)}
+            case _:
+                assert_never()
+
     @classmethod
-    def user_attribute_sync_connections_form_spec(cls) -> FormSpec[Any]:
+    def user_attribute_sync_connections_form_spec(
+        cls,
+        site_configuration: SiteConfiguration | None = None,
+    ) -> FormSpec[Any]:
+        is_local_site = site_configuration is not None and site_is_local(site_configuration)
+        elements: list[CascadingSingleChoiceElement[Any]] = []
+        if not is_local_site:
+            elements.append(
+                CascadingSingleChoiceElement(
+                    name="central_site",
+                    title=Title("Use same connections as the central site"),
+                    parameter_form=FixedValue(
+                        value=True,
+                        label=Label(  # astrein: disable=localization-checker
+                            cls._central_site_user_attribute_sync_summary()
+                        ),
+                    ),
+                ),
+            )
+        elements += [
+            CascadingSingleChoiceElement(
+                name="disabled",
+                title=Title("Disable automatic user attribute synchronization"),
+                parameter_form=FixedValue(value=True, label=Label("")),
+            ),
+            CascadingSingleChoiceElement(
+                name="all",
+                title=Title("Sync attributes for all LDAP connections"),
+                parameter_form=FixedValue(value=True, label=Label("")),
+            ),
+            CascadingSingleChoiceElement(
+                name="list",
+                title=Title("Sync attributes only for the following LDAP connections"),
+                parameter_form=MultipleChoice(
+                    custom_validate=[
+                        not_empty(
+                            Message(
+                                "Please select at least one connection or choose a different option."
+                            )
+                        )
+                    ],
+                    elements=[
+                        MultipleChoiceElement(  # astrein: disable=localization-checker
+                            name=ident,
+                            title=Title(label),  # astrein: disable=localization-checker
+                        )
+                        for ident, label in connection_choices()
+                    ],
+                ),
+            ),
+        ]
         return TransformDataForLegacyFormatOrRecomposeFunction(
             wrapped_form_spec=CascadingSingleChoiceExtended(
                 title=Title("Attribute Sync Connections"),
-                elements=[
-                    CascadingSingleChoiceElement(
-                        name="disabled",
-                        title=Title("Disable automatic user attribute synchronization"),
-                        parameter_form=FixedValue(value=True, label=Label("")),
-                    ),
-                    CascadingSingleChoiceElement(
-                        name="all",
-                        title=Title("Sync attributes for all LDAP connections"),
-                        parameter_form=FixedValue(value=True, label=Label("")),
-                    ),
-                    CascadingSingleChoiceElement(
-                        name="list",
-                        title=Title("Sync attributes only for the following LDAP connections"),
-                        parameter_form=MultipleChoice(
-                            custom_validate=[
-                                not_empty(
-                                    Message(
-                                        "Please select at least one connection or choose a different option."
-                                    )
-                                )
-                            ],
-                            elements=[
-                                MultipleChoiceElement(  # astrein: disable=localization-checker
-                                    name=ident,
-                                    title=Title(label),  # astrein: disable=localization-checker
-                                )
-                                for ident, label in connection_choices()
-                            ],
-                        ),
-                    ),
-                ],
+                elements=elements,
                 prefill=DefaultValue("all"),
                 help_text=Help(
                     "Periodic user attribute synchronization keeps existing user attributes "

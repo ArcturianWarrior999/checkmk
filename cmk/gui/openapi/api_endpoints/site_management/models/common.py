@@ -521,8 +521,21 @@ class UserSyncAllModel:
 @api_model
 class UserSyncDisabledModel:
     sync_with_ldap_connections: Literal["disabled"] = api_field(
-        description="Sync with disabled connections.",
+        description="Disable automatic user attribute synchronization on this site.",
         example="disabled",
+    )
+
+    def to_internal(self) -> Literal["disabled"]:
+        return "disabled"
+
+
+@api_model
+class UserSyncCentralSiteModel:
+    sync_with_ldap_connections: Literal["central_site"] = api_field(
+        description="Use the same connections as the central site (inherit the central"
+        " site's setting; changes made on the central site take effect after the next"
+        " configuration sync).",
+        example="central_site",
     )
 
     def to_internal(self) -> None:
@@ -575,7 +588,7 @@ class ConnectionModel:
         example=True,
     )
     user_sync: Annotated[
-        UserSyncWithLdapModel | UserSyncAllModel | UserSyncDisabledModel,
+        UserSyncWithLdapModel | UserSyncAllModel | UserSyncDisabledModel | UserSyncCentralSiteModel,
         Discriminator("sync_with_ldap_connections"),
     ] = api_field(
         description="By default the users are synchronized automatically in the interval "
@@ -663,9 +676,9 @@ class SiteConnectionBaseModel:
             site_configuration["multisiteurl"] = self.configuration_connection.url_of_remote_site
         site_configuration["insecure"] = self.configuration_connection.ignore_tls_errors
         user_sync_value = self.configuration_connection.user_sync.to_internal()
-        # `UserSyncDisabledModel.to_internal()` returns `None` meaning "leave
-        # the key absent" (= inherit from the central site's propagated
-        # value).
+        # `UserSyncCentralSiteModel.to_internal()` returns `None` meaning
+        # "leave the key absent" (= inherit from the central site's
+        # propagated value).
         if user_sync_value is not None:
             site_configuration["user_attribute_sync_connections"] = user_sync_value
         site_configuration["disable_wato"] = (

@@ -24,6 +24,7 @@ from .common import (
     SiteConnectionBaseModel,
     StatusConnectionModel,
     UserSyncAllModel,
+    UserSyncCentralSiteModel,
     UserSyncDisabledModel,
     UserSyncWithLdapModel,
 )
@@ -83,17 +84,25 @@ class SiteConnectionExtensionsModel(SiteConnectionBaseModel):
             site_configuration: SiteConfiguration,
         ) -> ConnectionModel:
             def _user_sync_from_internal(
-                user_sync: Literal["all"] | list[str] | None,
-            ) -> UserSyncWithLdapModel | UserSyncAllModel | UserSyncDisabledModel:
+                user_sync: Literal["all", "disabled"] | list[str] | None,
+            ) -> (
+                UserSyncWithLdapModel
+                | UserSyncAllModel
+                | UserSyncDisabledModel
+                | UserSyncCentralSiteModel
+            ):
                 if user_sync == "all":
                     return UserSyncAllModel(sync_with_ldap_connections="all")
+
+                if user_sync == "disabled":
+                    return UserSyncDisabledModel(sync_with_ldap_connections="disabled")
 
                 if isinstance(user_sync, list):
                     return UserSyncWithLdapModel(
                         sync_with_ldap_connections="ldap",
                         ldap_connections=user_sync,
                     )
-                return UserSyncDisabledModel(sync_with_ldap_connections="disabled")
+                return UserSyncCentralSiteModel(sync_with_ldap_connections="central_site")
 
             return ConnectionModel(
                 enable_replication=site_configuration.get("replication") is not None,

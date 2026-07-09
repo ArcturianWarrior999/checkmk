@@ -440,7 +440,7 @@ class GeneralConfig:
     # propagation, so these globals always carry a concrete list / explicit
     # value. The form's ``("central_site", _)`` shape never appears here.
     authentication_connections: list[AuthenticationConnectionEntry] = field(default_factory=list)
-    user_attribute_sync_connections: Literal["all"] | list[str] = "all"
+    user_attribute_sync_connections: Literal["all", "disabled"] | list[str] = "all"
 
     # Permission to login to the web gui of a site (can be changed in sites
     # configuration)

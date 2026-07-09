@@ -30,8 +30,12 @@ def user_sync_config() -> UserSyncConfig:
     # remote falls through to the propagated global.
     if "user_attribute_sync_connections" in site_config:
         per_site = site_config["user_attribute_sync_connections"]
+        if per_site == "disabled":
+            return None
         return ("list", list(per_site)) if isinstance(per_site, list) else per_site
     global_value = active_config.user_attribute_sync_connections
+    if global_value == "disabled":
+        return None
     if isinstance(global_value, list):
         return "list", list(global_value)
     return global_value

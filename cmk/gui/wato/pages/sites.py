@@ -526,6 +526,11 @@ class ModeEditSite(WatoMode):
             value = data["user_attribute_sync_connections"]
             if isinstance(value, list):
                 data["user_attribute_sync_connections"] = ("list", value)
+        else:
+            # Absent key = inherit from the central site.
+            data["user_attribute_sync_connections"] = (
+                ("all", True) if site_is_local(self._site) else ("central_site", True)
+            )
         return data
 
     def _flat_catalog(self, config: Config):  # type: ignore[no-untyped-def]
@@ -828,7 +833,9 @@ class ModeEditSite(WatoMode):
             ),
             "user_attribute_sync_connections": DictElement(
                 required=True,
-                parameter_form=self._site_mgmt.user_attribute_sync_connections_form_spec(),
+                parameter_form=self._site_mgmt.user_attribute_sync_connections_form_spec(
+                    self._site
+                ),
             ),
         }
 

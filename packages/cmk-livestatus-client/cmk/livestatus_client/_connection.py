@@ -120,9 +120,10 @@ class SiteConfiguration(TypedDict):
     # ``"all"`` and the bare list appear on disk.
     authentication_connections: NotRequired[Literal["all"] | list[AuthenticationConnectionEntry]]
     # Connectors used for periodic user attribute synchronization on this
-    # site. Absence of the key means "inherit from the propagated global"
-    # (same propagation as `authentication_connections`).
-    user_attribute_sync_connections: NotRequired[Literal["all"] | list[str]]
+    # site. Absence of the key means "inherit from the central site" (same
+    # propagation as `authentication_connections`); ``"disabled"`` switches
+    # the periodic synchronization off for this site.
+    user_attribute_sync_connections: NotRequired[Literal["all", "disabled"] | list[str]]
     # Should this site be technically be able to XSS the central site or do other harm
     # In 2.5 this is mandatory, that meant that all creations of a SiteConfiguration need this
     # attribute. In order to minimize the changes I went for NotRequired. The default should always

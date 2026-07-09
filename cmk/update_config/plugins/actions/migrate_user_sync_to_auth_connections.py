@@ -5,7 +5,12 @@
 """Migrate the removed ``user_sync`` site field to ``authentication_connections``
 and ``user_attribute_sync_connections``.
 
-One constraint shapes the mapping:
+Two constraints shape the mapping:
+
+* Key absence now means "inherit from the central site" (typically ``"all"``),
+  so legacy values that meant "no sync on this site" (``None``, ``"master"``
+  on a remote) must become an explicit ``"disabled"`` — leaving the key out
+  would silently turn the sync on.
 
 * The new ``"all"`` shorthand for ``authentication_connections`` also enrolls
   SAML connections, which before the upgrade authenticated only on the central
@@ -38,7 +43,11 @@ from cmk.update_config.registry import update_action_registry, UpdateAction
 from cmk.utils.log import VERBOSE
 
 AuthConnectionsValue = Literal["all"] | list[AuthenticationConnectionEntry]
-AttrSyncConnectionsValue = Literal["all"] | list[str]
+AttrSyncConnectionsValue = Literal["all", "disabled"] | list[str]
+
+# Distinguishes "key not on disk" from an explicit ``user_sync = None``
+# (the legacy "Disable automatic user synchronization" choice).
+_MISSING = object()
 
 
 class MigrateUserSyncToAuthConnections(UpdateAction):
@@ -58,12 +67,14 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
 
         migrated = False
         for site_id, site_spec in configured_sites.items():
-            # `user_sync` was a required field on legacy `SiteConfiguration`; the
-            # earlier cleanup action (sort_index=30) `setdefault`s it for older
-            # sites that lacked it on disk, so it is usually present when we run.
-            # We `pop` here so the on-disk spec ends up without the obsolete key
-            # regardless of whether the new fields had already been set manually.
-            user_sync = site_spec.pop("user_sync", None)  # type: ignore[typeddict-item]
+            # `user_sync` was a required field on legacy `SiteConfiguration`
+            # and the legacy valuespec always wrote it, so it is usually
+            # present when we run. We `pop` here so the on-disk spec ends up
+            # without the obsolete key regardless of whether the new fields
+            # had already been set manually. The `_MISSING` sentinel keeps a
+            # hand-edited spec without the key distinguishable from an
+            # explicit `user_sync = None` ("sync disabled").
+            user_sync = site_spec.pop("user_sync", _MISSING)  # type: ignore[typeddict-item]
             auth_value, attr_sync_value = _derive_new_values(
                 user_sync,
                 is_central_site=(site_id == central_site_id),
@@ -71,7 +82,7 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
                     ldap_connections, site_spec
                 ),
             )
-            did_set = user_sync is not None
+            did_set = user_sync is not _MISSING
             if "authentication_connections" not in site_spec and auth_value is not None:
                 site_spec["authentication_connections"] = auth_value
                 did_set = True
@@ -115,18 +126,20 @@ def _derive_new_values(
     ``None`` for a field means "leave the key absent on disk" so the runtime
     inherits the central site's value — callers must skip the assignment.
     See the module docstring for why remotes get ``frozen_ldap_entries``
-    instead of ``"all"``.
+    instead of ``"all"`` and why "no sync" maps to an explicit ``"disabled"``.
     """
     if user_sync == "all":
         return ("all", "all") if is_central_site else (frozen_ldap_entries, "all")
     if user_sync == "master":
-        return ("all", "all") if is_central_site else (frozen_ldap_entries, None)
+        return ("all", "all") if is_central_site else (frozen_ldap_entries, "disabled")
     if isinstance(user_sync, tuple) and user_sync[0] == "list":
         conn_ids: list[str] = list(user_sync[1])
         auth_entries: list[AuthenticationConnectionEntry] = [
             ("ldap", conn_id) for conn_id in conn_ids
         ]
         return auth_entries, conn_ids
+    if user_sync is None:
+        return (None, "disabled") if is_central_site else (frozen_ldap_entries, "disabled")
     return None, None
 
 
