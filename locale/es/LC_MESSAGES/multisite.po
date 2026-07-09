@@ -43,11 +43,11 @@ msgid " (data incomplete, maximum number of nodes reached)"
 msgstr " (Datos incompletos, número máximo de nodos alcanzado)"
 
 #, fuzzy, python-format
-msgid " (duration: %s)"
+msgid " (duration: %(duration)s)"
 msgstr " (Duración: %s)"
 
 #, fuzzy, python-format
-msgid " (duration: %s, %s IO: %s/s)"
+msgid " (duration: %(duration)s, %(size)s IO: %(io_speed)s/s)"
 msgstr " (Duración: %s, %sIO: %s/s)"
 
 msgid " (in discards per second)"
@@ -170,8 +170,8 @@ msgstr " y %s '%s'"
 msgid " and the %s '%s'."
 msgstr " y el %s '%s'."
 
-#, python-format
-msgid " for %d of %d recipients."
+#, fuzzy, python-format
+msgid " for %(num_success)d of %(num_recipients)d recipients."
 msgstr " para %d o %d destinatarios."
 
 msgid " for all recipients."
@@ -360,6 +360,10 @@ msgid "%(active_connections)d of %(threads)d connections used"
 msgstr "%(active_connections)d de %(threads)d conexiones utilizadas"
 
 #, python-format
+msgid "%(alias)s"
+msgstr ""
+
+#, python-format
 msgid ""
 "%(description)s<br><br>This is a temporary release flag. It is scheduled for "
 "removal in version %(remove_after)s and must not be relied on for permanent "
@@ -394,6 +398,10 @@ msgstr "%(job_title)s corriendo por %(duration_txt)s"
 msgid "%(job_title)s was stopped after %(duration_txt)s at %(finished_txt)s."
 msgstr ""
 "%(job_title)s se detuvo después de %(duration_txt)s en %(finished_txt)s."
+
+#, fuzzy, python-format
+msgid "%(name)s (%(dotted_string)s)"
+msgstr "por %(per_string)s"
 
 #, python-format
 msgid "%(name)s - Dependency missing"
@@ -479,6 +487,14 @@ msgstr "%(timeperiod)s"
 #, python-format
 msgid "%(title)s"
 msgstr "%(title)s"
+
+#, fuzzy, python-format
+msgid "%(title)s has been deleted."
+msgstr "%s ha sido borrado."
+
+#, fuzzy, python-format
+msgid "%(title)s is required but not specified."
+msgstr "Credenciales JSON para la cuenta de servicio"
 
 #, python-format
 msgid ""
@@ -685,10 +701,6 @@ msgstr "%m-%d"
 msgid "%s"
 msgstr "%s"
 
-#, python-format
-msgid "%s (%s)"
-msgstr "%s (%s)"
-
 #, fuzzy, python-format
 msgid "%s (customer missing)"
 msgstr "%s (Cliente perdido)"
@@ -763,20 +775,12 @@ msgid "%s for all hosts started..."
 msgstr "%s para todos los hosts iniciados..."
 
 #, python-format
-msgid "%s has been deleted."
-msgstr "%s ha sido borrado."
-
-#, python-format
 msgid "%s instances"
 msgstr "%s Instancias de la BD"
 
 #, python-format
 msgid "%s is parent of %s."
 msgstr "%s es padre de %s."
-
-#, python-format
-msgid "%s is required but not specified."
-msgstr ""
 
 #, fuzzy, python-format
 msgid "%s may be missing, it must not be empty if it is set."
@@ -1481,8 +1485,8 @@ msgstr ""
 "núcleo ha sido iniciado utilizando la dirección <tt>0.0.0.0</tt> por el "
 "momento. Actualice su DNS o configure una dirección IP para el host afectado."
 
-#, python-format
-msgid "<b>Warning:</b> There are %d unacknowledged incompatible werks:"
+#, fuzzy, python-format
+msgid "<b>Warning:</b> There are %(count)d unacknowledged incompatible werks:"
 msgstr "<b>Advertencia:</b> Hay %d trabajos incompatibles no reconocidos:"
 
 msgid ""
@@ -1530,8 +1534,8 @@ msgid ""
 "risk of mismatch between the discovered and checked services."
 msgstr ""
 
-#, python-format
-msgid "<br><br><b>Note</b>: this key was created by user <b>%s</b>"
+#, fuzzy, python-format
+msgid "<br><br><b>Note</b>: this key was created by user <b>%(owner)s</b>"
 msgstr "Nota</b>: esta clave fue creada por el usuario <b>%s</b>"
 
 msgid ""
@@ -2314,8 +2318,8 @@ msgstr "Un encabezado para la vista"
 
 #, fuzzy, python-format
 msgid ""
-"A host with the name %s already exists in the folder %s. Please choose a "
-"different host name."
+"A host with the name %(host_name)s already exists in the folder %(folder)s. "
+"Please choose a different host name."
 msgstr ""
 "Ya existe un host con el nombre <b><tt>%s</tt></b> en la carpeta <a "
 "href=\"%s\">%s</a>."
@@ -2678,12 +2682,12 @@ msgstr ""
 msgid "A value in seconds"
 msgstr "Un valor en segundos"
 
-#, python-format
-msgid "A view for searching in the inventory data for %s"
+#, fuzzy, python-format
+msgid "A view for searching in the inventory data for %(title)s"
 msgstr "Una vista para buscar en los datos del inventario para %s"
 
-#, python-format
-msgid "A view for the %s of one host"
+#, fuzzy, python-format
+msgid "A view for the %(title)s of one host"
 msgstr "Una vista para los %s de un host"
 
 #, fuzzy
@@ -4807,8 +4811,8 @@ msgstr ""
 msgid "Added new BI pack %s"
 msgstr "Añadido un nuevo paquete de BI %s"
 
-#, python-format
-msgid "Added or edited connection %s"
+#, fuzzy, python-format
+msgid "Added or edited connection %(connection_id)s"
 msgstr "Conexión añadida o editada %s"
 
 #, python-format
@@ -4818,9 +4822,9 @@ msgstr "Añadido el %s '%s'"
 msgid "Added to stack"
 msgstr "Añadido a la pila"
 
-#, python-format
-msgid "Added user %s"
-msgstr "Añadir usuario %s"
+#, fuzzy, python-format
+msgid "Added user %(user_id)s"
+msgstr "Usuarios modificados: %s"
 
 #, python-format
 msgid "Added: %s"
@@ -5088,7 +5092,7 @@ msgid "Affected sites"
 msgstr "Lugares afectados"
 
 #, fuzzy, python-format
-msgid "Affected sites: %s"
+msgid "Affected sites: %(sites)s"
 msgstr "Lugares afectados"
 
 #, fuzzy
@@ -5165,7 +5169,8 @@ msgstr ""
 msgid ""
 "After the configured time active host- and service checks are being "
 "interrupted and evaluate to the UNKNOWN state. If you want to configure this "
-"for individual services, please use the rule set <a href=\"%s\">%s</a>."
+"for individual services, please use the rule set <a "
+"href=\"%(url)s\">%(link_text)s</a>."
 msgstr ""
 "Una vez transcurrido el tiempo configurado, las comprobaciones activas de "
 "hosts y servicios se interrumpen y se evalúan al estado UNKNOWN. Si desea "
@@ -5379,10 +5384,6 @@ msgstr "Agente controlador"
 #, fuzzy
 msgid "Agent Controller auto-registration"
 msgstr "Registro automático del controlador de agentes"
-
-#, fuzzy
-msgid "Agent Controller connections"
-msgstr "Conexiones del controlador de agentes"
 
 #, fuzzy
 msgid "Agent Controller deployment"
@@ -6587,6 +6588,13 @@ msgstr ""
 "requiere un permiso específico."
 
 #, fuzzy, python-format
+msgid ""
+"Allows to create own %(title_lower)s, customize built-in %(title_lower)s and "
+"use them."
+msgstr ""
+"Permite crear sus propios %s, personalizar los %s incorporados y utilizarlos."
+
+#, fuzzy, python-format
 msgid "Allows to create own %s, customize built-in %s and use them."
 msgstr ""
 "Permite crear sus propios %s, personalizar los %s incorporados y utilizarlos."
@@ -6941,10 +6949,10 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"An internal error occurred while processing your request (crash ID: %s). You "
-"can report this issue to the Checkmk team to help fixing this issue. Please "
-"open the <a href=\"%s\">crash report page</a> and use the form for reporting "
-"the problem."
+"An internal error occurred while processing your request (crash ID: "
+"%(crash_id)s). You can report this issue to the Checkmk team to help fixing "
+"this issue. Please open the <a href=\"%(url)s\">crash report page</a> and "
+"use the form for reporting the problem."
 msgstr ""
 "Se ha producido un error interno al procesar su solicitud. Puedes informar "
 "de este problema al equipo de Checkmk para que te ayuden a solucionarlo. Por "
@@ -6953,9 +6961,10 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"An internal error occurred while processing your request (crash ID: %s). You "
-"can report this issue to your Checkmk administrator. Detailed information "
-"can be found on the crash report page or in <tt>var/log/web.log</tt>."
+"An internal error occurred while processing your request (crash ID: "
+"%(crash_id)s). You can report this issue to your Checkmk administrator. "
+"Detailed information can be found on the crash report page or in <tt>var/log/"
+"web.log</tt>."
 msgstr ""
 "Se ha producido un error interno al procesar su solicitud. Puede informar de "
 "este problema a su administrador de Checkmk. Puede encontrar información "
@@ -8214,7 +8223,7 @@ msgstr "Adquisición automática"
 msgid "Automatic updates"
 msgstr "Actualizaciones automáticas"
 
-msgid "Automatic: Use existing user, if available. Otherwise create new user."
+msgid "Automatic: use existing user, if available. Otherwise create new user."
 msgstr ""
 
 msgid "Automatically activate changes"
@@ -10678,20 +10687,6 @@ msgstr ""
 "grandes instalaciones y sólo están disponibles a través de nuestra "
 "suscripción."
 
-#, fuzzy
-msgid ""
-"By default the agent updater communicates with the Agent Bakery of the "
-"central site to update the agent. If you want to make the agent updater "
-"fetch its agent from its remote site, you need to configure this option to "
-"make it possible for the remote site to communicate with the central site on "
-"behalf of the agent updater."
-msgstr ""
-"Por defecto, el actualizador de agentes se comunica con la panadería de "
-"agentes del sitio central para actualizar el agente. Si desea que el "
-"actualizador de agentes obtenga su agente desde su sitio remoto, debe "
-"configurar esta opción para que el sitio remoto se comunique con el sitio "
-"central en nombre del actualizador de agentes."
-
 #, python-brace-format
 msgid ""
 "By default, Checkmk does not import annotations. If this option is enabled, "
@@ -10830,10 +10825,11 @@ msgstr ""
 "(%s por minuto), puede restringir la supervisión a grupos de recursos y "
 "recursos individuales."
 
+#, fuzzy
 msgid ""
-"By default, certificate validation is disabled because it is not security-"
+"By default, certificate validation is disabled, because it is not security-"
 "relevant at this stage, see <a href=\"https://checkmk.com/werk/14715\" "
-"target=\"_blank\">werk #14715</a>."
+"target=\"_blank\">Werk #14715</a>."
 msgstr ""
 "Por defecto, la validación de certificados está desactivada porque no es "
 "relevante para la seguridad en esta fase, véase <a href=\"https://"
@@ -11026,6 +11022,20 @@ msgid ""
 "well-known locations. You can specify a full path here instead."
 msgstr ""
 
+#, fuzzy
+msgid ""
+"By default, the agent updater communicates with the Agent Bakery of the "
+"central site to update the agent. If you want to make the agent updater "
+"fetch its agent from its remote site, you need to configure this option to "
+"make it possible for the remote site to communicate with the central site on "
+"behalf of the agent updater."
+msgstr ""
+"Por defecto, el actualizador de agentes se comunica con la panadería de "
+"agentes del sitio central para actualizar el agente. Si desea que el "
+"actualizador de agentes obtenga su agente desde su sitio remoto, debe "
+"configurar esta opción para que el sitio remoto se comunique con el sitio "
+"central en nombre del actualizador de agentes."
+
 msgid ""
 "By default, the check will use any IP address protocol. Selecting a specific "
 "protocol or using the primary protocol of a host will enforce the usage of "
@@ -11068,13 +11078,14 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "By default, the server will try to contact the monitored host and pull the "
-"data by initializing a TCP connection. In %s you can configure a push "
-"configuration, where the monitored host is expected to send the data to the "
-"monitoring server without being actively triggered.\n"
+"data by initializing a TCP connection. In %(edition)s you can configure a "
+"push configuration, where the monitored host is expected to send the data to "
+"the monitoring server without being actively triggered.\n"
 "\n"
-"If you configure this, you might want to also set the \"%s\" attribute to "
-"\"%s\". The host not being reachable by the site is one of the main reasons "
-"why you want to use the push connection in the first place."
+"If you configure this, you might want to also set the \"%(attribute)s\" "
+"attribute to \"%(value)s\". The host not being reachable by the site is one "
+"of the main reasons why you want to use the push connection in the first "
+"place."
 msgstr ""
 "Por defecto, el servidor intentará ponerse en contacto con el host "
 "monitorizado y extraer los datos inicializando una conexión TCP. En el %s "
@@ -11990,13 +12001,6 @@ msgid ""
 "sites first."
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot assign this connection to customer %s. The following sites use it for "
-"login (authentication connections) but belong to a different customer: %s. "
-"Remove the connection from the configuration of these sites first."
-msgstr ""
-
 #, fuzzy
 msgid "Cannot be deleted manually, must expire"
 msgstr "Evento borrado manualmente por el usuario"
@@ -12036,8 +12040,8 @@ msgstr "No se puede conectar al sitio \"%s\": El sitio no está conectado"
 
 #, fuzzy, python-format
 msgid ""
-"Cannot create PNG from PDF: %s, exit code is %d, command was \"%s\", PDF "
-"source code was \"%s...\""
+"Cannot create PNG from PDF: %(error)s, exit code is %(exit_code)d, command "
+"was \"%(command)s\", PDF source code was \"%(pdf_source)s...\""
 msgstr ""
 "No se puede crear un PNG a partir de un PDF: %s, El código de salida es %d, "
 "el comando era \"%s\", el código fuente del PDF era \"%s...\""
@@ -12045,12 +12049,12 @@ msgstr ""
 msgid "Cannot create graph"
 msgstr "No se puede crear el gráfico"
 
-#, python-format
-msgid "Cannot create graph with metrics of different units '%s'"
+#, fuzzy, python-format
+msgid "Cannot create graph with metrics of different units '%(units)s'"
 msgstr "No se puede crear un gráfico con métricas de diferentes unidades '%s'"
 
 #, fuzzy, python-format
-msgid "Cannot create graph with metrics of different units: %s"
+msgid "Cannot create graph with metrics of different units: %(units)s"
 msgstr "No se puede crear un gráfico con métricas de diferentes unidades '%s'"
 
 msgid ""
@@ -12093,10 +12097,10 @@ msgstr ""
 msgid "Cannot display graph"
 msgstr "No se puede mostrar el gráfico"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot display inventory tree of host '%s': Found this host on multiple "
-"sites: %s"
+"Cannot display inventory tree of host '%(host_name)s': Found this host on "
+"multiple sites: %(sites)s"
 msgstr ""
 "No se puede mostrar el árbol de inventario del host '%s': Encontrado este "
 "host en múltiples sitios: %s"
@@ -12133,8 +12137,12 @@ msgstr ""
 msgid "Cannot fetch data via Livestatus"
 msgstr "No se pueden obtener datos a través de Livestatus"
 
-#, python-format
-msgid "Cannot find %s with the name %s"
+#, fuzzy, python-format
+msgid "Cannot find %(title)s with the name %(name)s"
+msgstr "No se puede encontrar %s con el nombre %s"
+
+#, fuzzy, python-format
+msgid "Cannot find %(title)s with the name %(page_name)s"
 msgstr "No se puede encontrar %s con el nombre %s"
 
 msgid "Cannot find fallback topic 'Other'"
@@ -12156,13 +12164,13 @@ msgstr ""
 msgid "Cannot get rules from local event daemon."
 msgstr "No se pueden obtener reglas del demonio de eventos local."
 
-#, python-format
-msgid "Cannot load %(what)s from %(visual_path)s: %(e)s"
+#, fuzzy, python-format
+msgid "Cannot load %(type_name)s from %(path)s: %(error)s"
 msgstr "No se puede cargar %(what)s de %(visual_path)s: %(e)s"
 
 #, python-format
-msgid "Cannot load %s from %s: %s"
-msgstr "No se puede cargar %s de %s: %s"
+msgid "Cannot load %(what)s from %(visual_path)s: %(e)s"
+msgstr "No se puede cargar %(what)s de %(visual_path)s: %(e)s"
 
 #, python-format
 msgid "Cannot load %s: %s"
@@ -12170,16 +12178,16 @@ msgstr "No se puede cargar %s: %s"
 
 #, fuzzy, python-format
 msgid ""
-"Cannot load HW/SW inventory history entries %s. Please remove the corrupted "
-"files."
+"Cannot load HW/SW inventory history entries %(files)s. Please remove the "
+"corrupted files."
 msgstr ""
 "No se pueden cargar las entradas del historial de inventario de HW/SW %s. "
 "Por favor, elimine los archivos corruptos."
 
 #, fuzzy, python-format
 msgid ""
-"Cannot load HW/SW inventory history of %s. Please remove the corrupted files "
-"%s."
+"Cannot load HW/SW inventory history of %(host_name)s. Please remove the "
+"corrupted files %(corrupted_files)s."
 msgstr ""
 "No se pueden cargar las entradas del historial de inventario de HW/SW %s. "
 "Por favor, elimine los archivos corruptos."
@@ -12194,8 +12202,8 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"Cannot load HW/SW inventory of %s. Please remove the corrupted inventory or "
-"status data tree files."
+"Cannot load HW/SW inventory of %(hosts)s. Please remove the corrupted "
+"inventory or status data tree files."
 msgstr ""
 "No se pueden cargar las entradas del historial de inventario de HW/SW %s. "
 "Por favor, elimine los archivos corruptos."
@@ -12264,8 +12272,8 @@ msgstr "No se puede leer el archivo de configuración %(filename)s: %(e)s"
 msgid "Cannot read configuration file %(path)s: %(exception)s:"
 msgstr "No se puede leer el archivo de configuración %s: %s:"
 
-#, python-format
-msgid "Cannot read file \"%s\": %s"
+#, fuzzy, python-format
+msgid "Cannot read file \"%(path)s\": %(error)s"
 msgstr "No se puede leer el archivo \"%s\": %s"
 
 #, fuzzy
@@ -12274,8 +12282,8 @@ msgstr "No se puede crear el gráfico"
 
 #, python-format
 msgid ""
-"Cannot render complete graph. See graph '<a href='%s'>%s</a>' for further "
-"details."
+"Cannot render complete graph. See graph '<a href='%(url)s'>%(title)s</a>' "
+"for further details."
 msgstr ""
 
 #, fuzzy
@@ -12326,9 +12334,9 @@ msgstr ""
 "No se puede probar. No se puede determinar el número de CPUs en el sistema "
 "de destino."
 
-#, python-format
-msgid "Cannot write configuration file \"%s\": %s"
-msgstr "No se puede escribir el archivo de configuración \"%s\": %s"
+#, fuzzy, python-format
+msgid "Cannot write configuration file \"%(path)s\": %(error)s"
+msgstr "No se puede leer el archivo de configuración %(file_path)s: %(e)s"
 
 #, python-format
 msgid "Cannot write file \"%s\": %s"
@@ -12567,7 +12575,7 @@ msgid "Change event state?"
 msgstr "Cambiar el estado del evento"
 
 #, fuzzy, python-format
-msgid "Change graph time range to: %s"
+msgid "Change graph time range to: %(title)s"
 msgstr "Cambia el rango de tiempo del gráfico a: %s"
 
 msgid "Change infotext in check output"
@@ -14518,8 +14526,8 @@ msgstr "Clonar hosts"
 msgid "Clone report schedule entry %(schedule_id)s"
 msgstr "Clonación de la entrada de la agenda del informe %(schedule_id)s"
 
-#, python-format
-msgid "Clone rule '%s'"
+#, fuzzy, python-format
+msgid "Clone rule '%(rule_id)s'"
 msgstr "Regla de clonación '%s'"
 
 msgid "Clone stored report"
@@ -14900,8 +14908,8 @@ msgid "Command %(column)s/%(state)d not found"
 msgstr "Comando %(column)s/%(state)d no encontrado"
 
 #, fuzzy, python-format
-msgid "Command %s"
-msgstr "Comandos"
+msgid "Command %(command_id)s"
+msgstr "Comentario: %(comment)s"
 
 msgid "Command 'locale -a' could not be executed. Exit code of command was"
 msgstr ""
@@ -15284,12 +15292,12 @@ msgstr ""
 "Archivos de configuración ('*.mk' o '*.conf') de etc/check_mk."
 "%(_CHECKMK_FILES_NOTE)s"
 
-#, python-format
-msgid "Configuration files ('*.mk' or '*.conf') from etc/checkmk: %s"
+#, fuzzy, python-format
+msgid "Configuration files ('*.mk' or '*.conf') from etc/checkmk: %(files)s"
 msgstr "Archivos de configuración ('*.mk' o '*.conf') de etc/checkmk: %s"
 
 #, fuzzy, python-format
-msgid "Configuration files from %s"
+msgid "Configuration files from %(directory)s"
 msgstr "Archivos de configuración"
 
 #, fuzzy
@@ -15364,8 +15372,8 @@ msgstr ""
 "Microcore); salida cmcdump del estado y config."
 
 #, fuzzy, python-format
-msgid "Configuration: %s"
-msgstr "Configuración"
+msgid "Configuration: %(bundle_id)s"
+msgstr "Configuración por defecto"
 
 #, fuzzy
 msgid "Configurations"
@@ -15590,11 +15598,11 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "Configure the automatic creation of new hosts based on requests sent by the "
-"Agent Controller, see also the <a href=\"%s\">corresponding Bakery rule set</"
-"a>. <b>Note</b>: New hosts created via this channel are marked by the host "
-"label <tt>cmk/agent_auto_registered:yes</tt>. This can, for example, be used "
-"to configure a host life cycle management via the <a href=\"%s\">automatic "
-"removal of hosts</a>."
+"Agent Controller, see also the <a href=\"%(bakery_url)s\">corresponding "
+"Bakery rule set</a>. <b>Note</b>: New hosts created via this channel are "
+"marked by the host label <tt>cmk/agent_auto_registered:yes</tt>. This can, "
+"for example, be used to configure a host life cycle management via the <a "
+"href=\"%(removal_url)s\">automatic removal of hosts</a>."
 msgstr ""
 "Configura la creación automática de nuevos hosts en base a las peticiones "
 "enviadas por el controlador de agentes, ver también el <a "
@@ -15762,7 +15770,8 @@ msgstr "Configurar la detección de interfaces individuales"
 #, fuzzy, python-format
 msgid ""
 "Configure the port to send the real-time data to. The Checkmk Micro Core of "
-"the monitoring site needs to be %sconfigured to listen on this port%s."
+"the monitoring site needs to be %(link_open)sconfigured to listen on this "
+"port%(link_close)s."
 msgstr ""
 "Configure el puerto al que enviar los datos en tiempo real. El Microcore del "
 "sitio de monitorización debe estar %sconfigurado para escuchar en este "
@@ -16581,8 +16590,9 @@ msgid ""
 "be included in the dump, that is also considered highly sensitive."
 msgstr ""
 
-#, python-format
-msgid "Core files (config, state and history) from var/check_mk/core: %s"
+#, fuzzy, python-format
+msgid ""
+"Core files (config, state and history) from var/check_mk/core: %(files)s"
 msgstr "Archivos del núcleo (config, state e history) de var/check_mk/core: %s"
 
 msgid "Core produced a notification"
@@ -16756,7 +16766,8 @@ msgstr "No se puede conectar con el sitio remoto: %s"
 msgid ""
 "Could not connect to ui-job-scheduler. Possibly the service <tt>ui-job-"
 "scheduler</tt> is not started, please make sure that all site services are "
-"started. Tried to connect via <tt>%s</tt>. Reported error was: %s."
+"started. Tried to connect via <tt>%(socket_path)s</tt>. Reported error was: "
+"%(error)s."
 msgstr ""
 
 #, python-format
@@ -16834,7 +16845,7 @@ msgid "Could not retrieve bulk notifications: %(exc)s"
 msgstr "No se ha podido determinar el tema actual."
 
 #, fuzzy, python-format
-msgid "Could not retrieve identity token. (%s)"
+msgid "Could not retrieve identity token. (%(error)s)"
 msgstr "No se ha podido determinar el tema actual."
 
 #, python-format
@@ -17564,7 +17575,7 @@ msgid "Critical (lower)"
 msgstr "Crítico abajo"
 
 #, fuzzy, python-format
-msgid "Critical (lower) of %s"
+msgid "Critical (lower) of %(title)s"
 msgstr "Crítico si %s"
 
 msgid "Critical above"
@@ -17710,7 +17721,7 @@ msgid "Critical level is at most"
 msgstr "El nivel crítico es como mínimo"
 
 #, fuzzy, python-format
-msgid "Critical of %s"
+msgid "Critical of %(title)s"
 msgstr "Crítico si %s"
 
 #, fuzzy
@@ -18710,7 +18721,9 @@ msgid "Data usage"
 msgstr "Uso de datos"
 
 #, fuzzy, python-format
-msgid "Data was provided at %s and is considered valid until %s"
+msgid ""
+"Data was provided at %(provided_at)s and is considered valid until "
+"%(valid_until)s"
 msgstr "Este mensaje se ha creado en %s y es válido hasta %s."
 
 msgid "Data width"
@@ -19016,8 +19029,8 @@ msgstr "Tasa de deduplicación"
 msgid "Default"
 msgstr "Por defecto"
 
-#, python-format
-msgid "Default %s template"
+#, fuzzy, python-format
+msgid "Default %(template)s template"
 msgstr "Plantilla %s por defecto"
 
 #, python-format
@@ -19455,6 +19468,10 @@ msgstr "Borrar"
 msgid "Delete %(section)s element #%(nr)d"
 msgstr "Eliminar el elemento %(section)s #%(nr)d"
 
+#, fuzzy, python-format
+msgid "Delete %(title)s"
+msgstr "%(title)s"
+
 #, python-format
 msgid "Delete %s"
 msgstr "Borrar %s"
@@ -19552,7 +19569,7 @@ msgid "Delete configuration %(bundle_id)s"
 msgstr "Configuración por defecto"
 
 #, fuzzy, python-format
-msgid "Delete configuration '%s'"
+msgid "Delete configuration '%(title)s'"
 msgstr "Configuración por defecto"
 
 #, python-format
@@ -19689,8 +19706,8 @@ msgstr "Borrar informe programado #%(nr)d"
 msgid "Delete selected"
 msgstr "Borrar lo seleccionado"
 
-#, python-format
-msgid "Delete selected %s"
+#, fuzzy, python-format
+msgid "Delete selected %(title_plural)s"
 msgstr "Borrar seleccionado %s"
 
 msgid "Delete selected MIBs"
@@ -20101,11 +20118,11 @@ msgid "Deploy plug-in that updates agent automatically"
 msgstr "Implemente el complemento que actualiza el agente automáticamente"
 
 #, fuzzy, python-format
-msgid "Deploy the %s plug-in and its configuration"
+msgid "Deploy the %(plugin)s plug-in and its configuration"
 msgstr "Implemente el complemento %s y su configuración"
 
 #, fuzzy, python-format
-msgid "Deploy the %s plug-in without configuration"
+msgid "Deploy the %(plugin)s plug-in without configuration"
 msgstr "Implemente el complemento %s sin configuración"
 
 #, fuzzy
@@ -20313,7 +20330,7 @@ msgid "Deprecated choice, please re-select"
 msgstr "Opción obsoleta, vuelva a seleccionarla"
 
 #, fuzzy, python-format
-msgid "Deprecated extension package: %s"
+msgid "Deprecated extension package: %(ident)s"
 msgstr "Creado nuevo paquete de extensión %s"
 
 #, fuzzy
@@ -20321,7 +20338,7 @@ msgid "Deprecated legacy GUI extensions"
 msgstr "Replicar extensiones"
 
 #, fuzzy, python-format
-msgid "Deprecated plug-in: %s"
+msgid "Deprecated plug-in: %(ident)s"
 msgstr "Plugins de comprobación obsoletos"
 
 #, fuzzy
@@ -21759,7 +21776,7 @@ msgid "Do not deploy plug-in for Windows system info"
 msgstr "No desplegar el plugin para Windows System Info"
 
 #, fuzzy, python-format
-msgid "Do not deploy the %s plug-in"
+msgid "Do not deploy the %(plugin)s plug-in"
 msgstr "No despliegue el plugin %s"
 
 #, fuzzy
@@ -22463,8 +22480,8 @@ msgid ""
 "ul>"
 msgstr ""
 
-#, python-format
-msgid "Duplicate tag ID \"%s\" in auxiliary tags"
+#, fuzzy, python-format
+msgid "Duplicate tag ID \"%(aux_tag_id)s\" in auxiliary tags"
 msgstr "ID de etiqueta duplicado \"%s\" en etiquetas auxiliares"
 
 msgid "Duplicated elements provided."
@@ -22600,13 +22617,13 @@ msgstr "EMC ScaleIO"
 msgid "ERROR"
 msgstr "ERROR"
 
-#, python-format
-msgid "ERROR %s on site %s: %s"
+#, fuzzy, python-format
+msgid "ERROR %(host_name)s on site %(site_id)s: %(error)s"
 msgstr "ERROR %s en el sitio %s: %s"
 
-#, python-format
-msgid "ERROR %s: %s"
-msgstr "ERROR %s: %s"
+#, fuzzy, python-format
+msgid "ERROR %(host_name)s: %(error)s"
+msgstr "ERROR %s en el sitio %s: %s"
 
 msgid "ERROR: Snapshot progress no longer running!"
 msgstr "ERROR: ¡El progreso de la instantánea ya no se ejecuta!"
@@ -22887,19 +22904,19 @@ msgstr "Editar atributos"
 msgid "Edit auxiliary tag"
 msgstr "Editar la etiqueta auxiliar"
 
-#, python-format
-msgid "Edit backup job: %s"
+#, fuzzy, python-format
+msgid "Edit backup job: %(title)s"
 msgstr "Editar trabajo de copia de seguridad: %s"
 
-#, python-format
-msgid "Edit backup target: %s"
+#, fuzzy, python-format
+msgid "Edit backup target: %(title)s"
 msgstr "Editar destino de la copia de seguridad: %s"
 
 msgid "Edit bookmark list"
 msgstr "Editar la lista de favoritos"
 
 #, fuzzy, python-format
-msgid "Edit configuration: %s"
+msgid "Edit configuration: %(title)s"
 msgstr "Configuración de host"
 
 msgid "Edit connection"
@@ -23044,8 +23061,8 @@ msgstr "Editar la regla"
 msgid "Edit rule %s"
 msgstr "Editar regla %s"
 
-#, python-format
-msgid "Edit rule '%s'"
+#, fuzzy, python-format
+msgid "Edit rule '%(rule_id)s'"
 msgstr "Editar regla %s"
 
 #, python-format
@@ -23206,11 +23223,11 @@ msgid "Edited %d hosts"
 msgstr "Editado %d hosts"
 
 #, fuzzy, python-format
-msgid "Edited OTel Quick Setup configuration bundle: '%s'"
-msgstr "Añadir configuración de estado"
+msgid "Edited OTel Quick Setup configuration bundle: '%(bundle_id)s'"
+msgstr "Configuración por defecto"
 
 #, fuzzy, python-format
-msgid "Edited Prometheus Quick Setup configuration bundle: '%s'"
+msgid "Edited Prometheus Quick Setup configuration bundle: '%(bundle_id)s'"
 msgstr "Añadir configuración de estado"
 
 #, fuzzy, python-format
@@ -23233,8 +23250,8 @@ msgstr "Regla editada en el conjunto de reglas \"%s\" en la carpeta \"%s\""
 msgid "Edited the %s '%s'"
 msgstr "Editado el %s '%s'"
 
-#, python-format
-msgid "Edited user profile for user %s"
+#, fuzzy, python-format
+msgid "Edited user profile for user %(user_id)s"
 msgstr "Editado el perfil del usuario %s"
 
 msgid "Edition"
@@ -24463,8 +24480,8 @@ msgstr "Error al mostrar la vista: %(e)s"
 
 #, python-format
 msgid ""
-"Error while querying the following metrics: %s.<br>Last error message: %s."
-"<br>See web.log for further details."
+"Error while querying the following metrics: %(metrics)s.<br>Last error "
+"message: %(error)s.<br>See web.log for further details."
 msgstr ""
 
 #, python-format
@@ -25873,8 +25890,8 @@ msgstr ""
 "Config: %s\n"
 "Salida: %s"
 
-#, python-format
-msgid "Failed to apply the cronjob config: %s"
+#, fuzzy, python-format
+msgid "Failed to apply the cronjob config: %(output)s"
 msgstr "Fallo al aplicar la configuración del cronjob: %s"
 
 #, python-format
@@ -25981,8 +25998,8 @@ msgstr "Fallo al analizar las etiquetas: %(e)s"
 msgid "Failed to parse metrics string: %s"
 msgstr "Fallo al analizar la cadena de datos de rendimiento: %s"
 
-#, python-format
-msgid "Failed to parse state file \"%s\": %s"
+#, fuzzy, python-format
+msgid "Failed to parse state file \"%(path)s\": %(error)s"
 msgstr "Fallo al analizar el archivo de estado \"%s\": %s"
 
 msgid ""
@@ -26057,12 +26074,12 @@ msgstr "Ratio de fallos en el recambio"
 msgid "Failed to start discovery: %s"
 msgstr "Fallo al iniciar la detección: %s"
 
-#, python-format
-msgid "Failed to start parent scan: %s"
+#, fuzzy, python-format
+msgid "Failed to start parent scan: %(error)s"
 msgstr "Fallo al iniciar el escaneo de los padres: %s"
 
-#, python-format
-msgid "Failed to start the job: %s"
+#, fuzzy, python-format
+msgid "Failed to start the job: %(output)s"
 msgstr "Fallo al iniciar el trabajo: %s"
 
 #, fuzzy, python-format
@@ -26185,8 +26202,8 @@ msgstr "Formato del correo electrónico de notificación de retroceso"
 msgid "Fallback notifications"
 msgstr "Notificaciones de retroceso"
 
-#, python-format
-msgid "Fallback template (%s): Unknown ID %s"
+#, fuzzy, python-format
+msgid "Fallback template (%(node_style)s): Unknown ID %(layout_id)s"
 msgstr "Plantilla de reserva (%s): ID desconocido %s"
 
 msgid "Falling"
@@ -26605,8 +26622,8 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Files in %s"
-msgstr "Archivo: %s"
+msgid "Files in %(directory)s"
+msgstr "Nombre del archivo / Directorio"
 
 msgid "Filestore"
 msgstr "Almacén de archivos"
@@ -26991,13 +27008,13 @@ msgstr "Árbol plegable"
 msgid "Folder"
 msgstr "Carpeta"
 
+#, fuzzy, python-format
+msgid "Folder %(folder)r does not exist."
+msgstr "La carpeta %r no existe."
+
 #, python-format
 msgid "Folder %(identifier)s not found."
 msgstr "Carpeta %(identifier)s no encontrada."
-
-#, python-format
-msgid "Folder %r does not exist."
-msgstr "La carpeta %r no existe."
 
 #, fuzzy
 msgid "Folder (including subfolders)"
@@ -27327,7 +27344,7 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"For these hosts there is a new agent available that is not yet installed. "
+"For these hosts, there is a new agent available that is not yet installed. "
 "This simply means that the target agent configuration hash does not match "
 "the hash of the configuration that is currently installed."
 msgstr ""
@@ -27580,9 +27597,9 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Found invalid characters in the %s. Please ensure that only letters from the "
-"English alphabet, numbers and the special characters dot, hyphen and "
-"underscore are used."
+"Found invalid characters in the %(title_str)s. Please ensure that only "
+"letters from the English alphabet, numbers and the special characters dot, "
+"hyphen and underscore are used."
 msgstr ""
 
 #, python-format
@@ -28418,7 +28435,7 @@ msgid "Got no result to create dump file"
 msgstr "No se ha conseguido crear un archivo de volcado"
 
 #, python-format
-msgid "Got response: HTTP %s: %s"
+msgid "Got response: HTTP %(status_code)s: %(text)s"
 msgstr ""
 
 #, fuzzy
@@ -28483,7 +28500,7 @@ msgid "Graph layout"
 msgstr "Diseño de gráficos"
 
 #, fuzzy, python-format
-msgid "Graph not found '%s'"
+msgid "Graph not found '%(id)s'"
 msgstr "Opciones de gráficos"
 
 msgid "Graph rendering options"
@@ -28512,7 +28529,7 @@ msgid "Graph visibility"
 msgstr "Visibilidad del gráfico"
 
 #, fuzzy, python-format
-msgid "Graph with ID %s is missing a title"
+msgid "Graph with ID %(name)s is missing a title"
 msgstr "A la plantilla de gráfico %s le falta un título"
 
 #, fuzzy
@@ -28586,12 +28603,12 @@ msgstr "Verde"
 
 #, fuzzy, python-format
 msgid ""
-"Greetings %s,\n"
+"Greetings %(recipient_name)s,\n"
 "\n"
-"%s sent you a message: \n"
+"%(sender_name)s sent you a message: \n"
 "\n"
 "---\n"
-"%s\n"
+"%(content)s\n"
 "---"
 msgstr ""
 "Saludos %s,\n"
@@ -28743,8 +28760,8 @@ msgid "Growth continues here"
 msgstr "Niveles de contenedores de nodos Docker"
 
 #, python-format
-msgid "Growth interrupted %d/%d"
-msgstr "Crecimiento interrumpido %d/%d"
+msgid "Growth interrupted %(total_nodes)d/%(growth_auto_max_nodes)d"
+msgstr ""
 
 #, fuzzy
 msgid "Growth stops here"
@@ -29344,17 +29361,6 @@ msgstr ""
 "Aquí puede definir un límite superior para la duración de la última "
 "ejecución del trabajo."
 
-msgid ""
-"Here you can provide CA or self-signed certificates that will be sent to the "
-"contacting agent updater alongside the remote site's URL on registration or "
-"update. This list will be used by the agent updater to verify HTTPS "
-"connections to Checkmk sites."
-msgstr ""
-"Aquí puede proporcionar certificados de CA o autofirmados que se enviarán al "
-"actualizador del agente de contacto junto con la URL del sitio remoto al "
-"registrarse o actualizarse. Esta lista será utilizada por el actualizador "
-"del agente para verificar las conexiones HTTPS a los sitios de Checkmk."
-
 #, fuzzy
 msgid ""
 "Here you can set different warn/crit levels regarding the available cooling  "
@@ -29416,15 +29422,6 @@ msgstr "Aquí puede establecer niveles superiores de trabajadores ocupados"
 msgid "Here you can specifiy the measurement unit of the network interface"
 msgstr "Aquí puede especificar la unidad de medida de la interfaz de red"
 
-#, fuzzy
-msgid ""
-"Here you can specify a service name. If this parameter is not set, the "
-"service is named <tt>TCP Port [PORT NUMBER]</tt>"
-msgstr ""
-"Aquí se puede especificar una descripción del servicio. Si no se establece "
-"este parámetro, el servicio se denomina <tt>Puerto TCP [NÚMERO DE PUERTO]</"
-"tt>"
-
 msgid "Here you can specify debugging options of the Checkmk check helpers."
 msgstr ""
 "Aquí puede especificar las opciones de depuración de los ayudantes de "
@@ -29435,40 +29432,15 @@ msgid "Here you can specify the allowed license states for Windows."
 msgstr ""
 "Aquí puede especificar los estados de licencia permitidos para Windows."
 
-msgid ""
-"Here you can specify the subject text instead of default text 'Check_MK-Mail-"
-"Loop'."
-msgstr ""
-"Aquí puede especificar el texto del asunto en lugar del texto por defecto "
-"'Check_MK-Mail-Loop'."
-
 #, fuzzy
 msgid "Here you can specify the total memory usage levels for clustered hosts."
 msgstr ""
 "Aquí puede especificar los niveles de uso de la memoria total para los hosts "
 "agrupados."
 
-msgid ""
-"Here you get feedback about recent agent rollouts. If you e.g. restrict a "
-"new rollout to a known list of five hosts, then these five should appear "
-"here at latest after one configured update interval."
-msgstr ""
-"Aquí se obtiene información sobre las últimas implantaciones de agentes. Si, "
-"por ejemplo, restringe un nuevo despliegue a una lista conocida de cinco "
-"hosts, estos cinco deberían aparecer aquí como máximo después de un "
-"intervalo de actualización configurado."
-
 #, fuzzy
 msgid "Here you need to insert the original file or pathname"
 msgstr "Aquí tienes que insertar el archivo original o el nombre de la ruta"
-
-msgid ""
-"Here you see hosts that have registered for updates but have no available "
-"agent. You need to bake agents again in order to create agents for them."
-msgstr ""
-"Aquí se ven los hosts que se han registrado para las actualizaciones pero "
-"que no tienen ningún agente disponible. Es necesario bakear agentes de nuevo "
-"para crear agentes para ellos."
 
 #, fuzzy
 msgid ""
@@ -29973,6 +29945,18 @@ msgstr ""
 
 #, fuzzy
 msgid ""
+"Here, you can provide CA or self-signed certificates that will be sent to "
+"the contacting agent updater alongside the remote site's URL on registration "
+"or update. This list will be used by the agent updater to verify HTTPS "
+"connections to Checkmk sites."
+msgstr ""
+"Aquí puede proporcionar certificados de CA o autofirmados que se enviarán al "
+"actualizador del agente de contacto junto con la URL del sitio remoto al "
+"registrarse o actualizarse. Esta lista será utilizada por el actualizador "
+"del agente para verificar las conexiones HTTPS a los sitios de Checkmk."
+
+#, fuzzy
+msgid ""
 "Here, you can see a list of all deprecated rule sets (which are not used by "
 "Checkmk anymore). If you have defined some rules here, you might have to "
 "migrate the rules to their successors. Please refer to the release notes or "
@@ -29994,7 +29978,8 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "Here, you can select an InfluxDB connection to use. If no choice is "
-"available you have to configure a <a href=\"%s\">%s</a> first."
+"available you have to configure a <a href=\"%(url)s\">%(link_text)s</a> "
+"first."
 msgstr ""
 "Aquí puede seleccionar la conexión InfluxDB que desea utilizar. Si no hay "
 "ninguna opción disponible primero tiene que configurar un <a href=\"%s\">%s</"
@@ -30084,11 +30069,20 @@ msgstr ""
 msgid ""
 "Here, you can simulate an incoming agent request and check out which rules "
 "are matching.<br>An agent request contains several labels as key-value "
-"pairs, e.g. %s."
+"pairs, e.g. %(example)s."
 msgstr ""
 "Aquí puede simular una solicitud de agente entrante y comprobar qué reglas "
 "coinciden.Una solicitud de agente contiene varias etiquetas como pares clave-"
 "valor, por ejemplo %s."
+
+#, fuzzy
+msgid ""
+"Here, you can specify a service name. If this parameter is not set, the "
+"service is named <tt>TCP Port [PORT NUMBER]</tt>"
+msgstr ""
+"Aquí se puede especificar una descripción del servicio. Si no se establece "
+"este parámetro, el servicio se denomina <tt>Puerto TCP [NÚMERO DE PUERTO]</"
+"tt>"
 
 #, fuzzy
 msgid ""
@@ -30152,6 +30146,14 @@ msgstr ""
 
 #, fuzzy
 msgid ""
+"Here, you can specify the subject text instead of default text 'Check_MK-"
+"Mail-Loop'."
+msgstr ""
+"Aquí puede especificar el texto del asunto en lugar del texto por defecto "
+"'Check_MK-Mail-Loop'."
+
+#, fuzzy
+msgid ""
 "Here, you can specify upper levels for the number of infections detected by "
 "anti-malware engine."
 msgstr ""
@@ -30183,6 +30185,17 @@ msgstr ""
 
 #, fuzzy
 msgid ""
+"Here, you get feedback about recent agent rollouts. If you e.g. restrict a "
+"new rollout to a known list of five hosts, then these five should appear "
+"here at latest after one configured update interval."
+msgstr ""
+"Aquí se obtiene información sobre las últimas implantaciones de agentes. Si, "
+"por ejemplo, restringe un nuevo despliegue a una lista conocida de cinco "
+"hosts, estos cinco deberían aparecer aquí como máximo después de un "
+"intervalo de actualización configurado."
+
+#, fuzzy
+msgid ""
 "Here, you have to use macros which are defined above below <tt>Macros for "
 "joining service data or inventory tables</tt>. The joining of different "
 "inventory tables is based on these macros."
@@ -30190,6 +30203,15 @@ msgstr ""
 "Aquí hay que utilizar las macros que se definen a continuación <tt>Macros "
 "para unir datos de servicio o tablas de inventario</tt>. La unión de "
 "diferentes tablas de inventario se basa en estas macros."
+
+#, fuzzy
+msgid ""
+"Here, you see hosts that have registered for updates but have no available "
+"agent. You need to bake agents again in order to create agents for them."
+msgstr ""
+"Aquí se ven los hosts que se han registrado para las actualizaciones pero "
+"que no tienen ningún agente disponible. Es necesario bakear agentes de nuevo "
+"para crear agentes para ellos."
 
 msgid "Hidden"
 msgstr "Oculto"
@@ -31900,7 +31922,7 @@ msgid "Host name conflict"
 msgstr "Conflicto de nombres de host"
 
 #, fuzzy, python-format
-msgid "Host name contains illegal characters: %s"
+msgid "Host name contains illegal characters: %(error)s"
 msgstr "El nombre de host contiene caracteres ilegales: %s"
 
 #, fuzzy
@@ -31973,7 +31995,7 @@ msgid "Host name/IP address of central Event Console:"
 msgstr "Nombre de host/dirección IP de la consola de eventos:"
 
 #, fuzzy, python-format
-msgid "Host name: %s"
+msgid "Host name: %(hostname)s"
 msgstr "Nombre de host: %s"
 
 #, fuzzy
@@ -32289,12 +32311,14 @@ msgstr "Contactos de los hosts (como servidor)"
 
 #, python-format
 msgid ""
-"Hosts for EC2 instances need to be created manually, please check the %s."
+"Hosts for EC2 instances need to be created manually, please check the "
+"%(link)s."
 msgstr ""
 
 #, python-format
 msgid ""
-"Hosts for virtual machines need to be created manually, please check the %s."
+"Hosts for virtual machines need to be created manually, please check the "
+"%(link)s."
 msgstr ""
 
 msgid "Hosts forced to use 'if' instead of 'if64'"
@@ -32780,6 +32804,10 @@ msgstr "ID: %(ident)s"
 #, python-format
 msgid "ID: %(job_id)s"
 msgstr "ID: %(job_id)s"
+
+#, fuzzy, python-format
+msgid "ID: %(name)s"
+msgstr "ID: %(visual_name)s"
 
 #, python-format
 msgid "ID: %(rule_id)s"
@@ -33361,12 +33389,12 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "If activated, the Agent Bakery will bake a generic agent package for this "
-"folder. In the configuration all rules are considered that unconditionally "
-"match all hosts in the folder. This package will be created even if the "
+"folder. In the configuration all rules that unconditionally match all hosts "
+"in the folder are considered. This package will be created even if the "
 "folder is empty.\n"
-"This is option is useful in combination with the %s feature of the %s. It "
-"allows for baking agent packages for hosts which will be created in this "
-"folder in the future, usually via the auto registration."
+"This option is useful in combination with the %s feature of the %s. It "
+"allows baking agent packages for hosts which will be created in this folder "
+"in the future, usually via the auto-registration."
 msgstr ""
 "Si se activa, la panadería de agentes creará un paquete de agente genérico "
 "para esta carpeta. En la configuración se consideran todas las reglas que "
@@ -36162,8 +36190,8 @@ msgstr "Dentro de los MAC únicos"
 #, python-format
 msgid ""
 "Inspect product usage data: Run <tt>cmk-product-usage --dry-run</tt> as site "
-"user, or %s. This allows you to review the data locally; it does not enable "
-"the feature or transmit any information."
+"user, or %(link)s. This allows you to review the data locally; it does not "
+"enable the feature or transmit any information."
 msgstr ""
 
 #, fuzzy
@@ -36681,7 +36709,7 @@ msgid "Invalid data format"
 msgstr "Fuente de datos no válida: %s"
 
 #, fuzzy, python-format
-msgid "Invalid data source '%s' configured."
+msgid "Invalid data source '%(datasource)s' configured."
 msgstr "Fuente de datos no válida '%s' configurada."
 
 #, python-format
@@ -36757,8 +36785,8 @@ msgstr ""
 "Nombre de carpeta no válido. Sólo se permiten los caracteres a-z, A-Z, 0-9, "
 "_ y -."
 
-#, python-format
-msgid "Invalid graph type '%s'"
+#, fuzzy, python-format
+msgid "Invalid graph type '%(graph_type)s'"
 msgstr "Tipo de gráfico inválido '%s'"
 
 #, python-format
@@ -36877,6 +36905,10 @@ msgstr "Expresión regular inválida '%s': %s"
 
 #, python-format
 msgid "Invalid regular expression: %(e)s"
+msgstr "Expresión regular inválida: %(e)s"
+
+#, fuzzy, python-format
+msgid "Invalid regular expression: %(error)s"
 msgstr "Expresión regular inválida: %(e)s"
 
 #, fuzzy, python-format
@@ -37094,14 +37126,14 @@ msgid "Inventory"
 msgstr "Inventario"
 
 #, fuzzy, python-format
-msgid "Inventory attribute: %s"
+msgid "Inventory attribute: %(long_title)s"
 msgstr "Atributo de inventario"
 
 msgid "Inventory changes"
 msgstr "Cambios en el inventario"
 
 #, fuzzy, python-format
-msgid "Inventory column: %s"
+msgid "Inventory column: %(long_title)s"
 msgstr "Columna de inventario"
 
 #, fuzzy
@@ -37121,7 +37153,7 @@ msgid "Inventory history of host"
 msgstr "Historial de inventario del host"
 
 #, fuzzy, python-format
-msgid "Inventory node: %s"
+msgid "Inventory node: %(long_title)s"
 msgstr "Nodo de inventario"
 
 msgid "Inventory of Linux kernel configuration (sysctl)"
@@ -37136,7 +37168,7 @@ msgid "Inventory of host"
 msgstr "Inventario del host"
 
 #, fuzzy, python-format
-msgid "Inventory table: %s"
+msgid "Inventory table: %(long_title)s"
 msgstr "Tabla de inventario"
 
 #, fuzzy
@@ -37658,8 +37690,8 @@ msgstr "Puntuación del trabajo"
 msgid "Job state"
 msgstr "Estado del trabajo"
 
-#, python-format
-msgid "Job state: %s"
+#, fuzzy, python-format
+msgid "Job state: %(title)s"
 msgstr "Estado del trabajo: %s"
 
 msgid "Job status"
@@ -39363,10 +39395,10 @@ msgstr "Credenciales de licencia:"
 msgid "Licensing files"
 msgstr "Expedientes de licencia"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Licensing files (data, config and logs) from var/check_mk/licensing, etc/"
-"check_mk/multisite.d and var/log: %s"
+"check_mk/multisite.d and var/log: %(files)s"
 msgstr ""
 "Archivos de licencias (datos, config y logs) de var/check_mk/licensing, etc/"
 "check_mk/multisite.d y var/log: %s"
@@ -40213,8 +40245,8 @@ msgstr "Patrones del archivo de registro %s en el host %s"
 msgid "Log files"
 msgstr "Archivos de registro"
 
-#, python-format
-msgid "Log files ('*.log' or '*.state') from var/log: %s"
+#, fuzzy, python-format
+msgid "Log files ('*.log' or '*.state') from var/log: %(files)s"
 msgstr "Archivos de registro ('*.log' o '*.state') de var/log: %s"
 
 #, python-format
@@ -41383,6 +41415,14 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
+msgid ""
+"Make own published %(title_lower)s override built-in %(title_lower)s for all "
+"users."
+msgstr ""
+"Hacer que los propios %s publicados anulen los %s incorporados para todos "
+"los usuarios."
+
+#, fuzzy, python-format
 msgid "Make own published %s override built-in %s for all users."
 msgstr ""
 "Hacer que los propios %s publicados anulen los %s incorporados para todos "
@@ -41406,6 +41446,14 @@ msgstr ""
 "Hacer que la regla coincida sólo si el mensaje tiene una determinada "
 "facilidad de syslog. Los mensajes que no tienen una facilidad se clasifican "
 "como <tt>usuario</tt>."
+
+#, fuzzy, python-format
+msgid "Make this %(title)s available for other users"
+msgstr "Poner este %s a disposición de otros usuarios"
+
+#, fuzzy, python-format
+msgid "Make this %(type_title)s available for other users"
+msgstr "Poner este %s a disposición de otros usuarios"
 
 #, python-format
 msgid "Make this %s available for other users"
@@ -42464,8 +42512,8 @@ msgstr "Número máximo de conexiones del cortafuegos"
 msgid "Maximum number of messages"
 msgstr "Número máximo de mensajes"
 
-#, python-format
-msgid "Maximum number of nodes exceeded %d/%d"
+#, fuzzy, python-format
+msgid "Maximum number of nodes exceeded %(total_nodes)d/%(max_nodes)d"
 msgstr "Número máximo de nodos superado %d/%d"
 
 #, fuzzy
@@ -42496,7 +42544,7 @@ msgid "Maximum number of threads"
 msgstr "Número máximo de hilos"
 
 #, fuzzy, python-format
-msgid "Maximum of %s"
+msgid "Maximum of %(title)s"
 msgstr "Máximo"
 
 msgid "Maximum parallel connections"
@@ -42689,7 +42737,7 @@ msgid "Measurement unit"
 msgstr "Unidad de medida"
 
 #, fuzzy, python-format
-msgid "Measurement: %s"
+msgid "Measurement: %(measurement)s"
 msgstr "Unidad de medida"
 
 msgid "Mechanical"
@@ -43160,8 +43208,8 @@ msgid "Metric: %(metric_title)s"
 msgstr "Métricas de servicio"
 
 #, fuzzy, python-format
-msgid "Metric: %s"
-msgstr "Métrica"
+msgid "Metric: %(title)s"
+msgstr "Métricas de servicio"
 
 msgid "Metrics"
 msgstr "Métrica"
@@ -43371,7 +43419,7 @@ msgid "Minimum number of ready worker nodes"
 msgstr "Número mínimo de nodos trabajadores listos"
 
 #, fuzzy, python-format
-msgid "Minimum of %s"
+msgid "Minimum of %(title)s"
 msgstr "Mínimo"
 
 #, fuzzy
@@ -45140,8 +45188,8 @@ msgstr "Iconos de la barra de navegación"
 msgid "Navigation bar logo"
 msgstr "Logotipo de la barra de navegación"
 
-#, python-format
-msgid "Need parent %s, but not allowed to create one"
+#, fuzzy, python-format
+msgid "Need parent %(ip)s, but not allowed to create one"
 msgstr "Necesito el padre %s, pero no se me permite crear uno"
 
 msgid ""
@@ -45660,7 +45708,7 @@ msgid "No"
 msgstr "No"
 
 #, fuzzy, python-format
-msgid "No %s configuration yet"
+msgid "No %(title)s configuration yet"
 msgstr "Configuración de host"
 
 #, fuzzy, python-format
@@ -45823,7 +45871,7 @@ msgid "No conditions"
 msgstr "Sin condiciones"
 
 #, fuzzy, python-format
-msgid "No configuration Quick Setup for %s available"
+msgid "No configuration Quick Setup for %(name)s available"
 msgstr "Variable de configuración:"
 
 msgid "No configured rules are affected"
@@ -45903,7 +45951,13 @@ msgstr ""
 "nueva exploración."
 
 #, python-format
-msgid "No edit configuration bundle implemented for bundle group type '%s'."
+msgid ""
+"No edit configuration bundle implemented for bundle group type '%(group)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"No edit configuration bundle implemented for bundle group type '%(name)s'."
 msgstr ""
 
 #, fuzzy
@@ -45952,7 +46006,8 @@ msgid "No graph available: %(exc)s"
 msgstr "No hay gráfico disponible: %(exc)s"
 
 #, fuzzy, python-format
-msgid "No graph with the ID <tt>%s</tt> found for user <tt>%s</tt>"
+msgid ""
+"No graph with the ID <tt>%(graph_id)s</tt> found for user <tt>%(owner)s</tt>"
 msgstr "No hay gráfico con el ID <tt>%s</tt>"
 
 msgid "No groups are defined yet."
@@ -46693,7 +46748,7 @@ msgid "Not yet monitored"
 msgstr "Todavía no se ha supervisado"
 
 #, fuzzy, python-format
-msgid "Notation: %s"
+msgid "Notation: %(notation)s"
 msgstr "Anotaciones: %s"
 
 msgid "Note down the generated access key ID and secret access key."
@@ -46745,7 +46800,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Note: For access options like AssumeRole or a custom IAM region, please use "
-"the %s."
+"the %(link)s."
 msgstr ""
 
 msgid ""
@@ -48747,6 +48802,10 @@ msgstr "Mostrar sólo los objetos con interrupciones"
 msgid "Only show services in this states"
 msgstr "Mostrar sólo los servicios en estos estados"
 
+#, fuzzy, python-format
+msgid "Only show the %(title_plural)s if show more is active"
+msgstr "Sólo mostrar el %s si mostrar más está activo"
+
 #, python-format
 msgid "Only show the %s if show more is active"
 msgstr "Sólo mostrar el %s si mostrar más está activo"
@@ -48762,8 +48821,8 @@ msgstr ""
 "Sólo se inicia el tiempo de inactividad si el host/servicio se BAJA/INACTIVO "
 "durante la hora de inicio y fin definida (flexible)"
 
-#, python-format
-msgid "Only str and unicode values are allowed, got %s"
+#, fuzzy, python-format
+msgid "Only str and unicode values are allowed, got %(type)s"
 msgstr "Sólo se permiten los valores str y unicode, obtuvo %s"
 
 msgid "Only time"
@@ -50319,7 +50378,7 @@ msgid "Output octets"
 msgstr "Octets de salida"
 
 #, fuzzy, python-format
-msgid "Output of %s"
+msgid "Output of %(command)s"
 msgstr "Salidas"
 
 #, fuzzy
@@ -51262,8 +51321,8 @@ msgstr "Carpeta principal"
 msgid "Parent scan"
 msgstr "Escaneo de los padres"
 
-#, python-format
-msgid "Parent scan currently running in <a href=\"%s\">background</a>."
+#, fuzzy, python-format
+msgid "Parent scan currently running in <a href=\"%(url)s\">background</a>."
 msgstr ""
 "La exploración de los padres se está ejecutando en <a href=\"%s\">fondo</a>."
 
@@ -52903,8 +52962,8 @@ msgstr ""
 msgid "Please specify a tag ID"
 msgstr "Por favor, especifique un ID de etiqueta"
 
-#, python-format
-msgid "Please specify a title for your tag group \"%s\"."
+#, fuzzy, python-format
+msgid "Please specify a title for your tag group \"%(tag_group_id)s\"."
 msgstr "Por favor, especifique un título para su grupo de etiquetas \"%s\"."
 
 msgid "Please specify a title."
@@ -52970,12 +53029,12 @@ msgstr "Por favor, especifique las extensiones en minúsculas y sin punto."
 msgid "Please specify the name of the status host."
 msgstr "Por favor, especifique el nombre del host de estado."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Please specify the path to the export file. The text <tt>[HOST]</tt> will be "
 "replaced with the host name the inventory has been done for. If you use a "
 "relative path then that will be relative to Checkmk's directory for variable "
-"data, which is <tt>%s</tt>."
+"data, which is <tt>%(var_dir)s</tt>."
 msgstr ""
 "Especifique la ruta del archivo de exportación. El texto <tt>[HOST]</tt> se "
 "sustituirá por el nombre del host para el que se ha realizado el inventario. "
@@ -53419,7 +53478,8 @@ msgid "Precision of float values"
 msgstr "Precisión de los valores flotantes"
 
 #, python-format
-msgid "Precision: %d fractional digits, rounding mode: %s"
+msgid ""
+"Precision: %(digits)d fractional digits, rounding mode: %(rounding_mode)s"
 msgstr ""
 
 msgid "Precompiled"
@@ -54009,7 +54069,7 @@ msgstr "Proporcionar la configuración del proxy"
 #, fuzzy, python-format
 msgid ""
 "Provide the base URL for Docker API engine calls. By default we are trying "
-"to connect via the Unix socket at %s."
+"to connect via the Unix socket at %(socket_path)s."
 msgstr ""
 "Proporciona la URL base para las llamadas al motor de la API de Docker. Por "
 "defecto se intenta conectar a través del socket unix en %s."
@@ -55182,8 +55242,8 @@ msgstr "Destinatario"
 msgid "Recipient email address"
 msgstr "Dirección de correo electrónico del destinatario"
 
-#, python-format
-msgid "Recipients: %s"
+#, fuzzy, python-format
+msgid "Recipients: %(recipients)s"
 msgstr "Destinatarios: %s"
 
 msgid "Reclaimable"
@@ -55521,7 +55581,7 @@ msgstr "Nombre de seguridad"
 
 #, fuzzy
 msgid ""
-"Register the Agent Updater for all hosts and download all monitoring agents "
+"Register the agent updater for all hosts and download all monitoring agents "
 "that have been created with the Agent Bakery, even if you are not a contact "
 "for the host in question. These agents might contain confidential "
 "information such as passwords.<br>Note: This permission is not sufficient "
@@ -55535,7 +55595,7 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"Register the Agent Updater for hosts that you are a contact for and download "
+"Register the agent updater for hosts that you are a contact for and download "
 "monitoring agents that have been created with the Agent Bakery for these "
 "hosts. These agents might contain confidential information such as passwords."
 "<br>Note: This permission is not sufficient for registering the Agent "
@@ -57013,8 +57073,8 @@ msgstr "Restaurar"
 msgid "Restore from backup"
 msgstr "Restaurar desde una copia de seguridad"
 
-#, python-format
-msgid "Restore from target: %s"
+#, fuzzy, python-format
+msgid "Restore from target: %(title)s"
 msgstr "Restaurar desde el objetivo: %s"
 
 msgid "Restore from this backup target"
@@ -57923,13 +57983,13 @@ msgid "Running On-Demand X instances"
 msgstr "Ejecución de instancias X a la carta"
 
 #, fuzzy, python-format
-msgid ""
-"Running Quick Setup %(quick_setup_id)s stage %(stage_index)s action "
-"%(action_id)s"
+msgid "Running Quick Setup %(quick_setup_id)s action %(action_id)s"
 msgstr "Sesiones de trabajo"
 
 #, fuzzy, python-format
-msgid "Running Quick Setup %s action %s"
+msgid ""
+"Running Quick Setup %(quick_setup_id)s stage %(stage_index)s action "
+"%(action_id)s"
 msgstr "Sesiones de trabajo"
 
 msgid "Running VMs"
@@ -57992,9 +58052,6 @@ msgstr "SAML"
 msgid "SAML 2.0"
 msgstr "SAML 2.0"
 
-msgid "SAML authentication"
-msgstr "Autenticación SAML"
-
 #, fuzzy
 msgid "SAML built-in encryption certificate"
 msgstr "Certificado del router SAP"
@@ -58010,13 +58067,17 @@ msgstr "Conexiones SAML"
 msgid "SAML connections"
 msgstr "Conexiones SAML"
 
+#, fuzzy
+msgid "SAML connector"
+msgstr "Conexiones SAML"
+
 #, fuzzy, python-format
-msgid "SAML custom encryption certificate for the connection '%s'"
+msgid "SAML custom encryption certificate for the connection '%(connection)s'"
 msgstr "Configuración de la hora del certificado del router SAP"
 
-#, python-format
-msgid "SAML custom signing certificate for the connection '%s'"
-msgstr ""
+#, fuzzy, python-format
+msgid "SAML custom signing certificate for the connection '%(connection)s'"
+msgstr "Configuración de la hora del certificado del router SAP"
 
 msgid "SAN"
 msgstr "SAN"
@@ -58686,6 +58747,12 @@ msgstr ""
 msgid "Saved"
 msgstr "Guardar"
 
+#, fuzzy, python-format
+msgid ""
+"Saved check configuration of host '%(host_name)s' with %(services)d services"
+msgstr ""
+"Comprobación guardada de la configuración del host '%s' con los servicios %d"
+
 #, python-format
 msgid "Saved check configuration of host '%s' with %d services"
 msgstr ""
@@ -58721,7 +58788,7 @@ msgid "Schedule a downtime?"
 msgstr "Programar los tiempos de inactividad"
 
 #, fuzzy, python-format
-msgid "Schedule a periodic downtime every %s"
+msgid "Schedule a periodic downtime every %(interval)s"
 msgstr "programar una parada periódica cada %s"
 
 #, fuzzy
@@ -58869,9 +58936,9 @@ msgstr "Scripts"
 msgid "Search"
 msgstr "Buscar"
 
-#, python-format
-msgid "Search %s"
-msgstr "Buscar %s"
+#, fuzzy, python-format
+msgid "Search %(title)s"
+msgstr "Mostrar %(title)s"
 
 #, fuzzy
 msgid "Search across Checkmk"
@@ -59620,7 +59687,7 @@ msgid "Selected"
 msgstr "Seleccionado"
 
 #, fuzzy, python-format
-msgid "Selected %s have been deleted."
+msgid "Selected %(title_plural)s have been deleted."
 msgstr "Los %s seleccionados han sido borrados."
 
 #, fuzzy
@@ -62680,7 +62747,7 @@ msgid ""
 "Some agent commands or plug-ins may follow the environment variable TMPDIR "
 "for storage of temporary files. For some reasons, you might want to adapt "
 "this path. Namely, the agent updater won't work with a \"/tmp\" dir that is "
-"mounted with a \"noexec\"-flag. Please note that the Checkmk Agent does no "
+"mounted with a \"noexec\"-flag. Please note that the Checkmk agent does no "
 "automatic cleaning on this custom path."
 msgstr ""
 "Algunos comandos o plugins del agente pueden seguir la variable de entorno "
@@ -62963,9 +63030,9 @@ msgstr "Lo sentimos, no puede editar la carpeta %s. Está bloqueada."
 
 #, fuzzy, python-format
 msgid ""
-"Sorry, you cannot have more than %(_COMBINED_GRAPH_METRICS_LIMIT)d metrics "
-"in a combined graph. This is not a bug, but a deliberate limitation to avoid "
-"performance issues. Please add more filters to match on less metrics."
+"Sorry, you cannot have more than %(metrics_limit)d metrics in a combined "
+"graph. This is not a bug, but a deliberate limitation to avoid performance "
+"issues. Please add more filters to match on less metrics."
 msgstr ""
 "Lo sentimos, no puede tener más de %d métricas en un gráfico combinado. "
 "Añada más filtros para que coincidan menos métricas."
@@ -62993,8 +63060,10 @@ msgstr ""
 msgid "Sorry, you lack the permission for editing this type of visuals."
 msgstr "Lo siento, no tienes permiso para editar este tipo de imágenes."
 
-#, python-format
-msgid "Sorry, you lack the permission. Operation: %s, table: %s"
+#, fuzzy, python-format
+msgid ""
+"Sorry, you lack the permission. Operation: %(permission_name)s, table: "
+"%(table)s"
 msgstr "Lo sentimos, carece de permiso. Operación: %s, tabla: %s"
 
 msgid "Sorry, your user account does not exist."
@@ -63019,6 +63088,10 @@ msgstr "Lo siento. Este comando no está implementado."
 
 msgid "Sort"
 msgstr "Ordenar"
+
+#, fuzzy, python-format
+msgid "Sort by %(title)s"
+msgstr "Mostrar %(title)s"
 
 #, python-format
 msgid "Sort by %s"
@@ -64122,8 +64195,8 @@ msgstr "Inicie"
 msgid "Started"
 msgstr "Comenzó"
 
-#, python-format
-msgid "Started at %s"
+#, fuzzy, python-format
+msgid "Started at %(started)s"
 msgstr "Comenzó en %s"
 
 #, python-format
@@ -66428,8 +66501,8 @@ msgstr "Etiqueta: %s"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#, python-format
-msgid "Tags IDs must be unique. You've used \"%s\" twice."
+#, fuzzy, python-format
+msgid "Tags IDs must be unique. You've used \"%(tag_id)s\" twice."
 msgstr ""
 "Los ID de las etiquetas deben ser únicos. Has utilizado \"%s\" dos veces."
 
@@ -66924,6 +66997,19 @@ msgid "The %(pagetype_title)s you are trying to delete does not exist."
 msgstr "El %(pagetype_title)s que está intentando borrar no existe."
 
 #, python-format
+msgid ""
+"The %(title_str)s is required but not specified or too long. Please enter a "
+"name that is not yet in use and is no longer than 253 characters."
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"The %(type_title)s is only visible to you because you don't have the "
+"permission to share it."
+msgstr ""
+"El %s sólo es visible para ti porque no tienes permiso para compartirlo."
+
+#, python-format
 msgid "The %(what)s started flapping"
 msgstr "Los %(what)s empezaron a aletear"
 
@@ -66938,19 +67024,6 @@ msgstr "El %s no existe."
 #, python-format
 msgid "The %s has been deleted."
 msgstr "El %s ha sido borrado."
-
-#, python-format
-msgid ""
-"The %s is only visible to you because you don't have the permission to share "
-"it."
-msgstr ""
-"El %s sólo es visible para ti porque no tienes permiso para compartirlo."
-
-#, python-format
-msgid ""
-"The %s is required but not specified or too long. Please enter a name that "
-"is not yet in use and is no longer than 253 characters."
-msgstr ""
 
 msgid ""
 "The 'Manage all scheduled reports' permission is required to send scheduled "
@@ -67282,8 +67355,8 @@ msgstr "La consola de eventos está desactivada (\"omd config\")."
 
 #, fuzzy, python-format
 msgid ""
-"The Event Console view '%s' cannot be rendered. The Event Console might be "
-"disabled."
+"The Event Console view '%(view_name)s' cannot be rendered. The Event Console "
+"might be disabled."
 msgstr ""
 "La vista de la Consola de Eventos '%s' no se puede mostrar. La Consola de "
 "Eventos está posiblemente deshabilitada."
@@ -67395,8 +67468,8 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "The ID will be used do identify this page in URLs. If this page has the same "
-"ID as a built-in page of the type <i>%s</i> then it will shadow the built-in "
-"one."
+"ID as a built-in page of the type <i>%(title)s</i> then it will shadow the "
+"built-in one."
 msgstr ""
 "El ID se utilizará para identificar esta página en las URL. Si esta página "
 "tiene el mismo ID que una página incorporada del tipo <i>%s</i>, entonces "
@@ -67499,6 +67572,18 @@ msgstr ""
 "de nombres sólo tienen que proporcionar su nombre de usuario normal como de "
 "costumbre."
 
+msgid ""
+"The Linux Agent Controller is available as x86 64-bit (x86-64) and ARM 64-"
+"bit (aarch64) executables.\n"
+"By default, only the x86-64 version will be included in Linux agent "
+"packages.\n"
+"Here you can choose to alternatively or additionally include the ARM "
+"executable.\n"
+"The agent package installation scripts will automatically select the correct "
+"binary, depending on the target system's architecture and the available "
+"binaries."
+msgstr ""
+
 #, fuzzy
 msgid ""
 "The Linux RPM packages built by the Agent Bakery are packaged independently "
@@ -67511,18 +67596,6 @@ msgstr ""
 "tanto, las etiquetas <tt>DISTRIBUTION</tt> y <tt>DISTTAG</tt> se dejan "
 "vacías dentro del archivo de especificaciones RPM. Aquí, usted puede "
 "especificar manualmente estas etiquetas."
-
-msgid ""
-"The Linux agent controller is available as x86 64-bit (x86-64) and ARM 64-"
-"bit (aarch64) executables.\n"
-"By default, only the x86-64 version will be included in Linux agent "
-"packages.\n"
-"Here you can choose to alternatively or additionally include the ARM "
-"executable.\n"
-"The agent package installation scripts will automatically select the correct "
-"binary, depending on the target system's architecture and the available "
-"binaries."
-msgstr ""
 
 #, fuzzy
 msgid ""
@@ -67969,7 +68042,7 @@ msgstr ""
 msgid ""
 "The agent will update itself only with packages that are signed by one of "
 "these keys. You need to specify at least one key. Keys are being created <a "
-"href='%s' target='_blank'>here</a>."
+"href='%(url)s' target='_blank'>here</a>."
 msgstr ""
 "El agente se actualizará sólo con los paquetes que estén firmados por una de "
 "estas claves. Es necesario especificar al menos una clave. Las claves se "
@@ -68375,13 +68448,13 @@ msgid "The complete hardware and software inventory of a host"
 msgstr "El inventario completo de hardware y software de un host"
 
 #, fuzzy, python-format
-msgid "The configuration bundle %s does not exist"
+msgid "The configuration bundle %(bundle_id)s does not exist"
 msgstr "El sitio \"%s\" no existe."
 
 #, python-format
 msgid ""
-"The configuration bundle '%s' is not valid. This likely means that parts of "
-"it were removed or not properly created."
+"The configuration bundle '%(bundle_id)s' is not valid. This likely means "
+"that parts of it were removed or not properly created."
 msgstr ""
 
 msgid "The configuration is currently in read only mode. "
@@ -68792,9 +68865,10 @@ msgstr ""
 "híbridos. Considere reducirlos si su sistema de almacenamiento es totalmente "
 "flash."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The default theme \"%s\" is not given among the found theme choices: %s."
+"The default theme \"%(default_theme)s\" is not given among the found theme "
+"choices: %(theme_choices)s."
 msgstr ""
 "El tema por defecto \"%s\" no se da entre las opciones de tema encontradas: "
 "%s."
@@ -69019,8 +69093,8 @@ msgstr ""
 "El uso del fetcher es inferior al 50%, puede disminuir el número de fetchers "
 "para reducir el consumo de memoria."
 
-#, python-format
-msgid "The file %s needs to be created and maintained manually."
+#, fuzzy, python-format
+msgid "The file %(file)s needs to be created and maintained manually."
 msgstr "El archivo %s debe ser creado y mantenido manualmente."
 
 msgid ""
@@ -69295,8 +69369,8 @@ msgstr "El ajuste global \"%s\" no existe."
 msgid "The graph specification is"
 msgstr "La especificación del gráfico es"
 
-#, python-format
-msgid "The graph template id '%s' is disabled"
+#, fuzzy, python-format
+msgid "The graph template id '%(graph_template)s' is disabled"
 msgstr "El identificador de la plantilla gráfica '%s' está desactivado"
 
 #, fuzzy
@@ -69310,9 +69384,10 @@ msgstr ""
 msgid "The graphical user interface (GUI) URL must end with /check_mk/"
 msgstr "La URL del multisitio debe terminar en /check_mk/"
 
+#, fuzzy
 msgid ""
 "The handled messages (see <i>subject matching</i>) can be cleaned up by "
-"either deleting them or moving them to a subfolder. By default nothing is "
+"either deleting them or moving them to a subfolder. By default, nothing is "
 "cleaned up."
 msgstr ""
 "Los mensajes manipulados (véase <i>coordinación de asuntos</i>) pueden "
@@ -69591,7 +69666,9 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "The key / certificate already exists (key: %s, description: %s)"
+msgid ""
+"The key / certificate already exists (key: %(key_id)s, description: "
+"%(alias)s)"
 msgstr "El par de claves ya existe (Clave: %d, Descripción: %s)"
 
 msgid "The key file is invalid or the password is wrong."
@@ -70162,6 +70239,16 @@ msgstr "El nombre que se utilizará en la descripción del servicio"
 msgid "The name will be used in the service name"
 msgstr "El nombre se utilizará en la descripción del servicio"
 
+#, fuzzy, python-format
+msgid ""
+"The navigation allows to hide items based on a show less / show more toggle. "
+"You can specify here whether or not this %(title_plural)s should only be "
+"shown with show more %(title_plural_show_more)s."
+msgstr ""
+"La navegación permite ocultar elementos en base a un toggle de mostrar "
+"menos / mostrar más. Aquí se puede especificar si este %s sólo debe "
+"mostrarse con mostrar más %s."
+
 #, python-format
 msgid ""
 "The navigation allows to hide items based on a show less / show more toggle. "
@@ -70275,11 +70362,11 @@ msgstr ""
 msgid "The number of elements in the tuple must be exactly %d."
 msgstr "El número de elementos de la tupla debe ser exactamente %d."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "The number of incoming and processed agent registration requests are not the "
 "same:\n"
-"%s"
+"%(diffs)s"
 msgstr ""
 "El número de solicitudes de registro de agentes entrantes y procesadas no es "
 "el mismo:\n"
@@ -70362,7 +70449,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"The old bakery plug-in API will be removed in Checkmk version 2.6. Plug-in "
+"The old Bakery plug-in API will be removed in Checkmk version 2.6. Plug-in "
 "files in <tt>'%s'</tt> will be ignored. Please migrate the plug-ins to the "
 "new API."
 msgstr ""
@@ -70850,13 +70937,13 @@ msgstr ""
 msgid "The report you are trying to preview is not available"
 msgstr "El informe que intenta ver no está disponible"
 
+#, fuzzy, python-format
+msgid "The requested %(title)s does not exist"
+msgstr "El sitio solicitado no existe"
+
 #, python-format
 msgid "The requested %s %s does not exist"
 msgstr "El archivo %s %s solicitado no existe"
-
-#, python-format
-msgid "The requested %s does not exist"
-msgstr "El archivo %s solicitado no existe"
 
 msgid "The requested BI aggregation does not exist."
 msgstr "La agregación de BI solicitada no existe."
@@ -70941,20 +71028,21 @@ msgstr "La restauración se ha detenido."
 
 #, python-format
 msgid ""
-"The result of your query hit the maximum number of %s time series. Please "
-"narrow down your queries for the following metrics: %s"
+"The result of your query hit the maximum number of %(count)s time series. "
+"Please narrow down your queries for the following metrics: %(metrics)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"The result of your query hit the maximum number of %s time series. Please "
-"narrow down your query."
+"The result of your query hit the maximum number of %(count)s time series. "
+"Please narrow down your query."
 msgstr ""
 
 #, python-format
 msgid ""
-"The result of your query hit the maximum number of %s time series. Please "
-"narrow down your query. See graph '<a href='%s'>%s</a>' for further details."
+"The result of your query hit the maximum number of %(count)s time series. "
+"Please narrow down your query. See graph '<a href='%(url)s'>%(title)s</a>' "
+"for further details."
 msgstr ""
 
 msgid ""
@@ -71390,8 +71478,8 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"The sites %s are not using the Checkmk Micro Core. You will not be able to "
-"use metrics of hosts monitored by these sites."
+"The sites %(sites)s are not using the Checkmk Micro Core. You will not be "
+"able to use metrics of hosts monitored by these sites."
 msgstr ""
 "Los sitios %s no utilizan Checkmk Microcore. No podrá utilizar las métricas "
 "de los hosts supervisados por estos sitios."
@@ -71553,16 +71641,16 @@ msgid ""
 "The tag ID \"%(aux_tag)s\" does already exist in the list of auxiliary tags."
 msgstr "La etiqueta ID \"%s\" ya existe en la lista de etiquetas auxiliares."
 
-#, python-format
-msgid "The tag ID \"%s\" is used twice."
+#, fuzzy, python-format
+msgid "The tag ID \"%(aux_tag_id)s\" is used twice."
 msgstr "La etiqueta ID \"%s\" se utiliza dos veces."
 
-#, python-format
-msgid "The tag group \"%s\" is reserved for internal use."
+#, fuzzy, python-format
+msgid "The tag group \"%(tag_group_id)s\" is reserved for internal use."
 msgstr "El grupo de etiquetas \"%s\" está reservado para uso interno."
 
-#, python-format
-msgid "The tag group ID \"%s\" is used twice."
+#, fuzzy, python-format
+msgid "The tag group ID \"%(tag_group_id)s\" is used twice."
 msgstr "El ID del grupo de etiquetas \"%s\" se utiliza dos veces."
 
 msgid "The target has been deleted."
@@ -71949,7 +72037,7 @@ msgid "The value is not valid: '%(exception)s'"
 msgstr "El valor no es válido: '%(exception)s'"
 
 #, fuzzy, python-format
-msgid "The value must be of type MetricSpec, but it has type %s"
+msgid "The value must be of type MetricSpec, but it has type %(type)s"
 msgstr "El valor debe ser de tipo str, pero tiene el tipo %s"
 
 #, python-format
@@ -71984,12 +72072,16 @@ msgstr ""
 msgid "The value of this rule is not valid. "
 msgstr "El valor de esta regla no es válido. "
 
-#, python-format
-msgid "The values of the label '%s' are not equal: %r != %r"
+#, fuzzy, python-format
+msgid ""
+"The values of the label '%(label_name)s' are not equal: %(cmp_value)r != "
+"%(label_value)r"
 msgstr "Los valores de la etiqueta '%s' no son iguales: '%r != '%r'"
 
-#, python-format
-msgid "The values of the label '%s' do not match: %r !~ %r."
+#, fuzzy, python-format
+msgid ""
+"The values of the label '%(label_name)s' do not match: %(pattern)r !~ "
+"%(label_value)r."
 msgstr "Los valores de la etiqueta '%s' no coinciden: '%r !~ '%r'."
 
 msgid "The verification cannot be started due to missing CA certificate"
@@ -72002,16 +72094,16 @@ msgstr "La versión de este sitio no es una %s"
 
 #, fuzzy, python-format
 msgid ""
-"The view '%s' using the data source '%s' can not be rendered because the "
-"data source does not exist."
+"The view '%(view_name)s' using the data source '%(data_source)s' can not be "
+"rendered because the data source does not exist."
 msgstr ""
 "La vista '%s' que utiliza la fuente de datos '%s' no puede ser representada "
 "porque la fuente de datos no existe."
 
 #, fuzzy, python-format
 msgid ""
-"The view '%s' using the layout '%s' cannot be rendered because the layout "
-"does not exist."
+"The view '%(view_name)s' using the layout '%(layout_name)s' cannot be "
+"rendered because the layout does not exist."
 msgstr ""
 "La vista '%s' que utiliza el diseño '%s' no puede ser representada porque el "
 "diseño no existe."
@@ -72252,8 +72344,8 @@ msgstr "Estos hosts han instalado la versión correcta de su agente."
 
 #, fuzzy, python-format
 msgid ""
-"These labels can be referred to by the rule set \"%s\", to control the "
-"behavior during host creation."
+"These labels can be referred to by the rule set \"%(rule_set)s\", to control "
+"the behavior during host creation."
 msgstr ""
 "Estas etiquetas pueden ser referenciadas por el conjunto de reglas \"%s\", "
 "para controlar el comportamiento durante la creación del host."
@@ -73192,7 +73284,7 @@ msgid ""
 "associated with an older version of Checkmk or an unused extension package, "
 "in which case it can be safely removed. Alternatively, it might belong to a "
 "temporarily disabled extension package, so you may want to retain it for "
-"now. You can use the %s page in case you want to remove the rule."
+"now. You can use the %(link)s page in case you want to remove the rule."
 msgstr ""
 
 msgid ""
@@ -73412,12 +73504,14 @@ msgstr "Este filtro no se puede mostrar"
 msgid "This forecast graph"
 msgstr "Este gráfico de previsión"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"This graph is based on data consolidated with the function \"%s\". The "
-"values in this column are the \"%s\" values of the \"%s\" values aggregated "
-"in %s steps. Assuming a check interval of 1 minute, the %s values here are "
-"based on the %s value out of %d raw values."
+"This graph is based on data consolidated with the function "
+"\"%(consolidation_function)s\". The values in this column are the "
+"\"%(scalar_type)s\" values of the \"%(consolidation_function)s\" values "
+"aggregated in %(step_label)s steps. Assuming a check interval of 1 minute, "
+"the %(scalar_type)s values here are based on the %(consolidation_function)s "
+"value out of %(raw_count)d raw values."
 msgstr ""
 "Este gráfico se basa en datos consolidados con la función \"%s\". Los "
 "valores de esta columna son los valores \"%s\" de los valores \"%s\" "
@@ -73430,7 +73524,7 @@ msgid ""
 "This graph recipe cannot be rendered. Maybe it is a deprecated definition. "
 "Please try to remove and add the graph again.\n"
 "\n"
-"%s"
+"%(element)s"
 msgstr ""
 "Esta funcion del gráfico no puede ser representada. Tal vez sea una "
 "definición obsoleta. Por favor, intente eliminar y añadir la gráfica de "
@@ -73763,8 +73857,10 @@ msgid ""
 "next major version onwards."
 msgstr ""
 
-#, python-format
-msgid "This message has been created at %s and is valid till %s."
+#, fuzzy, python-format
+msgid ""
+"This message has been created at %(created_at)s and is valid till "
+"%(valid_till)s."
 msgstr "Este mensaje se ha creado en %s y es válido hasta %s."
 
 msgid ""
@@ -75026,14 +75122,15 @@ msgstr ""
 "Esta regla permite establecer los niveles de advertencia y crit de los pools "
 "de memoria en los servidores de aplicaciones web."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "This rule allows you to bake controller connections into an agent package. "
 "Upon start, the controller daemon will make sure connections to the "
 "specified sites exist. If they don't, the controller will try to issue the "
 "'register-new' command using the specified parameters.\n"
 "\n"
-"For this to work, you have to configure a corresponding rule \"%s\".\n"
+"For this to work, you have to configure a corresponding rule "
+"\"%(rule_set)s\".\n"
 "\n"
 "You can choose to keep or to delete all other connections that may be known "
 "to the controller."
@@ -75441,8 +75538,8 @@ msgstr ""
 msgid "This rule is currently disabled and will not be applied"
 msgstr "Esta regla está actualmente desactivada y no se aplicará"
 
-#, python-format
-msgid "This rule is deprecated. Please use \"%s\" instead."
+#, fuzzy, python-format
+msgid "This rule is deprecated. Please use \"%(name)s\" instead."
 msgstr "Esta regla está obsoleta. Por favor, utilice \"%s\" en su lugar."
 
 msgid "This rule is disabled"
@@ -75503,8 +75600,8 @@ msgstr ""
 msgid "This rule matches."
 msgstr "Esta regla coincide."
 
-#, python-format
-msgid "This rule matches: %s"
+#, fuzzy, python-format
+msgid "This rule matches: %(hostname_info)s"
 msgstr "Esta regla coincide con: %s"
 
 msgid "This rule pack can be packaged with the Extension Packages module."
@@ -76638,10 +76735,10 @@ msgstr "Este sufijo ya es utilizado por la conexión %s. Por favor, elija otro."
 msgid "This synchronization plug-in has no parameters."
 msgstr "Este plugin de sincronización no tiene parámetros."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"This table is limited to show only %d of %d rows. Click <a href=\"%s\">here</"
-"a> to disable the limitation."
+"This table is limited to show only %(limit)d of %(total)d rows. Click <a "
+"href=\"%(url)s\">here</a> to disable the limitation."
 msgstr ""
 "Esta tabla está limitada para mostrar sólo %d de %d filas. Haga clic en <a "
 "href=\"%s\">aquí</a> para desactivar la limitación."
@@ -77881,7 +77978,7 @@ msgid ""
 "To be able to restore your encrypted backups, you need to download and keep "
 "the backup encryption keys in a safe place. If you lose your keys or the "
 "keys passphrases, your backup can not be restored.<br>The following keys "
-"have not been downloaded yet: %s"
+"have not been downloaded yet: %(keys)s"
 msgstr ""
 "Para poder restaurar sus copias de seguridad encriptadas, necesita descargar "
 "y guardar las claves de encriptación de las copias de seguridad en un lugar "
@@ -77976,7 +78073,7 @@ msgstr ""
 #, fuzzy, python-format
 msgid ""
 "To prevent the agent updater from being locked out, the maximum allowed "
-"update interval is set to %s seconds (30 days)"
+"update interval is set to %(max_interval)s seconds (30 days)"
 msgstr ""
 "Para evitar que se bloquee el actualizador de agentes, el intervalo de "
 "actualización máximo permitido se establece en {bound} (Ha introducido "
@@ -81201,8 +81298,8 @@ msgstr "Martes"
 msgid "Tug Boat"
 msgstr "Remolcador"
 
-#, python-format
-msgid "Tune forecast model - %s"
+#, fuzzy, python-format
+msgid "Tune forecast model - %(title)s"
 msgstr "Afinar el modelo de previsión - %s"
 
 #, fuzzy
@@ -81777,11 +81874,11 @@ msgstr ""
 "programador de informes, al informe o al elemento del informe o llamar a la "
 "creación del informe con las variables HTTP que faltan."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Unable to render this view, because we miss some required context "
-"information (%s). Please update the form on the right to make this view "
-"render."
+"information (%(single_infos)s). Please update the form on the right to make "
+"this view render."
 msgstr ""
 "No se ha podido representar esta vista porque falta alguna información de "
 "contexto necesaria (%s). Por favor, actualice el formulario de la derecha "
@@ -81887,8 +81984,8 @@ msgstr "Gráfico personalizado indefinido '%s'"
 msgid "Undefined key '%s' in the dictionary. Allowed are %s."
 msgstr "Clave indefinida '%s' en el diccionario. Las permitidas son %s."
 
-#, python-format
-msgid "Undefined operator '%s' in graph expression"
+#, fuzzy, python-format
+msgid "Undefined operator '%(operator)s' in graph expression"
 msgstr "Operador indefinido '%s' en una expresión gráfica"
 
 msgid "Understanding and configuring services"
@@ -82139,8 +82236,8 @@ msgstr "Sitio desconocido (%s)"
 msgid "Unknown site: %(raw_site)s"
 msgstr "Sitio desconocido %s"
 
-#, python-format
-msgid "Unknown tag group \"%s\""
+#, fuzzy, python-format
+msgid "Unknown tag group \"%(tag_group_id)s\""
 msgstr "Grupo de etiquetas desconocido \"%s\""
 
 #, python-format
@@ -82151,8 +82248,9 @@ msgstr "Etiqueta desconocida: El host tiene <b>no</b> la etiqueta <tt>%s</tt>"
 msgid "Unknown tag: Host has the tag <tt>%s</tt>"
 msgstr "Etiqueta desconocida: El host tiene la etiqueta <tt>%s</tt>"
 
-#, python-format
-msgid "Unknown target type: %s. Available types: %s."
+#, fuzzy, python-format
+msgid ""
+"Unknown target type: %(target_type)s. Available types: %(available_types)s."
 msgstr "Tipo de objetivo desconocido: %s. Tipos disponibles: %s."
 
 msgid "Unknown user"
@@ -85555,7 +85653,7 @@ msgid "Value Type"
 msgstr "Tipo de valor"
 
 #, fuzzy, python-format
-msgid "Value must be one of '%s'"
+msgid "Value must be one of '%(allowed_values)s'"
 msgstr "debe ser igual a '%s'"
 
 #, python-brace-format
@@ -86393,7 +86491,7 @@ msgid "Warning (lower)"
 msgstr "Advertencia"
 
 #, fuzzy, python-format
-msgid "Warning (lower) of %s"
+msgid "Warning (lower) of %(title)s"
 msgstr "Advertencia si %s"
 
 msgid "Warning above"
@@ -86539,7 +86637,7 @@ msgid "Warning levels for time offset"
 msgstr "Niveles de advertencia para el desfase horario"
 
 #, fuzzy, python-format
-msgid "Warning of %s"
+msgid "Warning of %(title)s"
 msgstr "Advertencia si %s"
 
 #, fuzzy
@@ -86763,8 +86861,8 @@ msgstr "Bienvenido a Checkmk Mobile."
 msgid "Werk"
 msgstr "Trabajo"
 
-#, python-format
-msgid "Werk %s - %s has been acknowledged."
+#, fuzzy, python-format
+msgid "Werk %(werk_id)s - %(title)s has been acknowledged."
 msgstr "Werk %s - %s ha sido reconocido."
 
 msgid "Werk ID"
@@ -86776,8 +86874,8 @@ msgstr "Título o contenido de la obra"
 msgid "Werks"
 msgstr "Werks"
 
-#, python-format
-msgid "Werks only concerning the %s"
+#, fuzzy, python-format
+msgid "Werks only concerning the %(title)s"
 msgstr "Trabaja sólo en lo que respecta a la %s"
 
 msgid "What is the occasion?"
@@ -89270,6 +89368,16 @@ msgstr ""
 "<a href=\"wato.py?mode=icons\">iconos personalizados</a> a estas categorías. "
 "Entonces se mostrarán bajo esta categoría en el selector de iconos."
 
+#, fuzzy, python-format
+msgid ""
+"You can customize the order of the %(title_plural)s by changing this number. "
+"Lower numbers will be sorted first. Topics with the same number will be "
+"sorted alphabetically."
+msgstr ""
+"Puede personalizar el orden de los %s cambiando este número. Los números más "
+"bajos se ordenarán primero. Los temas con el mismo número se ordenarán "
+"alfabéticamente."
+
 #, python-format
 msgid ""
 "You can customize the order of the %s by changing this number. Lower numbers "
@@ -89964,10 +90072,10 @@ msgstr "No puede eliminar este %s porque está <a href=\"%s\">en uso</a>."
 msgid "You cannot delete this %s group."
 msgstr "No puede eliminar este grupo %s."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "You cannot delete this auxiliary tag. It is being used by the following tag "
-"groups: \"%s\""
+"groups: \"%(tag_groups)s\""
 msgstr ""
 "No puede eliminar esta etiqueta auxiliar. La utilizan los siguientes grupos "
 "de etiquetas: \"%s\""
@@ -90047,7 +90155,8 @@ msgstr "No puede eliminar esta regla: sigue siendo utilizada por otras reglas."
 
 #, fuzzy, python-format
 msgid ""
-"You cannot delete this target because it is used by these backup jobs: %s"
+"You cannot delete this target because it is used by these backup jobs: "
+"%(jobs)s"
 msgstr ""
 "No puede eliminar este objetivo porque es utilizado por estos trabajos de "
 "copia de seguridad: %s"
@@ -90108,11 +90217,19 @@ msgstr ""
 "para dispositivos de bloque', 'Aspecto del elemento' o 'Agrupación'"
 
 #, fuzzy, python-format
-msgid "You cannot override the built-in auxiliary tag \"%s\"."
+msgid "You cannot override the built-in auxiliary tag \"%(aux_tag_id)s\"."
 msgstr "No se puede anular la etiqueta auxiliar incorporada \"%s\"."
 
 #, fuzzy, python-format
-msgid "You cannot override the built-in tag group \"%s\"."
+msgid "You cannot override the built-in auxiliary tag \"%(tag_group_id)s\"."
+msgstr "No se puede anular la etiqueta auxiliar incorporada \"%s\"."
+
+#, fuzzy, python-format
+msgid "You cannot override the built-in tag group \"%(aux_tag_id)s\"."
+msgstr "No se puede anular el grupo de etiquetas incorporado \"%s\"."
+
+#, fuzzy, python-format
+msgid "You cannot override the built-in tag group \"%(tag_group_id)s\"."
 msgstr "No se puede anular el grupo de etiquetas incorporado \"%s\"."
 
 msgid "You cannot query for time ranges that are before the horizon."
@@ -90206,8 +90323,8 @@ msgstr "Has definido el host inexistente '%(parent_name)s' como padre."
 
 #, fuzzy, python-format
 msgid ""
-"You do not have permission to create a new host in the folder %s. Please "
-"choose a different folder."
+"You do not have permission to create a new host in the folder %(folder)s. "
+"Please choose a different folder."
 msgstr ""
 "Ya existe un host con el nombre <b><tt>%s</tt></b> en la carpeta <a "
 "href=\"%s\">%s</a>."
@@ -90223,8 +90340,8 @@ msgstr ""
 msgid "You do not have the permissions to design this graph."
 msgstr "Usted no tiene los permisos para diseñar este gráfico."
 
-#, python-format
-msgid "You do not have the permissions to edit this %s"
+#, fuzzy, python-format
+msgid "You do not have the permissions to edit this %(title)s"
 msgstr "No tienes permisos para editar este %s"
 
 msgid "You do not have the permissions to modify the forecast model."
@@ -90443,9 +90560,9 @@ msgstr ""
 "Sólo tiene que especificar valores diferentes de los valores por defecto que "
 "ha especificado anteriormente."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"You likely should enter <tt>%s</tt> here. However, in a distributed "
+"You likely should enter <tt>%(site)s</tt> here. However, in a distributed "
 "monitoring setup, the update site might differ."
 msgstr ""
 "Es probable que deba introducir aquí <tt>%s</tt>. Sin embargo, en una "
@@ -90620,10 +90737,10 @@ msgstr ""
 "agente especial para el dispositivo PLC separado por un espacio con el ident "
 "del valor que también está configurado en el agente especial."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"You need to configure a \"%s\" column and save the view first, to be able to "
-"sort by this column."
+"You need to configure a \"%(column)s\" column and save the view first, to be "
+"able to sort by this column."
 msgstr ""
 "Es necesario configurar una columna \"%s\" y guardar la vista primero, para "
 "poder ordenar por esta columna."
@@ -90715,8 +90832,8 @@ msgstr "Tienes que seleccionar un color."
 msgid "You need to select an icon."
 msgstr "Tienes que seleccionar un icono."
 
-#, python-format
-msgid "You need to set the \"%s\" parameter."
+#, fuzzy, python-format
+msgid "You need to set the \"%(parameter)s\" parameter."
 msgstr "Es necesario establecer el parámetro \"%s\"."
 
 msgid "You need to specify a backup job."
@@ -91076,12 +91193,12 @@ msgid "Zypper normal and security updates (Linux)"
 msgstr "Zypper normal y actualizaciones de seguridad (Linux)"
 
 #, fuzzy, python-format
-msgid "[%(title)s] - OAuth2 connection"
-msgstr "Añadir conexión"
+msgid "[%(instance_id)s] - Quick Setup"
+msgstr "Configuración rápida"
 
 #, fuzzy, python-format
-msgid "[%s] - Quick Setup"
-msgstr "Configuración rápida"
+msgid "[%(title)s] - OAuth2 connection"
+msgstr "Añadir conexión"
 
 #, python-format
 msgid "[%s] Finished sync for connection"
@@ -91563,8 +91680,8 @@ msgstr "dispositivos"
 msgid "diagFault"
 msgstr "diagFault"
 
-#, python-format
-msgid "directly in the folder <b>%s</b>"
+#, fuzzy, python-format
+msgid "directly in the folder <b>%(folder_title)s</b>"
 msgstr "directamente en la carpeta <b>%s</b>"
 
 msgid "disable"
@@ -92140,8 +92257,8 @@ msgstr "¡en el pasado!"
 msgid "in the same folder as the host"
 msgstr "en la misma carpeta que el host"
 
-#, python-format
-msgid "in the subfolder <b>%s/Parents</b>"
+#, fuzzy, python-format
+msgid "in the subfolder <b>%(folder_title)s/Parents</b>"
 msgstr "en la subcarpeta <b>%s/Parents</b>"
 
 msgid "in timezone"
@@ -92292,8 +92409,8 @@ msgstr "correos"
 msgid "maintenance"
 msgstr "mantenimiento"
 
-#, python-format
-msgid "manually configure %s"
+#, fuzzy, python-format
+msgid "manually configure %(file)s"
 msgstr "configurar manualmente %s"
 
 msgid "master"
@@ -92395,15 +92512,15 @@ msgstr "ms / entrada"
 msgid "ms/us"
 msgstr "ms/us"
 
-#, python-format
-msgid "must be equal to '%s'"
+#, fuzzy, python-format
+msgid "must be equal to '%(cmp_value)s'"
 msgstr "debe ser igual a '%s'"
 
 msgid "must match"
 msgstr "debe coincidir con"
 
-#, python-format
-msgid "must match '%s'"
+#, fuzzy, python-format
+msgid "must match '%(pattern)s'"
 msgstr "debe coincidir con '%s'"
 
 msgid "must not exist"
@@ -93720,12 +93837,93 @@ msgid "Time selection"
 msgstr "Selección de carpetas"
 
 #, fuzzy
-msgid "required"
-msgstr "Puerto requerido"
+msgid "(required)"
+msgstr " (es necesario)"
+
+#, fuzzy
+msgid "Expand all"
+msgstr "Ampliar"
+
+#, fuzzy
+msgid "Collapse all"
+msgstr "Elige todo"
+
+msgid "%{selected} of %{total} selected"
+msgstr ""
+
+#, fuzzy
+msgid "No filter category available"
+msgstr "No hay información disponible"
+
+msgid "Add filter from left panel"
+msgstr ""
+
+#, fuzzy
+msgid "Remove %{name} filter"
+msgstr "Eliminar el filtro"
+
+#, fuzzy
+msgid "No items selected"
+msgstr "No seleccionado"
+
+msgid "Placeholder for unknown component type:"
+msgstr ""
+
+#, fuzzy
+msgid "No labels"
+msgstr "Etiquetas de los nodos"
+
+#, fuzzy
+msgid "not"
+msgstr "no"
+
+#, fuzzy
+msgid "No labels selected"
+msgstr "No seleccionado"
+
+#, fuzzy
+msgid "No tag filters configured"
+msgstr "No hay rango de IP configurado"
+
+#, fuzzy
+msgid "Select an option..."
+msgstr "Conexiones rechazadas"
 
 #, fuzzy
 msgid "No options available"
 msgstr "No hay información disponible"
+
+#, fuzzy
+msgid "Type to search..."
+msgstr "Índices de búsqueda"
+
+#, fuzzy
+msgid "Select label..."
+msgstr "Seleccione el archivo"
+
+#, fuzzy
+msgid "Remove row"
+msgstr "Eliminado: %s"
+
+#, fuzzy
+msgid "Group Operator"
+msgstr "Ruta del grupo"
+
+#, fuzzy
+msgid "Select group..."
+msgstr "Conexiones rechazadas"
+
+#, fuzzy
+msgid "Select value..."
+msgstr "Seleccione la vista"
+
+#, fuzzy
+msgid "No filters found matching: %{search}"
+msgstr "Coincidencia de nombres de proceso"
+
+#, fuzzy
+msgid "required"
+msgstr "Puerto requerido"
 
 #, fuzzy
 msgid "Milliseconds"
@@ -93806,9 +94004,6 @@ msgstr "Establecer valores por defecto para todas las secciones"
 #, fuzzy
 msgid "Values can be overridden by runtime or widget filters."
 msgstr "No se puede anular el grupo de etiquetas incorporado \"%s\"."
-
-msgid "Add filter from left panel"
-msgstr ""
 
 msgid "Set required filters for viewers to enter on load."
 msgstr ""
@@ -93987,84 +94182,6 @@ msgstr "Expira"
 #, fuzzy
 msgid "Sharing expired on"
 msgstr "Expresión de agrupación"
-
-#, fuzzy
-msgid "No items selected"
-msgstr "No seleccionado"
-
-msgid "Placeholder for unknown component type:"
-msgstr ""
-
-#, fuzzy
-msgid "No labels"
-msgstr "Etiquetas de los nodos"
-
-#, fuzzy
-msgid "not"
-msgstr "no"
-
-#, fuzzy
-msgid "No labels selected"
-msgstr "No seleccionado"
-
-#, fuzzy
-msgid "No tag filters configured"
-msgstr "No hay rango de IP configurado"
-
-#, fuzzy
-msgid "Select an option..."
-msgstr "Conexiones rechazadas"
-
-#, fuzzy
-msgid "Type to search..."
-msgstr "Índices de búsqueda"
-
-#, fuzzy
-msgid "Select label..."
-msgstr "Seleccione el archivo"
-
-#, fuzzy
-msgid "Remove row"
-msgstr "Eliminado: %s"
-
-#, fuzzy
-msgid "Group Operator"
-msgstr "Ruta del grupo"
-
-#, fuzzy
-msgid "Select group..."
-msgstr "Conexiones rechazadas"
-
-#, fuzzy
-msgid "Select value..."
-msgstr "Seleccione la vista"
-
-#, fuzzy
-msgid "(required)"
-msgstr " (es necesario)"
-
-#, fuzzy
-msgid "Expand all"
-msgstr "Ampliar"
-
-#, fuzzy
-msgid "Collapse all"
-msgstr "Elige todo"
-
-msgid "%{selected} of %{total} selected"
-msgstr ""
-
-#, fuzzy
-msgid "No filter category available"
-msgstr "No hay información disponible"
-
-#, fuzzy
-msgid "No filters found matching: %{search}"
-msgstr "Coincidencia de nombres de proceso"
-
-#, fuzzy
-msgid "Remove %{name} filter"
-msgstr "Eliminar el filtro"
 
 #, fuzzy
 msgid "Widget"
@@ -98618,6 +98735,95 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, python-format
+#~ msgid "%s (%s)"
+#~ msgstr "%s (%s)"
+
+#, python-format
+#~ msgid "Added user %s"
+#~ msgstr "Añadir usuario %s"
+
+#, fuzzy
+#~ msgid "Agent Controller connections"
+#~ msgstr "Conexiones del controlador de agentes"
+
+#, python-format
+#~ msgid "Cannot load %s from %s: %s"
+#~ msgstr "No se puede cargar %s de %s: %s"
+
+#, fuzzy, python-format
+#~ msgid ""
+#~ "Cannot load HW/SW inventory of %s. Please remove the corrupted inventory "
+#~ "or status data tree files."
+#~ msgstr ""
+#~ "No se pueden cargar las entradas del historial de inventario de HW/SW %s. "
+#~ "Por favor, elimine los archivos corruptos."
+
+#, python-format
+#~ msgid "Cannot write configuration file \"%s\": %s"
+#~ msgstr "No se puede escribir el archivo de configuración \"%s\": %s"
+
+#, fuzzy, python-format
+#~ msgid "Command %s"
+#~ msgstr "Comandos"
+
+#, fuzzy, python-format
+#~ msgid "Configuration: %s"
+#~ msgstr "Configuración"
+
+#, python-format
+#~ msgid "ERROR %s: %s"
+#~ msgstr "ERROR %s: %s"
+
+#, fuzzy, python-format
+#~ msgid "Edited OTel Quick Setup configuration bundle: '%s'"
+#~ msgstr "Añadir configuración de estado"
+
+#, fuzzy, python-format
+#~ msgid "Edited Prometheus Quick Setup configuration bundle: '%s'"
+#~ msgstr "Añadir configuración de estado"
+
+#, fuzzy, python-format
+#~ msgid "Files in %s"
+#~ msgstr "Archivo: %s"
+
+#, python-format
+#~ msgid "Growth interrupted %d/%d"
+#~ msgstr "Crecimiento interrumpido %d/%d"
+
+#, fuzzy, python-format
+#~ msgid "Host name: %s"
+#~ msgstr "Nombre de host: %s"
+
+#, fuzzy, python-format
+#~ msgid "Metric: %s"
+#~ msgstr "Métrica"
+
+#, fuzzy, python-format
+#~ msgid "Running Quick Setup %s action %s"
+#~ msgstr "Sesiones de trabajo"
+
+#~ msgid "SAML authentication"
+#~ msgstr "Autenticación SAML"
+
+#, python-format
+#~ msgid "Search %s"
+#~ msgstr "Buscar %s"
+
+#, fuzzy, python-format
+#~ msgid ""
+#~ "Sorry, you cannot have more than %(_COMBINED_GRAPH_METRICS_LIMIT)d "
+#~ "metrics in a combined graph. This is not a bug, but a deliberate "
+#~ "limitation to avoid performance issues. Please add more filters to match "
+#~ "on less metrics."
+#~ msgstr ""
+#~ "Lo sentimos, no puede tener más de %d métricas en un gráfico combinado. "
+#~ "Añada más filtros para que coincidan menos métricas."
+
+#, python-format
+#~ msgid "The requested %s does not exist"
+#~ msgstr "El archivo %s solicitado no existe"
 
 #, fuzzy
 #~ msgid "Aerohive HiveManager NG / ExtremeCloud IQ"
