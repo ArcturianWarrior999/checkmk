@@ -37,9 +37,19 @@ class TestResolveBackendName:
         with patch.object(preparation, "is_clone_active", return_value=True):
             assert resolve_backend_name(None, "", _SITE_ROOT) == "clone"
 
-    def test_default_overlay(self) -> None:
-        with patch.object(preparation, "is_clone_active", return_value=False):
+    def test_active_overlay_detected_third(self) -> None:
+        with (
+            patch.object(preparation, "is_clone_active", return_value=False),
+            patch.object(preparation, "is_overlay_active", return_value=True),
+        ):
             assert resolve_backend_name(None, "", _SITE_ROOT) == "overlay"
+
+    def test_default_clone(self) -> None:
+        with (
+            patch.object(preparation, "is_clone_active", return_value=False),
+            patch.object(preparation, "is_overlay_active", return_value=False),
+        ):
+            assert resolve_backend_name(None, "", _SITE_ROOT) == "clone"
 
 
 class TestCreateBackend:

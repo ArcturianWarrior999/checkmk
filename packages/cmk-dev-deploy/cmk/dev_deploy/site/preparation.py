@@ -6,10 +6,9 @@
 
 Deployers write through ``site.root/...`` paths; a *site preparation
 backend* makes those paths writable for the deploy user.  The default
-backend mounts an OverlayFS over the site root (:mod:`overlay`).  The
-seam exists so the experimental clone backend (a writable per-site copy
-of the OMD version directory) can be selected with ``--backend`` without
-touching the overlay path.
+backend maintains a writable per-site clone of the OMD version directory
+(:mod:`version_clone`).  The legacy OverlayFS backend (:mod:`overlay`)
+remains selectable with ``--backend overlay``.
 
 The backend used for a site is recorded in the deploy state, so
 subsequent runs and ``--purge`` dispatch to the backend that actually
@@ -30,7 +29,7 @@ from cmk.dev_deploy.site.overlay_paths import OverlayPaths
 from cmk.dev_deploy.site.privilege import ensure_sudo, SSHState
 from cmk.dev_deploy.site.version_clone import ensure_clone, is_clone_active, teardown_clone
 
-DEFAULT_BACKEND = "overlay"
+DEFAULT_BACKEND = "clone"
 
 
 class SitePreparation(Protocol):
@@ -58,7 +57,7 @@ class SitePreparation(Protocol):
 
 @dataclasses.dataclass(frozen=True)
 class OverlayBackend:
-    """Default backend: OverlayFS mount over the site root (see overlay.py)."""
+    """Legacy backend: OverlayFS mount over the site root (see overlay.py)."""
 
     ssh_state: SSHState
     name: ClassVar[str] = "overlay"
@@ -85,7 +84,7 @@ class OverlayBackend:
 
 @dataclasses.dataclass(frozen=True)
 class CloneBackend:
-    """Experimental backend: writable per-site clone of the version directory."""
+    """Default backend: writable per-site clone of the version directory."""
 
     name: ClassVar[str] = "clone"
 
@@ -109,8 +108,9 @@ def resolve_backend_name(explicit: str | None, recorded: str, site_root: Path) -
     """Pick the backend: explicit flag > state record > detection > default.
 
     Detection covers lost deploy state (e.g. after ``--full`` was
-    interrupted): a site whose ``version`` symlink points at a clone must
-    keep dispatching to the clone backend.
+    interrupted): a site whose ``version`` symlink points at a clone, or
+    whose root carries an overlay mount, must keep dispatching to the
+    backend that prepared it.
     """
     if explicit:
         return explicit
@@ -118,6 +118,8 @@ def resolve_backend_name(explicit: str | None, recorded: str, site_root: Path) -
         return recorded
     if is_clone_active(site_root):
         return CloneBackend.name
+    if is_overlay_active(site_root):
+        return OverlayBackend.name
     return DEFAULT_BACKEND
 
 

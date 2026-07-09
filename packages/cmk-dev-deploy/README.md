@@ -2,12 +2,12 @@
 
 Deploy local changes to a running OMD site in under 5 seconds.
 
-`cmk-dev-deploy` detects what you changed, builds only what is needed, and deploys it to your local OMD site. It uses a Bazel-generated deploy manifest as the single source of truth for what goes where, and an OverlayFS layer on the site directory so that every deployment is reversible.
+`cmk-dev-deploy` detects what you changed, builds only what is needed, and deploys it to your local OMD site. It uses a Bazel-generated deploy manifest as the single source of truth for what goes where, and a writable per-site clone of the OMD version directory so that deployments never touch the original install and are fully reversible.
 
 ## Prerequisites
 
 - A local OMD site -- install one with `cmk-dev-install` / `cmk-dev-install-site` (from the `cmk-dev-site` pipx package)
-- `sudo` access (required for OverlayFS mount/unmount)
+- `sudo` access (for the one-time installation of the per-site sudoers rule; the legacy overlay backend instead needs it for mount/unmount)
 - Bazel (the project's build system)
 - Optional: a dedicated SSH key for passwordless site-user commands (see [SSH key setup](#ssh-key-setup))
 
@@ -59,7 +59,7 @@ cdd -v
   Edition: pro (PRO)
   Version: 2.6.0-2026.03.27.pro
   Commit:  a1b2c3d4e5f6
-[info] Overlay active on /omd/sites/v260
+[info] Clone active on /omd/sites/v260
   Diff base: last deploy (f6e5d4c3b2a1)
 [info] Changes detected: 12 file(s)
   Base commit: f6e5d4c3b2a1
@@ -90,15 +90,15 @@ cdd -v
 
 On first run, the tool will:
 
-1. Ask for your sudo password (to mount the OverlayFS)
-2. Stop the site, mount the overlay, restart the site
-3. Inject an SSH key so subsequent service restarts don't need sudo
+1. Show the per-site sudoers rule and ask for one-time permission to install it
+2. Clone the site's version directory to `/omd/dev-versions/<site>/<ver>`
+3. Repoint the site's `version` symlink at the clone and restart the site
 
 After the initial setup, subsequent deploys without `-v` show a compact summary:
 
 ```
 [info] Site: v260 (pro)
-[info] Overlay active on /omd/sites/v260
+[info] Clone active on /omd/sites/v260
   12 file(s) changed (10 python, 2 config)
   Build path: fast
 
@@ -109,32 +109,12 @@ After the initial setup, subsequent deploys without `-v` show a compact summary:
 [ok] Deploy complete in 4.3s
 ```
 
-## OverlayFS
+## Site Preparation: the Version Clone
 
-Every deployment goes through an OverlayFS mounted on the site directory. This means:
-
-- **All changes are reversible.** The original site files are untouched in the lower layer; your deployments land in the upper layer. Run `--purge` to remove the overlay and revert the site to its original state.
-- **Survives reboots.** The upper layer is stored in `/var/tmp/cmk-dev-deploy/<site>/` which persists across reboots. After a reboot the overlay mount is gone, but the next `cmk-dev-deploy` run re-mounts with the existing upper layer.
-- **Symlink materialization.** OMD sites use top-level symlinks (`bin/`, `lib/`, `share/`) pointing to the shared version directory. Since OverlayFS only intercepts writes within its mount point, the tool "materializes" these symlinks on first mount by copying their targets into the upper layer. This happens once per OMD version and takes 30-60s.
-- **Requires sudo.** The `mount` and `umount` operations need root. The tool prompts for your password once per session and caches the sudo timestamp.
-
-### Overlay lifecycle
-
-| Event              | What happens                                                                            |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| First deploy       | sudo prompt, stop site, materialize symlinks, mount overlay, inject SSH key, start site |
-| Subsequent deploys | Overlay already mounted, deploy directly                                                |
-| Reboot             | Overlay mount gone, upper layer preserved on disk; next run re-mounts                   |
-| `--full`           | Tear down overlay, recreate from scratch, then deploy                                   |
-| `--purge`          | Tear down overlay, delete upper layer, site reverts to original state (stopped)         |
-
-## Experimental: Clone Backend
-
-`--backend clone` replaces the OverlayFS mount with a **writable per-site
-clone of the OMD version directory**. The overlay stays the default; the
-clone backend is an experiment towards removing the overlay's inherent
-failure modes (reboot windows, copy-up semantics, `etc/`/`var/`
-entanglement) and its permanent sudo requirement.
+By default, every deployment lands in a **writable per-site clone of the
+OMD version directory** -- the original install under `/omd/versions/` is
+never touched. The site's own `version` symlink (owned by the site user)
+selects the clone:
 
 ```
 /omd/sites/<site>/version -> /omd/dev-versions/<site>/<ver>   (clone, deploy-user owned)
@@ -167,11 +147,30 @@ prompt returns on the next run.
 | `--purge`          | revert symlink to the pristine version, delete clone (no sudo); site left stopped |
 | `omd update`       | detected via a symlink guard → refuses loudly, instructs `--purge` first          |
 
-**`--purge` semantics differ deliberately from the overlay:** it reverts
-**code only**. Site configuration (`etc/`) and runtime state (`var/`) are
-real directories that deploys never touch, so purging cannot eat WATO
-changes — the overlay's "revert everything" behavior is one of the
-surprises this experiment removes.
+**`--purge` semantics differ deliberately from the overlay backend:** it
+reverts **code only**. Site configuration (`etc/`) and runtime state
+(`var/`) are real directories that deploys never touch, so purging cannot
+eat WATO changes or runtime state.
+
+## Legacy: OverlayFS Backend
+
+`--backend overlay` selects the legacy backend: an OverlayFS mounted on
+the site directory instead of the version clone. This means:
+
+- **All changes are reversible.** The original site files are untouched in the lower layer; your deployments land in the upper layer. Run `--purge` to remove the overlay and revert the site to its original state.
+- **Survives reboots.** The upper layer is stored in `/var/tmp/cmk-dev-deploy/<site>/` which persists across reboots. After a reboot the overlay mount is gone, but the next `cmk-dev-deploy` run re-mounts with the existing upper layer.
+- **Symlink materialization.** OMD sites use top-level symlinks (`bin/`, `lib/`, `share/`) pointing to the shared version directory. Since OverlayFS only intercepts writes within its mount point, the tool "materializes" these symlinks on first mount by copying their targets into the upper layer. This happens once per OMD version and takes 30-60s.
+- **Requires sudo.** The `mount` and `umount` operations need root. The tool prompts for your password once per session and caches the sudo timestamp.
+
+### Overlay lifecycle
+
+| Event              | What happens                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| First deploy       | sudo prompt, stop site, materialize symlinks, mount overlay, inject SSH key, start site |
+| Subsequent deploys | Overlay already mounted, deploy directly                                                |
+| Reboot             | Overlay mount gone, upper layer preserved on disk; next run re-mounts                   |
+| `--full`           | Tear down overlay, recreate from scratch, then deploy                                   |
+| `--purge`          | Tear down overlay, delete upper layer, site reverts to original state (stopped)         |
 
 Backends refuse to mix: switching between `overlay` and `clone` on the same
 site requires a `--purge` of the active backend first. The backend used for
@@ -190,7 +189,7 @@ cdd
 Computes the diff between your working tree and the last deployed commit, categorizes changes (Python, C++, Rust, config, etc.), and runs only the deployers that have work to do. Python changes are deployed by reinstalling the edition's wheels via `bazel run //:deploy-python`; Bazel's action cache keeps unchanged wheels free.
 
 ```bash
-cdd --full              # force full deploy (tears down and recreates the overlay)
+cdd --full              # force full deploy (deletes and recreates the clone)
 cdd --dry-run           # show what would be deployed without executing
 cdd --commit feature-branch  # use a specific ref for change detection (implies --full)
 ```
@@ -269,7 +268,7 @@ echo 'v260' > .site
 | -------------------- | ----- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--site NAME`        | `-s`  | auto-detect | Target OMD site name                                                                                                                                                                                              |
 | `--info`             |       |             | Show site info and exit without deploying                                                                                                                                                                         |
-| `--full`             |       |             | Force full deploy: tear down overlay, recreate, deploy everything                                                                                                                                                 |
+| `--full`             |       |             | Force full deploy: delete and recreate the clone, deploy everything                                                                                                                                               |
 | `--dry-run`          | `-n`  |             | Show deploy plan without executing                                                                                                                                                                                |
 | `--watch`            | `-w`  |             | Watch for changes and auto-deploy                                                                                                                                                                                 |
 | `--frontend`         |       |             | Start iBazel frontend supervisor after deploying                                                                                                                                                                  |
@@ -279,7 +278,7 @@ echo 'v260' > .site
 | `--no-restart`       |       |             | Deploy files only, skip service restarts                                                                                                                                                                          |
 | `--rebuild-manifest` |       |             | Force manifest regeneration before deploying                                                                                                                                                                      |
 | `--purge`            |       |             | Revert site to original state and remove deploy data, then exit (no deploy)                                                                                                                                       |
-| `--backend NAME`     |       | recorded    | Site preparation backend: `overlay` or `clone` (experimental). Defaults to the backend recorded for the site, else `overlay`                                                                                      |
+| `--backend NAME`     |       | recorded    | Site preparation backend: `clone` or `overlay` (legacy). Defaults to the backend recorded for the site, else `clone`                                                                                              |
 | `--print-setup`      |       |             | Print the admin commands that set up the clone backend, then exit                                                                                                                                                 |
 | `--remove-setup`     |       |             | Remove the clone backend's sudoers rule, then exit                                                                                                                                                                |
 | `--json-errors`      |       |             | On error, output a JSON diagnostic bundle to stdout (for automation)                                                                                                                                              |
@@ -301,7 +300,7 @@ Each deploy cycle follows these stages:
 
 1. **Site resolution** -- Auto-detect the OMD site (see [Site Resolution](#site-resolution)), read its edition and build commit.
 
-2. **Overlay setup** -- Ensure the OverlayFS is mounted. On first run this includes symlink materialization and SSH key injection.
+2. **Site preparation** -- Ensure the site runs on its writable version clone (or, with `--backend overlay`, the legacy OverlayFS mount). On first run this clones the version directory (30-60s, nearly free with reflink).
 
 3. **Manifest check** -- Verify the deploy manifest is up-to-date. The manifest is a JSON file auto-generated from Bazel targets that maps source paths to site destinations. If stale, it is regenerated automatically (or forced with `--rebuild-manifest`).
 
@@ -326,7 +325,7 @@ State tracking enables incremental deploys: only changes since the last successf
 - **Per-deployer tracking:** Each deployer (config, bazel, wheels) maintains its own commit pointer. A deployer only runs if files within its source paths have changed since its last successful run.
 - **Dirty file detection:** Files that are modified in the working tree but not yet committed are tracked by content hash. If you edit a file, deploy, then edit it again, only the second change triggers a new deploy. Files reverted to their committed state are detected and redeployed with the clean version.
 - **Branch switch detection:** When the current branch differs from the recorded branch, state is cleared and a full deploy runs automatically.
-- **Reset:** Use `--full` to clear state and force a complete redeployment (also recreates the overlay). The `--commit REF` flag implies `--full`.
+- **Reset:** Use `--full` to clear state and force a complete redeployment (also recreates the clone). The `--commit REF` flag implies `--full`.
 
 ## Edition Filtering
 
@@ -371,7 +370,7 @@ Use `--json-errors` to also print the bundle to stdout (useful for CI/automation
 - Bazel-native: reads a deploy manifest generated from BUILD files for compiled assets and install specs
 - Covers Python packages (wheel deployment), config/data files, Bazel-compiled artifacts (C++, Rust, frontend bundles)
 - Edition-aware: filters out code for editions not matching the target site
-- Reversible: all changes land on an OverlayFS upper layer that can be purged
+- Reversible: all changes land in a per-site version clone that can be purged
 
 **What cmk-dev-deploy is NOT:**
 

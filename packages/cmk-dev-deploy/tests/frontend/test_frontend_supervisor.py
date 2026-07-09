@@ -2309,9 +2309,9 @@ class TestMainCombinedMode:
             patch("cmk.dev_deploy.__main__.find_repo_root", return_value=Path("/repo")),
             patch("cmk.dev_deploy.__main__.resolve_site"),
             patch("cmk.dev_deploy.manifest.staleness.ensure_manifest"),
-            patch("cmk.dev_deploy.site.overlay.is_overlay_active", return_value=True),
-            patch("cmk.dev_deploy.site.overlay.ensure_overlay"),
-            patch("cmk.dev_deploy.site.overlay.teardown_overlay"),
+            patch("cmk.dev_deploy.site.preparation.resolve_backend_name", return_value="clone"),
+            patch("cmk.dev_deploy.site.preparation.create_backend"),
+            patch("cmk.dev_deploy.site.preparation.check_backend_conflict", return_value=None),
             patch("cmk.dev_deploy.__main__.check_branch_mismatch", return_value=None),
             patch(
                 "cmk.dev_deploy.__main__._run_deploy_cycle", return_value=failed_result
@@ -2344,9 +2344,9 @@ class TestMainCombinedMode:
             patch("cmk.dev_deploy.__main__.find_repo_root", return_value=Path("/repo")),
             patch("cmk.dev_deploy.__main__.resolve_site"),
             patch("cmk.dev_deploy.manifest.staleness.ensure_manifest"),
-            patch("cmk.dev_deploy.site.overlay.is_overlay_active", return_value=True),
-            patch("cmk.dev_deploy.site.overlay.ensure_overlay"),
-            patch("cmk.dev_deploy.site.overlay.teardown_overlay"),
+            patch("cmk.dev_deploy.site.preparation.resolve_backend_name", return_value="clone"),
+            patch("cmk.dev_deploy.site.preparation.create_backend"),
+            patch("cmk.dev_deploy.site.preparation.check_backend_conflict", return_value=None),
             patch("cmk.dev_deploy.__main__.check_branch_mismatch", return_value=None),
             patch(
                 "cmk.dev_deploy.__main__._run_deploy_cycle", return_value=ok_result

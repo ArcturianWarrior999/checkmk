@@ -101,7 +101,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=("overlay", "clone"),
         default=None,
         help="Site preparation backend (default: backend recorded for the site, "
-        "else overlay). 'clone' is experimental.",
+        "else clone). 'overlay' is the legacy backend.",
     )
     parser.add_argument(
         "--json-errors",
