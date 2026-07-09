@@ -131,10 +131,6 @@ STAGES:
               --path "non-free/packages" \
               >> ${RESULTS}/results.txt || make_rc=$?
           ./scripts/in_bazel.sh ".ps1" "filegroup" \
-              `# CMK-35751` \
-              --known-offender packages/mk-oracle/references/mk_oracle.ps1 \
-              --known-offender packages/mk-oracle/run.ps1 \
-              --known-offender packages/mk-oracle/tests/files/ci-scripts/manage-test-registry-set.ps1 \
               `# pre-existing, not part of any CMK-3575x ticket; drained in a later commit` \
               --known-offender agents/wnx/scripts/sign_code_azure.ps1 \
               --known-offender packages/mk-oracle/references/output-multiple.ps1 \

@@ -215,3 +215,13 @@ sh_library(
         "tools/call-ora",
     ],
 )
+
+filegroup(
+    name = "windows_ci_scripts",
+    srcs = [
+        "references/mk_oracle.ps1",
+        "run.ps1",
+        "tests/files/ci-scripts/manage-test-registry-set.ps1",
+    ],
+    tags = ["lint-with-psscriptanalyzer"],
+)
