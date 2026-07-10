@@ -6,32 +6,37 @@
 
 from collections.abc import Mapping
 
-from cmk.agent_based.legacy.v0_unstable import (
-    LegacyCheckDefinition,
-    LegacyCheckResult,
-    LegacyDiscoveryResult,
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Service,
 )
-from cmk.legacy_includes.aws import check_aws_limits
-from cmk.plugins.aws.lib import AWSLimitsByRegion, parse_aws_limits_generic
-
-check_info = {}
+from cmk.plugins.aws.lib import AWSLimitsByRegion, check_aws_limits_legacy, parse_aws_limits_generic
 
 
 def check_aws_elb_limits(
-    item: str, params: Mapping[str, tuple[float | None, float, float]], parsed: AWSLimitsByRegion
-) -> LegacyCheckResult:
-    if not (region_data := parsed.get(item)):
+    item: str, params: Mapping[str, tuple[float | None, float, float]], section: AWSLimitsByRegion
+) -> CheckResult:
+    if not (region_data := section.get(item)):
         return
-    yield from check_aws_limits("elb", params, region_data)
+    yield from check_aws_limits_legacy("elb", params, region_data)
 
 
-def discover_aws_elb_limits(section: AWSLimitsByRegion) -> LegacyDiscoveryResult:
-    yield from ((item, {}) for item in section)
+def discover_aws_elb_limits(section: AWSLimitsByRegion) -> DiscoveryResult:
+    for item in section:
+        yield Service(item=item)
 
 
-check_info["aws_elb_limits"] = LegacyCheckDefinition(
+agent_section_aws_elb_limits = AgentSection(
     name="aws_elb_limits",
     parse_function=parse_aws_limits_generic,
+)
+
+
+check_plugin_aws_elb_limits = CheckPlugin(
+    name="aws_elb_limits",
     service_name="AWS/ELB Limits %s",
     discovery_function=discover_aws_elb_limits,
     check_function=check_aws_elb_limits,
