@@ -252,13 +252,22 @@ def test_save_mk_file(tmp_path: Path) -> None:
     assert actual == {"x": 1}
 
 
-def test_save_to_mk_file(tmp_path: Path) -> None:
+def test_save_to_mk_file_mapping(tmp_path: Path) -> None:
     path = tmp_path / "huhu"
     store.save_to_mk_file(path, key="x", value={"a": 1})
 
     actual = store.load_mk_file(path, default={"x": {"a": 2, "y": 1}}, lock=False)
 
     assert actual == {"x": {"a": 1, "y": 1}}
+
+
+def test_save_to_mk_file_list(tmp_path: Path) -> None:
+    path = tmp_path / "huhu"
+    store.save_to_mk_file(path, key="x", value=["a", "b"])
+
+    actual = store.load_mk_file(path, default={"x": ["c"]}, lock=False)
+
+    assert actual == {"x": ["c", "a", "b"]}
 
 
 def test_acquire_lock_not_existing(tmp_path: Path) -> None:

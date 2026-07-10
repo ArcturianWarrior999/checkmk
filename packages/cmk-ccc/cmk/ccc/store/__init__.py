@@ -165,12 +165,21 @@ def save_mk_file(path: Path, data: str, *, add_header: bool = True) -> None:
 
 
 # A simple wrapper for cases where you only have to write a single value to a .mk file.
-def save_to_mk_file(path: Path, *, key: str, value: object, pprint_value: bool = False) -> None:
+def save_to_mk_file(
+    path: Path,
+    *,
+    key: str,
+    value: Mapping[Any, object] | list[Any],  # list to exclude `str` or `bytes`.
+    pprint_value: bool = False,
+) -> None:
     fmt = pprint.pformat if pprint_value else repr
-    save_mk_file(
-        path,
-        f"{key}.update({fmt(value)})" if isinstance(value, dict) else f"{key} += {fmt(value)}",
-    )
+
+    if isinstance(value, Mapping):
+        content = f"{key}.update({fmt(dict(value))})"
+    else:
+        content = f"{key} += {fmt(list(value))}"
+
+    save_mk_file(path, content)
 
 
 # .
