@@ -12,9 +12,7 @@ import { useGraphTimeRange } from '../composables/useGraphTimeRange'
 import { useGraphVisibility } from '../composables/useGraphVisibility'
 import type { GraphPanelEmits, GraphPanelProps, RequestedTimeRange } from '../types.ts'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
-import GraphBurgerMenu from './GraphBurgerMenu.vue'
-import GraphTimestamp from './GraphTimestamp.vue'
-import GraphTitle from './GraphTitle.vue'
+import GraphHeader from './GraphHeader.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
 import type { ConsolidationFn } from './consolidation'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
@@ -77,16 +75,19 @@ function updateConsolidationFunction(val: ConsolidationFn) {
       :class="{ 'graphing-graph-panel__container--legend-right': legendPosition === 'right' }"
     >
       <div class="graphing-graph-panel__canvas-area">
-        <div
-          v-if="showTitle || showTimestamp || showBurgerMenu"
+        <!-- TODO: wire the remaining header interactions (consolidation dropdown) into the panel state -->
+        <GraphHeader
+          v-if="showTitle || showTimestamp || showBurgerMenu || interactive"
+          v-model:zoom-mode="zoomMode"
           class="graphing-graph-panel__header"
-        >
-          <div class="graphing-graph-panel__meta">
-            <GraphTitle v-if="showTitle" :title="title ?? ''" />
-            <GraphTimestamp v-if="showTimestamp && timeRange" :time-range="timeRange" />
-          </div>
-          <GraphBurgerMenu v-if="showBurgerMenu" :groups="burgerMenuGroups ?? []" />
-        </div>
+          :title="title"
+          :show-title="showTitle"
+          :time-range="timeRange"
+          :show-timestamp="showTimestamp"
+          :show-controls="interactive"
+          :show-burger-menu="showBurgerMenu"
+          :burger-menu-groups="burgerMenuGroups"
+        />
 
         <div
           v-if="timeRange && visibleMetrics.length === 0"
@@ -168,16 +169,7 @@ function updateConsolidationFunction(val: ConsolidationFn) {
 
 <style scoped lang="scss">
 .graphing-graph-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: calc(var(--spacing) * 3);
-}
-
-.graphing-graph-panel__meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-double);
+  margin-bottom: var(--spacing-double);
 }
 
 .graphing-graph-panel__container--legend-right {

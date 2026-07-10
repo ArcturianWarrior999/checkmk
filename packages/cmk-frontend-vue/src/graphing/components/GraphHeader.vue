@@ -1,0 +1,150 @@
+<!--
+Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+conditions defined in the file COPYING, which is part of this source code package.
+-->
+
+<script setup lang="ts">
+import { fromAbsolute, getLocalTimeZone } from '@internationalized/date'
+import { computed } from 'vue'
+
+import usei18n from '@/lib/i18n'
+
+import CmkDropdown from '@/components/CmkDropdown'
+import CmkLabeledSwitch from '@/components/CmkLabeledSwitch.vue'
+import type { Suggestions } from '@/components/CmkSuggestions'
+
+import type { BurgerMenuGroup, TimeRange } from '../types.ts'
+import { isoDate, stepLabel } from '../utils/timeFormat'
+import GraphBurgerMenu from './GraphBurgerMenu.vue'
+import GraphTitle from './GraphTitle.vue'
+import type { ZoomMode } from './TimeSeriesGraph'
+import {
+  CONSOLIDATION_FUNCTIONS,
+  type ConsolidationFn,
+  isConsolidationFn,
+  useConsolidationFunctionLabels
+} from './consolidation'
+
+// TODO: readjust props to remove the possible omits
+const props = withDefaults(
+  defineProps<{
+    title?: string | undefined
+    showTitle?: boolean | undefined
+    timeRange?: TimeRange | undefined
+    showTimestamp?: boolean | undefined
+    showControls?: boolean
+    showBurgerMenu?: boolean | undefined
+    burgerMenuGroups?: BurgerMenuGroup[] | undefined
+  }>(),
+  { showControls: true }
+)
+
+const consolidationFn = defineModel<ConsolidationFn>('consolidationFn', { default: 'avg' })
+const zoomMode = defineModel<ZoomMode>('zoomMode', { default: 'time' })
+
+const { _t } = usei18n()
+
+const consolidationFunctionLabels = useConsolidationFunctionLabels()
+
+const consolidationOptions = computed<Suggestions>(() => ({
+  type: 'fixed',
+  suggestions: CONSOLIDATION_FUNCTIONS.map((consolidationFunction) => ({
+    name: consolidationFunction,
+    title: consolidationFunctionLabels.value[consolidationFunction]
+  }))
+}))
+
+const consolidationModel = computed<string | null>({
+  get: () => consolidationFn.value,
+  set: (value) => {
+    if (isConsolidationFn(value)) {
+      consolidationFn.value = value
+    }
+  }
+})
+
+const peakZoomActive = computed({
+  get: () => zoomMode.value === 'value',
+  set: (active) => {
+    zoomMode.value = active ? 'value' : 'time'
+  }
+})
+
+const dateLabel = computed(() => {
+  if (!props.timeRange) {
+    return null
+  }
+  const timeZone = getLocalTimeZone()
+  const startDate = isoDate(fromAbsolute(props.timeRange.start * 1000, timeZone))
+  const endDate = isoDate(fromAbsolute(props.timeRange.end * 1000, timeZone))
+  return startDate === endDate ? startDate : `${startDate} — ${endDate}`
+})
+
+function withMinutesSpelledOut(label: string): string {
+  return label.replace(/ m$/, ' min')
+}
+
+const resolutionLabel = computed(() =>
+  props.timeRange ? withMinutesSpelledOut(stepLabel(props.timeRange.step)) : null
+)
+</script>
+
+<template>
+  <div class="graphing-graph-header">
+    <GraphTitle v-if="showTitle" :title="title ?? ''" />
+    <div class="graphing-graph-header__controls">
+      <template v-if="showControls">
+        <span class="graphing-graph-header__values-label">{{ _t('Graph values') }}</span>
+        <CmkDropdown
+          v-model="consolidationModel"
+          :options="consolidationOptions"
+          :label="_t('Graph values')"
+          required
+        />
+      </template>
+      <span v-if="showTimestamp && timeRange" class="graphing-graph-header__timestamp">
+        {{ _t('for %{date},', { date: dateLabel ?? '' }) }}
+        <span class="graphing-graph-header__resolution">
+          {{ _t('resolution: %{resolution}', { resolution: resolutionLabel ?? '' }) }}
+        </span>
+      </span>
+      <CmkLabeledSwitch
+        v-if="showControls"
+        v-model="peakZoomActive"
+        :off-label="_t('Time zoom')"
+        :on-label="_t('Peak zoom')"
+      />
+      <GraphBurgerMenu v-if="showBurgerMenu" :groups="burgerMenuGroups ?? []" />
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.graphing-graph-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-double);
+}
+
+.graphing-graph-header__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-double);
+  margin-left: auto;
+
+  > :deep(.cmk-dropdown) {
+    align-self: center;
+  }
+}
+
+.graphing-graph-header__values-label,
+.graphing-graph-header__timestamp {
+  font-size: var(--font-size-normal);
+}
+
+.graphing-graph-header__resolution {
+  font-weight: var(--font-weight-bold);
+}
+</style>
