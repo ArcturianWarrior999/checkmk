@@ -9,18 +9,19 @@ import type { TranslatedString } from '@/lib/i18nString'
 
 import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
 
-import BaseCell from './BaseCell.vue'
+import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 
 defineProps<{
   columnId?: string | undefined
   ariaLabel?: TranslatedString | undefined
+  verticalAlign?: CellVerticalAlign | undefined
 }>()
 
 const value = defineModel<boolean>({ required: false, default: false })
 </script>
 
 <template>
-  <BaseCell class="monitoring-checkbox-cell" :column-id="columnId">
+  <BaseCell class="monitoring-checkbox-cell" :column-id="columnId" :vertical-align="verticalAlign">
     <template #default>
       <CmkCheckbox v-model="value" :aria-label="ariaLabel"></CmkCheckbox>
     </template>

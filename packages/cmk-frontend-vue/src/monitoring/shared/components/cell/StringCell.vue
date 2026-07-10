@@ -7,7 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import BaseCell, { type CellLink } from './BaseCell.vue'
+import BaseCell, { type CellLink, type CellVerticalAlign } from './BaseCell.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -17,6 +17,8 @@ const props = withDefaults(
     columnId?: string | undefined
     emptyLabel?: string | undefined
     button?: boolean | undefined
+    verticalAlign?: CellVerticalAlign | undefined
+    noWrap?: boolean | undefined
   }>(),
   { hardBreakEvery: 15, linkedTo: undefined }
 )
@@ -41,6 +43,8 @@ const display = computed(() => {
     :column-id="columnId"
     :linked-to="linkedTo"
     :button="button"
+    :vertical-align="verticalAlign"
+    :no-wrap="noWrap"
     @click="emit('click', $event)"
   >
     <template #default>

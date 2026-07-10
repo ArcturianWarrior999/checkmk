@@ -22,7 +22,7 @@ import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 import type { SimpleIcons } from '@/components/CmkIcon/types'
 
-import BaseCell from './BaseCell.vue'
+import BaseCell, { type CellVerticalAlign } from './BaseCell.vue'
 
 export interface CellAction {
   id: string
@@ -36,6 +36,7 @@ const props = withDefaults(
     actions: CellAction[]
     maxVisible?: number
     columnId?: string | undefined
+    verticalAlign?: CellVerticalAlign | undefined
   }>(),
   { maxVisible: 2, columnId: undefined }
 )
@@ -59,7 +60,7 @@ function select(action: CellAction): void {
 </script>
 
 <template>
-  <BaseCell class="monitoring-actions-cell" :column-id="columnId">
+  <BaseCell class="monitoring-actions-cell" :column-id="columnId" :vertical-align="verticalAlign">
     <template #default>
       <div class="monitoring-actions-cell__actions">
         <CmkButton

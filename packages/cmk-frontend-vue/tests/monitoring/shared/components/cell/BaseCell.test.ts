@@ -12,12 +12,14 @@ import {
   type CellBreakpoints,
   type ColumnLayoutInfo
 } from '@/monitoring/shared/components/MonitoringTableContext'
-import BaseCell from '@/monitoring/shared/components/cell/BaseCell.vue'
+import BaseCell, { type CellVerticalAlign } from '@/monitoring/shared/components/cell/BaseCell.vue'
 
 type CellProps = {
   breakpoints?: CellBreakpoints
   button?: boolean
   onClick?: (payload: MouseEvent) => void
+  verticalAlign?: CellVerticalAlign
+  noWrap?: boolean
 }
 
 const TEST_COLUMN_ID = 'col'
@@ -114,6 +116,23 @@ test('renders a native <button> and emits click when the button prop is set', as
 test('renders no button and emits nothing without the button prop', async () => {
   const { container } = await mountCell({}, { cellWidth: 500 })
   expect(container.querySelector('button')).toBeNull()
+})
+
+test('is top-aligned and wrapping by default', async () => {
+  const { container } = await mountCell({}, { cellWidth: 500 })
+  const td = container.querySelector('td')
+  expect(td).not.toHaveClass('monitoring-base-cell--vertical-middle')
+  expect(td).not.toHaveClass('monitoring-base-cell--no-wrap')
+})
+
+test('centers the content vertically with verticalAlign middle', async () => {
+  const { container } = await mountCell({ verticalAlign: 'middle' }, { cellWidth: 500 })
+  expect(container.querySelector('td')).toHaveClass('monitoring-base-cell--vertical-middle')
+})
+
+test('suppresses line wrapping with noWrap', async () => {
+  const { container } = await mountCell({ noWrap: true }, { cellWidth: 500 })
+  expect(container.querySelector('td')).toHaveClass('monitoring-base-cell--no-wrap')
 })
 
 test('skips named slots that the consumer did not provide', async () => {

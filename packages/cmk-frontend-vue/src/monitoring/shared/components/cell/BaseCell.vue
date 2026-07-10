@@ -24,6 +24,8 @@ export interface CellLink {
   variant?: 'inline' | 'icon' | undefined
 }
 
+export type CellVerticalAlign = 'top' | 'middle'
+
 const props = defineProps<{
   columnId?: string | undefined
   breakpoints?: CellBreakpoints | undefined
@@ -31,6 +33,8 @@ const props = defineProps<{
   highlight?: CellHighlight | undefined
   justify?: ColumnJustify | undefined
   button?: boolean | undefined
+  verticalAlign?: CellVerticalAlign | undefined
+  noWrap?: boolean | undefined
 }>()
 
 const emit = defineEmits<{
@@ -107,7 +111,9 @@ const highlightStyle = computed<CSSProperties>(() =>
     :class="{
       'monitoring-base-cell--pinned': pinnedLeft !== null || pinnedRight !== null,
       'monitoring-base-cell--last-pinned': columnInfo?.isLastPinned,
-      'monitoring-base-cell--first-pinned-right': columnInfo?.isFirstPinnedRight
+      'monitoring-base-cell--first-pinned-right': columnInfo?.isFirstPinnedRight,
+      'monitoring-base-cell--vertical-middle': verticalAlign === 'middle',
+      'monitoring-base-cell--no-wrap': noWrap === true
     }"
     :style="pinnedStyle"
   >
@@ -234,6 +240,20 @@ const highlightStyle = computed<CSSProperties>(() =>
   .monitoring-base-cell__plain {
     padding: 5px var(--dimension-4);
   }
+}
+
+.monitoring-base-cell--vertical-middle {
+  vertical-align: middle;
+
+  .monitoring-base-cell__link,
+  .monitoring-base-cell__wrapper,
+  .monitoring-base-cell__button {
+    align-items: center;
+  }
+}
+
+.monitoring-base-cell--no-wrap {
+  white-space: nowrap;
 }
 
 .monitoring-base-cell--pinned {
