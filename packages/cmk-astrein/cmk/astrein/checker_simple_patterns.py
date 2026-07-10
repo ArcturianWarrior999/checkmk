@@ -75,7 +75,7 @@ _INCLUDED_PATHS = (
     "non-free/packages/cmk-dcd/cmk/dcd",
     "non-free/packages/cmk-relay-engine",
     "non-free/packages/cmk-liveproxyd",
-    "cmk/gui/nonfree/pro",
+    "cmk/gui/nonfree",
     "cmk/gui/watolib",
     "non-free/packages/cmk-mknotifyd",
 )
