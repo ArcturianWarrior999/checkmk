@@ -19,6 +19,7 @@ py_cmk_test(
     use_project_pytest_config = True,
     visibility = ["//visibility:private"],
     deps = [
+        "//cmk/gui:request_globals",
         "//cmk/utils",
         "//cmk/utils:msi_patch",
         "//cmk/utils:redis",

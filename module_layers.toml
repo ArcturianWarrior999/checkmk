@@ -167,7 +167,7 @@ allows = [
 allows = [
   "@ccc",
   "cmk.gui.config",
-  "cmk.gui.pages",
+  "cmk.gui.request_globals",
   "cmk.gui.session_context",
   "cmk.gui.watolib.rulesets",
   "cmk.gui.wsgi.app",

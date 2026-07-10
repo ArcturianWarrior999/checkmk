@@ -32,7 +32,7 @@ def make_request_context(app: Flask, environ: dict[str, Any] | None = None) -> R
 @contextmanager
 def request_context(app: Flask, environ: dict[str, Any] | None = None) -> Iterator[None]:
     with make_request_context(app, environ):
-        from cmk.gui.pages import set_global_vars
+        from cmk.gui.request_globals import set_global_vars
 
         set_global_vars()
         yield

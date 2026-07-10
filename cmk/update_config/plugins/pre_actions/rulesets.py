@@ -18,7 +18,7 @@ from cmk.ccc.regex import regex, RegexFutureWarning
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.form_specs import get_visitor, RawDiskData, VisitorOptions
 from cmk.gui.groups import GroupSpec
-from cmk.gui.pages import set_global_vars
+from cmk.gui.request_globals import set_global_vars
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.watolib.groups_io import load_contact_group_information
 from cmk.gui.watolib.hosts_and_folders import folder_tree

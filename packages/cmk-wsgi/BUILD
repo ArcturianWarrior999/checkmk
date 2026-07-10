@@ -28,6 +28,7 @@ py_library(
         "//cmk/gui:core_toolkit",
         "//cmk/gui:html_toolkit",
         "//cmk/gui:page_toolkit",
+        "//cmk/gui:request_globals",
         "//cmk/gui/dashboard:page_token_error",
         "//cmk/gui/openapi:utils",
         "//cmk/gui/openapi:versioned_endpoint_map",
