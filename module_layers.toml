@@ -920,6 +920,7 @@ allows = [
   "cmk.dcd.gui",
   "cmk.dcd.protocols",
   "cmk.fields",
+  "cmk.graphing_engine",
   "cmk.gui",
   "cmk.gui_plugins.internal",
   "cmk.licensing",
@@ -937,10 +938,12 @@ allows = [
   "cmk.utils.global_ident_type",
   "cmk.ruleset_matcher",
   "cmk.utils.macros",
+  "cmk.utils.metrics",
   "cmk.utils.nonfree.pro",
   "cmk.utils.password_store",
   "cmk.utils.paths",
   "cmk.utils.render",
+  "cmk.utils.servicename",
 ]
 excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 
