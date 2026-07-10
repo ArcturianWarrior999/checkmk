@@ -9,6 +9,7 @@ from __future__ import annotations
 import contextlib
 import re
 import shlex
+import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
@@ -207,6 +208,30 @@ class EngineRRDFetchMetricNames:
         return {service: result[service] for service in unique if service in result}
 
 
+def _chop_last_empty_step(
+    time_series: Mapping[RRDMetric, EngineTimeSeries], end: int
+) -> Mapping[RRDMetric, EngineTimeSeries]:
+    # Drop the empty trailing step of a graph that ends "now": the current RRD step has no data yet,
+    # so an all-None last point across every curve is stripped rather than drawn as a gap (matches
+    # the legacy _chop_last_empty_step).
+    if not time_series:
+        return time_series
+    step = next(iter(time_series.values())).time_range.step
+    if step <= 0 or abs(time.time() - end) > step:
+        return time_series
+    if not all(series.values and series.values[-1] is None for series in time_series.values()):
+        return time_series
+    return {
+        metric: EngineTimeSeries(
+            time_range=TimeRange(
+                start=series.time_range.start, end=series.time_range.end - step, step=step
+            ),
+            values=series.values[:-1],
+        )
+        for metric, series in time_series.items()
+    }
+
+
 @dataclass(frozen=True)
 class EngineRRDFetchData:
     site_id: SiteId | None
@@ -266,50 +291,72 @@ class EngineRRDFetchData:
         consolidation_function: ConsolidationFunction,
         time_range: TimeRange,
     ) -> Mapping[RRDMetric, EngineTimeSeries]:
-        originals_per_function: dict[
-            ConsolidationFunction, dict[RRDMetric, list[tuple[RRDMetric, float]]]
+        originals_by_metric: dict[
+            RRDMetric, tuple[ConsolidationFunction, list[tuple[RRDMetric, float]]]
         ] = {}
         for metric in rrd_metrics:
             service = Service(host_name=metric.host_name, service_name=metric.service_name)
             if (raw := raw_performance_data.get(service)) is None:
                 continue
             function = metric.consolidation_function or consolidation_function
-            originals_per_function.setdefault(function, {})[metric] = [
-                (
-                    RRDMetric(
-                        host_name=metric.host_name,
-                        service_name=metric.service_name,
-                        metric_name=original.metric_name,
-                    ),
-                    original.scale,
-                )
-                for original in originals_for_metric_name(
-                    metric.metric_name, raw.check_command, self.registered_translations
-                )
-            ]
+            originals_by_metric[metric] = (
+                function,
+                [
+                    (
+                        RRDMetric(
+                            host_name=metric.host_name,
+                            service_name=metric.service_name,
+                            metric_name=original.metric_name,
+                        ),
+                        original.scale,
+                    )
+                    for original in originals_for_metric_name(
+                        metric.metric_name, raw.check_command, self.registered_translations
+                    )
+                ],
+            )
 
-        time_series: dict[RRDMetric, EngineTimeSeries] = {}
-        for function, originals_per_metric in originals_per_function.items():
-            raw_time_series = self._fetch_time_series(
+        raw_by_function: dict[ConsolidationFunction, Mapping[RRDMetric, EngineTimeSeries]] = {}
+        for function in dict.fromkeys(func for func, _ in originals_by_metric.values()):
+            raw_by_function[function] = self._fetch_time_series(
                 list(
                     dict.fromkeys(
                         rrd_metric
-                        for originals in originals_per_metric.values()
+                        for func, originals in originals_by_metric.values()
+                        if func == function
                         for rrd_metric, _scale in originals
                     )
                 ),
                 consolidation_function=function,
                 time_range=time_range,
             )
-            for metric, originals in originals_per_metric.items():
-                scaled = [
-                    scaled_series(resample(ts, time_range, function), scale)
-                    for rrd_metric, scale in originals
-                    if (ts := raw_time_series.get(rrd_metric)) is not None
-                ]
-                if scaled:
-                    time_series[metric] = merge_series(scaled, time_range)
-        return time_series
+
+        # The reference grid is the first fetched source series in drawn order. The RRD backend snaps
+        # the requested start/end/step, so every series is aligned to this shared grid - not the
+        # request - which is what the curves and any arithmetic across them line up on (matching the
+        # legacy pipeline, which aligns everything to the first fetched RRD's returned grid).
+        reference = next(
+            (
+                ts.time_range
+                for function, originals in originals_by_metric.values()
+                for rrd_metric, _scale in originals
+                if (ts := raw_by_function[function].get(rrd_metric)) is not None
+            ),
+            None,
+        )
+        if reference is None:
+            return {}
+
+        time_series: dict[RRDMetric, EngineTimeSeries] = {}
+        for metric, (function, originals) in originals_by_metric.items():
+            scaled = [
+                scaled_series(resample(ts, reference, function), scale)
+                for rrd_metric, scale in originals
+                if (ts := raw_by_function[function].get(rrd_metric)) is not None
+            ]
+            if scaled:
+                time_series[metric] = merge_series(scaled, reference)
+        return _chop_last_empty_step(time_series, reference.end)
 
     def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]
