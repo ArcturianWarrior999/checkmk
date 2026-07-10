@@ -71,6 +71,7 @@ __all__ = [
     "MaxAge",
     "NoCache",
 ]
+logger = logging.getLogger(__name__)
 
 
 class FileCacheParams(TypedDict, total=False):
@@ -140,7 +141,6 @@ class FileCache[TRawData: Sized](
         self.simulation = simulation
         self.use_only_cache = use_only_cache
         self.file_cache_mode = FileCacheMode(file_cache_mode)
-        self._logger: Final = logging.getLogger("cmk.helper")
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
@@ -190,22 +190,20 @@ class FileCache[TRawData: Sized](
 
     def _do_cache(self, mode: Mode) -> bool:
         if self.simulation:
-            self._logger.debug("Using cache (Simulation mode)")
+            logger.debug("Using cache (Simulation mode)")
             return True
 
         if mode in {Mode.FORCE_SECTIONS, Mode.RTC}:
-            self._logger.debug("Not using cache (Mode %(mode)s)", {"mode": mode})
+            logger.debug("Not using cache (Mode %(mode)s)", {"mode": mode})
             return False
 
         return True
 
     def read(self, mode: Mode) -> TRawData | None:
-        self._logger.debug("Read from cache: %(cls)s", {"cls": self.__class__.__name__})
+        logger.debug("Read from cache: %(cls)s", {"cls": self.__class__.__name__})
         raw_data = self._read(mode)
         if raw_data is not None:
-            self._logger.debug(
-                "Got %(num_bytes)r bytes data from cache", {"num_bytes": len(raw_data)}
-            )
+            logger.debug("Got %(num_bytes)r bytes data from cache", {"num_bytes": len(raw_data)})
             return raw_data
 
         if self.simulation:
@@ -231,11 +229,11 @@ class FileCache[TRawData: Sized](
         try:
             cachefile_age = time.time() - path.stat().st_mtime
         except FileNotFoundError:
-            self._logger.debug("Not using cache (does not exist)")
+            logger.debug("Not using cache (does not exist)")
             return None
 
         if cachefile_age > self.max_age.get(mode):
-            self._logger.debug(
+            logger.debug(
                 "Not using cache (Too old. Age is %(age)d sec, allowed is %(max_age)s sec)",
                 {"age": cachefile_age, "max_age": self.max_age.get(mode)},
             )
@@ -246,21 +244,21 @@ class FileCache[TRawData: Sized](
         try:
             cache_file = path.read_bytes()
         except FileNotFoundError:
-            self._logger.debug("Not using cache (Does not exist)")
+            logger.debug("Not using cache (Does not exist)")
             return None
 
         if not cache_file:
-            self._logger.debug("Not using cache (Empty)")
+            logger.debug("Not using cache (Empty)")
             return None
 
-        self._logger.debug("Using data from cache file %(path)s", {"path": path})
+        logger.debug("Using data from cache file %(path)s", {"path": path})
         return self._from_cache_file(cache_file)
 
     def write(self, raw_data: TRawData, mode: Mode) -> None:
         if FileCacheMode.WRITE not in self.file_cache_mode or not self._do_cache(mode):
             return
         path = self._make_path(mode)
-        self._logger.debug("Write data to cache file %(path)s", {"path": path})
+        logger.debug("Write data to cache file %(path)s", {"path": path})
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             store.RealIo(path).write(self._to_cache_file(raw_data))
