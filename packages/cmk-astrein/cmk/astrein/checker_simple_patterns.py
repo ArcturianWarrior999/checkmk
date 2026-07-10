@@ -72,7 +72,6 @@ _INCLUDED_PATHS = (
     "cmk/update_config",
     "cmk/base/notify.py",
     "non-free/packages/cmk-update-agent",
-    "tests/testlib/site.py",
     "non-free/packages/cmk-dcd/cmk/dcd",
     "non-free/packages/cmk-relay-engine",
     "non-free/packages/cmk-liveproxyd",
