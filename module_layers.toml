@@ -1775,7 +1775,7 @@ allows = [
 # add all those dependencies to one of those components.
 
 [file_dependencies."bin/cmk-broker-test.py"]
-allows = ["@ccc", "@messaging", "cmk.utils.paths"]
+allows = ["@ccc", "@messaging"]
 
 [file_dependencies."bin/cmk-piggyback-hub.py"]
 allows = ["@ccc", "cmk.crash", "cmk.piggyback", "cmk.utils"]

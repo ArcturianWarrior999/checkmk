@@ -22,6 +22,7 @@ import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Self
 from uuid import UUID, uuid4
 
@@ -36,7 +37,13 @@ from cmk.messaging import (
     QueueName,
     RoutingKey,
 )
-from cmk.utils.paths import omd_root
+
+
+def _omd_root() -> Path:
+    try:
+        return Path(os.environ["OMD_ROOT"])
+    except KeyError:
+        raise SystemExit("cmk-broker-test must be run as a site user (OMD_ROOT is not set)")
 
 
 class TestMessage(BaseModel):
@@ -97,7 +104,7 @@ def _callback_pong(
 
 def _command_pong() -> int:
     write("Establishing connection to local broker\n")
-    with Connection(APP_NAME, omd_root, omd_site()) as conn:
+    with Connection(APP_NAME, _omd_root(), omd_site()) as conn:
         channel = conn.channel(TestMessage)
         channel.queue_declare(queue=QUEUE_PING)
         write("Waiting for messages\n")
@@ -133,7 +140,7 @@ def _make_callback_ping(
 
 def _command_ping(site_id: str) -> int:
     write("Establishing connection to local broker\n")
-    with Connection(APP_NAME, omd_root, omd_site()) as conn:
+    with Connection(APP_NAME, _omd_root(), omd_site()) as conn:
         channel = conn.channel(TestMessage)
         channel.queue_declare(queue=QUEUE_PONG)
 
