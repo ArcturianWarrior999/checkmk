@@ -3,29 +3,41 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-# mypy: disable-error-code="no-untyped-def"
+
+from collections.abc import Mapping
+from typing import Any
+
+from cmk.agent_based.v2 import (
+    AgentSection,
+    CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
+    Service,
+)
+from cmk.plugins.aws.lib import AWSLimitsByRegion, check_aws_limits_legacy, parse_aws_limits_generic
 
 
-from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
-from cmk.legacy_includes.aws import check_aws_limits
-from cmk.plugins.aws.lib import parse_aws_limits_generic
-
-check_info = {}
-
-
-def check_aws_elbv2_limits(item, params, parsed):
-    if not (region_data := parsed.get(item)):
+def check_aws_elbv2_limits(
+    item: str, params: Mapping[str, Any], section: AWSLimitsByRegion
+) -> CheckResult:
+    if not (region_data := section.get(item)):
         return
-    yield from check_aws_limits("elbv2", params, region_data)
+    yield from check_aws_limits_legacy("elbv2", params, region_data)
 
 
-def discover_aws_elbv2_limits(section):
-    yield from ((item, {}) for item in section)
+def discover_aws_elbv2_limits(section: AWSLimitsByRegion) -> DiscoveryResult:
+    for item in section:
+        yield Service(item=item)
 
 
-check_info["aws_elbv2_limits"] = LegacyCheckDefinition(
+agent_section_aws_elbv2_limits = AgentSection(
     name="aws_elbv2_limits",
     parse_function=parse_aws_limits_generic,
+)
+
+
+check_plugin_aws_elbv2_limits = CheckPlugin(
+    name="aws_elbv2_limits",
     service_name="AWS/ELBv2 Limits %s",
     discovery_function=discover_aws_elbv2_limits,
     check_function=check_aws_elbv2_limits,
