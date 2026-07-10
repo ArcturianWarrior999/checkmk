@@ -129,10 +129,6 @@ STAGES:
               --path "non-free/packages" \
               >> ${RESULTS}/results.txt || make_rc=$?
           ./scripts/in_bazel.sh ".ps1" "filegroup" \
-              `# pre-existing, not part of any CMK-3575x ticket; drained in a later commit` \
-              --known-offender agents/wnx/scripts/sign_code_azure.ps1 \
-              --known-offender packages/mk-oracle/references/output-multiple.ps1 \
-              --known-offender packages/mk-oracle/references/output-optional.ps1 \
               >> ${RESULTS}/results.txt || make_rc=$?
           ./tests/agent-plugin-unit/bootstrap.sh --check-sources >> ${RESULTS}/results.txt || make_rc=$?
           exit $make_rc

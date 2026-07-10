@@ -225,3 +225,12 @@ filegroup(
     ],
     tags = ["lint-with-psscriptanalyzer"],
 )
+
+filegroup(
+    name = "test_reference_scripts",
+    srcs = [
+        "references/output-multiple.ps1",
+        "references/output-optional.ps1",
+    ],
+    tags = ["lint-with-psscriptanalyzer"],
+)

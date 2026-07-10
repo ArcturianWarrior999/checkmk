@@ -16,6 +16,9 @@ py_binary(
 
 filegroup(
     name = "powershell_scripts",
-    srcs = ["tools/findagentmsi.ps1"],
+    srcs = [
+        "sign_code_azure.ps1",
+        "tools/findagentmsi.ps1",
+    ],
     tags = ["lint-with-psscriptanalyzer"],
 )
