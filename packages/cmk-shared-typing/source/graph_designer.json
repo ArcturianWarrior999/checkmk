@@ -104,11 +104,8 @@
         "data_point_attributes": {
           "$ref": "#/$defs/graph_line_query_attributes"
         },
-        "aggregation_lookback": {
-          "type": "number"
-        },
-        "aggregation_histogram_percentile": {
-          "type": "number"
+        "consolidation_function": {
+          "$ref": "#/$defs/consolidation_function"
         }
       },
       "required": [
@@ -124,8 +121,45 @@
         "resource_attributes",
         "scope_attributes",
         "data_point_attributes",
-        "aggregation_lookback",
-        "aggregation_histogram_percentile"
+        "consolidation_function"
+      ]
+    },
+    "consolidation_gauge": {
+      "type": "object",
+      "title": "consolidation_gauge",
+      "properties": {
+        "type": { "type": "string", "enum": ["gauge"] },
+        "function": { "type": "string", "enum": ["gauge_last"] },
+        "lookback_seconds": { "type": "number" }
+      },
+      "required": ["type", "function", "lookback_seconds"]
+    },
+    "consolidation_sum": {
+      "type": "object",
+      "title": "consolidation_sum",
+      "properties": {
+        "type": { "type": "string", "enum": ["sum"] },
+        "function": { "type": "string", "enum": ["sum_rate"] },
+        "lookback_seconds": { "type": "number" }
+      },
+      "required": ["type", "function", "lookback_seconds"]
+    },
+    "consolidation_histogram": {
+      "type": "object",
+      "title": "consolidation_histogram",
+      "properties": {
+        "type": { "type": "string", "enum": ["histogram"] },
+        "function": { "type": "string", "enum": ["histogram_quantile"] },
+        "lookback_seconds": { "type": "number" },
+        "percentile": { "type": "number" }
+      },
+      "required": ["type", "function", "lookback_seconds", "percentile"]
+    },
+    "consolidation_function": {
+      "anyOf": [
+        { "$ref": "#/$defs/consolidation_gauge" },
+        { "$ref": "#/$defs/consolidation_sum" },
+        { "$ref": "#/$defs/consolidation_histogram" }
       ]
     },
     "graph_line_metric": {

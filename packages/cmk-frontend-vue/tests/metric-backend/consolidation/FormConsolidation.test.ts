@@ -25,7 +25,7 @@ function renderWidget(
     params: {},
     lookbackSeconds: 300,
     ...initial
-  })
+  } as ConsolidationModel)
   const resolvedTypes = ref<MetricType[]>(availableTypes ?? [model.value.type])
   const wrapper = defineComponent({
     components: { FormConsolidation },

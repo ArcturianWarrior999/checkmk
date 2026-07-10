@@ -5,9 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { type GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
+import {
+  type GraphLineQueryAttributes,
+  type ConsolidationFunction as WireConsolidationFunction
+} from 'cmk-shared-typing/typescript/graph_designer'
 import type { MetricBackendCustomQuery } from 'cmk-shared-typing/typescript/vue_formspec_components'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 import { immediateWatch } from '@/lib/watch'
@@ -18,9 +21,15 @@ import CmkLabelRequired from '@/components/user-input/CmkLabelRequired.vue'
 
 import { type ValidationMessages } from '@/form/private/validation'
 
+import {
+  DEFAULT_HISTOGRAM_PERCENTILE,
+  buildConsolidationFunction,
+  consolidationFunctionFromWire
+} from '@/graph-designer/consolidation'
 import FormMetricBackendAttributes from '@/metric-backend/FormMetricBackendAttributes.vue'
 import FormMetricBackendConsolidation from '@/metric-backend/FormMetricBackendConsolidation.vue'
 import FormMetricNameAutocompleter from '@/metric-backend/FormMetricNameAutocompleter.vue'
+import type { ConsolidationFunction } from '@/metric-backend/consolidation/types'
 
 const { _t } = usei18n()
 
@@ -29,8 +38,7 @@ export interface Query {
   resourceAttributes: GraphLineQueryAttributes
   scopeAttributes: GraphLineQueryAttributes
   dataPointAttributes: GraphLineQueryAttributes
-  aggregationLookback: number
-  aggregationHistogramPercentile: number
+  consolidationFunction: WireConsolidationFunction
 }
 
 const props = defineProps<{
@@ -65,11 +73,36 @@ const scopeAttributes = defineModel<GraphLineQueryAttributes>('scopeAttributes',
 const dataPointAttributes = defineModel<GraphLineQueryAttributes>('dataPointAttributes', {
   default: []
 })
-const aggregationLookback = defineModel<number>('aggregationLookback', {
-  required: true
+const consolidation = defineModel<WireConsolidationFunction>('consolidation', { required: true })
+
+const aggregationLookback = computed<number>({
+  get: () => consolidation.value.lookback_seconds,
+  set: (value) => {
+    consolidation.value = { ...consolidation.value, lookback_seconds: value }
+  }
 })
-const aggregationHistogramPercentile = defineModel<number>('aggregationHistogramPercentile', {
-  required: true
+
+const aggregationHistogramPercentile = computed<number>({
+  get: () =>
+    consolidation.value.function === 'histogram_quantile'
+      ? consolidation.value.percentile
+      : DEFAULT_HISTOGRAM_PERCENTILE,
+  set: (value) => {
+    if (consolidation.value.function === 'histogram_quantile') {
+      consolidation.value = { ...consolidation.value, percentile: value }
+    }
+  }
+})
+
+const consolidationFunction = computed<ConsolidationFunction | null>({
+  get: () => consolidationFunctionFromWire(consolidation.value),
+  set: (value) => {
+    consolidation.value = buildConsolidationFunction(
+      value,
+      aggregationLookback.value,
+      aggregationHistogramPercentile.value
+    )
+  }
 })
 </script>
 
@@ -102,6 +135,7 @@ const aggregationHistogramPercentile = defineModel<number>('aggregationHistogram
       <FormMetricBackendConsolidation
         v-model:aggregation-lookback="aggregationLookback"
         v-model:aggregation-histogram-percentile="aggregationHistogramPercentile"
+        v-model:consolidation-function="consolidationFunction"
         :metric-types="metricTypes"
         :backend-validation="props.backendValidation ?? []"
       />

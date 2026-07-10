@@ -4,7 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import { type ConsolidationFunction as WireConsolidationFunction } from 'cmk-shared-typing/typescript/graph_designer'
 import type { MetricBackendCustomQuery } from 'cmk-shared-typing/typescript/vue_formspec_components'
+import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 import useId from '@/lib/useId'
@@ -15,7 +17,10 @@ import CmkInput from '@/components/user-input/CmkInput.vue'
 import { type ValidationMessages } from '@/form'
 import FormHelp from '@/form/private/FormHelp.vue'
 
+import type { ConsolidationFunction } from '@/metric-backend/consolidation/types'
+
 import FormMetricBackendCustomQuery from './FormMetricBackendCustomQuery.vue'
+import { buildConsolidationFunction, consolidationFunctionFromWire } from './consolidation'
 import { METRIC_BACKEND_MACRO_HELP } from './constants'
 
 const { _t } = usei18n()
@@ -28,6 +33,30 @@ const props = defineProps<{
 const data = defineModel<MetricBackendCustomQuery>('data', { required: true })
 
 const componentId = useId()
+
+// MetricBackendCustomQuery has no persisted consolidation function, only the two
+// numbers below; the picked function is kept here, local to this component instance.
+const pickedFunction = ref<ConsolidationFunction | null>(null)
+
+const consolidation = computed<WireConsolidationFunction>({
+  get: () =>
+    buildConsolidationFunction(
+      pickedFunction.value,
+      data.value.aggregation_lookback,
+      data.value.aggregation_histogram_percentile
+    ),
+  set: (value) => {
+    pickedFunction.value = consolidationFunctionFromWire(value)
+    data.value = {
+      ...data.value,
+      aggregation_lookback: value.lookback_seconds,
+      aggregation_histogram_percentile:
+        value.function === 'histogram_quantile'
+          ? value.percentile
+          : data.value.aggregation_histogram_percentile
+    }
+  }
+})
 </script>
 
 <template>
@@ -37,8 +66,7 @@ const componentId = useId()
     v-model:resource-attributes="data.resource_attributes"
     v-model:scope-attributes="data.scope_attributes"
     v-model:data-point-attributes="data.data_point_attributes"
-    v-model:aggregation-lookback="data.aggregation_lookback"
-    v-model:aggregation-histogram-percentile="data.aggregation_histogram_percentile"
+    v-model:consolidation="consolidation"
     :backend-validation="props.backendValidation"
   >
     <template #additional-rows>

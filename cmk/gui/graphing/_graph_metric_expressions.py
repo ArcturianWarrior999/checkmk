@@ -101,14 +101,35 @@ class GraphLineQueryAttribute:
     value: str
 
 
+@dataclass(frozen=True, kw_only=True)
+class GaugeLast:
+    lookback_seconds: float
+    type_: Literal["gauge_last"] = "gauge_last"
+
+
+@dataclass(frozen=True, kw_only=True)
+class SumRate:
+    lookback_seconds: float
+    type_: Literal["sum_rate"] = "sum_rate"
+
+
+@dataclass(frozen=True, kw_only=True)
+class HistogramQuantile:
+    lookback_seconds: float
+    percentile: float
+    type_: Literal["histogram_quantile"] = "histogram_quantile"
+
+
+type ConsolidationFunction = GaugeLast | SumRate | HistogramQuantile
+
+
 @dataclass(frozen=True)
 class QueryDataKey:
     metric_name: MetricName
     resource_attributes: tuple[GraphLineQueryAttribute, ...]
     scope_attributes: tuple[GraphLineQueryAttribute, ...]
     data_point_attributes: tuple[GraphLineQueryAttribute, ...]
-    aggregation_lookback: float
-    aggregation_histogram_percentile: float
+    consolidation_function: ConsolidationFunction
 
 
 @dataclass(frozen=True)

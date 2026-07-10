@@ -10,14 +10,11 @@ export const METRIC_TYPES = ['gauge', 'sum', 'histogram'] as const
 
 export type ConsolidationOutputType = 'float' | 'histogram'
 
-export type ConsolidationFunction =
-  | 'gauge_last'
-  | 'gauge_avg'
-  | 'gauge_max'
-  | 'gauge_min'
-  | 'sum_rate'
-  | 'sum_delta'
-  | 'sum_last_raw'
+export type GaugeFunction = 'gauge_last' | 'gauge_avg' | 'gauge_max' | 'gauge_min'
+
+export type SumFunction = 'sum_rate' | 'sum_delta' | 'sum_last_raw'
+
+export type HistogramFunction =
   | 'histogram_preserve'
   | 'histogram_count_rate'
   | 'histogram_count_delta'
@@ -27,6 +24,19 @@ export type ConsolidationFunction =
   | 'histogram_fraction_below'
   | 'histogram_fraction_between'
   | 'histogram_sum_raw'
+
+type FunctionsByType = {
+  gauge: GaugeFunction
+  sum: SumFunction
+  histogram: HistogramFunction
+}
+
+/** A function only exists within its metric type, so it travels as a type/function pair. */
+export type ConsolidationFunction = {
+  [T in MetricType]: { type: T; function: FunctionsByType[T] }
+}[MetricType]
+
+export type ConsolidationFunctionName = ConsolidationFunction['function']
 
 export const DEFAULT_QUANTILE = 0.95
 
@@ -41,22 +51,21 @@ export interface ConsolidationParams {
   fractionUpperThreshold?: number
 }
 
-export interface ConsolidationModel {
-  /** Effective metric type the selected function belongs to. */
-  type: MetricType
-  function: ConsolidationFunction
+export type ConsolidationModel = ConsolidationFunction & {
   params: ConsolidationParams
   lookbackSeconds: number
 }
 
-export interface FunctionSpec {
-  fn: ConsolidationFunction
+export interface FunctionSpec<F extends ConsolidationFunctionName = ConsolidationFunctionName> {
+  fn: F
   /** Raw cumulative functions are marked "(raw)" and listed last. */
   raw: boolean
   output: ConsolidationOutputType
 }
 
-export const CONSOLIDATION_CATALOG: Record<MetricType, FunctionSpec[]> = {
+export const CONSOLIDATION_CATALOG: {
+  [T in MetricType]: FunctionSpec<FunctionsByType[T]>[]
+} = {
   gauge: [
     { fn: 'gauge_last', raw: false, output: 'float' },
     { fn: 'gauge_avg', raw: false, output: 'float' },
@@ -82,13 +91,18 @@ export const CONSOLIDATION_CATALOG: Record<MetricType, FunctionSpec[]> = {
 }
 
 /** Allowlist restricting the offered functions per type; a missing entry offers all. */
-export type AllowedFunctions = Partial<Record<MetricType, ConsolidationFunction[]>>
+export type AllowedFunctions = {
+  [T in MetricType]?: FunctionsByType[T][]
+}
 
 /**
  * Functions offered for a type, in catalog order. An allowlist filters them;
  * a filter that matches nothing falls back to the full catalog.
  */
-export function functionSpecsForType(type: MetricType, allowed?: AllowedFunctions): FunctionSpec[] {
+export function functionSpecsForType<T extends MetricType>(
+  type: T,
+  allowed?: AllowedFunctions
+): FunctionSpec<FunctionsByType[T]>[] {
   const specs = CONSOLIDATION_CATALOG[type]
   const allowList = allowed?.[type]
   if (allowList === undefined) {
@@ -100,13 +114,10 @@ export function functionSpecsForType(type: MetricType, allowed?: AllowedFunction
 
 export function functionSpec(
   type: MetricType,
-  fn: ConsolidationFunction
+  fn: ConsolidationFunctionName
 ): FunctionSpec | undefined {
-  return CONSOLIDATION_CATALOG[type].find((spec) => spec.fn === fn)
-}
-
-export function isFunctionValidForType(type: MetricType, fn: ConsolidationFunction): boolean {
-  return functionSpec(type, fn) !== undefined
+  const specs: readonly FunctionSpec[] = CONSOLIDATION_CATALOG[type]
+  return specs.find((spec) => spec.fn === fn)
 }
 
 /** The default function for a type is the first it offers (catalog order, allowlist applied). */
@@ -114,9 +125,25 @@ export function defaultFunction(
   type: MetricType,
   allowed?: AllowedFunctions
 ): ConsolidationFunction {
-  return functionSpecsForType(type, allowed)[0]!.fn
+  switch (type) {
+    case 'gauge':
+      return { type, function: functionSpecsForType(type, allowed)[0]!.fn }
+    case 'sum':
+      return { type, function: functionSpecsForType(type, allowed)[0]!.fn }
+    case 'histogram':
+      return { type, function: functionSpecsForType(type, allowed)[0]!.fn }
+  }
 }
 
-export function outputType(type: MetricType, fn: ConsolidationFunction): ConsolidationOutputType {
+export function outputType(
+  type: MetricType,
+  fn: ConsolidationFunctionName
+): ConsolidationOutputType {
   return functionSpec(type, fn)?.output ?? 'float'
+}
+
+/** The type/function pair of a model, without the editable params and lookback. */
+export function consolidationFunctionOf(model: ConsolidationModel): ConsolidationFunction {
+  const { params: _params, lookbackSeconds: _lookbackSeconds, ...fn } = model
+  return fn
 }

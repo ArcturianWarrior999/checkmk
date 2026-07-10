@@ -10,8 +10,7 @@ import FormMetricBackendCustomQuery from '@/graph-designer/FormMetricBackendCust
 test('Render FormMetricBackendCustomQuery', () => {
   render(FormMetricBackendCustomQuery, {
     props: {
-      aggregationLookback: 0,
-      aggregationHistogramPercentile: 0
+      consolidation: { type: 'gauge', function: 'gauge_last', lookback_seconds: 0 }
     }
   })
 })

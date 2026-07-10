@@ -14,12 +14,14 @@ import {
   type GraphLines,
   type GraphOptions,
   type Operation,
-  type Transformation
+  type Transformation,
+  type ConsolidationFunction as WireConsolidationFunction
 } from 'cmk-shared-typing/typescript/graph_designer'
 import type { Catalog } from 'cmk-shared-typing/typescript/vue_formspec_components'
 import { type Ref, computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
+import { staticAssertNever } from '@/lib/typeUtils'
 import useDragging from '@/lib/useDragging'
 
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
@@ -206,9 +208,19 @@ const dataQuery = ref<Query>({
   resourceAttributes: [],
   scopeAttributes: [],
   dataPointAttributes: [],
-  aggregationLookback: dataQueryAggregationLookbackDefault,
-  aggregationHistogramPercentile: dataQueryAggregationHistogramPercentile
+  consolidationFunction: {
+    type: 'gauge',
+    function: 'gauge_last',
+    lookback_seconds: dataQueryAggregationLookbackDefault
+  }
 })
+
+function consolidationPercentile(cf: WireConsolidationFunction): number {
+  return cf.function === 'histogram_quantile'
+    ? cf.percentile
+    : dataQueryAggregationHistogramPercentile
+}
+
 const dataMetric = ref<Metric>({
   hostName: null,
   serviceName: null,
@@ -318,8 +330,7 @@ function generateGraphLine(graphLine: GraphLine): GraphLine {
         resource_attributes: graphLine.resource_attributes,
         scope_attributes: graphLine.scope_attributes,
         data_point_attributes: graphLine.data_point_attributes,
-        aggregation_lookback: graphLine.aggregation_lookback,
-        aggregation_histogram_percentile: graphLine.aggregation_histogram_percentile
+        consolidation_function: graphLine.consolidation_function
       }
     case 'metric':
       return {
@@ -447,16 +458,18 @@ async function addQuery() {
       resource_attributes: dataQuery.value.resourceAttributes,
       scope_attributes: dataQuery.value.scopeAttributes,
       data_point_attributes: dataQuery.value.dataPointAttributes,
-      aggregation_lookback: dataQuery.value.aggregationLookback,
-      aggregation_histogram_percentile: dataQuery.value.aggregationHistogramPercentile
+      consolidation_function: dataQuery.value.consolidationFunction
     })
     dataQuery.value = {
       metricName: null,
       resourceAttributes: [],
       scopeAttributes: [],
       dataPointAttributes: [],
-      aggregationLookback: dataQueryAggregationLookbackDefault,
-      aggregationHistogramPercentile: dataQueryAggregationHistogramPercentile
+      consolidationFunction: {
+        type: 'gauge',
+        function: 'gauge_last',
+        lookback_seconds: dataQueryAggregationLookbackDefault
+      }
     }
   }
 }
@@ -790,23 +803,38 @@ function compareQueryAttributes(a: GraphLineQueryAttribute[], b: GraphLineQueryA
   return a.length === b.length && a.every((element, index) => element === b[index])
 }
 
-function hasLimitedReached(graphLine: GraphLine) {
+function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationFunction): boolean {
+  switch (a.function) {
+    case 'gauge_last':
+    case 'sum_rate':
+      return b.function === a.function && a.lookback_seconds === b.lookback_seconds
+    case 'histogram_quantile':
+      return (
+        b.function === 'histogram_quantile' &&
+        a.lookback_seconds === b.lookback_seconds &&
+        a.percentile === b.percentile
+      )
+    default:
+      staticAssertNever(a)
+      return false
+  }
+}
+
+function sameQuery(a: GraphLineQuery, b: GraphLineQuery): boolean {
+  return (
+    a.metric_name === b.metric_name &&
+    compareQueryAttributes(a.resource_attributes, b.resource_attributes) &&
+    compareQueryAttributes(a.scope_attributes, b.scope_attributes) &&
+    compareQueryAttributes(a.data_point_attributes, b.data_point_attributes) &&
+    consolidationEquals(a.consolidation_function, b.consolidation_function)
+  )
+}
+
+function hasLimitedReached(graphLine: GraphLine): boolean {
   if (graphLine.type !== 'query') {
     return false
   }
-  for (const element of queriesReachedLimitRef.value) {
-    if (
-      element.metric_name === graphLine.metric_name &&
-      compareQueryAttributes(element.resource_attributes, graphLine.resource_attributes) &&
-      compareQueryAttributes(element.scope_attributes, graphLine.scope_attributes) &&
-      compareQueryAttributes(element.data_point_attributes, graphLine.data_point_attributes) &&
-      element.aggregation_lookback === graphLine.aggregation_lookback &&
-      element.aggregation_histogram_percentile === graphLine.aggregation_histogram_percentile
-    ) {
-      return true
-    }
-  }
-  return false
+  return queriesReachedLimitRef.value.some((element) => sameQuery(element, graphLine))
 }
 
 // SlideIn/Out
@@ -877,6 +905,7 @@ const slideInAPI = {
         )
       ).defaultValues
       if (values.value && graphLineQuery.value !== null && graphLineQuery.value.type === 'query') {
+        const cf = graphLineQuery.value.consolidation_function
         const queryAttributes = {
           metric_name: graphLineQuery.value.metric_name,
           resource_attributes: transformQueryAttributes(graphLineQuery.value.resource_attributes),
@@ -884,8 +913,8 @@ const slideInAPI = {
           data_point_attributes: transformQueryAttributes(
             graphLineQuery.value.data_point_attributes
           ),
-          aggregation_lookback: graphLineQuery.value.aggregation_lookback,
-          aggregation_histogram_percentile: graphLineQuery.value.aggregation_histogram_percentile,
+          aggregation_lookback: cf.lookback_seconds,
+          aggregation_histogram_percentile: consolidationPercentile(cf),
           service_name_template:
             graphLineQuery.value.custom_title || graphLineQuery.value.auto_title
         }
@@ -919,10 +948,10 @@ function validateFormMetricBackendCustomQuery(
   graphLineQuery?: GraphLineQuery
 ): ValidationMessages {
   const validationMessages: ValidationMessages = []
+  const cf = query?.consolidationFunction ?? graphLineQuery?.consolidation_function
   const metricName = query?.metricName ?? graphLineQuery?.metric_name
-  const aggregationLookback = query?.aggregationLookback ?? graphLineQuery?.aggregation_lookback
-  const aggregationHistogramPercentile =
-    query?.aggregationHistogramPercentile ?? graphLineQuery?.aggregation_histogram_percentile
+  const aggregationLookback = cf?.lookback_seconds
+  const aggregationHistogramPercentile = cf ? consolidationPercentile(cf) : undefined
   if (metricName !== undefined && (metricName === null || metricName.trim() === '')) {
     validationMessages.push({
       message: 'Metric name cannot be empty',
@@ -1211,8 +1240,7 @@ const graphDesignerContentAsJson = computed(() => {
               v-model:resource-attributes="graphLine.resource_attributes"
               v-model:scope-attributes="graphLine.scope_attributes"
               v-model:data-point-attributes="graphLine.data_point_attributes"
-              v-model:aggregation-lookback="graphLine.aggregation_lookback"
-              v-model:aggregation-histogram-percentile="graphLine.aggregation_histogram_percentile"
+              v-model:consolidation="graphLine.consolidation_function"
               :backend-validation="validateFormMetricBackendCustomQuery(undefined, graphLine)"
               :class="{ 'gd__yellow-border': hasLimitedReached(graphLine) }"
               @update:metric-name="updateGraphLineAutoTitle(graphLine)"
@@ -1318,8 +1346,7 @@ const graphDesignerContentAsJson = computed(() => {
           v-model:resource-attributes="dataQuery.resourceAttributes"
           v-model:scope-attributes="dataQuery.scopeAttributes"
           v-model:data-point-attributes="dataQuery.dataPointAttributes"
-          v-model:aggregation-lookback="dataQuery.aggregationLookback"
-          v-model:aggregation-histogram-percentile="dataQuery.aggregationHistogramPercentile"
+          v-model:consolidation="dataQuery.consolidationFunction"
           :backend-validation="validateFormMetricBackendCustomQuery(dataQuery)"
         />
         <CmkButton :aria-label="_t('Add query')" @click="addQuery">

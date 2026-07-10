@@ -26,6 +26,7 @@ import { DEFAULT_QUANTILE, METRIC_TYPES, defaultFunction, functionSpecsForType }
 import type {
   AllowedFunctions,
   ConsolidationFunction,
+  ConsolidationFunctionName,
   ConsolidationModel,
   ConsolidationParams,
   MetricType
@@ -82,28 +83,27 @@ const singleFunction = computed(
 )
 const singleFunctionLabel = computed(() => functionLabel(model.value.type, model.value.function))
 
-function applyFunction(type: MetricType, fn: ConsolidationFunction): void {
+function applyFunction(fn: ConsolidationFunction): void {
   // Reset params; they belonged to the previous function. Seed the quantile
   // default so its field isn't blank the moment the function is picked.
   const params: ConsolidationParams =
-    fn === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {}
-  model.value = { ...model.value, type, function: fn, params }
+    fn.function === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {}
+  model.value = { ...model.value, ...fn, params }
 }
 
 function onFunctionUpdate(value: string | null): void {
   if (value === null) {
     return
   }
-  const [type, fn] = value.split(':') as [MetricType, ConsolidationFunction]
-  applyFunction(type, fn)
+  const [type, fn] = value.split(':') as [MetricType, ConsolidationFunctionName]
+  applyFunction({ type, function: fn } as ConsolidationFunction)
 }
 
 watch(candidateTypes, (types) => {
   if (types.includes(model.value.type)) {
     return
   }
-  const type = types[0]!
-  applyFunction(type, defaultFunction(type, props.allowedFunctions))
+  applyFunction(defaultFunction(types[0]!, props.allowedFunctions))
 })
 
 const editing = ref(false)

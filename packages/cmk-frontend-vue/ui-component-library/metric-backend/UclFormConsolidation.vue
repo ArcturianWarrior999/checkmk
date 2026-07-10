@@ -102,9 +102,9 @@ function clampToScope(
   }
   const fn = defaultFunction(configuration.type, allowed)
   return {
-    ...configuration,
-    function: fn,
-    params: fn === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {}
+    ...fn,
+    params: fn.function === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {},
+    lookbackSeconds: configuration.lookbackSeconds
   }
 }
 

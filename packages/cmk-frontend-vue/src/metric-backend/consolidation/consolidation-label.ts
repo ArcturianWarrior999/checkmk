@@ -9,14 +9,14 @@ import type { TranslatedString } from '@/lib/i18nString'
 import { type Magnitude, formatTimeSpan } from '@/components/user-input/CmkTimeSpan/timeSpan'
 
 import { DEFAULT_QUANTILE } from './types'
-import type { ConsolidationFunction, ConsolidationModel, MetricType } from './types'
+import type { ConsolidationFunctionName, ConsolidationModel, MetricType } from './types'
 
 const LOOKBACK_MAGNITUDES: Magnitude[] = ['hour', 'minute', 'second']
 
 // Built at call time, not module load, because i18n is not yet set up then.
 function functionLabels(): Record<
   MetricType,
-  Partial<Record<ConsolidationFunction, TranslatedString>>
+  Partial<Record<ConsolidationFunctionName, TranslatedString>>
 > {
   const { _t } = usei18n()
   return {
@@ -46,14 +46,14 @@ function functionLabels(): Record<
 }
 
 /** Base label for a function, without the raw marker. */
-export function functionLabel(type: MetricType, fn: ConsolidationFunction): TranslatedString {
+export function functionLabel(type: MetricType, fn: ConsolidationFunctionName): TranslatedString {
   return functionLabels()[type][fn] ?? untranslated(fn)
 }
 
 /** Dropdown label for a function, appending a "(raw)" marker when raw. */
 export function functionOptionLabel(
   type: MetricType,
-  fn: ConsolidationFunction,
+  fn: ConsolidationFunctionName,
   raw: boolean
 ): TranslatedString {
   const { _t } = usei18n()

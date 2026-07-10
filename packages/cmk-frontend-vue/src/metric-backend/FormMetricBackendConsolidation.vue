@@ -16,9 +16,14 @@ import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue
 import type { ValidationMessages } from '@/form'
 
 import FormConsolidation from '@/metric-backend/consolidation/FormConsolidation.vue'
-import { METRIC_TYPES, defaultFunction } from '@/metric-backend/consolidation/types'
+import {
+  METRIC_TYPES,
+  consolidationFunctionOf,
+  defaultFunction
+} from '@/metric-backend/consolidation/types'
 import type {
   AllowedFunctions,
+  ConsolidationFunction,
   ConsolidationModel,
   MetricType
 } from '@/metric-backend/consolidation/types'
@@ -44,6 +49,9 @@ const aggregationLookback = defineModel<number>('aggregationLookback', { require
 const aggregationHistogramPercentile = defineModel<number>('aggregationHistogramPercentile', {
   required: true
 })
+const consolidationFunction = defineModel<ConsolidationFunction | null>('consolidationFunction', {
+  default: null
+})
 
 function isMetricType(value: string): value is MetricType {
   return (METRIC_TYPES as readonly string[]).includes(value)
@@ -51,22 +59,25 @@ function isMetricType(value: string): value is MetricType {
 
 const availableTypes = computed<MetricType[]>(() => props.metricTypes.filter(isMetricType))
 
-// Type and function are derived for display; only lookback and the percentile are persisted.
+// A previously persisted function pick wins; only a line without one yet (new or old
+// saved data) falls back to deriving from the metric's first available type.
 function buildModel(): ConsolidationModel {
-  const type = availableTypes.value[0] ?? FALLBACK_TYPE
-  const fn = defaultFunction(type, SUPPORTED_FUNCTIONS)
+  const fn =
+    consolidationFunction.value ??
+    defaultFunction(availableTypes.value[0] ?? FALLBACK_TYPE, SUPPORTED_FUNCTIONS)
   return {
-    type,
-    function: fn,
+    ...fn,
     params:
-      fn === 'histogram_quantile' ? { quantile: aggregationHistogramPercentile.value / 100 } : {},
+      fn.function === 'histogram_quantile'
+        ? { quantile: aggregationHistogramPercentile.value / 100 }
+        : {},
     lookbackSeconds: aggregationLookback.value
   }
 }
 
 const model = ref<ConsolidationModel>(buildModel())
 
-// Mirror the editable pill values back to the persisted floats. The percentile
+// Mirror the editable pill values back to the persisted fields. The percentile
 // belongs to the quantile function only, so other types leave it untouched.
 watch(
   model,
@@ -79,6 +90,13 @@ watch(
       if (percentile !== aggregationHistogramPercentile.value) {
         aggregationHistogramPercentile.value = percentile
       }
+    }
+    const fn = consolidationFunctionOf(value)
+    if (
+      fn.type !== consolidationFunction.value?.type ||
+      fn.function !== consolidationFunction.value?.function
+    ) {
+      consolidationFunction.value = fn
     }
   },
   { deep: true }

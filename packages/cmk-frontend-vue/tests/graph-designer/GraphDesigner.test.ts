@@ -139,8 +139,12 @@ test.each(graphLineTypesExceptQuery)('Graph line of type %s can be edited', (lin
       resource_attributes: [],
       scope_attributes: [],
       data_point_attributes: [],
-      aggregation_lookback: 60,
-      aggregation_histogram_percentile: 95
+      consolidation_function: {
+        type: 'histogram',
+        function: 'histogram_quantile',
+        lookback_seconds: 60,
+        percentile: 95
+      }
     }
   ]
 
@@ -238,8 +242,12 @@ test("Graph line of type 'query' has 'Add rule: Metric backend (Custom query)' b
       resource_attributes: [],
       scope_attributes: [],
       data_point_attributes: [],
-      aggregation_lookback: 60,
-      aggregation_histogram_percentile: 95
+      consolidation_function: {
+        type: 'histogram',
+        function: 'histogram_quantile',
+        lookback_seconds: 60,
+        percentile: 95
+      }
     }
   ]
 
@@ -318,8 +326,12 @@ test("Graph line of type 'query' does not have Color picker button", () => {
       resource_attributes: [],
       scope_attributes: [],
       data_point_attributes: [],
-      aggregation_lookback: 60,
-      aggregation_histogram_percentile: 95
+      consolidation_function: {
+        type: 'histogram',
+        function: 'histogram_quantile',
+        lookback_seconds: 60,
+        percentile: 95
+      }
     }
   ]
 
@@ -394,8 +406,12 @@ test("Graph line of type 'query' has help text", () => {
       resource_attributes: [],
       scope_attributes: [],
       data_point_attributes: [],
-      aggregation_lookback: 60,
-      aggregation_histogram_percentile: 95
+      consolidation_function: {
+        type: 'histogram',
+        function: 'histogram_quantile',
+        lookback_seconds: 60,
+        percentile: 95
+      }
     }
   ]
 
@@ -470,8 +486,12 @@ test("Graph line of type 'query' has inline help text", () => {
       resource_attributes: [],
       scope_attributes: [],
       data_point_attributes: [],
-      aggregation_lookback: 60,
-      aggregation_histogram_percentile: 95
+      consolidation_function: {
+        type: 'histogram',
+        function: 'histogram_quantile',
+        lookback_seconds: 60,
+        percentile: 95
+      }
     }
   ]
 
