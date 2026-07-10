@@ -9,6 +9,7 @@ import datetime
 import logging
 import time
 from collections.abc import Mapping
+from io import StringIO
 from zoneinfo import ZoneInfo
 
 import time_machine
@@ -455,12 +456,14 @@ def test_get_host_services_by_host_name_move_mutiple_nodes_and_autochecks() -> N
     }
 
 
-class MockLogger(logging.Logger):
-    def __init__(self) -> None:
-        self.records: list[str] = []
-
-    def debug(self, msg: object, *args: object, **kwargs: object) -> None:
-        self.records.append(str(msg))
+def _setup_buffered_logging() -> StringIO:
+    logger = logging.getLogger("cmk")
+    buffer = StringIO()
+    handler = logging.StreamHandler(stream=buffer)
+    handler.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+    return buffer
 
 
 def test_may_rediscover_relies_on_time_zone_when_disallowing() -> None:
@@ -468,25 +471,23 @@ def test_may_rediscover_relies_on_time_zone_when_disallowing() -> None:
     rediscovery_parameters = RediscoveryParameters(
         {"excluded_time": [((9, 15), (9, 45))], "group_time": 3600},
     )
-
+    buffer = _setup_buffered_logging()
     with time_machine.travel(
         datetime.datetime(2026, 1, 6, 9, 30, tzinfo=ZoneInfo("Europe/Berlin")),
         tick=False,
     ):
-        mock_logger = MockLogger()
         assert (
             _may_rediscover(
                 host_name=NODE_1,
                 rediscovery_parameters=rediscovery_parameters,
                 reference_time=time.mktime(time.localtime()),
                 oldest_queued=0.0,
-                logger=mock_logger,
             )
             is False
         )
-
-        assert len(mock_logger.records) == 1
-        assert "disallowed at this time of day" in mock_logger.records[0]
+    log_messages = buffer.getvalue().strip("\n").split("\n")
+    assert len(log_messages) == 1
+    assert "disallowed at this time of day" in log_messages[0]
 
 
 def test_may_rediscover_relies_on_time_zone_when_allowing() -> None:
@@ -494,20 +495,19 @@ def test_may_rediscover_relies_on_time_zone_when_allowing() -> None:
     rediscovery_parameters = RediscoveryParameters(
         {"excluded_time": [((9, 15), (9, 45))], "group_time": 3600},
     )
+    buffer = _setup_buffered_logging()
 
     with time_machine.travel(
         datetime.datetime(2026, 1, 6, 10, 30, tzinfo=ZoneInfo("Europe/Berlin")),
         tick=False,
     ):
-        mock_logger = MockLogger()
         assert (
             _may_rediscover(
                 host_name=NODE_1,
                 rediscovery_parameters=rediscovery_parameters,
                 reference_time=time.mktime(time.localtime()),
                 oldest_queued=0.0,
-                logger=mock_logger,
             )
             is True
         )
-        assert len(mock_logger.records) == 0
+    assert buffer.getvalue().strip("\n").split("\n") == [""]

@@ -451,7 +451,6 @@ def _automation_service_discovery(
             on_error=on_error,
             autochecks_dir=autochecks_dir,
             discovered_host_labels_dir=discovered_host_labels_dir,
-            logger=logger,
         )
 
         if results[hostname].error_text is None:
@@ -1260,7 +1259,6 @@ def _execute_autodiscovery(
                         on_error=on_error,
                         autochecks_dir=autochecks_dir,
                         discovered_host_labels_dir=base_discovered_host_labels_dir,
-                        logger=logger,
                     )
                     if not autodiscovery_result.skipped:
                         autodiscovery_queue.remove(host_name)

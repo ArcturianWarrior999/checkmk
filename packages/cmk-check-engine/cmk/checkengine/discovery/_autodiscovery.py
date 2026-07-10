@@ -51,6 +51,7 @@ from ._utils.filters import RediscoveryParameters, ServiceFilters
 from .types import DiscoveredItem, DiscoverySettings, QualifiedDiscovery
 
 __all__ = ["get_host_services_by_host_name", "discovery_by_host"]
+logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
@@ -150,7 +151,6 @@ def automation_discovery(
     section_error_handling: Callable[[SectionName, Sequence[object]], str],
     autochecks_dir: Path,
     discovered_host_labels_dir: Path,
-    logger: logging.Logger,
 ) -> DiscoveryReport:
     logger.debug("Doing discovery with '%(settings)s'", {"settings": settings})
     results = {
@@ -494,14 +494,12 @@ def autodiscovery(
     on_error: OnError,
     autochecks_dir: Path,
     discovered_host_labels_dir: Path,
-    logger: logging.Logger,
 ) -> AutodiscoveryResult:
     if not _may_rediscover(
         host_name=host_name,
         rediscovery_parameters=rediscovery_parameters,
         reference_time=reference_time,
         oldest_queued=oldest_queued,
-        logger=logger,
     ):
         return AutodiscoveryResult(discovery_result=None, activate=False, skipped=True, error=False)
 
@@ -529,7 +527,6 @@ def autodiscovery(
         on_error=on_error,
         autochecks_dir=autochecks_dir,
         discovered_host_labels_dir=discovered_host_labels_dir,
-        logger=logger,
     )
     if result.error_text is not None:
         # for offline hosts the error message is empty. This is to remain
@@ -598,7 +595,6 @@ def _may_rediscover(
     rediscovery_parameters: RediscoveryParameters,
     reference_time: float,
     oldest_queued: float,
-    logger: logging.Logger,
 ) -> bool:
     if not set(rediscovery_parameters) >= {"excluded_time", "group_time"}:
         logger.debug(
@@ -718,8 +714,6 @@ def discovery_by_host(  # should go to a different file, I think.
         providers,
         [(plugin_name, plugin.sections) for plugin_name, plugin in plugins.items()],
     )
-    # TODO: Pass in logger object.
-    logger = logging.getLogger("cmk.checkengine.discovery")
     logger.debug(
         "Executing discovery plugins: %(plugins)s (total: %(total)d)",
         {"plugins": candidates, "total": len(candidates)},
