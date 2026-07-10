@@ -46,4 +46,4 @@ def make_backend(
             {"backend_type": backend_type},
         )
         backend_cls = _BACKENDS[SNMPBackendEnum.CLASSIC]
-    return backend_cls(snmp_config, logger)
+    return backend_cls(snmp_config)

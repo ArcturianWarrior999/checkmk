@@ -2,7 +2,7 @@
 # Copyright (C) 2019 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
-
+import logging
 import subprocess
 from collections.abc import Iterable
 from typing import assert_never, Literal
@@ -22,6 +22,7 @@ from cmk.checkengine.snmplib import (
 from ._utils import BackendError, strip_snmp_value
 
 __all__ = ["ClassicSNMPBackend"]
+logger = logging.getLogger(__name__)
 
 type CommandType = Literal["snmpget", "snmpgetnext", "snmpwalk"]
 
@@ -68,7 +69,7 @@ class ClassicSNMPBackend(SNMPBackend):
             oid_prefix,
         ]
 
-        self._logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
+        logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
 
         with subprocess.Popen(
             command,
@@ -83,14 +84,14 @@ class ClassicSNMPBackend(SNMPBackend):
             error = snmp_process.stderr.read()
 
         if snmp_process.returncode:
-            self._logger.debug(
+            logger.debug(
                 "%(red)s%(bold)sERROR: %(normal)sSNMP error: %(error)s",
                 {"red": tty.red, "bold": tty.bold, "normal": tty.normal, "error": error.strip()},
             )
             return None
 
         if not line:
-            self._logger.debug("Error in response to snmpget.")
+            logger.debug("Error in response to snmpget.")
             return None
 
         parts = line.split("=", 1)
@@ -98,7 +99,7 @@ class ClassicSNMPBackend(SNMPBackend):
             return None
         item = parts[0]
         value = parts[1].strip()
-        self._logger.debug("SNMP answer: ==> [%(value)s]", {"value": value})
+        logger.debug("SNMP answer: ==> [%(value)s]", {"value": value})
         if value.startswith(
             (
                 "No more variables",
@@ -133,7 +134,7 @@ class ClassicSNMPBackend(SNMPBackend):
         portspec = self._snmp_port_spec()
         command = self._snmp_base_command("snmpwalk", context) + ["-Cc"]
         command += ["-OQ", "-OU", "-On", "-Ot", f"{protospec}{ipaddress}{portspec}", oid]
-        self._logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
+        logger.debug("Running '%(command)s'", {"command": subprocess.list2cmdline(command)})
 
         rowinfo: SNMPRowInfo = []
         with subprocess.Popen(
@@ -154,7 +155,7 @@ class ClassicSNMPBackend(SNMPBackend):
                 raise
 
         if snmp_process.returncode:
-            self._logger.debug(
+            logger.debug(
                 "%(red)s%(bold)sERROR: %(normal)sSNMP error: %(error)s",
                 {"red": tty.red, "bold": tty.bold, "normal": tty.normal, "error": error.strip()},
             )

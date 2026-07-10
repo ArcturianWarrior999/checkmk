@@ -22,11 +22,12 @@ from cmk.checkengine.snmplib import (
 from ._utils import BackendError, strip_snmp_value
 
 __all__ = ["StoredWalkSNMPBackend"]
+logger = logging.getLogger(__name__)
 
 
 class StoredWalkSNMPBackend(SNMPBackend):
-    def __init__(self, snmp_config: SNMPHostConfig, logger: logging.Logger) -> None:
-        super().__init__(snmp_config, logger)
+    def __init__(self, snmp_config: SNMPHostConfig) -> None:
+        super().__init__(snmp_config)
         self.path: Final = snmp_config.stored_walk_path / snmp_config.hostname
         if not self.path.exists():
             raise BackendError(f"No snmpwalk file {self.path}")
@@ -64,7 +65,7 @@ class StoredWalkSNMPBackend(SNMPBackend):
             oid_prefix = oid
             dot_star = False
 
-        self._logger.debug("  Loading %(oid)s", {"oid": oid})
+        logger.debug("Loading %(oid)s", {"oid": oid})
         lines = self.read_walk_data()
 
         begin = 0
@@ -96,8 +97,8 @@ class StoredWalkSNMPBackend(SNMPBackend):
         return rowinfo
 
     @staticmethod
-    def read_walk_from_path(path: Path, logger: logging.Logger) -> Sequence[str]:
-        logger.debug("  Opening %(path)s", {"path": path})
+    def read_walk_from_path(path: Path) -> Sequence[str]:
+        logger.debug("Opening %(path)s", {"path": path})
         lines = []
         with path.open() as f:
             # Sometimes there are newlines in the data of snmpwalks.
@@ -111,7 +112,7 @@ class StoredWalkSNMPBackend(SNMPBackend):
 
     def read_walk_data(self) -> Sequence[str]:
         try:
-            return self.read_walk_from_path(self.path, self._logger)
+            return self.read_walk_from_path(self.path)
         except OSError:
             raise BackendError(f"No snmpwalk file {self.path}")
 

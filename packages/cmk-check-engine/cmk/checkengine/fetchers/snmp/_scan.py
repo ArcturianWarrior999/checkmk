@@ -82,12 +82,7 @@ def _snmp_scan(
 def _prefetch_description_object(*, backend: SNMPBackend) -> Mapping[str, SNMPDecodedString]:
     def _fetch_required(oid: str, name: str) -> SNMPDecodedString:
         if (
-            value := get_single_oid(
-                oid,
-                single_oid_cache={},
-                backend=backend,
-                log=backend.logger.debug,
-            )
+            value := get_single_oid(oid, single_oid_cache={}, backend=backend, log=logger.debug)
         ) is None:
             raise FetcherError(
                 "Cannot fetch %s OID %s. Please check your SNMP "
@@ -128,7 +123,7 @@ def _find_sections(
             section_name=name,
             single_oid_cache={**initial_system_oids},
             backend=backend,
-            log=backend.logger.debug,
+            log=logger.debug,
         )
         try:
             if evaluate_snmp_detection(

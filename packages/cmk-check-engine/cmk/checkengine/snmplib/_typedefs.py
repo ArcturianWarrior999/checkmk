@@ -7,7 +7,6 @@ import abc
 import copy
 import dataclasses
 import enum
-import logging
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -199,14 +198,9 @@ class SNMPHostConfig:
 
 
 class SNMPBackend(abc.ABC):
-    def __init__(self, snmp_config: SNMPHostConfig, logger: logging.Logger) -> None:
+    def __init__(self, snmp_config: SNMPHostConfig) -> None:
         super().__init__()
-        self._logger = logger
         self.config = snmp_config
-
-    @property
-    def logger(self) -> logging.Logger:
-        return self._logger
 
     @property
     def hostname(self) -> HostName:

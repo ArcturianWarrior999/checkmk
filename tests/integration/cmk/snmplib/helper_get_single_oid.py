@@ -44,7 +44,7 @@ backend_type = SNMPBackendEnum.deserialize(params[1])
 config = SNMPHostConfig.deserialize(params[2])
 cmk.utils.paths.snmpwalks_dir = Path(params[3])
 
-backend: Callable[[SNMPHostConfig, logging.Logger], SNMPBackend]
+backend: Callable[[SNMPHostConfig], SNMPBackend]
 match backend_type:
     case SNMPBackendEnum.INLINE:
         backend = InlineSNMPBackend
@@ -62,7 +62,7 @@ sys.stdout.write(
             get_single_oid(
                 oid,
                 single_oid_cache=single_oid_cache,
-                backend=backend(config, logger),
+                backend=backend(config),
                 log=logger.debug,
             ),
             single_oid_cache,

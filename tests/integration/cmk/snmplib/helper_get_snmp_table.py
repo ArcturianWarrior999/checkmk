@@ -42,7 +42,7 @@ backend_type = SNMPBackendEnum.deserialize(params[1])
 config = SNMPHostConfig.deserialize(params[2])
 cmk.utils.paths.snmpwalks_dir = Path(params[3])
 
-backend: Callable[[SNMPHostConfig, logging.Logger], SNMPBackend]
+backend: Callable[[SNMPHostConfig], SNMPBackend]
 match backend_type:
     case SNMPBackendEnum.INLINE:
         backend = InlineSNMPBackend
@@ -61,7 +61,7 @@ sys.stdout.write(
             get_snmp_table(
                 section_name=SNMPSectionName("my_Section"),
                 tree=tree,
-                backend=backend(config, logger),
+                backend=backend(config),
                 walk_cache=walk_cache,
                 log=logger.debug,
             ),

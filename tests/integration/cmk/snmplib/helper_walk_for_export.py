@@ -43,7 +43,7 @@ backend_type = SNMPBackendEnum.deserialize(params[1])
 config = SNMPHostConfig.deserialize(params[2])
 cmk.utils.paths.snmpwalks_dir = Path(params[3])
 
-backend: Callable[[SNMPHostConfig, logging.Logger], SNMPBackend]
+backend: Callable[[SNMPHostConfig], SNMPBackend]
 match backend_type:
     case SNMPBackendEnum.INLINE:
         backend = InlineSNMPBackend
@@ -54,4 +54,4 @@ match backend_type:
     case _:
         raise ValueError(backend_type)
 
-sys.stdout.write(repr(walk_for_export(backend(config, logger).walk(oid, context=""))) + "\n")
+sys.stdout.write(repr(walk_for_export(backend(config).walk(oid, context=""))) + "\n")

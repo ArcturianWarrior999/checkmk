@@ -10,7 +10,6 @@
 
 
 import dataclasses
-import logging
 from collections.abc import Sequence
 from functools import partial
 from pathlib import Path
@@ -91,7 +90,7 @@ def test_get_snmp_table(
     snmp_info: BackendSNMPTree, expected_values: list[Sequence[SNMPTable]]
 ) -> None:
     def get_all_snmp_tables(info):
-        backend = SNMPTestBackend(SNMPConfig, logger)
+        backend = SNMPTestBackend(SNMPConfig)
         if not isinstance(info, list):
             return get_snmp_table(
                 section_name=SNMPSectionName("unit_test"),
@@ -177,7 +176,6 @@ def test_walk_passes_on_timeout_with_snmpv3_context_continue_on_timeout() -> Non
                         )
                     ],
                 ),
-                logging.getLogger("test"),
             ),
             log=logger.debug,
         )
@@ -223,7 +221,6 @@ def test_walk_raises_on_timeout_without_snmpv3_context_stop_on_timeout() -> None
                         )
                     ],
                 ),
-                logging.getLogger("test"),
             ),
             log=logger.debug,
         )

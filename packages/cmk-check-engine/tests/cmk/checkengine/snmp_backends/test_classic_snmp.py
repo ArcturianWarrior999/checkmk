@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-import logging
 from collections.abc import Sequence
 from pathlib import Path
 from typing import NamedTuple
@@ -15,8 +14,6 @@ import cmk.checkengine.snmp_backends.classic as classic_snmp
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.snmplib import SNMPBackendEnum, SNMPHostConfig, SNMPVersion
-
-logger = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize(
@@ -43,7 +40,7 @@ def test_snmp_port_spec(port: int, expected: str) -> None:
         snmp_backend=SNMPBackendEnum.CLASSIC,
         stored_walk_path=Path("/tmp/foo"),
     )
-    assert classic_snmp.ClassicSNMPBackend(snmp_config, logger)._snmp_port_spec() == expected  # noqa: SLF001
+    assert classic_snmp.ClassicSNMPBackend(snmp_config)._snmp_port_spec() == expected  # noqa: SLF001
 
 
 @pytest.mark.usefixtures("monkeypatch")
@@ -71,7 +68,7 @@ def test_snmp_proto_spec(is_ipv6: bool, expected: str) -> None:
         snmp_backend=SNMPBackendEnum.CLASSIC,
         stored_walk_path=Path("/tmp/foo"),
     )
-    assert classic_snmp.ClassicSNMPBackend(snmp_config, logger)._snmp_proto_spec() == expected  # noqa: SLF001
+    assert classic_snmp.ClassicSNMPBackend(snmp_config)._snmp_proto_spec() == expected  # noqa: SLF001
 
 
 class SNMPSettings(NamedTuple):
@@ -286,7 +283,7 @@ class SNMPSettings(NamedTuple):
     ],
 )
 def test_snmp_walk_command(settings: SNMPSettings, expected: Sequence[str]) -> None:
-    backend = classic_snmp.ClassicSNMPBackend(settings.snmp_config, logger)
+    backend = classic_snmp.ClassicSNMPBackend(settings.snmp_config)
     assert backend._snmp_base_command("snmpwalk", settings.context_name) == expected  # noqa: SLF001
 
 

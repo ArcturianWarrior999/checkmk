@@ -3,7 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-import logging
 from pathlib import Path
 from typing import NoReturn
 
@@ -39,7 +38,7 @@ SNMP_CONFIG = SNMPHostConfig(
 # Adapted from `test_snmplib_snmp_table`.
 class SNMPTestBackend(SNMPBackend):
     def __init__(self) -> None:
-        super().__init__(SNMP_CONFIG, logging.getLogger())
+        super().__init__(SNMP_CONFIG)
 
     @staticmethod
     def get_type() -> SNMPBackendEnum:
