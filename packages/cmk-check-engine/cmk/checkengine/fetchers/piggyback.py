@@ -6,7 +6,7 @@
 
 from typing import Self, TypedDict
 
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, Mode
 from cmk.checkengine.helper_interface import AgentRawData
 
 

@@ -58,7 +58,7 @@ from cmk.checkengine.discovery import (
     DiscoveryCheckParameters,
     RediscoveryParameters,
 )
-from cmk.checkengine.fetcher import Mode
+from cmk.checkengine.fetcher_abc import Mode
 from cmk.checkengine.helper_interface import SourceType
 from cmk.checkengine.plugin_backend.check_plugins_legacy import convert_legacy_check_plugins
 from cmk.checkengine.plugin_backend.section_plugins_legacy import convert_legacy_sections

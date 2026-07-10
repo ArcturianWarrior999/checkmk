@@ -23,7 +23,7 @@ from cmk.checkengine.discovery._discover.services import (
     find_plugins,
 )
 from cmk.checkengine.discovery.types import QualifiedDiscovery
-from cmk.checkengine.fetcher import FetcherFunction
+from cmk.checkengine.fetcher_abc import FetcherFunction
 from cmk.checkengine.helper_interface import HostKey
 from cmk.checkengine.parser import group_by_host, ParserFunction
 from cmk.checkengine.plugins import CheckPluginName, DiscoveryPlugin, SectionName

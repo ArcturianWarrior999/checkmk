@@ -27,7 +27,7 @@ import cmk.ccc.debug
 from cmk.agent_based.v1 import Attributes, TableRow
 from cmk.ccc import tty
 from cmk.ccc.hostaddress import HostName
-from cmk.checkengine.fetcher import FetcherFunction
+from cmk.checkengine.fetcher_abc import FetcherFunction
 from cmk.checkengine.helper_interface import HostKey, SourceType
 from cmk.checkengine.plugins import (
     InventoryPlugin,

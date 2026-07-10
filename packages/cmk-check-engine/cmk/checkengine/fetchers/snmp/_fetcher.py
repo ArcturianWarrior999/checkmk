@@ -19,8 +19,8 @@ from typing import Any, Final, Self, TypedDict
 
 from cmk.ccc.exceptions import OnError
 from cmk.ccc.hostaddress import HostName
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, FetcherError, Mode
-from cmk.checkengine.snmp_backend import make_backend
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
+from cmk.checkengine.snmp_backend_builder import make_backend
 from cmk.checkengine.snmp_backends._utils import BackendError
 from cmk.checkengine.snmplib import (
     get_snmp_table,

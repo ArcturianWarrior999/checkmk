@@ -69,8 +69,8 @@ from cmk.checkengine.discovery import (
     execute_check_discovery,
     remove_autochecks_of_host,
 )
-from cmk.checkengine.fetcher import FetcherFunction
-from cmk.checkengine.fetcher import Mode as FetchMode
+from cmk.checkengine.fetcher_abc import FetcherFunction
+from cmk.checkengine.fetcher_abc import Mode as FetchMode
 from cmk.checkengine.fetcher_utils.secrets import AdHocSecrets, StoredSecrets
 from cmk.checkengine.fetchers.snmp import NoSelectedSNMPSections, SNMPFetcherConfig
 from cmk.checkengine.fetchers.tcp import TLSConfig
@@ -100,7 +100,7 @@ from cmk.checkengine.plugins import (
     SNMPSectionPlugin,
 )
 from cmk.checkengine.sectionparser import SectionPlugin
-from cmk.checkengine.snmp_backend import make_backend
+from cmk.checkengine.snmp_backend_builder import make_backend
 from cmk.checkengine.snmplib import (
     get_single_oid,
     OID,

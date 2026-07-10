@@ -49,7 +49,7 @@ from cmk.checkengine.discovery import (
     get_plugin_parameters,
     HostLabelPlugin,
 )
-from cmk.checkengine.fetcher import Fetcher, FetcherFunction, Mode
+from cmk.checkengine.fetcher_abc import Fetcher, FetcherFunction, Mode
 from cmk.checkengine.fetcher_utils.secrets import AdHocSecrets, FetcherSecrets, StoredSecrets
 from cmk.checkengine.fetcher_utils.trigger import FetcherTrigger
 from cmk.checkengine.fetchers.program import ProgramFetcher

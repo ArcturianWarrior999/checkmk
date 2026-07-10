@@ -8,7 +8,7 @@ from __future__ import annotations
 import enum
 from typing import Final, NoReturn, Self, TypedDict
 
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
 from cmk.checkengine.helper_interface import AgentRawData
 
 __all__ = ["NoFetcherError", "NoFetcher"]

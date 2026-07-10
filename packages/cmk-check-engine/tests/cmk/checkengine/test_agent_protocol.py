@@ -20,7 +20,7 @@ from cmk.checkengine.agent_protocol import (
     validate_agent_protocol,
     Version,
 )
-from cmk.checkengine.fetcher import FetcherError
+from cmk.checkengine.fetcher_abc import FetcherError
 
 
 @pytest.fixture(name="uncompressed_data")

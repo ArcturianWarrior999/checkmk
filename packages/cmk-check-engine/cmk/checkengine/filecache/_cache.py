@@ -60,7 +60,7 @@ from typing import Any, Final, NamedTuple, NoReturn, Self, TypedDict
 
 from cmk.ccc import store
 from cmk.ccc.exceptions import MKGeneralException
-from cmk.checkengine.fetcher import DeserializationContext, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, FetcherError, Mode
 from cmk.checkengine.helper_interface import JsonSerializable
 
 __all__ = [

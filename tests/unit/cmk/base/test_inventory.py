@@ -17,7 +17,7 @@ from cmk.agent_based.v1 import Attributes, TableRow
 from cmk.base.modes.check_mk import _get_save_tree_actions, _SaveTreeActions
 from cmk.ccc.cpu_tracking import Snapshot
 from cmk.ccc.hostaddress import HostAddress, HostName
-from cmk.checkengine.fetcher import FetcherFunction
+from cmk.checkengine.fetcher_abc import FetcherFunction
 from cmk.checkengine.helper_interface import AgentRawData, FetcherType, SourceInfo, SourceType
 from cmk.checkengine.inventory import (
     _check_fetched_data_or_trees,

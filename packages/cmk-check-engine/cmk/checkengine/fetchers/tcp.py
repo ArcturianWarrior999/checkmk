@@ -22,7 +22,7 @@ from cmk.checkengine.agent_protocol import (
     TransportProtocol,
     validate_agent_protocol,
 )
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
 from cmk.checkengine.helper_interface import AgentRawData
 
 __all__ = [

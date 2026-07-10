@@ -21,7 +21,7 @@ import cmk.checkengine.fetchers.snmp._fetcher as snmp
 from cmk.ccc.exceptions import MKTimeout, OnError
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine import agent_protocol
-from cmk.checkengine.fetcher import Fetcher, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import Fetcher, FetcherError, Mode
 from cmk.checkengine.fetcher_utils.secrets import ActivatedSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
 from cmk.checkengine.fetchers.ipmi import IPMIFetcher, IPMISensor

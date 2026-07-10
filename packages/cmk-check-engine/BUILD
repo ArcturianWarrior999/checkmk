@@ -48,7 +48,7 @@ py_library(
 py_library(
     name = "snmp-backends",
     srcs = [
-        "cmk/checkengine/snmp_backend.py",
+        "cmk/checkengine/snmp_backend_builder.py",
         "cmk/checkengine/snmp_backends/_utils.py",
         "cmk/checkengine/snmp_backends/classic.py",
         "cmk/checkengine/snmp_backends/stored_walk.py",
@@ -127,7 +127,7 @@ py_library(
     name = "fetcher-protocol",
     srcs = [
         "cmk/checkengine/agent_protocol.py",
-        "cmk/checkengine/fetcher.py",
+        "cmk/checkengine/fetcher_abc.py",
     ],
     imports = ["."],
     visibility = ["//visibility:public"],

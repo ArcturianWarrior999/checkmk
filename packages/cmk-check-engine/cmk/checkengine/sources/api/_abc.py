@@ -8,7 +8,7 @@ from __future__ import annotations
 import abc
 from collections.abc import Sized
 
-from cmk.checkengine.fetcher import Fetcher
+from cmk.checkengine.fetcher_abc import Fetcher
 from cmk.checkengine.filecache import FileCache, FileCacheOptions
 from cmk.checkengine.helper_interface import SourceInfo
 

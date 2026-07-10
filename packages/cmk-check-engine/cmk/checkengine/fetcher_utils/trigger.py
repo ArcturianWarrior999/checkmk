@@ -13,7 +13,7 @@ import cmk.ccc.resulttype as result
 from cmk.ccc import debug
 from cmk.ccc.exceptions import MKTimeout
 from cmk.ccc.version import general_version_infos_from_env
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
 from cmk.checkengine.filecache import FileCache
 from cmk.checkengine.helper_interface import create_fetcher_crash_dump, JsonSerializable
 from cmk.crash import make_crash_report_base_path

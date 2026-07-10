@@ -18,7 +18,7 @@ from cmk.ccc.exceptions import (
     MKIPAddressLookupError,
     MKTimeout,
 )
-from cmk.checkengine.fetcher import FetcherError
+from cmk.checkengine.fetcher_abc import FetcherError
 from cmk.checkengine.helper_interface import FetcherType, SourceInfo
 from cmk.checkengine.parser import AgentRawDataSection, HostSections
 from cmk.checkengine.plugins import SectionName

@@ -14,7 +14,7 @@ import subprocess
 from contextlib import suppress
 from typing import Final, Self, TypedDict
 
-from cmk.checkengine.fetcher import DeserializationContext, Fetcher, FetcherError, Mode
+from cmk.checkengine.fetcher_abc import DeserializationContext, Fetcher, FetcherError, Mode
 from cmk.checkengine.helper_interface import AgentRawData
 
 

@@ -148,7 +148,7 @@ from cmk.checkengine.discovery import (
 from cmk.checkengine.discovery import (
     automation_discovery as _automation_discovery,
 )
-from cmk.checkengine.fetcher import FetcherError, FetcherFunction, Mode
+from cmk.checkengine.fetcher_abc import FetcherError, FetcherFunction, Mode
 from cmk.checkengine.fetcher_utils.secrets import ActivatedSecrets, AdHocSecrets, StoredSecrets
 from cmk.checkengine.fetcher_utils.trigger import PlainFetcherTrigger
 from cmk.checkengine.fetchers.program import ProgramFetcher
@@ -169,7 +169,7 @@ from cmk.checkengine.plugins import (
     SectionName,
     ServiceID,
 )
-from cmk.checkengine.snmp_backend import make_backend as make_snmp_backend
+from cmk.checkengine.snmp_backend_builder import make_backend as make_snmp_backend
 from cmk.checkengine.snmplib import (
     BackendOIDSpec,
     BackendSNMPTree,
