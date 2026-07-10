@@ -18,11 +18,11 @@ import type {
 } from '../types.ts'
 import GraphBrush from './GraphBrush/GraphBrush.vue'
 import GraphBurgerMenu from './GraphBurgerMenu.vue'
-import GraphLegend from './GraphLegend.vue'
 import GraphTimestamp from './GraphTimestamp.vue'
 import GraphTitle from './GraphTitle.vue'
 import TimeSeriesGraph from './TimeSeriesGraph'
 import { CANVAS_MARGIN_HORIZONTAL, CANVAS_MARGIN_LEFT } from './constants'
+import GraphLegend from './legend/GraphLegend.vue'
 
 const { _t } = usei18n()
 

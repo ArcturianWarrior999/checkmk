@@ -12,9 +12,9 @@ import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
-import type { ConsolidationFn, HorizontalLine, Metric } from './TimeSeriesGraph'
-import GraphLegendEyeButton from './legend/GraphLegendEyeButton.vue'
-import { metricsInGraphTopToBottomOrder, withNameToggled } from './legend/legendUtils'
+import type { ConsolidationFn, HorizontalLine, Metric } from '../TimeSeriesGraph'
+import GraphLegendEyeButton from './GraphLegendEyeButton.vue'
+import { metricsInGraphTopToBottomOrder, withNameToggled } from './legendUtils'
 
 const { _t, _tn } = usei18n()
 

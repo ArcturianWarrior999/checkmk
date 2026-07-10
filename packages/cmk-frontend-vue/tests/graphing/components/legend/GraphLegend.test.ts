@@ -7,10 +7,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import { afterEach, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import GraphLegend from '@/graphing/components/GraphLegend.vue'
 import type { HorizontalLine, Metric } from '@/graphing/components/TimeSeriesGraph'
 import type { M4Bucket } from '@/graphing/components/TimeSeriesGraph/decimation/types'
 import { computeStackedSeries } from '@/graphing/components/TimeSeriesGraph/render/stacked'
+import GraphLegend from '@/graphing/components/legend/GraphLegend.vue'
 
 // A single-sample bucket so every consolidation (min/max/avg) resolves to the same value,
 // matching the fixture already used in TimeSeriesGraph/render/stacked.test.ts.
