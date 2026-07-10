@@ -178,8 +178,17 @@ export class SidebarService extends ServiceBase {
     }
   }
 
+  public snapinHasFocus(name: string): boolean {
+    return document.getElementById(`snapin_${name}`)?.matches(':focus-within') ?? false
+  }
+
   public async updateSnapinContent(names: string[]) {
-    const contents = await this.api.getSidebarSnapinContents(names, this.restart_since)
+    const namesToUpdate = names.filter((name) => !this.snapinHasFocus(name))
+    if (namesToUpdate.length === 0) {
+      return
+    }
+
+    const contents = await this.api.getSidebarSnapinContents(namesToUpdate, this.restart_since)
     this.restart_since = Math.floor(new Date().getTime() / 1000)
 
     for (const key of Object.keys(contents)) {
