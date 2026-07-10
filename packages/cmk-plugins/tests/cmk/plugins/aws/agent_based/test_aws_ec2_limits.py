@@ -11,7 +11,10 @@ from typing import Any
 import pytest
 
 from cmk.agent_based.v2 import Metric, Result, Service, State, StringTable
-from cmk.legacy_checks.aws_ec2_limits import check_aws_ec2_limits, discover_aws_ec2_limits
+from cmk.plugins.aws.agent_based.aws_ec2_limits import (
+    check_aws_ec2_limits,
+    discover_aws_ec2_limits,
+)
 from cmk.plugins.aws.lib import parse_aws_limits_generic
 
 
