@@ -10,10 +10,11 @@ import usei18n from '@/lib/i18n'
 import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
 import { useResizeObserver } from '@/lib/useResizeObserver'
 
-import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
 
 import type { ConsolidationFn, HorizontalLine, Metric } from './TimeSeriesGraph'
+import GraphLegendEyeButton from './legend/GraphLegendEyeButton.vue'
+import { metricsInGraphTopToBottomOrder, withNameToggled } from './legend/legendUtils'
 
 const { _t, _tn } = usei18n()
 
@@ -55,28 +56,7 @@ const metricsString = computed(() =>
 )
 const selectedCount = computed(() => props.metrics.length - props.hiddenMetricNames.length)
 
-// Sort legend rows of stacked metrics according to their graph appearance (from top to bottom)
-const displayMetrics = computed(() => {
-  const result: Metric[] = []
-  let i = 0
-  while (i < props.metrics.length) {
-    const stackId = props.metrics[i]!.render.stack
-    if (stackId === null) {
-      result.push(props.metrics[i]!)
-      i++
-    } else {
-      let j = i
-      while (j < props.metrics.length && props.metrics[j]!.render.stack === stackId) {
-        j++
-      }
-      for (let k = j - 1; k >= i; k--) {
-        result.push(props.metrics[k]!)
-      }
-      i = j
-    }
-  }
-  return result
-})
+const displayMetrics = computed(() => metricsInGraphTopToBottomOrder(props.metrics))
 const allHidden = computed(
   () =>
     props.metrics.length > 0 &&
@@ -139,25 +119,11 @@ const metricStats = computed((): Map<string, MetricStats> => {
 })
 
 function toggleMetric(name: string) {
-  const newHiddenNames = [...props.hiddenMetricNames]
-  const idx = newHiddenNames.indexOf(name)
-  if (idx >= 0) {
-    newHiddenNames.splice(idx, 1)
-  } else {
-    newHiddenNames.push(name)
-  }
-  emit('update:hiddenMetricNames', newHiddenNames)
+  emit('update:hiddenMetricNames', withNameToggled(props.hiddenMetricNames, name))
 }
 
 function toggleLine(name: string) {
-  const newHiddenNames = [...props.hiddenLineNames]
-  const idx = newHiddenNames.indexOf(name)
-  if (idx >= 0) {
-    newHiddenNames.splice(idx, 1)
-  } else {
-    newHiddenNames.push(name)
-  }
-  emit('update:hiddenLineNames', newHiddenNames)
+  emit('update:hiddenLineNames', withNameToggled(props.hiddenLineNames, name))
 }
 
 const metricsTableRef = useTemplateRef<HTMLTableElement>('metricsTable')
@@ -206,17 +172,11 @@ watch(
           :class="{ 'graphing-graph-legend__padded-row': metricsScrollable }"
         >
           <th>
-            <button
-              class="graphing-graph-legend__eye-btn"
+            <GraphLegendEyeButton
+              :hidden="allHidden"
               :title="allHidden ? _t('Show all') : _t('Hide all')"
-              @click="toggleAll"
-            >
-              <CmkMultitoneIcon
-                :name="allHidden ? 'eye-crossed-out' : 'eye'"
-                primary-color="font"
-                size="small"
-              />
-            </button>
+              @toggle="toggleAll"
+            />
           </th>
           <th colspan="2">
             <div class="graphing-graph-legend__header-meta">
@@ -275,13 +235,11 @@ watch(
             @mouseleave="$emit('hoverMetric', null)"
           >
             <td class="graphing-graph-legend__cell--eye">
-              <button class="graphing-graph-legend__eye-btn" @click="toggleMetric(m.metadata.name)">
-                <CmkMultitoneIcon
-                  :name="hiddenMetricNames.includes(m.metadata.name) ? 'eye-crossed-out' : 'eye'"
-                  primary-color="font"
-                  size="small"
-                />
-              </button>
+              <GraphLegendEyeButton
+                :hidden="hiddenMetricNames.includes(m.metadata.name)"
+                :aria-label="m.metadata.title"
+                @toggle="toggleMetric(m.metadata.name)"
+              />
             </td>
             <td class="graphing-graph-legend__cell--swatch">
               <span
@@ -334,13 +292,11 @@ watch(
           }"
         >
           <td class="graphing-graph-legend__cell--eye">
-            <button class="graphing-graph-legend__eye-btn" @click="toggleLine(line.name)">
-              <CmkMultitoneIcon
-                :name="hiddenLineNames.includes(line.name) ? 'eye-crossed-out' : 'eye'"
-                primary-color="font"
-                size="small"
-              />
-            </button>
+            <GraphLegendEyeButton
+              :hidden="hiddenLineNames.includes(line.name)"
+              :aria-label="line.name"
+              @toggle="toggleLine(line.name)"
+            />
           </td>
           <td class="graphing-graph-legend__cell--swatch">
             <span class="graphing-graph-legend__swatch" :style="{ background: line.color }" />
@@ -464,23 +420,8 @@ watch(
   text-align: center;
 }
 
-.graphing-graph-legend__eye-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: inherit;
-  border-radius: var(--border-radius);
+.graphing-graph-legend :deep(.graphing-graph-legend-eye-button) {
   margin: 0 auto;
-
-  &:hover {
-    background: rgb(0 0 0 / 8%);
-  }
 }
 
 .graphing-graph-legend__swatch {
