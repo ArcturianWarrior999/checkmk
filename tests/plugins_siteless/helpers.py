@@ -83,7 +83,6 @@ def parser(config: ParserConfig) -> CMKParser:
         config=config,
         selected_sections=NO_SELECTION,
         keep_outdated=False,
-        logger=logging.getLogger("cmk.base.checking"),
     )
 
 

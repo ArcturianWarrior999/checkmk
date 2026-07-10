@@ -152,7 +152,6 @@ def test_checks_executor(
             ),
             agent_based_plugins.check_plugins,
             value_store_manager,
-            logger=LOGGER,
             clusters=(),
             rtc_package=None,
         )

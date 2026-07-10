@@ -2160,7 +2160,6 @@ def _mode_check_discovery(
     )
     check_interval = config_cache.check_mk_check_interval(hostname)
     discovery_file_cache_max_age = 1.5 * check_interval if file_cache_options.use_outdated else 0
-    logger = logging.getLogger("cmk.base.discovery")
     fetcher = CMKFetcher(
         config_cache,
         host_tags,
@@ -2218,7 +2217,6 @@ def _mode_check_discovery(
             path=cmk.utils.password_store.active_secrets_path_site(RELATIVE_PATH_SECRETS),
             secrets=secrets,
         ),
-        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -2229,7 +2227,6 @@ def _mode_check_discovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     summarizer = CMKSummarizer(
         hostname,
@@ -2536,7 +2533,6 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
         itertools.chain(plugins.agent_sections.values(), plugins.snmp_sections.values()),
         CheckPluginName,
     )
-    logger = logging.getLogger("cmk.base.discovery")
     parser = CMKParser(
         config.make_parser_config(
             loaded_config,
@@ -2546,7 +2542,6 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
         ),
         selected_sections=selected_sections,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -2608,7 +2603,6 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
             path=cmk.utils.password_store.pending_secrets_path_site(),
             secrets=secrets,
         ),
-        logger=logger,
     )
     for hostname in sorted(
         _preprocess_hostnames(
@@ -2875,7 +2869,6 @@ def run_checking(
         simulation_mode=loaded_config.simulation_mode,
         secrets_config_relay=secrets_config_relay,
         secrets_config_site=secrets_config_site,
-        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -2886,7 +2879,6 @@ def run_checking(
         ),
         selected_sections=selected_sections,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     checker_config = CheckerConfig(
         only_from=config_cache.only_from,
@@ -2931,7 +2923,6 @@ def run_checking(
             checker_config,
             plugins.check_plugins,
             value_store_manager,
-            logger=logger,
             clusters=hosts_config.clusters,
             rtc_package=None,
         )
@@ -3128,7 +3119,6 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         itertools.chain(plugins.agent_sections.values(), plugins.snmp_sections.values()),
         InventoryPluginName,
     )
-    logger = logging.getLogger("cmk.base.inventory")
     fetcher = CMKFetcher(
         config_cache,
         host_tags,
@@ -3188,7 +3178,6 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         secrets_config_site=StoredSecrets(
             path=cmk.utils.password_store.pending_secrets_path_site(), secrets=secrets
         ),
-        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -3199,7 +3188,6 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         ),
         selected_sections=selected_sections,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
 
     section_plugins = SectionPluginMapper({**plugins.agent_sections, **plugins.snmp_sections})
@@ -3452,7 +3440,6 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
         allow_empty=hosts_config.clusters,
         error_handler=config.handle_ip_lookup_failure,
     )
-    logger = logging.getLogger("cmk.base.inventory")
 
     parser = CMKParser(
         config.make_parser_config(
@@ -3463,7 +3450,6 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -3517,7 +3503,6 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
             path=cmk.utils.password_store.active_secrets_path_site(RELATIVE_PATH_SECRETS),
             secrets=secrets,
         ),
-        logger=logger,
     )
 
     def summarizer(host_name: HostName) -> CMKSummarizer:

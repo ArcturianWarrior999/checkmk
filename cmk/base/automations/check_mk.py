@@ -334,7 +334,6 @@ def _automation_service_discovery(
     ip_address_of = env.ip_address_of(on_failure=IPLookupFailureMode.HANDLE)
 
     results: dict[HostName, DiscoveryReport] = {}
-    logger = logging.getLogger("cmk.automation.discovery")
     parser = CMKParser(
         config.make_parser_config(
             env.loaded_config,
@@ -344,7 +343,6 @@ def _automation_service_discovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     fetcher = CMKFetcher(
         config_cache,
@@ -395,7 +393,6 @@ def _automation_service_discovery(
             path=cmk.utils.password_store.pending_secrets_path_site(),
             secrets=secrets,
         ),
-        logger=logger,
     )
     # sort clusters last, to have them operate with the new nodes host labels.
     for is_cluster, hostname in sorted((h in hosts_config.clusters, h) for h in hostnames):
@@ -506,7 +503,6 @@ def _automation_special_agent_discovery_preview(
         },
     )
 
-    logger = logging.getLogger("cmk.automation.discovery")
     fetcher = SpecialAgentFetcher(
         env.make_fetcher_trigger(
             run_settings.host_config.relay_id, config_source=ConfigSource.PENDING
@@ -515,7 +511,6 @@ def _automation_special_agent_discovery_preview(
         agent_name=run_settings.agent_name,
         cmds=cmds,
         is_cmc=env.loaded_config.monitoring_core == "cmc",
-        logger=logger,
     )
     return _get_discovery_preview(
         run_settings.host_config.host_name,
@@ -535,7 +530,6 @@ def _automation_special_agent_discovery_preview(
         run_settings.host_config.ip_address,
         secrets_config=ad_hoc_secrets,
         for_relay=run_settings.host_config.relay_id is not None,
-        logger=logger,
     )
 
 
@@ -579,7 +573,6 @@ def _automation_discovery_preview(
         path=cmk.utils.password_store.pending_secrets_path_site(),
         secrets=secrets,
     )
-    logger = logging.getLogger("cmk.automation.discovery")
 
     fetcher = CMKFetcher(
         config_cache,
@@ -625,7 +618,6 @@ def _automation_discovery_preview(
         # avoid using cache unless prevent_fetching is set (-> fetch new data for rescan
         # and tabula rasa)
         max_cachefile_age=MaxAge.zero(),
-        logger=logger,
     )
     hosts_config = config.make_hosts_config(env.loaded_config)
     ip_family = ip_lookup_config.default_address_family(host_name)
@@ -655,7 +647,6 @@ def _automation_discovery_preview(
         ip_address=ip_address,
         secrets_config=secrets_config_relay if relay_id else secrets_config_site,
         for_relay=relay_id is not None,
-        logger=logger,
     )
 
 
@@ -680,7 +671,6 @@ def _get_discovery_preview(
     secrets_config: SecretsConfig,
     *,
     for_relay: bool,
-    logger: logging.Logger,
 ) -> ServiceDiscoveryPreviewResult:
     buf = io.StringIO()
 
@@ -704,7 +694,6 @@ def _get_discovery_preview(
             plugins=plugins,
             secrets_config=secrets_config,
             for_relay=for_relay,
-            logger=logger,
         )
 
         _warn_service_name_conflicts(host_name, check_preview)
@@ -850,7 +839,6 @@ def _execute_discovery(
     plugins: AgentBasedPlugins,
     secrets_config: SecretsConfig,
     for_relay: bool,
-    logger: logging.Logger,
 ) -> CheckPreview:
     hosts_config = config.make_hosts_config(loaded_config)
     discovery_config = DiscoveryConfig(
@@ -871,7 +859,7 @@ def _execute_discovery(
         effective_host=config_cache.clustering.effective_host,
         get_snmp_backend=config_cache.get_snmp_backend,
         timeperiods_active=cmk.utils.timeperiod.TimeperiodActiveCoreLookup(
-            livestatus.get_optional_timeperiods_active_map, logger.warning
+            livestatus.get_optional_timeperiods_active_map, logging.getLogger(__name__).warning
         ),
     )
     autochecks_config = config.AutochecksConfigurer(
@@ -886,7 +874,6 @@ def _execute_discovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
 
     with (
@@ -900,7 +887,6 @@ def _execute_discovery(
             checker_config,
             plugins.check_plugins,
             value_store_manager,
-            logger=logger,
             clusters=hosts_config.clusters,
             rtc_package=None,
         )
@@ -1092,7 +1078,6 @@ def _execute_autodiscovery(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     fetcher = CMKFetcher(
         env.config_cache,
@@ -1149,7 +1134,6 @@ def _execute_autodiscovery(
             ),
             secrets=secrets,
         ),
-        logger=logger,
     )
     section_plugins = SectionPluginMapper(
         {**env.plugins.agent_sections, **env.plugins.snmp_sections}

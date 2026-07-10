@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import argparse
-import logging
 import sys
 from collections.abc import Sequence
 from contextlib import suppress
@@ -171,7 +170,6 @@ def _inventory_as_check(
         error_handler=config.handle_ip_lookup_failure,
     )
     file_cache_options = FileCacheOptions()
-    logger = logging.getLogger("cmk.base.inventory")
 
     fetcher = CMKFetcher(
         config_cache,
@@ -226,7 +224,6 @@ def _inventory_as_check(
             ),
             secrets=secrets,
         ),
-        logger=logger,
     )
     parser = CMKParser(
         config.make_parser_config(
@@ -237,7 +234,6 @@ def _inventory_as_check(
         ),
         selected_sections=NO_SELECTION,
         keep_outdated=file_cache_options.keep_outdated,
-        logger=logger,
     )
     summarizer = CMKSummarizer(
         hostname,

@@ -134,6 +134,7 @@ __all__ = [
 ]
 
 type _Labels = Mapping[str, str]
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -158,7 +159,6 @@ def _fetch_all(
     secrets: FetcherSecrets,
     *,
     simulation: bool,
-    logger: logging.Logger,
 ) -> Sequence[
     tuple[
         SourceInfo,
@@ -174,7 +174,6 @@ def _fetch_all(
             source.fetcher(),
             mode,
             secrets,
-            logger,
         )
         for source in sources
     ]
@@ -187,7 +186,6 @@ def _do_fetch(
     fetcher: Fetcher,
     mode: Mode,
     secrets: FetcherSecrets,
-    logger: logging.Logger,
 ) -> tuple[
     SourceInfo,
     result.Result[AgentRawData | SNMPRawData, Exception],
@@ -206,12 +204,10 @@ class CMKParser:
         *,
         selected_sections: SectionNameCollection,
         keep_outdated: bool,
-        logger: logging.Logger,
     ) -> None:
         self.config: Final = config
         self.selected_sections: Final = selected_sections
         self.keep_outdated: Final = keep_outdated
-        self.logger: Final = logger
 
     def __call__(
         self,
@@ -223,7 +219,7 @@ class CMKParser:
         ],
     ) -> Sequence[tuple[SourceInfo, result.Result[HostSections, Exception]]]:
         """Parse fetched data."""
-        self.logger.debug("Parse fetcher results")
+        logger.debug("Parse fetcher results")
         output: list[tuple[SourceInfo, result.Result[HostSections, Exception]]] = []
         section_cache_path = cmk.utils.paths.var_dir
         # Special agents can produce data for the same check_plugin_name on the same host, in this case
@@ -325,14 +321,12 @@ class SpecialAgentFetcher(FetcherFunction):
         agent_name: str,
         cmds: Iterator[SpecialAgentCommandLine],
         is_cmc: bool,
-        logger: logging.Logger,
     ) -> None:
         self.trigger: Final = trigger
         self.agent_name: Final = agent_name
         self.cmds: Final = cmds
         self.secrets: Final = secrets
         self.is_cmc: Final = is_cmc
-        self.logger: Final = logger
 
     def __call__(
         self, host_name: HostName, *, ip_address: HostAddress | None
@@ -358,7 +352,6 @@ class SpecialAgentFetcher(FetcherFunction):
                 ProgramFetcher(cmdline=cmd.cmdline, stdin=cmd.stdin, is_cmc=self.is_cmc),
                 Mode.DISCOVERY,
                 self.secrets,
-                self.logger,
             )
             for cmd in self.cmds
         ]
@@ -389,7 +382,6 @@ class CMKFetcher(FetcherFunction):
         secrets_config_relay: AdHocSecrets | StoredSecrets,
         secrets_config_site: StoredSecrets,
         simulation_mode: bool,
-        logger: logging.Logger,
         max_cachefile_age: MaxAge | None = None,
     ) -> None:
         self.config_cache: Final = config_cache
@@ -411,7 +403,6 @@ class CMKFetcher(FetcherFunction):
         self.secrets_config_site: Final = secrets_config_site
         self.simulation_mode: Final = simulation_mode
         self.max_cachefile_age: Final = max_cachefile_age
-        self.logger: Final = logger
 
     def __call__(
         self, host_name: HostName, *, ip_address: HostAddress | None
@@ -466,7 +457,7 @@ class CMKFetcher(FetcherFunction):
             site_crt=Path(cmk.utils.paths.site_cert_file),
         )
         secrets_config = self.secrets_config_relay if relay_id else self.secrets_config_site
-        self.logger.debug("Fetching data")
+        logger.debug("Fetching data")
         return [
             fetched
             for current_host_name, current_ip_family, current_ip_stack_config, current_ip_address in hosts
@@ -526,7 +517,6 @@ class CMKFetcher(FetcherFunction):
                 mode=self.mode,
                 secrets=secrets_config,
                 simulation=self.simulation_mode,
-                logger=self.logger,
             )
         ]
 
@@ -611,14 +601,12 @@ class CheckerPluginMapper(Mapping[CheckPluginName, CheckerPlugin]):
         config: CheckerConfig,
         check_plugins: Mapping[CheckPluginName, CheckPluginAPI],
         value_store_manager: ValueStoreManager,
-        logger: logging.Logger,
         *,
         clusters: Container[HostName],
         rtc_package: AgentRawData | None,
     ):
         self.config: Final = config
         self.value_store_manager: Final = value_store_manager
-        self._logger: Final = logger
         self.clusters: Final = clusters
         self.rtc_package: Final = rtc_package
         self.check_plugins: Final = check_plugins
@@ -657,7 +645,7 @@ class CheckerPluginMapper(Mapping[CheckPluginName, CheckerPlugin]):
                 get_effective_host=self.config.effective_host,
                 snmp_backend=self.config.get_snmp_backend(host_name),
                 parameters=_compute_final_check_parameters(
-                    host_name, service, self.config, self._logger, is_preview
+                    host_name, service, self.config, is_preview
                 ),
             )
 
@@ -677,7 +665,7 @@ class CheckerPluginMapper(Mapping[CheckPluginName, CheckerPlugin]):
 
 
 def _make_rrd_data_getter(
-    host_name: HostAddress, service_name: ServiceName, logger: logging.Logger
+    host_name: HostAddress, service_name: ServiceName
 ) -> Callable[[str, int, int], MetricRecord | None]:
     """Replacement for `partial` which is not supported by mypy"""
 
@@ -739,7 +727,6 @@ def _compute_final_check_parameters(
     host_name: HostName,
     service: ConfiguredService,
     checker_config: CheckerConfig,
-    logger: logging.Logger,
     is_preview: bool,
 ) -> Parameters:
     params = service.parameters.evaluate(checker_config.timeperiods_active.get)
@@ -764,7 +751,7 @@ def _compute_final_check_parameters(
             meta_file_path_template=prediction_store.meta_file_path_template,
             predictions=make_updated_predictions(
                 prediction_store,
-                _make_rrd_data_getter(host_name, service.description, logger),
+                _make_rrd_data_getter(host_name, service.description),
                 time.time(),
             ),
         )
