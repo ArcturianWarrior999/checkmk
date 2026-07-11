@@ -11,31 +11,33 @@ export const METRIC_TYPES = ['gauge', 'sum', 'histogram'] as const
 export type ConsolidationOutputType = 'float' | 'histogram'
 
 export type ConsolidationFunction =
-  | 'last_value'
-  | 'avg'
-  | 'max'
-  | 'min'
-  | 'rate'
-  | 'delta'
-  | 'preserve_histogram'
-  | 'count_rate'
-  | 'count_delta'
+  | 'gauge_last'
+  | 'gauge_avg'
+  | 'gauge_max'
+  | 'gauge_min'
   | 'sum_rate'
   | 'sum_delta'
-  | 'quantile'
-  | 'fraction_below'
-  | 'fraction_between'
+  | 'sum_last_raw'
+  | 'histogram_preserve'
+  | 'histogram_count_rate'
+  | 'histogram_count_delta'
+  | 'histogram_sum_rate'
+  | 'histogram_sum_delta'
+  | 'histogram_quantile'
+  | 'histogram_fraction_below'
+  | 'histogram_fraction_between'
+  | 'histogram_sum_raw'
 
 export const DEFAULT_QUANTILE = 0.95
 
 export interface ConsolidationParams {
-  /** For 'quantile': the quantile in the range 0–1 (default 0.95). */
+  /** For 'histogram_quantile': the quantile in the range 0–1 (default 0.95). */
   quantile?: number
-  /** For 'fraction_below': the upper threshold. */
+  /** For 'histogram_fraction_below': the upper threshold. */
   fractionBelowThreshold?: number
-  /** For 'fraction_between': the lower threshold. */
+  /** For 'histogram_fraction_between': the lower threshold. */
   fractionLowerThreshold?: number
-  /** For 'fraction_between': the upper threshold. */
+  /** For 'histogram_fraction_between': the upper threshold. */
   fractionUpperThreshold?: number
 }
 
@@ -56,26 +58,26 @@ export interface FunctionSpec {
 
 export const CONSOLIDATION_CATALOG: Record<MetricType, FunctionSpec[]> = {
   gauge: [
-    { fn: 'last_value', raw: false, output: 'float' },
-    { fn: 'avg', raw: false, output: 'float' },
-    { fn: 'max', raw: false, output: 'float' },
-    { fn: 'min', raw: false, output: 'float' }
+    { fn: 'gauge_last', raw: false, output: 'float' },
+    { fn: 'gauge_avg', raw: false, output: 'float' },
+    { fn: 'gauge_max', raw: false, output: 'float' },
+    { fn: 'gauge_min', raw: false, output: 'float' }
   ],
   sum: [
-    { fn: 'rate', raw: false, output: 'float' },
-    { fn: 'delta', raw: false, output: 'float' },
-    { fn: 'last_value', raw: true, output: 'float' }
+    { fn: 'sum_rate', raw: false, output: 'float' },
+    { fn: 'sum_delta', raw: false, output: 'float' },
+    { fn: 'sum_last_raw', raw: true, output: 'float' }
   ],
   histogram: [
-    { fn: 'preserve_histogram', raw: false, output: 'histogram' },
-    { fn: 'count_delta', raw: false, output: 'float' },
-    { fn: 'count_rate', raw: false, output: 'float' },
-    { fn: 'sum_delta', raw: false, output: 'float' },
-    { fn: 'sum_rate', raw: false, output: 'float' },
-    { fn: 'quantile', raw: false, output: 'float' },
-    { fn: 'fraction_below', raw: false, output: 'float' },
-    { fn: 'fraction_between', raw: false, output: 'float' },
-    { fn: 'last_value', raw: true, output: 'float' }
+    { fn: 'histogram_preserve', raw: false, output: 'histogram' },
+    { fn: 'histogram_count_delta', raw: false, output: 'float' },
+    { fn: 'histogram_count_rate', raw: false, output: 'float' },
+    { fn: 'histogram_sum_delta', raw: false, output: 'float' },
+    { fn: 'histogram_sum_rate', raw: false, output: 'float' },
+    { fn: 'histogram_quantile', raw: false, output: 'float' },
+    { fn: 'histogram_fraction_below', raw: false, output: 'float' },
+    { fn: 'histogram_fraction_between', raw: false, output: 'float' },
+    { fn: 'histogram_sum_raw', raw: true, output: 'float' }
   ]
 }
 

@@ -104,7 +104,7 @@ function clampToScope(
   return {
     ...configuration,
     function: fn,
-    params: fn === 'quantile' ? { quantile: DEFAULT_QUANTILE } : {}
+    params: fn === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {}
   }
 }
 

@@ -21,26 +21,26 @@ function functionLabels(): Record<
   const { _t } = usei18n()
   return {
     gauge: {
-      last_value: _t('Last recorded value'),
-      avg: _t('Avg'),
-      max: _t('Max'),
-      min: _t('Min')
+      gauge_last: _t('Last recorded value'),
+      gauge_avg: _t('Avg'),
+      gauge_max: _t('Max'),
+      gauge_min: _t('Min')
     },
     sum: {
-      rate: _t('Rate'),
-      delta: _t('Delta'),
-      last_value: _t('Last recorded value')
+      sum_rate: _t('Rate'),
+      sum_delta: _t('Delta'),
+      sum_last_raw: _t('Last recorded value')
     },
     histogram: {
-      preserve_histogram: _t('Preserve histograms'),
-      count_delta: _t('Count delta'),
-      count_rate: _t('Count rate'),
-      sum_delta: _t('Sum delta'),
-      sum_rate: _t('Sum rate'),
-      quantile: _t('Quantile'),
-      fraction_below: _t('Fraction below'),
-      fraction_between: _t('Fraction between'),
-      last_value: _t('Cumulative sum field')
+      histogram_preserve: _t('Preserve histograms'),
+      histogram_count_delta: _t('Count delta'),
+      histogram_count_rate: _t('Count rate'),
+      histogram_sum_delta: _t('Sum delta'),
+      histogram_sum_rate: _t('Sum rate'),
+      histogram_quantile: _t('Quantile'),
+      histogram_fraction_below: _t('Fraction below'),
+      histogram_fraction_between: _t('Fraction between'),
+      histogram_sum_raw: _t('Cumulative sum field')
     }
   }
 }
@@ -76,37 +76,40 @@ export function typeLabel(type: MetricType): TranslatedString {
 export function compactFunction(model: ConsolidationModel): string {
   const { _t } = usei18n()
   switch (model.function) {
-    case 'last_value':
-      return model.type === 'gauge' ? _t('last') : _t('raw')
-    case 'avg':
+    case 'gauge_last':
+      return _t('last')
+    case 'sum_last_raw':
+    case 'histogram_sum_raw':
+      return _t('raw')
+    case 'gauge_avg':
       return _t('avg')
-    case 'max':
+    case 'gauge_max':
       return _t('max')
-    case 'min':
+    case 'gauge_min':
       return _t('min')
-    case 'rate':
-      return _t('rate')
-    case 'delta':
-      return _t('delta')
-    case 'preserve_histogram':
-      return _t('preserve histograms')
-    case 'count_delta':
-      return _t('count delta')
-    case 'count_rate':
-      return _t('count rate')
-    case 'sum_delta':
-      return _t('sum delta')
     case 'sum_rate':
+      return _t('rate')
+    case 'sum_delta':
+      return _t('delta')
+    case 'histogram_preserve':
+      return _t('preserve histograms')
+    case 'histogram_count_delta':
+      return _t('count delta')
+    case 'histogram_count_rate':
+      return _t('count rate')
+    case 'histogram_sum_delta':
+      return _t('sum delta')
+    case 'histogram_sum_rate':
       return _t('sum rate')
-    case 'quantile': {
+    case 'histogram_quantile': {
       // Keep up to two decimals so high quantiles read 'p99.9' rather than
       // rounding to a meaningless 'p100'.
       const percentile = +((model.params.quantile ?? DEFAULT_QUANTILE) * 100).toFixed(2)
       return `p${percentile}`
     }
-    case 'fraction_below':
+    case 'histogram_fraction_below':
       return _t('fraction <%{value}', { value: model.params.fractionBelowThreshold ?? '?' })
-    case 'fraction_between':
+    case 'histogram_fraction_between':
       return _t('fraction %{lower}–%{upper}', {
         lower: model.params.fractionLowerThreshold ?? '?',
         upper: model.params.fractionUpperThreshold ?? '?'

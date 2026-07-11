@@ -21,7 +21,7 @@ function renderWidget(
 ) {
   const model = ref<ConsolidationModel>({
     type: 'sum',
-    function: 'rate',
+    function: 'sum_rate',
     params: {},
     lookbackSeconds: 300,
     ...initial
@@ -100,7 +100,7 @@ test('clicking outside collapses back to the chip', async () => {
 })
 
 test('the function dropdown lists the metric type functions', async () => {
-  renderWidget({ type: 'sum', function: 'rate' })
+  renderWidget({ type: 'sum', function: 'sum_rate' })
   await openFunctionDropdown()
 
   expect(await screen.findByRole('option', { name: 'Rate' })).toBeVisible()
@@ -109,7 +109,7 @@ test('the function dropdown lists the metric type functions', async () => {
 })
 
 test('raw cumulative functions are marked "(raw)" and listed last', async () => {
-  renderWidget({ type: 'sum', function: 'rate' })
+  renderWidget({ type: 'sum', function: 'sum_rate' })
   await openFunctionDropdown()
 
   await screen.findByRole('option', { name: 'Rate' })
@@ -118,7 +118,7 @@ test('raw cumulative functions are marked "(raw)" and listed last', async () => 
 })
 
 test('a single known type with no raw functions marks nothing "(raw)"', async () => {
-  renderWidget({ type: 'gauge', function: 'avg' })
+  renderWidget({ type: 'gauge', function: 'gauge_avg' })
   await openFunctionDropdown()
 
   expect(await screen.findByRole('option', { name: 'Avg' })).toBeVisible()
@@ -126,11 +126,11 @@ test('a single known type with no raw functions marks nothing "(raw)"', async ()
 })
 
 test('selecting a function updates the model and the chip', async () => {
-  const { model } = renderWidget({ type: 'sum', function: 'rate' })
+  const { model } = renderWidget({ type: 'sum', function: 'sum_rate' })
   await openFunctionDropdown()
 
   await userEvent.click(await screen.findByRole('option', { name: 'Delta' }))
-  expect(model.value.function).toBe('delta')
+  expect(model.value.function).toBe('sum_delta')
 
   await userEvent.keyboard('{Escape}')
   await waitFor(() => expect(chip()).toHaveTextContent('delta'))
@@ -138,7 +138,7 @@ test('selecting a function updates the model and the chip', async () => {
 })
 
 test('an ambiguous type groups functions under "Treat as <Type>"', async () => {
-  renderWidget({ type: 'sum', function: 'rate' }, ['sum', 'gauge'])
+  renderWidget({ type: 'sum', function: 'sum_rate' }, ['sum', 'gauge'])
   await openFunctionDropdown()
 
   expect(await screen.findByText('Treat as Sum')).toBeVisible()
@@ -146,12 +146,12 @@ test('an ambiguous type groups functions under "Treat as <Type>"', async () => {
 })
 
 test('selecting a function from a group fixes the effective type', async () => {
-  const { model } = renderWidget({ type: 'sum', function: 'rate' }, ['sum', 'gauge'])
+  const { model } = renderWidget({ type: 'sum', function: 'sum_rate' }, ['sum', 'gauge'])
   await openFunctionDropdown()
 
   await userEvent.click(await screen.findByRole('option', { name: 'Avg' }))
   expect(model.value.type).toBe('gauge')
-  expect(model.value.function).toBe('avg')
+  expect(model.value.function).toBe('gauge_avg')
 
   await userEvent.keyboard('{Escape}')
   await waitFor(() => expect(chip()).toHaveTextContent('[gauge]'))
@@ -159,7 +159,7 @@ test('selecting a function from a group fixes the effective type', async () => {
 })
 
 test('an unknown type (no available types) offers every type group', async () => {
-  renderWidget({ type: 'sum', function: 'rate' }, [])
+  renderWidget({ type: 'sum', function: 'sum_rate' }, [])
   await openFunctionDropdown()
 
   expect(await screen.findByText('Treat as Gauge')).toBeVisible()
@@ -170,7 +170,7 @@ test('an unknown type (no available types) offers every type group', async () =>
 test('the quantile function shows a quantile input that drives the chip', async () => {
   const { model } = renderWidget({
     type: 'histogram',
-    function: 'quantile',
+    function: 'histogram_quantile',
     params: { quantile: 0.95 }
   })
   await userEvent.click(chip())
@@ -189,7 +189,7 @@ test('the quantile function shows a quantile input that drives the chip', async 
 test('an out-of-range quantile is flagged only on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'quantile',
+    function: 'histogram_quantile',
     params: { quantile: 0.95 }
   })
   await userEvent.click(chip())
@@ -215,7 +215,7 @@ test('an out-of-range quantile is flagged only on a blocked leave', async () => 
 test('an emptied quantile is flagged only on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'quantile',
+    function: 'histogram_quantile',
     params: { quantile: 0.5 }
   })
   await userEvent.click(chip())
@@ -232,7 +232,7 @@ test('an emptied quantile is flagged only on a blocked leave', async () => {
 })
 
 test('non-quantile functions show no quantile input', async () => {
-  renderWidget({ type: 'sum', function: 'rate' })
+  renderWidget({ type: 'sum', function: 'sum_rate' })
   await userEvent.click(chip())
 
   expect(screen.queryByLabelText('Quantile (0 to 1)')).toBeNull()
@@ -241,7 +241,7 @@ test('non-quantile functions show no quantile input', async () => {
 test('fraction below shows one threshold input that drives the chip', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_below',
+    function: 'histogram_fraction_below',
     params: { fractionBelowThreshold: 0.2 }
   })
   await userEvent.click(chip())
@@ -257,7 +257,7 @@ test('fraction below shows one threshold input that drives the chip', async () =
 test('an emptied fraction below threshold is flagged only on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_below',
+    function: 'histogram_fraction_below',
     params: { fractionBelowThreshold: 0.2 }
   })
   await userEvent.click(chip())
@@ -276,7 +276,7 @@ test('an emptied fraction below threshold is flagged only on a blocked leave', a
 test('fraction between shows lower and upper inputs that drive the chip', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_between',
+    function: 'histogram_fraction_between',
     params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 }
   })
   await userEvent.click(chip())
@@ -292,7 +292,7 @@ test('fraction between shows lower and upper inputs that drive the chip', async 
 test('an out-of-order fraction between is flagged only on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_between',
+    function: 'histogram_fraction_between',
     params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 }
   })
   await userEvent.click(chip())
@@ -319,7 +319,7 @@ test('an out-of-order fraction between is flagged only on a blocked leave', asyn
 test('equal fraction between bounds are rejected on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_between',
+    function: 'histogram_fraction_between',
     params: { fractionLowerThreshold: 0.5, fractionUpperThreshold: 0.5 }
   })
   await userEvent.click(chip())
@@ -335,7 +335,7 @@ test('equal fraction between bounds are rejected on a blocked leave', async () =
 test('an emptied fraction between bound is flagged only on a blocked leave', async () => {
   renderWidget({
     type: 'histogram',
-    function: 'fraction_between',
+    function: 'histogram_fraction_between',
     params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 }
   })
   await userEvent.click(chip())
@@ -366,35 +366,35 @@ test('editing the lookback updates the chip once collapsed', async () => {
 })
 
 test('a changed metric type resets the function to the new type default', async () => {
-  const { model, availableTypes } = renderWidget({ type: 'sum', function: 'delta' }, ['sum'])
+  const { model, availableTypes } = renderWidget({ type: 'sum', function: 'sum_delta' }, ['sum'])
 
   availableTypes.value = ['gauge']
   await nextTick()
 
   expect(model.value.type).toBe('gauge')
-  expect(model.value.function).toBe('last_value')
+  expect(model.value.function).toBe('gauge_last')
 })
 
 test('a still-available metric type keeps the current function', async () => {
-  const { model, availableTypes } = renderWidget({ type: 'sum', function: 'delta' }, ['sum'])
+  const { model, availableTypes } = renderWidget({ type: 'sum', function: 'sum_delta' }, ['sum'])
 
   availableTypes.value = ['sum', 'gauge']
   await nextTick()
 
   expect(model.value.type).toBe('sum')
-  expect(model.value.function).toBe('delta')
+  expect(model.value.function).toBe('sum_delta')
 })
 
 const BACKEND_SUPPORTED: AllowedFunctions = {
-  gauge: ['last_value'],
-  sum: ['rate'],
-  histogram: ['quantile']
+  gauge: ['gauge_last'],
+  sum: ['sum_rate'],
+  histogram: ['histogram_quantile']
 }
 
 test('an allowlist restricts the dropdown to the permitted functions', async () => {
   // Two permitted functions still warrant a dropdown, but only those two show.
-  renderWidget({ type: 'histogram', function: 'quantile' }, ['histogram'], {
-    histogram: ['quantile', 'count_delta']
+  renderWidget({ type: 'histogram', function: 'histogram_quantile' }, ['histogram'], {
+    histogram: ['histogram_quantile', 'histogram_count_delta']
   })
   await openFunctionDropdown()
 
@@ -404,7 +404,7 @@ test('an allowlist restricts the dropdown to the permitted functions', async () 
 })
 
 test('a single permitted function renders read-only instead of a dropdown', async () => {
-  renderWidget({ type: 'sum', function: 'rate' }, ['sum'], BACKEND_SUPPORTED)
+  renderWidget({ type: 'sum', function: 'sum_rate' }, ['sum'], BACKEND_SUPPORTED)
   await userEvent.click(chip())
 
   expect(screen.queryByRole('combobox', { name: 'Consolidation function' })).toBeNull()
@@ -414,7 +414,7 @@ test('a single permitted function renders read-only instead of a dropdown', asyn
 test('an allowlist drives the per-type default on a metric type change', async () => {
   // Catalog default is preserve_histogram, but the allowlist permits only quantile.
   const { model, availableTypes } = renderWidget(
-    { type: 'sum', function: 'rate' },
+    { type: 'sum', function: 'sum_rate' },
     ['sum'],
     BACKEND_SUPPORTED
   )
@@ -423,11 +423,11 @@ test('an allowlist drives the per-type default on a metric type change', async (
   await nextTick()
 
   expect(model.value.type).toBe('histogram')
-  expect(model.value.function).toBe('quantile')
+  expect(model.value.function).toBe('histogram_quantile')
 })
 
 test('an ambiguous type offers only the permitted function per group', async () => {
-  renderWidget({ type: 'sum', function: 'rate' }, ['sum', 'histogram'], BACKEND_SUPPORTED)
+  renderWidget({ type: 'sum', function: 'sum_rate' }, ['sum', 'histogram'], BACKEND_SUPPORTED)
   await openFunctionDropdown()
 
   expect(await screen.findByText('Treat as Sum')).toBeVisible()

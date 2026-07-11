@@ -27,9 +27,9 @@ const { _t } = usei18n()
 
 // The backend implements one consolidation function per type today; offer only that one.
 const SUPPORTED_FUNCTIONS: AllowedFunctions = {
-  gauge: ['last_value'],
-  sum: ['rate'],
-  histogram: ['quantile']
+  gauge: ['gauge_last'],
+  sum: ['sum_rate'],
+  histogram: ['histogram_quantile']
 }
 
 // Fall back to histogram before the type resolves so the percentile stays reachable.
@@ -58,7 +58,8 @@ function buildModel(): ConsolidationModel {
   return {
     type,
     function: fn,
-    params: fn === 'quantile' ? { quantile: aggregationHistogramPercentile.value / 100 } : {},
+    params:
+      fn === 'histogram_quantile' ? { quantile: aggregationHistogramPercentile.value / 100 } : {},
     lookbackSeconds: aggregationLookback.value
   }
 }
@@ -73,7 +74,7 @@ watch(
     if (value.lookbackSeconds !== aggregationLookback.value) {
       aggregationLookback.value = value.lookbackSeconds
     }
-    if (value.function === 'quantile' && value.params.quantile !== undefined) {
+    if (value.function === 'histogram_quantile' && value.params.quantile !== undefined) {
       const percentile = value.params.quantile * 100
       if (percentile !== aggregationHistogramPercentile.value) {
         aggregationHistogramPercentile.value = percentile

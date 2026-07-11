@@ -21,14 +21,18 @@ function model(
 
 test('quantile renders as a lowercase percentile token, keeping up to two decimals instead of rounding to p100', () => {
   expect(
-    compactFunction(model({ type: 'histogram', function: 'quantile', params: { quantile: 0.5 } }))
+    compactFunction(
+      model({ type: 'histogram', function: 'histogram_quantile', params: { quantile: 0.5 } })
+    )
   ).toBe('p50')
   expect(
-    compactFunction(model({ type: 'histogram', function: 'quantile', params: { quantile: 0.999 } }))
+    compactFunction(
+      model({ type: 'histogram', function: 'histogram_quantile', params: { quantile: 0.999 } })
+    )
   ).toBe('p99.9')
   expect(
     compactFunction(
-      model({ type: 'histogram', function: 'quantile', params: { quantile: 0.9999 } })
+      model({ type: 'histogram', function: 'histogram_quantile', params: { quantile: 0.9999 } })
     )
   ).toBe('p99.99')
 })
@@ -38,7 +42,7 @@ test('fraction functions render their thresholds', () => {
     compactFunction(
       model({
         type: 'histogram',
-        function: 'fraction_below',
+        function: 'histogram_fraction_below',
         params: { fractionBelowThreshold: 0.2 }
       })
     )
@@ -47,7 +51,7 @@ test('fraction functions render their thresholds', () => {
     compactFunction(
       model({
         type: 'histogram',
-        function: 'fraction_between',
+        function: 'histogram_fraction_between',
         params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 }
       })
     )

@@ -21,23 +21,23 @@ export const presetOptions: Array<{ title: string; name: PresetName }> = [
 ]
 
 export const consolidationPresets: Record<PresetName, ConsolidationModel> = {
-  sumRate: { type: 'sum', function: 'rate', params: {}, lookbackSeconds: 300 },
-  gaugeAvg: { type: 'gauge', function: 'avg', params: {}, lookbackSeconds: 300 },
+  sumRate: { type: 'sum', function: 'sum_rate', params: {}, lookbackSeconds: 300 },
+  gaugeAvg: { type: 'gauge', function: 'gauge_avg', params: {}, lookbackSeconds: 300 },
   histogramPreserve: {
     type: 'histogram',
-    function: 'preserve_histogram',
+    function: 'histogram_preserve',
     params: {},
     lookbackSeconds: 300
   },
   histogramQuantile: {
     type: 'histogram',
-    function: 'quantile',
+    function: 'histogram_quantile',
     params: { quantile: 0.95 },
     lookbackSeconds: 300
   },
   histogramFractionBetween: {
     type: 'histogram',
-    function: 'fraction_between',
+    function: 'histogram_fraction_between',
     params: { fractionLowerThreshold: 0.1, fractionUpperThreshold: 0.9 },
     lookbackSeconds: 300
   }
@@ -55,8 +55,8 @@ export const scopeOptions: Array<{ title: string; name: ScopeName }> = [
 export const allowedFunctionsScopes: Record<ScopeName, AllowedFunctions> = {
   fullCatalog: {},
   backendSupported: {
-    gauge: ['last_value'],
-    sum: ['rate'],
-    histogram: ['quantile']
+    gauge: ['gauge_last'],
+    sum: ['sum_rate'],
+    histogram: ['histogram_quantile']
   }
 }

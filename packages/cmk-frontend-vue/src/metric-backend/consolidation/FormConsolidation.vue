@@ -85,7 +85,8 @@ const singleFunctionLabel = computed(() => functionLabel(model.value.type, model
 function applyFunction(type: MetricType, fn: ConsolidationFunction): void {
   // Reset params; they belonged to the previous function. Seed the quantile
   // default so its field isn't blank the moment the function is picked.
-  const params: ConsolidationParams = fn === 'quantile' ? { quantile: DEFAULT_QUANTILE } : {}
+  const params: ConsolidationParams =
+    fn === 'histogram_quantile' ? { quantile: DEFAULT_QUANTILE } : {}
   model.value = { ...model.value, type, function: fn, params }
 }
 
@@ -190,11 +191,11 @@ const fractionBetweenErrors = computed<string[]>(() => {
 
 const activeErrors = computed<string[]>(() => {
   switch (model.value.function) {
-    case 'quantile':
+    case 'histogram_quantile':
       return quantileErrors.value
-    case 'fraction_below':
+    case 'histogram_fraction_below':
       return fractionBelowThresholdErrors.value
-    case 'fraction_between':
+    case 'histogram_fraction_between':
       return fractionBetweenErrors.value
     default:
       return []
@@ -258,7 +259,10 @@ const editAriaLabel = computed(
         :label="_t('Consolidation function')"
         @update:model-value="onFunctionUpdate"
       />
-      <span v-if="model.function === 'quantile'" class="metric-backend-form-consolidation__param">
+      <span
+        v-if="model.function === 'histogram_quantile'"
+        class="metric-backend-form-consolidation__param"
+      >
         <CmkInput
           v-model="quantileInput"
           type="number"
@@ -268,7 +272,7 @@ const editAriaLabel = computed(
         />
       </span>
       <span
-        v-if="model.function === 'fraction_below'"
+        v-if="model.function === 'histogram_fraction_below'"
         class="metric-backend-form-consolidation__param"
       >
         <CmkInput
@@ -280,7 +284,7 @@ const editAriaLabel = computed(
         />
       </span>
       <span
-        v-if="model.function === 'fraction_between'"
+        v-if="model.function === 'histogram_fraction_between'"
         class="metric-backend-form-consolidation__param"
       >
         <CmkInput
