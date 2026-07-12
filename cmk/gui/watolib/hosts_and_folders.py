@@ -554,7 +554,7 @@ class _RedisHelper:
         permitted_contact_groups: set[_ContactgroupName],
     ) -> None:
         folder_key = f"wato:folders:{path}/"
-        mapping: Mapping[FieldT, EncodableT] = {
+        mapping: dict[FieldT, EncodableT] = {
             "num_hosts": num_hosts,
             "title": title,
             "title_path_without_root": title_path_without_root,
