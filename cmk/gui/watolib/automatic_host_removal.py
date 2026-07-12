@@ -21,13 +21,14 @@ from cmk.gui.config import Config
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.http import Request
 from cmk.gui.i18n import _
-from cmk.gui.logged_in import user
+from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.site_config import (
     is_distributed_setup_remote_site,
+    is_replication_enabled,
+    site_is_local,
     sites_ready_for_remote_automation,
 )
-from cmk.gui.user_sites import activation_sites
 from cmk.gui.utils.roles import UserPermissionSerializableConfig
 from cmk.gui.watolib.activate_changes import ActivateChangesManager, STATE_SUCCESS
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
@@ -95,6 +96,19 @@ def execute_host_removal_job(config: Config) -> None:
             _LOGGER_BACKGROUND_JOB.debug("Found no hosts to be removed, exiting")
             _LOGGER.info("Found no hosts to be removed, exiting")
             return
+
+        # Host removal runs unattended as a background job; act as the superuser explicitly
+        # instead of swapping the request-global session user via SuperUserContext.
+        acting_user = LoggedInSuperUser()
+        activation_site_configs = SiteConfigurations(
+            {
+                site_id: site
+                for site_id, site in acting_user.authorized_sites(
+                    unfiltered_sites=config.sites
+                ).items()
+                if site_is_local(site) or is_replication_enabled(site)
+            }
+        )
         for folder, hosts_in_folder in itertools.groupby(
             itertools.chain.from_iterable(hosts_to_be_removed.values()), _folder_of_host
         ):
@@ -107,24 +121,23 @@ def execute_host_removal_job(config: Config) -> None:
                 "Removing %(host_count)s hosts from folder %(folder)s",
                 {"host_count": len(hostnames), "folder": folder.title()},
             )
-            with SuperUserContext():
-                folder.delete_hosts(
-                    hostnames,
-                    automation=delete_hosts,
-                    pprint_value=config.wato_pprint_config,
-                    debug=config.debug,
-                    pending_changes=PendingChanges(
-                        activation_sites=activation_sites(config.sites),
-                        local_site=omd_site(),
-                        acting_user=user.id,
-                        store=PendingChangesStore(),
-                        hooks=(
-                            make_audit_log_change_hook(use_git=config.wato_use_git),
-                            index_update_change_hook,
-                        ),
+            folder.delete_hosts(
+                hostnames,
+                automation=delete_hosts,
+                pprint_value=config.wato_pprint_config,
+                debug=config.debug,
+                pending_changes=PendingChanges(
+                    activation_sites=activation_site_configs,
+                    local_site=omd_site(),
+                    acting_user=acting_user.id,
+                    store=PendingChangesStore(),
+                    hooks=(
+                        make_audit_log_change_hook(use_git=config.wato_use_git),
+                        index_update_change_hook,
                     ),
-                    acting_user=user,
-                )
+                ),
+                acting_user=acting_user,
+            )
 
         _LOGGER.info("Hosts removed, starting activation of changes")
         _activate_changes(
