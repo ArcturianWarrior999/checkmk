@@ -4,11 +4,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
-"Report-Msgid-Bugs-To: martin.hirschvogel@checkmk.com\n"
+"Report-Msgid-Bugs-To: feedback@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
 "PO-Revision-Date: 2026-07-10 10:14+0000\n"
-"Language-Team: French <https://translate.checkmk.com/projects/checkmk/dev/"
-"fr/>\n"
+"Language-Team: French <https://translate.checkmk.com/projects/checkmk/dev/fr/"
+">\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -99,8 +99,8 @@ msgid ""
 "href=\"%(url)s\">auto-registration</a>, use the host label <tt>cmk/"
 "agent_auto_registered:yes</tt>."
 msgstr ""
-" <b>Note</b> : Pour limiter cette règle aux hôtes créés via <a href=\"%(url)"
-"s\">auto-registration</a>, utilisez l'étiquette d'hôte <tt>cmk/"
+" <b>Note</b> : Pour limiter cette règle aux hôtes créés via <a "
+"href=\"%(url)s\">auto-registration</a>, utilisez l'étiquette d'hôte <tt>cmk/"
 "agent_auto_registered:yes</tt>."
 
 msgid " Activate this option"
@@ -415,8 +415,8 @@ msgid ""
 "%(count)d chaotic state changes from %(from_date)s until %(until_date)s "
 "(%(duration)s)"
 msgstr ""
-"%(count)d changements d'état chaotique de %(from_date)s à %(until_date)s (%"
-"(duration)s)"
+"%(count)d changements d'état chaotique de %(from_date)s à %(until_date)s "
+"(%(duration)s)"
 
 #, python-format
 msgid "%(count)d columns"
@@ -1108,8 +1108,8 @@ msgid ""
 ", no data has been received within the last %(staleness_threshold).1f check "
 "periods"
 msgstr ""
-"aucune donnée n'a été reçue au cours des dernières périodes de vérification %"
-"(staleness_threshold).1f"
+"aucune donnée n'a été reçue au cours des dernières périodes de vérification "
+"%(staleness_threshold).1f"
 
 msgid ", the first match skips this rule pack"
 msgstr "la première correspondance ignore ce paquet de règles"
@@ -1535,11 +1535,11 @@ msgid ""
 "or SNMP.<br><a href='%(read_more_url)s' target='_blank'>Read more about "
 "management boards.</a>"
 msgstr ""
-"<b>Cette fonctionnalité sera obsolète dans une future version de Checkmk.</b>"
-"<br>Veuillez ne plus configurer les cartes de gestion ici. Surveillez les "
-"cartes d'administration via un hôte dédié à l'aide de <a href='%(ipmi_url)s'>"
-"IPMI</a> ou SNMP.<br><a href='%(read_more_url)s' target='_blank'>En savoir "
-"plus sur les cartes d'administration.</a>"
+"<b>Cette fonctionnalité sera obsolète dans une future version de Checkmk.</"
+"b><br>Veuillez ne plus configurer les cartes de gestion ici. Surveillez les "
+"cartes d'administration via un hôte dédié à l'aide de <a "
+"href='%(ipmi_url)s'>IPMI</a> ou SNMP.<br><a href='%(read_more_url)s' "
+"target='_blank'>En savoir plus sur les cartes d'administration.</a>"
 
 #, fuzzy, python-format
 msgid ""
@@ -1649,8 +1649,8 @@ msgstr "<i>%(count)d plus des groupes de contacts</i><br>"
 #, python-format
 msgid "<li>Cannot delete hosts in folder %(folder)s: %(error)s</li>"
 msgstr ""
-"<li>Impossible de supprimer les hôtes dans le dossier %(folder)s : %(error)"
-"s</li>"
+"<li>Impossible de supprimer les hôtes dans le dossier %(folder)s : "
+"%(error)s</li>"
 
 #, python-format
 msgid "<li>Cannot move hosts from folder %(folder)s: %(error)s</li>"
@@ -6089,7 +6089,8 @@ msgstr "Toutes les éditions"
 
 #, python-format
 msgid "All elements of the tuple must be of type int, you have %(type)s"
-msgstr "Tous les éléments du tuple doivent être de type int, vous avez %(type)s"
+msgstr ""
+"Tous les éléments du tuple doivent être de type int, vous avez %(type)s"
 
 msgid "All even pages"
 msgstr "Toutes les pages paires"
@@ -6659,16 +6660,16 @@ msgid ""
 "Allows to create own %(title_lower)s, customize built-in %(title_lower)s and "
 "use them."
 msgstr ""
-"Permet de créer ses propres %(title_lower)s, de personnaliser les %"
-"(title_lower)s intégrés et de les utiliser."
+"Permet de créer ses propres %(title_lower)s, de personnaliser les "
+"%(title_lower)s intégrés et de les utiliser."
 
 #, python-format
 msgid ""
 "Allows to create own %(what_plural)s, customize built-in %(builtin)s and use "
 "them."
 msgstr ""
-"Permet de créer ses propres %(what_plural)s, de personnaliser les %(builtin)"
-"s intégrés et de les utiliser."
+"Permet de créer ses propres %(what_plural)s, de personnaliser les "
+"%(builtin)s intégrés et de les utiliser."
 
 msgid ""
 "Allows to define absolute levels for all, running, paused, and stopped "
@@ -8118,7 +8119,8 @@ msgstr "Erreurs du système d'authentification"
 
 #, python-format
 msgid "Authentication to web service failed.<br>Message:<br>%(response)s"
-msgstr "L'authentification au service web a échoué.<br>Message:<br>%(response)s"
+msgstr ""
+"L'authentification au service web a échoué.<br>Message:<br>%(response)s"
 
 #, fuzzy
 msgid "Authentication type"
@@ -12108,8 +12110,8 @@ msgstr ""
 #, python-format
 msgid "Cannot connect to event daemon via %(socket_path)s: %(error)s"
 msgstr ""
-"Impossible de se connecter au démon d'événements via %(socket_path)s : %"
-"(error)s"
+"Impossible de se connecter au démon d'événements via %(socket_path)s : "
+"%(error)s"
 
 #, python-format
 msgid "Cannot connect to remote site: %(e)s"
@@ -12735,11 +12737,13 @@ msgstr "Changé %(key)s de %(old_value)s en %(new_value)s"
 
 #, python-format
 msgid "Changed Configuration variable %(varname)s to %(state)s."
-msgstr "La variable de configuration %(varname)s a été remplacée par %(state)s."
+msgstr ""
+"La variable de configuration %(varname)s a été remplacée par %(state)s."
 
 #, python-format
 msgid "Changed Configuration variable %(varname)s to %(value)s."
-msgstr "La variable de configuration %(varname)s a été remplacée par %(value)s."
+msgstr ""
+"La variable de configuration %(varname)s a été remplacée par %(value)s."
 
 #, python-format
 msgid "Changed alert handler rule %(edit_nr)d"
@@ -13710,6 +13714,9 @@ msgstr "Checkmk : BI"
 #, fuzzy
 msgid "Checkmk: BI: secs"
 msgstr "Checkmk : BI"
+
+msgid "Checkmk: Service Risk Advisory - agent signature keys expire"
+msgstr ""
 
 #, fuzzy
 msgid "Checkmk: Setup: bytes"
@@ -16951,8 +16958,8 @@ msgstr ""
 #, python-format
 msgid "Could not find the group \"%(group)s\" specified for role %(role_id)s"
 msgstr ""
-"Impossible de trouver le groupe \"%(group)s\" spécifié pour le rôle %"
-"(role_id)s"
+"Impossible de trouver le groupe \"%(group)s\" spécifié pour le rôle "
+"%(role_id)s"
 
 #, python-format
 msgid ""
@@ -24616,8 +24623,8 @@ msgstr ""
 msgid ""
 "Error executing GIT command <tt>%(debug_command)s</tt>:<br><br>%(output)s"
 msgstr ""
-"Erreur d'exécution de la commande GIT <tt>%(debug_command)s</tt>:<br><br>%"
-"(output)s"
+"Erreur d'exécution de la commande GIT <tt>%(debug_command)s</tt>:"
+"<br><br>%(output)s"
 
 #, python-format
 msgid "Error fetching data: %(e)s"
@@ -26112,8 +26119,8 @@ msgstr ""
 #, python-format
 msgid "Failed to create sync archive [%(returncode)d]: %(error)s"
 msgstr ""
-"Échec de la création de l'archive de synchronisation [%(returncode)d] : %"
-"(error)s"
+"Échec de la création de l'archive de synchronisation [%(returncode)d] : "
+"%(error)s"
 
 msgid "Failed to decode certificate data"
 msgstr "Échec du décodage des données du certificat"
@@ -27779,9 +27786,9 @@ msgid ""
 "%(existing_connection)s and %(connection)s both use the suffix %(suffix)s "
 "which is not allowed."
 msgstr ""
-"Un double suffixe de connexion LDAP a été trouvé. Les connexions LDAP %"
-"(existing_connection)s et %(connection)s utilisent toutes deux le suffixe %"
-"(suffix)s qui n'est pas autorisé."
+"Un double suffixe de connexion LDAP a été trouvé. Les connexions LDAP "
+"%(existing_connection)s et %(connection)s utilisent toutes deux le suffixe "
+"%(suffix)s qui n'est pas autorisé."
 
 #, python-format
 msgid ""
@@ -32638,8 +32645,8 @@ msgid ""
 "Hosts: %(total)d total (%(succeeded)d succeeded, %(skipped)d skipped, "
 "%(failed)d failed)"
 msgstr ""
-"Hôtes : %(total)d total (%(succeeded)d réussi, %(skipped)d ignoré, %(failed)"
-"d échoué)"
+"Hôtes : %(total)d total (%(succeeded)d réussi, %(skipped)d ignoré, "
+"%(failed)d échoué)"
 
 #, fuzzy
 msgid "Hosts: Host Capacity & Utilization"
@@ -33718,9 +33725,9 @@ msgid ""
 msgstr ""
 "Si cette option est activée, Checkmk créera un service supplémentaire par "
 "hôte qui effectue une vérification régulière, si la découverte de services "
-"permet de trouver de nouveaux services actuellement non surveillés. <b>"
-"Note:</b> Cette option est obsolète et a été remplacée par le jeu de règles "
-"<a href='%(url)s'>Découverte périodique de services</a>, qui permet une "
+"permet de trouver de nouveaux services actuellement non surveillés. <b>Note:"
+"</b> Cette option est obsolète et a été remplacée par le jeu de règles <a "
+"href='%(url)s'>Découverte périodique de services</a>, qui permet une "
 "configuration par hôte et des fonctionnalités supplémentaires telles que la "
 "redécouverte automatique. Les règles de ce jeu de règles remplaceront les "
 "paramètres globaux définis ici."
@@ -38294,8 +38301,8 @@ msgstr "LDAP [%(connection_id)s] : Création de l'utilisateur %(user_id)s"
 #, python-format
 msgid "LDAP [%(connection_id)s]: Modified user %(user_id)s (%(modifications)s)"
 msgstr ""
-"LDAP [%(connection_id)s] : Utilisateur modifié %(user_id)s (%(modifications)"
-"s)"
+"LDAP [%(connection_id)s] : Utilisateur modifié %(user_id)s "
+"(%(modifications)s)"
 
 #, fuzzy, python-format
 msgid "LDAP [%(connection_id)s]: Quarantined user %(user_id)s"
@@ -41203,8 +41210,8 @@ msgid ""
 "MKPs enforce semantic versioning. Please refer to "
 "%(link_open)ssemver.org%(link_close)s for details."
 msgstr ""
-"Les MKP appliquent le versionnement sémantique. Veuillez vous référer à %"
-"(link_open)ssemver.org%(link_close)s pour plus de détails."
+"Les MKP appliquent le versionnement sémantique. Veuillez vous référer à "
+"%(link_open)ssemver.org%(link_close)s pour plus de détails."
 
 #, fuzzy
 msgid "MP statistics for AIX"
@@ -43518,8 +43525,8 @@ msgstr "Migrer les utilisateurs vers une autre connexion"
 msgid ""
 "Migrated %(count)d %(user_label)s to connector '%(connector)s': %(user_list)s"
 msgstr ""
-"Migration de %(count)d %(user_label)s vers le connecteur '%(connector)s' : %"
-"(user_list)s"
+"Migration de %(count)d %(user_label)s vers le connecteur '%(connector)s' : "
+"%(user_list)s"
 
 #, fuzzy
 msgid "Migrating"
@@ -44684,8 +44691,8 @@ msgid ""
 "Moved host from \"%(old_folder)s\" (ID: %(old_id)s) to \"%(new_folder)s\" "
 "(ID: %(new_id)s)"
 msgstr ""
-"Déplacement de l'hôte de \"%(old_folder)s\" ; (ID : %(old_id)s) vers \"%"
-"(new_folder)s\" ; (ID : %(new_id)s)"
+"Déplacement de l'hôte de \"%(old_folder)s\" ; (ID : %(old_id)s) vers "
+"\"%(new_folder)s\" ; (ID : %(new_id)s)"
 
 #, python-format
 msgid "Moved rule %(rule)s to pack %(pack)s"
@@ -59017,15 +59024,15 @@ msgstr "Sauver"
 msgid ""
 "Saved check configuration of host '%(host_name)s' with %(count)d services"
 msgstr ""
-"Vérification sauvegardée de la configuration de l'hôte '%(host_name)s' avec %"
-"(count)d services"
+"Vérification sauvegardée de la configuration de l'hôte '%(host_name)s' avec "
+"%(count)d services"
 
 #, python-format
 msgid ""
 "Saved check configuration of host '%(host_name)s' with %(services)d services"
 msgstr ""
-"Vérification sauvegardée de la configuration de l'hôte '%(host_name)s' avec %"
-"(services)d services"
+"Vérification sauvegardée de la configuration de l'hôte '%(host_name)s' avec "
+"%(services)d services"
 
 #, fuzzy
 msgid "Saved read-only settings"
@@ -63292,9 +63299,9 @@ msgid ""
 "because you are not member in that group. Your groups are: "
 "<b>%(user_groups)s</b>"
 msgstr ""
-"Désolé, vous ne pouvez pas attribuer le groupe de contacts '<b>%"
-"(contact_group)s</b>' car vous n'êtes pas membre de ce groupe. Vos groupes "
-"sont : <b>%(user_groups)s</b>"
+"Désolé, vous ne pouvez pas attribuer le groupe de contacts "
+"'<b>%(contact_group)s</b>' car vous n'êtes pas membre de ce groupe. Vos "
+"groupes sont : <b>%(user_groups)s</b>"
 
 #, python-format
 msgid "Sorry, you cannot edit the folder %(folder)s. It is locked."
@@ -68704,8 +68711,8 @@ msgid ""
 "The cluster %(cluster_status)s while the node <b>%(node_name)s</b> "
 "%(node_status)s"
 msgstr ""
-"Le cluster %(cluster_status)s alors que le nœud <b>%(node_name)s</b> %"
-"(node_status)s"
+"Le cluster %(cluster_status)s alors que le nœud <b>%(node_name)s</b> "
+"%(node_status)s"
 
 #, fuzzy
 msgid "The cluster cannot be a node of itself"
@@ -68948,8 +68955,8 @@ msgstr ""
 msgid ""
 "The content element \"%(title)s, %(text)s\" cannot be rendered: %(error)s"
 msgstr ""
-"L'élément de contenu \"%(title)s, %(text)s\" ne peut pas être rendu : %"
-"(error)s"
+"L'élément de contenu \"%(title)s, %(text)s\" ne peut pas être rendu : "
+"%(error)s"
 
 #, python-format
 msgid ""
@@ -69498,7 +69505,8 @@ msgstr ""
 
 #, python-format
 msgid "The following %(user_label)s could not be found: %(user_list)s"
-msgstr "L'élément suivant %(user_label)s n'a pas pu être trouvé : %(user_list)s"
+msgstr ""
+"L'élément suivant %(user_label)s n'a pas pu être trouvé : %(user_list)s"
 
 #, python-format
 msgid ""
@@ -69692,6 +69700,11 @@ msgstr "La spécification du graphe est"
 #, fuzzy, python-format
 msgid "The graph template id '%(graph_template)s' is disabled"
 msgstr "L'id du modèle de graphique '%s' est désactivé"
+
+msgid ""
+"The graph to add was created with the new graph designer and cannot be added "
+"to this graph."
+msgstr ""
 
 #, fuzzy
 msgid ""
@@ -70022,8 +70035,8 @@ msgid ""
 "The label ID %(label_id)r is of type %(type)s, but should be "
 "%(expected_type)s"
 msgstr ""
-"L'étiquette ID %(label_id)r est de type %(type)s, mais devrait être %"
-"(expected_type)s"
+"L'étiquette ID %(label_id)r est de type %(type)s, mais devrait être "
+"%(expected_type)s"
 
 #, python-format
 msgid ""
@@ -71556,8 +71569,8 @@ msgid ""
 "The rule you selected needs %(needed)d argument(s) (%(params)s), but you "
 "configured %(configured)d arguments."
 msgstr ""
-"La règle que vous avez sélectionnée nécessite %(needed)d argument(s) (%"
-"(params)s), mais vous avez configuré %(configured)d arguments."
+"La règle que vous avez sélectionnée nécessite %(needed)d argument(s) "
+"(%(params)s), mais vous avez configuré %(configured)d arguments."
 
 #, fuzzy, python-format
 msgid "The rule_id %(rule_id)s does not exist."
@@ -72387,8 +72400,8 @@ msgid ""
 "The value %(value)r has type %(type)s, but must be of type "
 "float%(int_suffix)s"
 msgstr ""
-"La valeur %(value)r a le type %(type)s, mais doit être de type float%"
-"(int_suffix)s"
+"La valeur %(value)r a le type %(type)s, mais doit être de type "
+"float%(int_suffix)s"
 
 #, python-format
 msgid "The value %(value)r has type %(type)s, but must be of type int"
@@ -73904,6 +73917,11 @@ msgstr ""
 "\n"
 "%s"
 
+msgid ""
+"This graph was created with the new graph designer and cannot be rendered or "
+"edited here."
+msgstr ""
+
 msgid "This group does not exist."
 msgstr "Ce groupe n'existe pas."
 
@@ -74809,7 +74827,8 @@ msgstr ""
 #, python-format
 msgid ""
 "This period has been reclassified in host state to state: %(host_state)s"
-msgstr "Cette période a été reclassée dans l'État hôte en État : %(host_state)s"
+msgstr ""
+"Cette période a été reclassée dans l'État hôte en État : %(host_state)s"
 
 #, python-format
 msgid ""
@@ -75682,8 +75701,8 @@ msgstr ""
 #, python-format
 msgid "This rule attaches contact group(s) to the events: %(groups)s"
 msgstr ""
-"Cette règle attache un ou plusieurs groupes de contacts aux événements : %"
-"(groups)s"
+"Cette règle attache un ou plusieurs groupes de contacts aux événements : "
+"%(groups)s"
 
 msgid ""
 "This rule can be used to configure the discovery of the Solaris services "
@@ -76013,8 +76032,8 @@ msgstr ""
 msgid ""
 "This rule pack is modified. Originally it was provided via the MKP %(mkp)s."
 msgstr ""
-"Ce pack de règles est modifié. A l'origine, il était fourni via le MKP %(mkp)"
-"s."
+"Ce pack de règles est modifié. A l'origine, il était fourni via le MKP "
+"%(mkp)s."
 
 #, python-format
 msgid "This rule pack is provided via the MKP %(mkp)s."
@@ -76755,8 +76774,8 @@ msgid ""
 "This ruleset is deprecated. Please use the ruleset <i>\"%(ruleset)s\"</i> "
 "instead."
 msgstr ""
-"Ce jeu de règles est déprécié. Veuillez utiliser le jeu de règles <i>\"%"
-"(ruleset)s\"</i> à la place."
+"Ce jeu de règles est déprécié. Veuillez utiliser le jeu de règles "
+"<i>\"%(ruleset)s\"</i> à la place."
 
 #, fuzzy
 msgid "This rulespec is deprecated and will be removed in future versions."
@@ -81544,8 +81563,8 @@ msgid ""
 "Transferring: %(new)d new, %(changed)d changed and %(vanished)d vanished "
 "files"
 msgstr ""
-"Transfert : %(new)d nouveaux fichiers, %(changed)d fichiers modifiés et %"
-"(vanished)d fichiers disparus"
+"Transfert : %(new)d nouveaux fichiers, %(changed)d fichiers modifiés et "
+"%(vanished)d fichiers disparus"
 
 msgid "Transform status output"
 msgstr "Sortie d'état de transformation"
@@ -82225,8 +82244,8 @@ msgid ""
 "Unable to display SLA data. The logrow limit of %(logrow_limit)d has been "
 "reached"
 msgstr ""
-"Impossible d'afficher les données SLA. La limite de logrow de %(logrow_limit)"
-"d a été atteinte"
+"Impossible d'afficher les données SLA. La limite de logrow de "
+"%(logrow_limit)d a été atteinte"
 
 #, fuzzy
 msgid ""
@@ -82414,8 +82433,8 @@ msgstr "Graphique personnalisé non défini '%(graph_name)s'"
 msgid ""
 "Undefined key '%(key)s' in the dictionary. Allowed are %(allowed_keys)s."
 msgstr ""
-"Clé '%(key)s' non définie dans le dictionnaire. Les clés autorisées sont %"
-"(allowed_keys)s."
+"Clé '%(key)s' non définie dans le dictionnaire. Les clés autorisées sont "
+"%(allowed_keys)s."
 
 #, fuzzy, python-format
 msgid "Undefined operator '%(operator)s' in graph expression"
@@ -86330,9 +86349,9 @@ msgid ""
 msgstr ""
 "La version '%(version)s' ; fait référence à la première version <b>stable</"
 "b> de Checkmk. Il s'agit de la version publiée après la dernière version "
-"bêta '%(version)sb*' ; et avant la première version du correctif '%(version)"
-"sp1' ;. Le fait de spécifier cette version signifie que votre MKP n'est pas "
-"disponible pour les versions bêta."
+"bêta '%(version)sb*' ; et avant la première version du correctif "
+"'%(version)sp1' ;. Le fait de spécifier cette version signifie que votre MKP "
+"n'est pas disponible pour les versions bêta."
 
 msgid "Version 1"
 msgstr "Version 1"
@@ -86371,8 +86390,8 @@ msgstr "Version : %(version)s, Edition : %(edition)s"
 msgid ""
 "Version: %(version)s, Edition: %(edition)s, License state: %(license_state)s"
 msgstr ""
-"Version : %(version)s, Edition : %(edition)s, État de la licence : %"
-"(license_state)s"
+"Version : %(version)s, Edition : %(edition)s, État de la licence : "
+"%(license_state)s"
 
 msgid "Vertical axis mirroring"
 msgstr "Miroir à axe vertical"
@@ -88093,8 +88112,8 @@ msgid ""
 "When this is configured, the created reports will be stored below "
 "<tt>%(archive_path)s</tt> in your local site."
 msgstr ""
-"Lorsque cela est configuré, les rapports créés seront stockés sous <tt>%"
-"(archive_path)s</tt> dans votre site local."
+"Lorsque cela est configuré, les rapports créés seront stockés sous "
+"<tt>%(archive_path)s</tt> dans votre site local."
 
 #, fuzzy
 msgid ""
@@ -89630,6 +89649,15 @@ msgid ""
 "delete a bundle which was created by an admin."
 msgstr ""
 
+msgid ""
+"You are receiving this advisory because you are a contact of affected hosts."
+"<br><br>The agent updates for some of your hosts are signed with agent "
+"signature keys that have expired or are about to expire. Once a key has "
+"expired, the affected hosts reject agent updates signed with it, so the "
+"Checkmk agent on these hosts can no longer be updated automatically. Please "
+"contact your Checkmk administrator to renew the agent signature keys."
+msgstr ""
+
 msgid "You are trying to edit a rule which does not exist anymore."
 msgstr "Vous essayez de modifier une règle qui n'existe plus."
 
@@ -89815,8 +89843,8 @@ msgid ""
 msgstr ""
 "Vous pouvez configurer le mécanisme de traitement des alertes pour "
 "enregistrer plus de détails sur les événements dans le fichier journal des "
-"alertes. Ces informations sont enregistrées dans le fichier <tt>%(log_file)"
-"s</tt>"
+"alertes. Ces informations sont enregistrées dans le fichier "
+"<tt>%(log_file)s</tt>"
 
 #, python-format
 msgid ""
@@ -91015,9 +91043,8 @@ msgid ""
 "You have not defined any %(what)s group yet. Please <a href=\"wato.py?"
 "mode=edit_%(what_url)s_group\">create</a> at least one first."
 msgstr ""
-"Vous n'avez pas encore défini de groupe %(what)s. Veuillez <a "
-"href=\"wato.py?mode=edit_%(what_url)s_group\">en créer au moins un</a> "
-"d'abord."
+"Vous n'avez pas encore défini de groupe %(what)s. Veuillez <a href=\"wato.py?"
+"mode=edit_%(what_url)s_group\">en créer au moins un</a> d'abord."
 
 #, fuzzy, python-format
 msgid ""
@@ -91033,8 +91060,8 @@ msgstr "Vous avez la permission d'accéder à cet hôte."
 #, python-format
 msgid "You have selected %(count)d %(user_label)s for migration: %(user_list)s"
 msgstr ""
-"Vous avez sélectionné %(count)d %(user_label)s pour la migration : %"
-"(user_list)s"
+"Vous avez sélectionné %(count)d %(user_label)s pour la migration : "
+"%(user_list)s"
 
 #, fuzzy, python-format
 msgid ""
@@ -96289,6 +96316,10 @@ msgid "Digits"
 msgstr ""
 
 #, fuzzy
+msgid "All metrics are hidden"
+msgstr "Tous les parents sont en bas"
+
+#, fuzzy
 msgid "Min"
 msgstr "Principal"
 
@@ -96320,8 +96351,8 @@ msgstr[0] "Aucun sélectionné"
 msgstr[1] "Aucun sélectionné"
 
 #, fuzzy
-msgid "All metrics are hidden"
-msgstr "Tous les parents sont en bas"
+msgid "Graph metrics"
+msgstr "Détails sur l'hôte"
 
 #, fuzzy
 msgid "Time zoom"
@@ -97992,7 +98023,7 @@ msgid "The Relay on Windows runs inside WSL2 (Windows Subsystem for Linux 2). "
 msgstr ""
 
 msgid ""
-"A system reboot may be required after installing WSL2 before proceeding."
+"This script requires administrator privileges and will restart the computer "
 msgstr ""
 
 #, fuzzy
