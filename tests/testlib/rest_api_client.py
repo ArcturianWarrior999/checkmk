@@ -1332,6 +1332,14 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def set_pin(self, pin_time: int | None, expect_ok: bool = True) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/set_pin/invoke",
+            body={"pin_time": pin_time},
+            expect_ok=expect_ok,
+        )
+
 
 class CustomGraphClient(RestApiClient):
     domain: DomainType = "custom_graph"

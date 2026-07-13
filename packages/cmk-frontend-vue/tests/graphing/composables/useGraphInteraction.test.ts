@@ -3,16 +3,25 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 
+import { saveGraphPin } from '@/graphing/api/graphPin'
 import type { TimeRange } from '@/graphing/components/TimeSeriesGraph'
 import { useGraphInteraction } from '@/graphing/composables/useGraphInteraction'
+
+vi.mock('@/graphing/api/graphPin', () => ({
+  saveGraphPin: vi.fn(() => Promise.resolve())
+}))
 
 const BASELINE: TimeRange = { start: 1000, end: 2000, step: 60 }
 const ZOOMED: TimeRange = { start: 1200, end: 1500, step: 60 }
 
 describe('useGraphInteraction', () => {
+  beforeEach(() => {
+    vi.mocked(saveGraphPin).mockClear()
+  })
+
   test('starts on the baseline with time-zoom mode and no pin', () => {
     const graph = useGraphInteraction(() => BASELINE)
 
@@ -75,20 +84,22 @@ describe('useGraphInteraction', () => {
     expect(graph.viewTimeRange.value).toEqual(BASELINE)
   })
 
-  test('creating a pin sets the pin time', () => {
+  test('creating a pin sets the pin time and persists it', () => {
     const graph = useGraphInteraction(() => BASELINE)
 
     graph.onPinCreate({ time: 4242 })
 
     expect(graph.pinTime.value).toBe(4242)
+    expect(saveGraphPin).toHaveBeenCalledWith(4242)
   })
 
-  test('clearing a pin removes it', () => {
+  test('clearing a pin removes it and persists the removal', () => {
     const graph = useGraphInteraction(() => BASELINE)
     graph.onPinCreate({ time: 4242 })
 
     graph.clearPin()
 
     expect(graph.pinTime.value).toBeNull()
+    expect(saveGraphPin).toHaveBeenLastCalledWith(null)
   })
 })

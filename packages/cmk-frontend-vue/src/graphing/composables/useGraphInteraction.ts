@@ -5,6 +5,7 @@
  */
 import { ref, watch } from 'vue'
 
+import { saveGraphPin } from '../api/graphPin'
 import type { PinPayload, TimeRange, ZoomMode, ZoomPayload } from '../components/TimeSeriesGraph'
 import { useGraphView } from './useGraphView'
 
@@ -44,12 +45,20 @@ export function useGraphInteraction(getBaseline: () => TimeRange | undefined) {
     handleIntent({ kind: 'reset' })
   }
 
+  function persistPin(newPinTime: number | null): void {
+    saveGraphPin(newPinTime).catch((error: unknown) => {
+      console.error('Failed to save the graph pin', error)
+    })
+  }
+
   function onPinCreate(payload: PinPayload): void {
     pinTime.value = payload.time
+    persistPin(payload.time)
   }
 
   function clearPin(): void {
     pinTime.value = null
+    persistPin(null)
   }
 
   return {
