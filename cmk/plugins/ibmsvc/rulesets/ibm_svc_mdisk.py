@@ -56,7 +56,7 @@ def _parameter_form_ibm_svc_mdisk() -> Dictionary:
 
 rule_spec_ibm_svc_mdisk = CheckParameters(
     name="ibm_svc_mdisk",
-    title=Title("IBM SVC Disk"),
+    title=Title("IBM SVC disk"),
     topic=Topic.STORAGE,
     parameter_form=_parameter_form_ibm_svc_mdisk,
     condition=HostAndItemCondition(
