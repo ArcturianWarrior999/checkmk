@@ -1,0 +1,172 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
+
+import usei18n from '@/lib/i18n'
+import type { TranslatedString } from '@/lib/i18nString'
+import { useDebounceFn } from '@/lib/useDebounce'
+
+import type { CommitResult, Domain, GraphItem, ItemId } from '../../types'
+import {
+  type ArithmeticNode,
+  type FunctionName,
+  type OperatorSymbol,
+  type ParseErrorDetail,
+  type ValidationIssue,
+  isOperatorSymbol,
+  parseFormula,
+  validateFormula
+} from '../formula'
+
+const DEBOUNCE_MS = 300
+
+export interface FormulaEditor {
+  text: Ref<string>
+  /** Debounced validation messages, suitable for display. */
+  errors: Ref<string[]>
+  appendOperator: (symbol: OperatorSymbol) => void
+  wrapFunction: (name: FunctionName) => void
+  appendRef: (id: ItemId) => void
+  commit: () => CommitResult
+  reset: () => void
+}
+
+export function useFormulaEditor(
+  items: MaybeRefOrGetter<readonly GraphItem[]>,
+  domain: Domain,
+  editedItemId: MaybeRefOrGetter<ItemId | null> = null
+): FormulaEditor {
+  const { _t } = usei18n()
+  const text = ref('')
+  const errors = ref<string[]>([])
+
+  function issueMessage(issue: ValidationIssue): TranslatedString {
+    switch (issue.code) {
+      case 'unknown-ref':
+        return _t('Unknown metric or formula "%{id}".', { id: issue.id })
+      case 'self-ref':
+        return _t('The formula cannot reference itself ("%{id}").', { id: issue.id })
+      case 'cyclic-ref':
+        return _t('"%{id}" refers back to this formula (circular reference).', { id: issue.id })
+      case 'domain-mismatch':
+        return _t('Cannot mix RRD and metrics backend data: "%{id}".', { id: issue.id })
+      case 'needs-consolidation':
+        return _t('Consolidate "%{id}" using avg, min, max or sum.', { id: issue.id })
+    }
+  }
+
+  function parseMessage(detail: ParseErrorDetail): TranslatedString {
+    switch (detail.code) {
+      case 'empty-formula':
+        return _t('The formula is empty; add a metric id (e.g. A) or a number.')
+      case 'invalid-number':
+        return _t("Invalid number; use digits with an optional decimal point (e.g. '1.5').")
+      case 'unexpected-character':
+        return _t(
+          "Unexpected character '%{character}'; allowed are ids (A, B, ...), numbers, " +
+            'operators (+ - * /), parentheses and commas.',
+          { character: detail.character }
+        )
+      case 'unexpected-token':
+        return _t("Unexpected '%{token}'; join values with an operator (+ - * /).", {
+          token: detail.token
+        })
+      case 'unexpected-end':
+        return _t('The formula ends unexpectedly; add a metric id (e.g. A) or a number.')
+      case 'unknown-function':
+        return _t("Unknown function '%{name}'; available functions: %{available}.", {
+          name: detail.name,
+          available: detail.available.join(', ')
+        })
+      case 'empty-function-args':
+        return _t("'%{name}()' needs at least one argument, e.g. '%{name}(A)'.", {
+          name: detail.name
+        })
+      case 'expected-token':
+        return _t("Expected '%{symbol}'.", { symbol: detail.symbol })
+      case 'nesting-too-deep':
+        return _t('The formula is nested too deeply; simplify it.')
+    }
+  }
+
+  type Evaluation =
+    | { status: 'empty'; errors: [] }
+    | { status: 'parse-error'; errors: string[] }
+    | { status: 'invalid'; errors: string[] }
+    | { status: 'valid'; ast: ArithmeticNode; errors: [] }
+
+  const evaluation = computed<Evaluation>(() => {
+    if (text.value.trim() === '') {
+      return { status: 'empty', errors: [] }
+    }
+    const result = parseFormula(text.value)
+    if ('error' in result) {
+      return {
+        status: 'parse-error',
+        errors: [_t('Invalid formula: %{detail}', { detail: parseMessage(result.error.detail) })]
+      }
+    }
+    const issues = validateFormula(result.ast, toValue(items), domain, toValue(editedItemId))
+    if (issues.length > 0) {
+      return { status: 'invalid', errors: issues.map(issueMessage) }
+    }
+    return { status: 'valid', ast: result.ast, errors: [] }
+  })
+
+  const scheduleValidation = useDebounceFn(() => {
+    errors.value = evaluation.value.errors
+  }, DEBOUNCE_MS)
+  watch(() => evaluation.value.errors, scheduleValidation)
+
+  function appendOperator(symbol: OperatorSymbol): void {
+    const trimmed = text.value.replace(/\s+$/, '')
+    text.value = trimmed === '' ? `${symbol} ` : `${trimmed} ${symbol} `
+  }
+
+  function wrapFunction(name: FunctionName): void {
+    text.value = `${name}(${text.value.trim()})`
+  }
+
+  function appendRef(id: ItemId): void {
+    const trimmed = text.value.replace(/\s+$/, '')
+    if (trimmed === '') {
+      text.value = id
+      return
+    }
+    const last = trimmed[trimmed.length - 1]!
+    if (/[A-Za-z0-9)]/.test(last)) {
+      text.value = `${trimmed} ${lastOperator(trimmed) ?? '+'} ${id}`
+    } else if (last === '(') {
+      text.value = `${trimmed}${id}`
+    } else {
+      text.value = `${trimmed} ${id}`
+    }
+  }
+
+  function commit(): CommitResult {
+    const result = evaluation.value
+    errors.value = result.errors
+    return result.status === 'valid' ? { ast: result.ast } : { errors: result.errors }
+  }
+
+  function reset(): void {
+    text.value = ''
+    errors.value = []
+  }
+
+  return { text, errors, appendOperator, wrapFunction, appendRef, commit, reset }
+}
+
+/** The most recent binary operator symbol in the text, or null if there is none. */
+function lastOperator(text: string): OperatorSymbol | null {
+  for (let i = text.length - 1; i >= 0; i--) {
+    const ch = text[i]!
+    if (isOperatorSymbol(ch)) {
+      return ch
+    }
+  }
+  return null
+}

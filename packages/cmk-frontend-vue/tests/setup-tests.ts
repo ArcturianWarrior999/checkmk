@@ -6,6 +6,7 @@
 import '@testing-library/jest-dom/vitest'
 import { vi } from 'vitest'
 import failOnConsole from 'vitest-fail-on-console'
+import { ref } from 'vue'
 
 import { dummyT, dummyTn, dummyTnp, dummyTp } from '@/lib/i18n/i18nDummy'
 
@@ -14,7 +15,10 @@ vi.mock('@/lib/i18n', () => ({
     _t: dummyT,
     _tn: dummyTn,
     _tp: dummyTp,
-    _tnp: dummyTnp
+    _tnp: dummyTnp,
+    currentLanguage: ref('en'),
+    translationLoading: ref(false),
+    switchLanguage: vi.fn()
   }),
   untranslated: (msg: string) => msg
 }))
