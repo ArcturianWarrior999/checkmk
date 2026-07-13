@@ -7,6 +7,7 @@ import { Folder, Page } from '@ucl/_ucl/types/page'
 
 import UclActionFormPane from './UclActionFormPane.vue'
 import UclColumnPinning from './UclColumnPinning.vue'
+import UclEditableTable from './UclEditableTable.vue'
 import UclMonitoringActionBar from './UclMonitoringActionBar.vue'
 import UclRefreshCountdown from './UclRefreshCountdown.vue'
 import UclTableCellBreakpoints from './UclTableCellBreakpoints.vue'
@@ -14,24 +15,37 @@ import UclTableColumnFilters from './UclTableColumnFilters.vue'
 import UclActionsCell from './cell/UclActionsCell.vue'
 import UclBaseCell from './cell/UclBaseCell.vue'
 import UclCheckboxCell from './cell/UclCheckboxCell.vue'
+import UclCollapsibleCell from './cell/UclCollapsibleCell.vue'
+import UclColorPickerCell from './cell/UclColorPickerCell.vue'
+import UclDragHandleCell from './cell/UclDragHandleCell.vue'
+import UclDropdownCell from './cell/UclDropdownCell.vue'
 import UclModesCell from './cell/UclModesCell.vue'
 import UclNumberCell from './cell/UclNumberCell.vue'
 import UclStateCell from './cell/UclStateCell.vue'
 import UclStringCell from './cell/UclStringCell.vue'
+import UclSwitchCell from './cell/UclSwitchCell.vue'
+import UclVisibilityCell from './cell/UclVisibilityCell.vue'
 
 export const pages: Array<Folder | Page> = [
   new Folder('Cell types', [
     new Page('ActionsCell', UclActionsCell),
     new Page('BaseCell', UclBaseCell),
     new Page('CheckboxCell', UclCheckboxCell),
+    new Page('CollapsibleCell', UclCollapsibleCell),
+    new Page('ColorPickerCell', UclColorPickerCell),
+    new Page('DragHandleCell', UclDragHandleCell),
+    new Page('DropdownCell', UclDropdownCell),
     new Page('ModesCell', UclModesCell),
     new Page('NumberCell', UclNumberCell),
     new Page('StateCell', UclStateCell),
-    new Page('StringCell', UclStringCell)
+    new Page('StringCell', UclStringCell),
+    new Page('SwitchCell', UclSwitchCell),
+    new Page('VisibilityCell', UclVisibilityCell)
   ]),
   new Page('ActionFormPane', UclActionFormPane),
   new Page('MonitoringActionBar', UclMonitoringActionBar),
   new Page('RefreshCountdown', UclRefreshCountdown),
+  new Page('Editable table', UclEditableTable),
   new Page('Table cell breakpoints', UclTableCellBreakpoints),
   new Page('Table column pinning', UclColumnPinning),
   new Page('Table column filters', UclTableColumnFilters)
