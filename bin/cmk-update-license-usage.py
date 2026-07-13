@@ -7,10 +7,6 @@ import argparse
 import sys
 
 from cmk.ccc.site import omd_site
-from cmk.ccc.version import Edition, edition
-from cmk.licensing.active_metric_series_retriever_registry import (
-    active_metric_series_retriever_registry,
-)
 from cmk.licensing.basics.paths import (
     get_instance_id_file_path,
     get_next_run_file_path,
@@ -44,32 +40,9 @@ def _parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def average_active_metric_series_retriever() -> int | None:
-    # Note: these type hints are needed to avoid breaking Github actions.
-    from cmk.metric_backend.query.query_client import (  # type: ignore[import-untyped, unused-ignore]
-        RetryingQueryClient,
-    )
-    from cmk.metric_backend.retrying_client import (  # type: ignore[import-untyped, unused-ignore]
-        RetryingClient,
-    )
-
-    try:
-        client = RetryingQueryClient(RetryingClient.read_only_from_omd_root(paths.omd_root))
-    except RuntimeError:
-        # Here we just return None as this happens when
-        # the customer has not configured the metric backend at all
-        return None
-
-    # Note: this type hint is needed to avoid breaking Github actions.
-    return client.custom_metrics_count_average_over_time()  # type: ignore[no-any-return, unused-ignore]
-
-
 def main() -> int:
     args = _parse_arguments()
     logger = init_logging(paths.log_dir)
-
-    if edition(paths.omd_root) in [Edition.ULTIMATE, Edition.ULTIMATEMT, Edition.CLOUD]:
-        active_metric_series_retriever_registry.register(average_active_metric_series_retriever)
 
     if args.force:
         get_next_run_file_path(omd_root).unlink(missing_ok=True)
@@ -80,7 +53,7 @@ def main() -> int:
             load_instance_id(get_instance_id_file_path(omd_root)),
             hash_site_id(omd_site()),
             lambda now, instance_id, site_hash: create_sample(
-                now, instance_id, site_hash, omd_root=omd_root, log_dir=paths.log_dir
+                now, instance_id, site_hash, omd_root=omd_root, logger=logger
             ),
             omd_root=omd_root,
         )

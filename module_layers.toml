@@ -714,7 +714,13 @@ allows = ["@ccc"]
 allows = ["@ccc", "@messaging", "cmk.utils"]
 
 [components."cmk.metric_backend"]
-allows = ["@ccc", "@plugin_apis", "cmk.discover_plugins"]
+allows = [
+  "@ccc",
+  "@plugin_apis",
+  "cmk.discover_plugins",
+  # metric_backend.license_usage provides a license usage counter plug-in
+  "cmk.licensing.usage_counters",
+]
 
 [components."cmk.network_flow"]
 allows = ["@ccc"]
@@ -1573,6 +1579,8 @@ allows = [
   "cmk.ccc.site",
   "cmk.ccc.store",
   "cmk.ccc.version",
+  # discovery of feature-provided license usage counter plug-ins
+  "cmk.discover_plugins",
   # TYPE_CHECKING only, in license_distribution_registry
   "cmk.utils.automation_config",
 ]
@@ -1812,7 +1820,7 @@ allows = ["@ccc", "cmk.crash", "cmk.piggyback", "cmk.utils"]
 allows = ["@livestatus_client", "cmk.piggyback", "cmk.utils"]
 
 [file_dependencies."bin/cmk-update-license-usage.py"]
-allows = ["@ccc", "cmk.licensing", "cmk.metric_backend", "cmk.utils"]
+allows = ["@ccc", "cmk.licensing", "cmk.utils"]
 
 [file_dependencies."bin/cmk-transform-inventory-trees"]
 allows = ["cmk.inventory", "cmk.utils.paths"]

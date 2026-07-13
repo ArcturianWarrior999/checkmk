@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import random
 import time
 from collections import defaultdict, deque
@@ -22,9 +23,6 @@ import cmk.livestatus_client as livestatus
 from cmk.ccc import store
 from cmk.ccc.site import omd_site
 from cmk.ccc.version import Edition
-from cmk.licensing.active_metric_series_retriever_registry import (
-    get_average_active_metric_series,
-)
 from cmk.licensing.basics.paths import (
     get_extensions_file_path,
     get_instance_id_file_path,
@@ -46,6 +44,11 @@ from cmk.licensing.helper import (
     hash_site_id,
     load_instance_id,
     rot47,
+)
+from cmk.licensing.usage_counters import (
+    collect_license_usage_counters,
+    CounterCollectionContext,
+    discover_license_usage_counter_plugins,
 )
 
 CLOUD_SERVICE_PREFIXES = {"aws", "azure", "gcp"}
@@ -122,7 +125,7 @@ def try_update_license_usage(
 
 
 def create_sample(
-    now: Now, instance_id: UUID, site_hash: str, *, omd_root: Path, log_dir: Path
+    now: Now, instance_id: UUID, site_hash: str, *, omd_root: Path, logger: logging.Logger
 ) -> LicenseUsageSample:
     """Calculation of hosts and services:
     num_hosts: Hosts
@@ -180,7 +183,11 @@ def create_sample(
     services_counter = _get_services_counter()
     cloud_counter = _get_cloud_counter()
     synthetic_monitoring_counter = _get_synthetic_monitoring_counter()
-    num_active_metric_series = get_average_active_metric_series(omd_root, log_dir) or 0
+    feature_counters = collect_license_usage_counters(
+        discover_license_usage_counter_plugins(),
+        CounterCollectionContext(omd_root=omd_root, query_livestatus=_get_from_livestatus),
+        logger,
+    )
 
     general_infos = cmk_version.get_general_version_infos(omd_root)
     extensions = _load_extensions(omd_root=omd_root)
@@ -204,7 +211,7 @@ def create_sample(
         num_synthetic_tests_excluded=synthetic_monitoring_counter.num_excluded,
         num_synthetic_kpis=synthetic_monitoring_counter.num_kpis,
         num_synthetic_kpis_excluded=synthetic_monitoring_counter.num_kpis_excluded,
-        num_active_metric_series=num_active_metric_series,
+        num_active_metric_series=feature_counters.get("active_metric_series", 0),
         sample_time=sample_time,
         timezone=now.tz,
         extension_ntop=extensions.ntop,
@@ -527,7 +534,7 @@ class LicenseUsageReportValidity(Enum):
 
 
 def get_license_usage_report_validity(
-    *, omd_root: Path, log_dir: Path
+    *, omd_root: Path, logger: logging.Logger
 ) -> LicenseUsageReportValidity:
     report_file_path = get_license_usage_report_file_path(omd_root)
 
@@ -539,7 +546,7 @@ def get_license_usage_report_validity(
                 load_instance_id(get_instance_id_file_path(omd_root)),
                 hash_site_id(omd_site()),
                 lambda now, instance_id, site_hash: create_sample(
-                    now, instance_id, site_hash, omd_root=omd_root, log_dir=log_dir
+                    now, instance_id, site_hash, omd_root=omd_root, logger=logger
                 ),
                 omd_root=omd_root,
             )

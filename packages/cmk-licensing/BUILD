@@ -25,6 +25,7 @@ py_library(
     visibility = [
         "//cmk:__subpackages__",
         "//non-free/packages/cmk-licensing-nonfree:__pkg__",
+        "//non-free/packages/cmk-metric-backend:__pkg__",
         "//non-free/tests:__subpackages__",
         "//tests:__subpackages__",
     ],
@@ -34,6 +35,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-licensing/cmk/licensing/basics",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-plugin-apis:discover_plugins",
         requirement("python-dateutil"),
     ],
 )
