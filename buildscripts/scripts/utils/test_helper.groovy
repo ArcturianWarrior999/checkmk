@@ -71,13 +71,13 @@ void execute_test(Map config = [:]) {
                         target_name: defaultDict.name,
                         cache_prefix: versioning.distro_code(),
                         // When we mount the shared repository cache, we won't pack the repository cache under ~/.cache
-                        // into the hot cache and therefore we dont need to consider MODULE.bazel.lock
+                        // into the hot cache and therefore we dont need to consider WORKSPACE and MODULE.bazel.lock
                         files_to_consider: [
                             '.bazelversion',
                             'go.sum',
                             'requirements.txt',
                             'bazel/tools/package.json',
-                        ] + (env.MOUNT_SHARED_REPOSITORY_CACHE == "1" ? [] : ['MODULE.bazel.lock']),
+                        ] + (env.MOUNT_SHARED_REPOSITORY_CACHE == "1" ? [] : ['WORKSPACE', 'MODULE.bazel.lock']),
                         disable_hot_cache: env.USE_STASHED_BAZEL_FOLDER == "0" || defaultDict.disable_hot_cache,
                     ]) {
                         withCredentialFileAtLocation(creds: defaultDict.creds_files) {

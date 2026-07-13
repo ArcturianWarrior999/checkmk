@@ -160,12 +160,12 @@ void main() {
                         target_name: "build-omd-${package_type}",
                         cache_prefix: versioning.distro_code(),
                         // When we mount the shared repository cache, we won't pack the repository cache under ~/.cache
-                        // into the hot cache and therefore we dont need to consider MODULE.bazel.lock
+                        // into the hot cache and therefore we dont need to consider WORKSPACE and MODULE.bazel.lock
                         files_to_consider: [
                             '.bazelversion',
                             'requirements.txt',
                             'bazel/tools/package.json',
-                        ] + (env.MOUNT_SHARED_REPOSITORY_CACHE == "1" ? [] : ['MODULE.bazel.lock']),
+                        ] + (env.MOUNT_SHARED_REPOSITORY_CACHE == "1" ? [] : ['WORKSPACE', 'MODULE.bazel.lock']),
                         disable_hot_cache: env.USE_STASHED_BAZEL_FOLDER_CMK_DISTRO_BUILD == "0",
                     ]) {
                         sh("""
