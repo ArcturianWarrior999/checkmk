@@ -5,8 +5,9 @@
  */
 import { fireEvent, render, screen } from '@testing-library/vue'
 import type { GlobalTimePickerProps } from 'cmk-shared-typing/typescript/global_time_picker'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 
+import { useGlobalRefresh } from '@/graphing/GlobalRefreshControl/useGlobalRefresh'
 import GlobalTimePickerApp from '@/graphing/GlobalTimePicker/GlobalTimePickerApp.vue'
 import { durationSeconds, rollingRange } from '@/graphing/GlobalTimePicker/private/timeRange'
 import { useGlobalTimeRange } from '@/graphing/GlobalTimePicker/useGlobalTimeRange'
@@ -28,10 +29,21 @@ const activeDurationSeconds = (): number => {
   return durationSeconds(active!)
 }
 
+function resetGlobalRefresh(): void {
+  const { setRefreshIntervalSeconds, setRefreshPaused } = useGlobalRefresh()
+  setRefreshPaused(true)
+  setRefreshIntervalSeconds(30)
+}
+
 describe('GlobalTimePickerApp', () => {
-  // The store is a module-level singleton; reset it so each test starts from a known state.
+  // The stores are module-level singletons; reset them so each test starts from a known state.
   beforeEach(() => {
     useGlobalTimeRange().setActiveTimeRange(null)
+    resetGlobalRefresh()
+  })
+
+  afterEach(() => {
+    resetGlobalRefresh()
   })
 
   test('seeds the shared store with the default duration when empty', () => {
@@ -49,5 +61,10 @@ describe('GlobalTimePickerApp', () => {
     render(GlobalTimePickerApp, { props: { ...PROPS } })
     await fireEvent.click(screen.getByRole('button', { name: 'Last 25 hours' }))
     expect(activeDurationSeconds()).toBe(25 * HOUR)
+  })
+
+  test('renders the refresh control', () => {
+    render(GlobalTimePickerApp, { props: { ...PROPS } })
+    expect(screen.getByText('Refresh off')).toBeInTheDocument()
   })
 })

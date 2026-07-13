@@ -1,0 +1,98 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import userEvent from '@testing-library/user-event'
+import { fireEvent, render, screen } from '@testing-library/vue'
+import { afterEach, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
+
+import GlobalRefreshControl from '@/graphing/GlobalRefreshControl/GlobalRefreshControl.vue'
+import { useGlobalRefresh } from '@/graphing/GlobalRefreshControl/useGlobalRefresh'
+
+function resetGlobalRefresh(): void {
+  const { setRefreshIntervalSeconds, setRefreshPaused } = useGlobalRefresh()
+  setRefreshPaused(true)
+  setRefreshIntervalSeconds(30)
+}
+
+beforeEach(() => {
+  resetGlobalRefresh()
+})
+
+afterEach(() => {
+  resetGlobalRefresh()
+  vi.useRealTimers()
+})
+
+test('starts in the paused state showing "Refresh off" and Resume', () => {
+  render(GlobalRefreshControl)
+
+  expect(screen.getByText('Refresh off')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /Resume/ })).toBeInTheDocument()
+  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+})
+
+test('live state shows the badge and the interval dropdown', () => {
+  useGlobalRefresh().setRefreshPaused(false)
+
+  render(GlobalRefreshControl)
+
+  expect(screen.getByText('Live refresh')).toBeInTheDocument()
+  expect(screen.getByRole('combobox', { name: 'Refresh interval' })).toBeInTheDocument()
+  expect(screen.queryByText('Refresh off')).not.toBeInTheDocument()
+})
+
+test('selecting another interval stores it unpaused', async () => {
+  const user = userEvent.setup()
+  useGlobalRefresh().setRefreshPaused(false)
+  render(GlobalRefreshControl)
+
+  await user.click(screen.getByRole('combobox', { name: 'Refresh interval' }))
+  await user.click(await screen.findByText('60 sec'))
+
+  expect(useGlobalRefresh().refreshIntervalSeconds.value).toBe(60)
+  expect(useGlobalRefresh().refreshPaused.value).toBe(false)
+})
+
+test('"Turn off" pauses and keeps the interval', async () => {
+  const user = userEvent.setup()
+  useGlobalRefresh().setRefreshPaused(false)
+  render(GlobalRefreshControl)
+
+  await user.click(screen.getByRole('combobox', { name: 'Refresh interval' }))
+  await user.click(await screen.findByText('Turn off'))
+
+  expect(useGlobalRefresh().refreshPaused.value).toBe(true)
+  expect(useGlobalRefresh().refreshIntervalSeconds.value).toBe(30)
+})
+
+test('paused state shows the time of the last refresh tick', async () => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date(2026, 6, 9, 10, 33, 49))
+  render(GlobalRefreshControl)
+  useGlobalRefresh().setRefreshPaused(false)
+
+  vi.advanceTimersByTime(30_000)
+  useGlobalRefresh().setRefreshPaused(true)
+  await nextTick()
+  await nextTick()
+
+  expect(screen.getByText('Last refresh: 10:34:19')).toBeInTheDocument()
+})
+
+test('the last refresh time is omitted when never refreshed', () => {
+  render(GlobalRefreshControl)
+
+  expect(screen.queryByText(/Last refresh/)).not.toBeInTheDocument()
+})
+
+test('Resume unpauses with the kept interval', async () => {
+  render(GlobalRefreshControl)
+
+  await fireEvent.click(screen.getByRole('button', { name: /Resume/ }))
+
+  expect(useGlobalRefresh().refreshPaused.value).toBe(false)
+  expect(useGlobalRefresh().refreshIntervalSeconds.value).toBe(30)
+})

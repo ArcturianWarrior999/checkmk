@@ -9,6 +9,7 @@ import { computed } from 'vue'
 
 import type { DateTimeRange } from '@/components/date-time'
 
+import GlobalRefreshControl from '../GlobalRefreshControl/GlobalRefreshControl.vue'
 import GlobalTimePicker from './GlobalTimePicker.vue'
 import { rollingRange } from './private/timeRange.ts'
 import { useGlobalTimeRange } from './useGlobalTimeRange.ts'
@@ -34,5 +35,9 @@ const range = computed<DateTimeRange>({
     v-model="range"
     :custom-time-ranges="props.custom_time_ranges"
     :server-time-zone="props.server_time_zone"
-  />
+  >
+    <template #aside>
+      <GlobalRefreshControl />
+    </template>
+  </GlobalTimePicker>
 </template>
