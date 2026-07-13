@@ -5,11 +5,7 @@
  */
 import type { GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
 
-import type {
-  AttributeFilterModel,
-  AttributeType,
-  ConnectedCondition
-} from './attribute-filter/types'
+import type { AttributeFilterModel, AttributeType, Condition } from './attribute-filter/types'
 
 export type AttributeTypeKey = Exclude<AttributeType, null>
 
@@ -34,25 +30,25 @@ export interface ThreeLists {
 }
 
 export function toModel(lists: ThreeLists, newId: () => string): AttributeFilterModel {
-  const out: ConnectedCondition[] = []
+  const conditions: Condition[] = []
   for (const attributeType of ATTRIBUTE_TYPE_ORDER) {
     for (const attr of lists[attributeType]) {
-      out.push({
+      conditions.push({
         id: newId(),
         attributeType,
         key: attr.key,
         operator: 'eq',
-        value: attr.value,
-        connector: out.length === 0 ? null : 'AND'
+        value: attr.value
       })
     }
   }
-  return out
+  return conditions.length === 0 ? [] : [{ id: newId(), conditions }]
 }
 
+// The three lists cannot express OR, so all groups flatten together.
 export function fromModel(model: AttributeFilterModel): ThreeLists {
   const lists: ThreeLists = { resource: [], scope: [], datapoint: [] }
-  for (const condition of model) {
+  for (const condition of model.flatMap((group) => group.conditions)) {
     // Skip key-less conditions (a pill still being created).
     if (condition.attributeType === null || !condition.key) {
       continue
@@ -96,8 +92,9 @@ export function buildAutocompleteContext(
   if (options.metricName) {
     context.metric_name = options.metricName
   }
+  const conditions = model.flatMap((group) => group.conditions)
   for (const attributeType of ATTRIBUTE_TYPE_ORDER) {
-    const attrs = model
+    const attrs = conditions
       .filter(
         (c) =>
           c.attributeType === attributeType &&

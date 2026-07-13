@@ -14,6 +14,8 @@ import { pillLabel } from '@/metric-backend/attribute-filter/pill-label'
 import type {
   AttributeFilterModel,
   AttributeType,
+  Condition,
+  ConditionGroup,
   Operator
 } from '@/metric-backend/attribute-filter/types'
 
@@ -23,23 +25,36 @@ const KEY_SUGGESTIONS = [
   { name: 'foo.bar', title: 'foo.bar' }
 ]
 
-function pill(
-  id: string,
-  connector: 'AND' | 'OR' | null,
-  overrides: Partial<AttributeFilterModel[number]> = {}
-): AttributeFilterModel[number] {
-  return { id, attributeType: null, key: '', operator: 'eq', value: '', connector, ...overrides }
+function condition(id: string, overrides: Partial<Condition> = {}): Condition {
+  return { id, attributeType: null, key: '', operator: 'eq', value: '', ...overrides }
+}
+
+function conditionGroup(id: string, ...conditions: Condition[]): ConditionGroup {
+  return { id, conditions }
+}
+
+// Flat view for assertions that check condition fields or order, not grouping.
+function conditionsOf(model: AttributeFilterModel): Condition[] {
+  return model.flatMap((g) => g.conditions)
 }
 
 function makeModel(): AttributeFilterModel {
   return [
-    pill('pill-a', null),
-    pill('pill-b', 'OR', { attributeType: 'scope', key: 'otel.library.name' })
+    conditionGroup('group-a', condition('pill-a')),
+    conditionGroup(
+      'group-b',
+      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+    )
   ]
 }
 
-function singlePill(overrides: Partial<AttributeFilterModel[number]> = {}): AttributeFilterModel {
-  return [pill('pill-a', null, { attributeType: 'resource', key: 'service.name', ...overrides })]
+function singlePill(overrides: Partial<Condition> = {}): AttributeFilterModel {
+  return [
+    conditionGroup(
+      'group-a',
+      condition('pill-a', { attributeType: 'resource', key: 'service.name', ...overrides })
+    )
+  ]
 }
 
 function querySuggestions(query: string): Promise<Response> {
@@ -147,14 +162,15 @@ test('picking a known key applies key and inferred attributeType in one mutation
   // overwrite the first via `defineModel`'s deferred prop propagation.
   await pickKey(pillsInOrder()[0]!, 'http.method')
 
-  expect(model.value![0]).toMatchObject({
+  const conditions = conditionsOf(model.value!)
+  expect(conditions[0]).toMatchObject({
     id: 'pill-a',
     key: 'http.method',
     attributeType: 'datapoint'
   })
   // Pill B must be untouched — guards against any cross-row contamination
   // that a sloppier identity strategy could introduce.
-  expect(model.value![1]).toMatchObject({
+  expect(conditions[1]).toMatchObject({
     id: 'pill-b',
     key: 'otel.library.name',
     attributeType: 'scope'
@@ -166,58 +182,70 @@ test('picking a key without a resolver hit preserves the existing attributeType'
   // "no inference → leave the type alone" path. A free-text key edit on a
   // resolver-less form must not silently wipe a user-picked type.
   const initial = makeModel()
-  initial[0]!.attributeType = 'resource'
-  initial[0]!.key = 'service.name'
+  initial[0]!.conditions[0]!.attributeType = 'resource'
+  initial[0]!.conditions[0]!.key = 'service.name'
   const { model } = renderForm(initial)
   await pickKey(pillsInOrder()[0]!, 'foo.bar')
 
-  expect(model.value![0]).toMatchObject({ key: 'foo.bar', attributeType: 'resource' })
+  expect(conditionsOf(model.value!)[0]).toMatchObject({ key: 'foo.bar', attributeType: 'resource' })
 })
 
 test('manual attributeType change persists on the targeted row', async () => {
   const { model } = renderForm(makeModel())
   await pickAttributeType(pillsInOrder()[1]!, 'Data point')
 
-  expect(model.value![1]!.attributeType).toBe('datapoint')
-  expect(model.value![0]!.attributeType).toBe(null)
+  const conditions = conditionsOf(model.value!)
+  expect(conditions[1]!.attributeType).toBe('datapoint')
+  expect(conditions[0]!.attributeType).toBe(null)
 })
 
 test('manual operator change persists on the targeted row', async () => {
   const { model } = renderForm(makeModel())
   await pickOperator(pillsInOrder()[1]!, 'is not')
 
-  expect(model.value![1]!.operator).toBe('neq')
-  expect(model.value![0]!.operator).toBe('eq')
+  const conditions = conditionsOf(model.value!)
+  expect(conditions[1]!.operator).toBe('neq')
+  expect(conditions[0]!.operator).toBe('eq')
 })
 
 test('restricting operators to a single choice forces every pill onto it, not just the last', async () => {
   const { model, operators } = renderForm([
-    pill('pill-a', null, { key: 'service.name', operator: 'eq', value: 'foo' }),
-    pill('pill-b', 'AND', { key: 'otel.library.name', operator: 'neq', value: 'bar' }),
-    pill('pill-c', 'AND', { key: 'http.method', operator: 'starts_with', value: 'baz' })
+    conditionGroup(
+      'g',
+      condition('pill-a', { key: 'service.name', operator: 'eq', value: 'foo' }),
+      condition('pill-b', { key: 'otel.library.name', operator: 'neq', value: 'bar' }),
+      condition('pill-c', { key: 'http.method', operator: 'starts_with', value: 'baz' })
+    )
   ])
 
   operators.value = ['contains']
 
   await waitFor(() => {
-    expect(model.value!.map((c) => c.operator)).toEqual(['contains', 'contains', 'contains'])
+    expect(conditionsOf(model.value!).map((c) => c.operator)).toEqual([
+      'contains',
+      'contains',
+      'contains'
+    ])
   })
   // contains takes a value, so each populated value survives the coercion.
-  expect(model.value!.map((c) => c.value)).toEqual(['foo', 'bar', 'baz'])
+  expect(conditionsOf(model.value!).map((c) => c.value)).toEqual(['foo', 'bar', 'baz'])
 })
 
 test('forcing onto a single existence operator clears the value of every pill', async () => {
   const { model, operators } = renderForm([
-    pill('pill-a', null, { key: 'service.name', operator: 'eq', value: 'foo' }),
-    pill('pill-b', 'AND', { key: 'http.method', operator: 'contains', value: 'bar' })
+    conditionGroup(
+      'g',
+      condition('pill-a', { key: 'service.name', operator: 'eq', value: 'foo' }),
+      condition('pill-b', { key: 'http.method', operator: 'contains', value: 'bar' })
+    )
   ])
 
   operators.value = ['exists']
 
   await waitFor(() => {
-    expect(model.value!.map((c) => c.operator)).toEqual(['exists', 'exists'])
+    expect(conditionsOf(model.value!).map((c) => c.operator)).toEqual(['exists', 'exists'])
   })
-  expect(model.value!.map((c) => c.value)).toEqual(['', ''])
+  expect(conditionsOf(model.value!).map((c) => c.value)).toEqual(['', ''])
 })
 
 test('picking a key with no resolver hit auto-opens the type dropdown', async () => {
@@ -286,15 +314,13 @@ test('editing an existing pill does not auto-open the key dropdown', async () =>
   expect(keyCombobox.getAttribute('aria-expanded')).toBe('false')
 })
 
-test('removing the head drops it by id, promotes the next row and nulls its connector', async () => {
+test('removing the head drops it by id and leaves the next group', async () => {
   const { model } = renderForm(makeModel())
   const pillA = pillsInOrder()[0]!
-  const pillALabel = pillLabel(makeModel()[0]!)
+  const pillALabel = pillLabel(conditionsOf(makeModel())[0]!)
   await userEvent.click(within(pillA).getByRole('button', { name: 'Remove condition' }))
 
-  expect(model.value).toHaveLength(1)
-  expect(model.value![0]!.id).toBe('pill-b')
-  expect(model.value![0]!.connector).toBe(null)
+  expect(conditionsOf(model.value!).map((c) => c.id)).toEqual(['pill-b'])
   // The removed pill must be gone from the DOM, not just from the model.
   expect(screen.queryByRole('group', { name: pillALabel })).toBeNull()
 })
@@ -303,37 +329,28 @@ test('empty-state add button creates a single row with documented defaults', asy
   const { model } = renderForm([])
   await userEvent.click(screen.getByRole('button', { name: 'Add condition' }))
 
-  expect(model.value).toHaveLength(1)
-  expect(model.value![0]).toMatchObject({
-    attributeType: null,
-    key: '',
-    operator: 'eq',
-    value: '',
-    connector: null
-  })
-  expect(model.value![0]!.id).toEqual(expect.any(String))
-  expect(model.value![0]!.id.length).toBeGreaterThan(0)
+  const conditions = conditionsOf(model.value!)
+  expect(conditions).toHaveLength(1)
+  expect(conditions[0]).toMatchObject({ attributeType: null, key: '', operator: 'eq', value: '' })
+  expect(conditions[0]!.id).toEqual(expect.any(String))
+  expect(conditions[0]!.id.length).toBeGreaterThan(0)
 })
 
-test('per-pill add button inserts a fresh row at index + 1, leaving siblings intact', async () => {
+test('per-pill add button inserts a fresh row after it as a new OR clause, leaving siblings intact', async () => {
   const { model } = renderForm(makeModel())
   await userEvent.click(
     screen.getByRole('button', { name: 'Add condition after previous condition' })
   )
 
+  // makeModel is two OR clauses; adding after the first opens a third clause.
   expect(model.value).toHaveLength(3)
-  expect(model.value![0]!.id).toBe('pill-a')
-  expect(model.value![2]!.id).toBe('pill-b')
-  expect(model.value![1]).toMatchObject({
-    attributeType: null,
-    key: '',
-    operator: 'eq',
-    value: '',
-    connector: 'OR'
-  })
-  expect(model.value![1]!.id).toEqual(expect.any(String))
-  expect(model.value![1]!.id).not.toBe('pill-a')
-  expect(model.value![1]!.id).not.toBe('pill-b')
+  const conditions = conditionsOf(model.value!)
+  expect(conditions[0]!.id).toBe('pill-a')
+  expect(conditions[2]!.id).toBe('pill-b')
+  expect(conditions[1]).toMatchObject({ attributeType: null, key: '', operator: 'eq', value: '' })
+  expect(conditions[1]!.id).toEqual(expect.any(String))
+  expect(conditions[1]!.id).not.toBe('pill-a')
+  expect(conditions[1]!.id).not.toBe('pill-b')
 })
 
 test('value is preserved when switching between two comparison operators', async () => {
@@ -341,7 +358,7 @@ test('value is preserved when switching between two comparison operators', async
 
   await pickOperator(pillsInOrder()[0]!, 'starts with')
 
-  expect(model.value![0]).toMatchObject({ operator: 'starts_with', value: 'foo' })
+  expect(conditionsOf(model.value!)[0]).toMatchObject({ operator: 'starts_with', value: 'foo' })
   expect(screen.getByRole('combobox', { name: 'Attribute value' })).toHaveTextContent('foo')
 })
 
@@ -350,12 +367,12 @@ test('value is cleared when switching to an existence operator and stays empty o
 
   await pickOperator(pillsInOrder()[0]!, 'exists')
 
-  expect(model.value![0]).toMatchObject({ operator: 'exists', value: '' })
+  expect(conditionsOf(model.value!)[0]).toMatchObject({ operator: 'exists', value: '' })
   expect(screen.queryByRole('combobox', { name: 'Attribute value' })).toBeNull()
 
   await pickOperator(pillsInOrder()[0]!, 'is')
 
-  expect(model.value![0]).toMatchObject({ operator: 'eq', value: '' })
+  expect(conditionsOf(model.value!)[0]).toMatchObject({ operator: 'eq', value: '' })
 })
 
 test('switching from an existence operator to a value-taking operator auto-opens the value dropdown', async () => {
@@ -431,7 +448,7 @@ describe('pill required-field validation', () => {
     const { model } = renderForm(makeModel(), () => null)
     await pickKey(pillsInOrder()[0]!, 'http.method')
 
-    expect(model.value![0]!.key).toBe('http.method')
+    expect(conditionsOf(model.value!)[0]!.key).toBe('http.method')
     const pill = pillsInOrder()[0]!
     for (const label of ['Attribute type', 'Attribute key']) {
       expect(field(pill, label)).not.toHaveClass(ERROR_CLASS)
@@ -458,8 +475,14 @@ test('clicking a read-only pill opens it for editing', async () => {
 
 test('opening a second pill closes the previously open one', async () => {
   renderForm([
-    pill('pill-a', null, { attributeType: 'resource', key: 'service.name', value: 'foo' }),
-    pill('pill-b', 'OR', { attributeType: 'scope', key: 'otel.library.name', value: 'bar' })
+    conditionGroup(
+      'g-a',
+      condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'foo' })
+    ),
+    conditionGroup(
+      'g-b',
+      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name', value: 'bar' })
+    )
   ])
   await enterEditMode(pillsInOrder()[0]!)
   expect(
@@ -494,7 +517,10 @@ function dispatchOutsideClick(): void {
 
 test('click outside closes a fully-valid edit pill back to read-only', async () => {
   renderForm([
-    pill('pill-a', null, { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+    conditionGroup(
+      'g',
+      condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+    )
   ])
   const pillA = pillsInOrder()[0]!
   await enterEditMode(pillA)
@@ -549,7 +575,10 @@ describe('Escape in edit mode', () => {
     'Escape on a valid editing pill from %s commits and focuses the combined Tab stop',
     async (_name, focusFn) => {
       renderForm([
-        pill('pill-a', null, { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+        conditionGroup(
+          'g',
+          condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+        )
       ])
       const pillA = pillsInOrder()[0]!
       await enterEditMode(pillA)
@@ -589,7 +618,10 @@ describe('Escape in edit mode', () => {
 
   test('Escape with a dropdown open only closes the dropdown', async () => {
     renderForm([
-      pill('pill-a', null, { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+      conditionGroup(
+        'g',
+        condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+      )
     ])
     const pillA = pillsInOrder()[0]!
     await enterEditMode(pillA)
@@ -649,8 +681,7 @@ describe('combined pill keyboard stop', () => {
 
     await userEvent.keyboard(key)
 
-    expect(model.value).toHaveLength(1)
-    expect(model.value![0]!.id).toBe('pill-b')
+    expect(conditionsOf(model.value!).map((c) => c.id)).toEqual(['pill-b'])
   })
 
   test.each([
@@ -700,7 +731,7 @@ describe('combined pill keyboard stop', () => {
 })
 
 describe('combined group keyboard stop', () => {
-  const TWO_PILL_AND = [pill('pill-a', null), pill('pill-b', 'AND')]
+  const TWO_PILL_AND = [conditionGroup('g', condition('pill-a'), condition('pill-b'))]
 
   function groupWrapper(): HTMLElement {
     return screen.getByTestId(GROUP_TESTID)
@@ -811,8 +842,11 @@ describe('combined group keyboard stop', () => {
     // Pre-fill the pills so entering edit mode does not auto-open the key
     // dropdown; otherwise the first Escape would just close that dropdown.
     renderForm([
-      pill('pill-a', null, { attributeType: 'resource', key: 'service.name', value: 'x' }),
-      pill('pill-b', 'AND', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+      conditionGroup(
+        'g',
+        condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'x' }),
+        condition('pill-b', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+      )
     ])
     const group = await expandGroup()
     const pillA = pillsInOrder()[0]!
@@ -833,7 +867,7 @@ describe('combined group keyboard stop', () => {
 })
 
 describe('arrow-nav within multi-element stops', () => {
-  const TWO_PILL_AND = [pill('pill-a', null), pill('pill-b', 'AND')]
+  const TWO_PILL_AND = [conditionGroup('g', condition('pill-a'), condition('pill-b'))]
 
   async function expand(): Promise<HTMLElement> {
     const group = screen.getByTestId(GROUP_TESTID)
@@ -883,8 +917,11 @@ describe('arrow-nav within multi-element stops', () => {
     async ({ key, focusOrder }) => {
       // Pre-fill so entering edit mode does not auto-open the key dropdown.
       renderForm([
-        pill('pill-a', null, { attributeType: 'resource', key: 'service.name', value: 'x' }),
-        pill('pill-b', 'AND', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+        conditionGroup(
+          'g',
+          condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'x' }),
+          condition('pill-b', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+        )
       ])
       await expand()
       const pillA = pillsInOrder()[0]!
@@ -977,13 +1014,19 @@ test('opening a sibling dropdown closes the previously-open one within the same 
 
 test('connector renders as a toggle button between adjacent pills', () => {
   renderForm([
-    pill('pill-a', null, { attributeType: 'resource', key: 'service.name', value: 'web-01' }),
-    pill('pill-b', 'OR', {
-      attributeType: 'scope',
-      key: 'otel.library.name',
-      operator: 'contains',
-      value: 'api'
-    })
+    conditionGroup(
+      'g-a',
+      condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'web-01' })
+    ),
+    conditionGroup(
+      'g-b',
+      condition('pill-b', {
+        attributeType: 'scope',
+        key: 'otel.library.name',
+        operator: 'contains',
+        value: 'api'
+      })
+    )
   ])
   const connectors = screen.getAllByRole('button', {
     name: /^Toggle connector, currently /
@@ -993,45 +1036,57 @@ test('connector renders as a toggle button between adjacent pills', () => {
   expect(connectors[0]).toHaveAccessibleName('Toggle connector, currently OR')
 })
 
-test('clicking an OR connector flips it to AND', async () => {
-  const { model } = renderForm([pill('pill-a', null), pill('pill-b', 'OR')])
+test('clicking an OR connector merges the two clauses into one AND group', async () => {
+  const { model } = renderForm([
+    conditionGroup('g-a', condition('pill-a')),
+    conditionGroup('g-b', condition('pill-b'))
+  ])
   await userEvent.click(screen.getByRole('button', { name: 'Toggle connector, currently OR' }))
 
-  expect(model.value![1]!.connector).toBe('AND')
+  expect(model.value).toHaveLength(1)
+  expect(conditionsOf(model.value!).map((c) => c.id)).toEqual(['pill-a', 'pill-b'])
   expect(screen.getByRole('button', { name: 'Toggle connector, currently AND' })).toHaveTextContent(
     'AND'
   )
 })
 
-test('clicking the connector twice returns it to OR', async () => {
-  const { model } = renderForm([pill('pill-a', null), pill('pill-b', 'OR')])
+test('merging then splitting again returns to two OR clauses', async () => {
+  const { model } = renderForm([
+    conditionGroup('g-a', condition('pill-a')),
+    conditionGroup('g-b', condition('pill-b'))
+  ])
   await userEvent.click(screen.getByRole('button', { name: /^Toggle connector, currently / }))
   await userEvent.click(screen.getByRole('button', { name: /^Toggle connector, currently / }))
 
-  expect(model.value![1]!.connector).toBe('OR')
+  expect(model.value).toHaveLength(2)
 })
 
-test('toggling one connector does not affect its neighbour', async () => {
-  const { model } = renderForm([pill('pill-a', null), pill('pill-b', 'OR'), pill('pill-c', 'OR')])
-  const [first, second] = screen.getAllByRole('button', {
+test('merging one OR boundary leaves the other intact', async () => {
+  const { model } = renderForm([
+    conditionGroup('g-a', condition('pill-a')),
+    conditionGroup('g-b', condition('pill-b')),
+    conditionGroup('g-c', condition('pill-c'))
+  ])
+  const firstConnector = screen.getAllByRole('button', {
     name: /^Toggle connector, currently /
-  })
-  await userEvent.click(first!)
+  })[0]!
+  await userEvent.click(firstConnector)
 
-  expect(model.value![1]!.connector).toBe('AND')
-  expect(model.value![2]!.connector).toBe('OR')
-  expect(second).toHaveAccessibleName('Toggle connector, currently OR')
+  expect(model.value![0]!.conditions.map((c) => c.id)).toEqual(['pill-a', 'pill-b'])
+  expect(model.value![1]!.conditions.map((c) => c.id)).toEqual(['pill-c'])
+  // The OR boundary before pill-c is untouched.
+  expect(screen.getByRole('button', { name: 'Toggle connector, currently OR' })).toBeInTheDocument()
 })
 
 test('head pill has no connector toggle button', () => {
-  renderForm([pill('pill-a', null)])
+  renderForm([conditionGroup('g', condition('pill-a'))])
   expect(screen.queryByRole('button', { name: /^Toggle connector, currently / })).toBeNull()
 })
 
 const GROUP_TESTID = 'attribute-filter-group'
 
 test('two AND-joined pills render inside one bordered group', () => {
-  renderForm([pill('pill-a', null), pill('pill-b', 'AND')])
+  renderForm([conditionGroup('g', condition('pill-a'), condition('pill-b'))])
   const groups = screen.getAllByTestId(GROUP_TESTID)
   expect(groups).toHaveLength(1)
   expect(within(groups[0]!).getAllByRole('group')).toHaveLength(2)
@@ -1042,10 +1097,8 @@ test('two AND-joined pills render inside one bordered group', () => {
 
 test('OR splits the pills into two bordered groups with OR outside both', () => {
   renderForm([
-    pill('pill-a', null),
-    pill('pill-b', 'AND'),
-    pill('pill-c', 'OR'),
-    pill('pill-d', 'AND')
+    conditionGroup('g1', condition('pill-a'), condition('pill-b')),
+    conditionGroup('g2', condition('pill-c'), condition('pill-d'))
   ])
   const groups = screen.getAllByTestId(GROUP_TESTID)
   expect(groups).toHaveLength(2)
@@ -1061,7 +1114,7 @@ test('OR splits the pills into two bordered groups with OR outside both', () => 
 })
 
 test('toggling AND to OR splits a 3-pill group into a pair and a lone pill', async () => {
-  renderForm([pill('pill-a', null), pill('pill-b', 'AND'), pill('pill-c', 'AND')])
+  renderForm([conditionGroup('g', condition('pill-a'), condition('pill-b'), condition('pill-c'))])
   expect(screen.getAllByTestId(GROUP_TESTID)).toHaveLength(1)
   const ands = screen.getAllByRole('button', { name: 'Toggle connector, currently AND' })
   expect(ands).toHaveLength(2)
@@ -1075,14 +1128,20 @@ test('toggling AND to OR splits a 3-pill group into a pair and a lone pill', asy
 
 test('every pill in an AND group has a per-pill + that inserts an AND pill at that position', async () => {
   const { model } = renderForm([
-    pill('pill-a', null, { attributeType: 'resource', key: 'service.name' }),
-    pill('pill-b', 'AND', { attributeType: 'scope', key: 'otel.library.name' })
+    conditionGroup(
+      'g',
+      condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
+      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+    )
   ])
   await userEvent.click(screen.getByRole('button', { name: 'Add condition after service.name' }))
 
-  expect(model.value).toHaveLength(3)
-  expect(model.value!.map((c) => c.id)).toEqual(['pill-a', expect.any(String), 'pill-b'])
-  expect(model.value![1]!.connector).toBe('AND')
+  expect(model.value).toHaveLength(1)
+  expect(conditionsOf(model.value!).map((c) => c.id)).toEqual([
+    'pill-a',
+    expect.any(String),
+    'pill-b'
+  ])
   const groups = screen.getAllByTestId(GROUP_TESTID)
   expect(groups).toHaveLength(1)
   expect(within(groups[0]!).getAllByRole('group')).toHaveLength(3)
@@ -1090,13 +1149,16 @@ test('every pill in an AND group has a per-pill + that inserts an AND pill at th
 
 test('the after-group + starts a new OR clause that renders as a bare pill', async () => {
   const { model } = renderForm([
-    pill('pill-a', null, { attributeType: 'resource', key: 'service.name' }),
-    pill('pill-b', 'AND', { attributeType: 'scope', key: 'otel.library.name' })
+    conditionGroup(
+      'g',
+      condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
+      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+    )
   ])
   await userEvent.click(screen.getByRole('button', { name: 'Add condition after this group' }))
 
-  expect(model.value).toHaveLength(3)
-  expect(model.value![2]!.connector).toBe('OR')
+  expect(model.value).toHaveLength(2)
+  expect(conditionsOf(model.value!)).toHaveLength(3)
   const groups = screen.getAllByTestId(GROUP_TESTID)
   expect(groups).toHaveLength(1)
   expect(within(groups[0]!).getAllByRole('group')).toHaveLength(2)
@@ -1104,32 +1166,31 @@ test('the after-group + starts a new OR clause that renders as a bare pill', asy
 })
 
 test('the group X removes every pill in that AND group', async () => {
-  const { model } = renderForm([pill('pill-a', null), pill('pill-b', 'AND')])
+  const { model } = renderForm([conditionGroup('g', condition('pill-a'), condition('pill-b'))])
   await userEvent.click(screen.getByRole('button', { name: 'Remove group' }))
 
   expect(model.value).toEqual([])
   expect(screen.queryAllByTestId(GROUP_TESTID)).toHaveLength(0)
 })
 
-test('removing the first of two OR-joined groups rewrites the new head connector to null', async () => {
+test('removing the first of two OR groups leaves the second as the only group', async () => {
   const { model } = renderForm([
-    pill('pill-a', null),
-    pill('pill-b', 'AND'),
-    pill('pill-c', 'OR'),
-    pill('pill-d', 'AND')
+    conditionGroup('g1', condition('pill-a'), condition('pill-b')),
+    conditionGroup('g2', condition('pill-c'), condition('pill-d'))
   ])
   const removeButtons = screen.getAllByRole('button', { name: 'Remove group' })
   expect(removeButtons).toHaveLength(2)
   await userEvent.click(removeButtons[0]!)
 
-  expect(model.value!.map((c) => c.id)).toEqual(['pill-c', 'pill-d'])
-  expect(model.value![0]!.connector).toBeNull()
-  expect(model.value![1]!.connector).toBe('AND')
+  expect(model.value).toHaveLength(1)
+  expect(model.value![0]!.conditions.map((c) => c.id)).toEqual(['pill-c', 'pill-d'])
 })
 
 describe('AND-only mode (allowOr false)', () => {
+  const TWO_PILL_AND = [conditionGroup('g', condition('pill-a'), condition('pill-b'))]
+
   test('renders flat pills with no group box and no connector toggles', () => {
-    renderForm([pill('pill-a', null), pill('pill-b', 'AND')], undefined, undefined, false)
+    renderForm(TWO_PILL_AND, undefined, undefined, false)
 
     expect(screen.queryAllByTestId(GROUP_TESTID)).toHaveLength(0)
     expect(pillsInOrder()).toHaveLength(2)
@@ -1137,7 +1198,7 @@ describe('AND-only mode (allowOr false)', () => {
   })
 
   test('renders a static AND label between adjacent pills', () => {
-    renderForm([pill('pill-a', null), pill('pill-b', 'AND')], undefined, undefined, false)
+    renderForm(TWO_PILL_AND, undefined, undefined, false)
 
     const outerGroup = screen.getByRole('group', { name: 'Attribute filter' })
     const connectors = within(outerGroup).getAllByText('AND')
@@ -1148,7 +1209,7 @@ describe('AND-only mode (allowOr false)', () => {
   })
 
   test('a single pill renders no connector label', () => {
-    renderForm([pill('pill-a', null)], undefined, undefined, false)
+    renderForm([conditionGroup('g', condition('pill-a'))], undefined, undefined, false)
 
     const outerGroup = screen.getByRole('group', { name: 'Attribute filter' })
     expect(within(outerGroup).queryByText('AND')).toBeNull()
@@ -1157,8 +1218,11 @@ describe('AND-only mode (allowOr false)', () => {
   test("per-pill '+' inserts an AND-connected pill at index + 1", async () => {
     const { model } = renderForm(
       [
-        pill('pill-a', null, { attributeType: 'resource', key: 'service.name' }),
-        pill('pill-b', 'AND', { attributeType: 'scope', key: 'otel.library.name' })
+        conditionGroup(
+          'g',
+          condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
+          condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+        )
       ],
       undefined,
       undefined,
@@ -1166,7 +1230,10 @@ describe('AND-only mode (allowOr false)', () => {
     )
     await userEvent.click(screen.getByRole('button', { name: 'Add condition after service.name' }))
 
-    expect(model.value!.map((c) => c.id)).toEqual(['pill-a', expect.any(String), 'pill-b'])
-    expect(model.value![1]!.connector).toBe('AND')
+    expect(conditionsOf(model.value!).map((c) => c.id)).toEqual([
+      'pill-a',
+      expect.any(String),
+      'pill-b'
+    ])
   })
 })

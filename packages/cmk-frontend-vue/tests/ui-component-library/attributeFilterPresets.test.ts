@@ -15,9 +15,11 @@ describe('attributeFilterPresets', () => {
 
   test.each(Object.entries(filterPresets))(
     'preset %s contains only valid conditions',
-    (_name, conditions) => {
-      for (const condition of conditions) {
-        expect(isConditionValid(condition)).toBe(true)
+    (_name, groups) => {
+      for (const group of groups) {
+        for (const condition of group.conditions) {
+          expect(isConditionValid(condition)).toBe(true)
+        }
       }
     }
   )

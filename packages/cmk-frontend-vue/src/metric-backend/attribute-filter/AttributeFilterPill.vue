@@ -21,18 +21,15 @@ import {
   isOperator,
   operatorTakesValue
 } from './types'
-import type { AttributeType, ConnectedCondition, Operator } from './types'
+import type { AttributeType, Condition, Operator } from './types'
 
 const { _t } = usei18n()
 
 const props = withDefaults(
   defineProps<{
-    condition: ConnectedCondition
+    condition: Condition
     querySuggestions: QuerySuggestionsFn
-    queryValueSuggestions: (
-      condition: ConnectedCondition,
-      query: string
-    ) => ReturnType<QuerySuggestionsFn>
+    queryValueSuggestions: (condition: Condition, query: string) => ReturnType<QuerySuggestionsFn>
     operators?: Operator[] | undefined
     ariaLabel?: string | undefined
     removable?: boolean

@@ -28,11 +28,7 @@ import type { ValidationMessages } from '@/form'
 import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
 
 import FormAttributeFilter from './attribute-filter/FormAttributeFilter.vue'
-import type {
-  AttributeFilterModel,
-  AttributeType,
-  ConnectedCondition
-} from './attribute-filter/types'
+import type { AttributeFilterModel, AttributeType, Condition } from './attribute-filter/types'
 import {
   ATTRIBUTE_TYPE_ORDER,
   type AttributeTypeKey,
@@ -210,7 +206,7 @@ async function querySuggestions(query: string): Promise<Response | ErrorResponse
 }
 
 async function queryValueSuggestions(
-  condition: ConnectedCondition,
+  condition: Condition,
   query: string
 ): Promise<Response | ErrorResponse> {
   if (condition.attributeType === null || !condition.key) {

@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { AttributeFilterModel } from '@/metric-backend/attribute-filter/types'
+import type { AttributeFilterModel, Condition } from '@/metric-backend/attribute-filter/types'
 import {
   type ThreeLists,
   buildAutocompleteContext,
@@ -17,6 +17,10 @@ function newId(): string {
   return `id-${counter}`
 }
 
+function group(...conditions: Condition[]): AttributeFilterModel {
+  return [{ id: 'g', conditions }]
+}
+
 const lists: ThreeLists = {
   resource: [{ key: 'service.name', value: 'frontend' }],
   scope: [{ key: 'otel.library.name', value: 'http' }],
@@ -27,16 +31,16 @@ const lists: ThreeLists = {
 }
 
 describe('toModel', () => {
-  test('concatenates resource -> scope -> datapoint into one AND chain', () => {
+  test('concatenates resource -> scope -> datapoint into one AND group', () => {
     const model = toModel(lists, newId)
 
-    expect(model.map((c) => [c.attributeType, c.key, c.value, c.connector])).toEqual([
-      ['resource', 'service.name', 'frontend', null],
-      ['scope', 'otel.library.name', 'http', 'AND'],
-      ['datapoint', 'http.method', 'GET', 'AND'],
-      ['datapoint', 'http.route', '/api', 'AND']
+    expect(model).toHaveLength(1)
+    expect(model[0]!.conditions.map((c) => [c.attributeType, c.key, c.value, c.operator])).toEqual([
+      ['resource', 'service.name', 'frontend', 'eq'],
+      ['scope', 'otel.library.name', 'http', 'eq'],
+      ['datapoint', 'http.method', 'GET', 'eq'],
+      ['datapoint', 'http.route', '/api', 'eq']
     ])
-    expect(model.every((c) => c.operator === 'eq')).toBe(true)
   })
 
   test('produces an empty model for empty lists', () => {
@@ -46,23 +50,15 @@ describe('toModel', () => {
 
 describe('fromModel', () => {
   test('buckets conditions back into the three lists by attributeType', () => {
-    const model = toModel(lists, newId)
-    expect(fromModel(model)).toEqual(lists)
+    expect(fromModel(toModel(lists, newId))).toEqual(lists)
   })
 
   test('drops conditions with no attributeType or empty key (pills still being created)', () => {
-    const model: AttributeFilterModel = [
-      { id: 'a', attributeType: null, key: '', operator: 'eq', value: '', connector: null },
-      { id: 'b', attributeType: 'resource', key: '', operator: 'eq', value: 'x', connector: 'AND' },
-      {
-        id: 'c',
-        attributeType: 'scope',
-        key: 'otel.library.name',
-        operator: 'eq',
-        value: 'http',
-        connector: 'AND'
-      }
-    ]
+    const model = group(
+      { id: 'a', attributeType: null, key: '', operator: 'eq', value: '' },
+      { id: 'b', attributeType: 'resource', key: '', operator: 'eq', value: 'x' },
+      { id: 'c', attributeType: 'scope', key: 'otel.library.name', operator: 'eq', value: 'http' }
+    )
 
     expect(fromModel(model)).toEqual({
       resource: [],
@@ -79,8 +75,7 @@ describe('fromModel', () => {
 
 describe('buildAutocompleteContext', () => {
   test('emits per-type cascading attrs plus metric name and static keys', () => {
-    const model = toModel(lists, newId)
-    const context = buildAutocompleteContext(model, {
+    const context = buildAutocompleteContext(toModel(lists, newId), {
       metricName: 'http_requests',
       staticResourceAttributeKeys: ['service.name']
     })
@@ -98,24 +93,10 @@ describe('buildAutocompleteContext', () => {
   })
 
   test('omits incomplete conditions (missing key or value) from the context', () => {
-    const model: AttributeFilterModel = [
-      {
-        id: 'a',
-        attributeType: 'resource',
-        key: 'service.name',
-        operator: 'eq',
-        value: '',
-        connector: null
-      },
-      {
-        id: 'b',
-        attributeType: 'resource',
-        key: 'host.name',
-        operator: 'eq',
-        value: 'web-01',
-        connector: 'AND'
-      }
-    ]
+    const model = group(
+      { id: 'a', attributeType: 'resource', key: 'service.name', operator: 'eq', value: '' },
+      { id: 'b', attributeType: 'resource', key: 'host.name', operator: 'eq', value: 'web-01' }
+    )
 
     expect(buildAutocompleteContext(model)).toEqual({
       resource_attributes: [{ key: 'host.name', value: 'web-01' }]
@@ -123,31 +104,14 @@ describe('buildAutocompleteContext', () => {
   })
 
   test('excludes the condition being edited via excludeId', () => {
-    const model: AttributeFilterModel = [
-      {
-        id: 'self',
-        attributeType: 'datapoint',
-        key: 'http.method',
-        operator: 'eq',
-        value: 'GET',
-        connector: null
-      },
-      {
-        id: 'other',
-        attributeType: 'datapoint',
-        key: 'http.route',
-        operator: 'eq',
-        value: '/api',
-        connector: 'AND'
-      }
-    ]
+    const model = group(
+      { id: 'self', attributeType: 'datapoint', key: 'http.method', operator: 'eq', value: 'GET' },
+      { id: 'other', attributeType: 'datapoint', key: 'http.route', operator: 'eq', value: '/api' }
+    )
 
-    const context = buildAutocompleteContext(model, {
-      attributeKey: 'http.method',
-      excludeId: 'self'
-    })
-
-    expect(context).toEqual({
+    expect(
+      buildAutocompleteContext(model, { attributeKey: 'http.method', excludeId: 'self' })
+    ).toEqual({
       data_point_attributes: [{ key: 'http.route', value: '/api' }],
       attribute_key: 'http.method'
     })

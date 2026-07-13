@@ -10,18 +10,19 @@ import { defineComponent, ref } from 'vue'
 import { Response } from '@/components/CmkSuggestions/suggestions'
 
 import AttributeFilterPill from '@/metric-backend/attribute-filter/AttributeFilterPill.vue'
-import type { AttributeCondition, Operator } from '@/metric-backend/attribute-filter/types'
+import type { Condition, Operator } from '@/metric-backend/attribute-filter/types'
 
 function noopQuerySuggestions(_: string): Promise<Response> {
   return Promise.resolve(new Response([]))
 }
 
-function echoQueryValueSuggestions(_: AttributeCondition, query: string): Promise<Response> {
+function echoQueryValueSuggestions(_: Condition, query: string): Promise<Response> {
   return Promise.resolve(new Response(query ? [{ name: query, title: query }] : []))
 }
 
 function renderPill(initialOperator: Operator = 'eq', value = 'GET', operators?: Operator[]) {
-  const condition = ref<AttributeCondition>({
+  const condition = ref<Condition>({
+    id: 'pill',
     attributeType: null,
     key: 'http.method',
     operator: initialOperator,

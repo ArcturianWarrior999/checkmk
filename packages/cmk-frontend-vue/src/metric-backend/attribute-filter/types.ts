@@ -54,12 +54,15 @@ export function isConditionValid(c: AttributeCondition): boolean {
   )
 }
 
-export type Connector = 'AND' | 'OR'
-
-export interface ConnectedCondition extends AttributeCondition {
-  connector: Connector | null
+export interface Condition extends AttributeCondition {
   id: string
 }
 
-// DNF: a run of 'AND'-joined entries is one conjunct; each 'OR' starts a new disjunct.
-export type AttributeFilterModel = ConnectedCondition[]
+// One AND-joined clause.
+export interface ConditionGroup {
+  id: string
+  conditions: Condition[]
+}
+
+// OR of AND groups (disjunctive normal form).
+export type AttributeFilterModel = ConditionGroup[]

@@ -20,12 +20,10 @@ import { isConditionValid, operatorTakesValue } from './types'
 import type {
   AttributeFilterModel,
   AttributeType,
-  ConnectedCondition,
-  Connector,
+  Condition,
+  ConditionGroup,
   Operator
 } from './types'
-
-type FilterGroup = { entries: ConnectedCondition[]; startIndex: number }
 
 const { _t } = usei18n()
 
@@ -34,10 +32,7 @@ const vClickOutside = useClickOutside()
 const props = withDefaults(
   defineProps<{
     querySuggestions: QuerySuggestionsFn
-    queryValueSuggestions: (
-      condition: ConnectedCondition,
-      query: string
-    ) => ReturnType<QuerySuggestionsFn>
+    queryValueSuggestions: (condition: Condition, query: string) => ReturnType<QuerySuggestionsFn>
     resolveAttributeType?: ((key: string) => AttributeType) | undefined
     operators?: Operator[] | undefined
     allowOr?: boolean
@@ -71,56 +66,55 @@ function pillRefSetter(id: string): (el: unknown) => void {
   return fn
 }
 
-function relinkHead(next: ConnectedCondition[]): void {
-  if (next.length > 0) {
-    next[0] = { ...next[0]!, connector: null }
+const flatConditions = computed<Condition[]>(() => model.value.flatMap((group) => group.conditions))
+
+function freshCondition(): Condition {
+  return {
+    id: randomId(),
+    attributeType: null,
+    key: '',
+    operator: props.operators?.[0] ?? 'eq',
+    value: ''
   }
 }
 
-function removeCondition(target: ConnectedCondition): void {
+function mapConditions(fn: (condition: Condition) => Condition): void {
+  model.value = model.value.map((group) => ({ ...group, conditions: group.conditions.map(fn) }))
+}
+
+function removeCondition(target: Condition): void {
   if (editingId.value === target.id) {
     editingId.value = null
   }
-  const idx = model.value.findIndex((c) => c.id === target.id)
-  if (idx < 0) {
-    return
-  }
-  const next = model.value.filter((c) => c.id !== target.id)
-  if (idx === 0) {
-    relinkHead(next)
-  }
-  model.value = next
+  model.value = model.value
+    .map((group) => ({ ...group, conditions: group.conditions.filter((c) => c.id !== target.id) }))
+    .filter((group) => group.conditions.length > 0)
 }
 
-function removeGroup(group: FilterGroup): void {
-  const ids = new Set(group.entries.map((e) => e.id))
-  if (editingId.value !== null && ids.has(editingId.value)) {
+function removeGroup(group: ConditionGroup): void {
+  if (editingId.value !== null && group.conditions.some((c) => c.id === editingId.value)) {
     editingId.value = null
   }
-  const next = model.value.filter((c) => !ids.has(c.id))
-  if (group.startIndex === 0) {
-    relinkHead(next)
-  }
-  model.value = next
+  model.value = model.value.filter((g) => g.id !== group.id)
 }
 
 // Apply the inferred type in the same mutation as the key; only override when
 // the resolver hits, so a user-picked type survives an edit into free-text.
-function updateKey(target: ConnectedCondition, value: string): void {
+function updateKey(target: Condition, value: string): void {
   const inferred = props.resolveAttributeType?.(value) ?? null
-  model.value = model.value.map((c) =>
+  mapConditions((c) =>
     c.id === target.id
       ? { ...c, key: value, ...(inferred !== null ? { attributeType: inferred } : {}) }
       : c
   )
 }
 
-function updateAttributeType(target: ConnectedCondition, value: AttributeType): void {
-  model.value = model.value.map((c) => (c.id === target.id ? { ...c, attributeType: value } : c))
+function updateAttributeType(target: Condition, value: AttributeType): void {
+  mapConditions((c) => (c.id === target.id ? { ...c, attributeType: value } : c))
 }
 
-function updateOperator(target: ConnectedCondition, value: Operator): void {
-  model.value = model.value.map((c) => {
+function updateOperator(target: Condition, value: Operator): void {
+  mapConditions((c) => {
     if (c.id !== target.id) {
       return c
     }
@@ -129,8 +123,8 @@ function updateOperator(target: ConnectedCondition, value: Operator): void {
   })
 }
 
-function updateValue(target: ConnectedCondition, value: string): void {
-  model.value = model.value.map((c) => (c.id === target.id ? { ...c, value } : c))
+function updateValue(target: Condition, value: string): void {
+  mapConditions((c) => (c.id === target.id ? { ...c, value } : c))
 }
 
 // Operators collapsed to one choice: the per-pill dropdown is hidden, so coerce every condition onto it in a single mutation (per-pill emits would race through defineModel and lose all but the last write).
@@ -141,10 +135,10 @@ watch(
       return
     }
     const only = operators[0]!
-    if (model.value.every((c) => c.operator === only)) {
+    if (flatConditions.value.every((c) => c.operator === only)) {
       return
     }
-    model.value = model.value.map((c) => {
+    mapConditions((c) => {
       if (c.operator === only) {
         return c
       }
@@ -155,30 +149,43 @@ watch(
   { immediate: true }
 )
 
-const groups = computed<FilterGroup[]>(() => {
-  const result: FilterGroup[] = []
-  model.value.forEach((entry, idx) => {
-    if (entry.connector === 'OR' || result.length === 0) {
-      result.push({ entries: [entry], startIndex: idx })
-    } else {
-      result[result.length - 1]!.entries.push(entry)
-    }
-  })
-  return result
-})
-
-function toggleConnector(target: ConnectedCondition): void {
-  model.value = model.value.map((c) => {
-    if (c.id !== target.id || c.connector === null) {
-      return c
-    }
-    return { ...c, connector: c.connector === 'OR' ? 'AND' : 'OR' }
-  })
+// AND->OR: split the group at the toggled condition.
+function splitGroup(groupIndex: number, conditionIndex: number): void {
+  const group = model.value[groupIndex]
+  if (!group) {
+    return
+  }
+  const left = { ...group, conditions: group.conditions.slice(0, conditionIndex) }
+  const right: ConditionGroup = {
+    id: randomId(),
+    conditions: group.conditions.slice(conditionIndex)
+  }
+  model.value = [
+    ...model.value.slice(0, groupIndex),
+    left,
+    right,
+    ...model.value.slice(groupIndex + 1)
+  ]
 }
 
-function addConditionLabel(entry: ConnectedCondition): string {
-  return entry.key
-    ? _t('Add condition after %{key}', { key: entry.key })
+// OR->AND: merge the clause into its predecessor.
+function mergeWithPrevious(groupIndex: number): void {
+  const previous = model.value[groupIndex - 1]
+  const current = model.value[groupIndex]
+  if (!previous || !current) {
+    return
+  }
+  const merged = { ...previous, conditions: [...previous.conditions, ...current.conditions] }
+  model.value = [
+    ...model.value.slice(0, groupIndex - 1),
+    merged,
+    ...model.value.slice(groupIndex + 1)
+  ]
+}
+
+function addConditionLabel(condition: Condition): string {
+  return condition.key
+    ? _t('Add condition after %{key}', { key: condition.key })
     : _t('Add condition after previous condition')
 }
 
@@ -187,31 +194,58 @@ function tryChangeFocus(): boolean {
   if (id === null) {
     return true
   }
-  const cond = model.value.find((c) => c.id === id)
-  if (!cond) {
+  const condition = flatConditions.value.find((c) => c.id === id)
+  if (!condition) {
     return true
   }
-  if (isConditionValid(cond)) {
+  if (isConditionValid(condition)) {
     return true
   }
   pillRefs.get(id)?.revealValidationErrors()
   return false
 }
 
-function addCondition(index: number, connector: Connector | null): void {
+function addEmpty(): void {
   if (!tryChangeFocus()) {
     return
   }
-  const fresh: ConnectedCondition = {
-    id: randomId(),
-    attributeType: null,
-    key: '',
-    operator: props.operators?.[0] ?? 'eq',
-    value: '',
-    connector
+  const condition = freshCondition()
+  model.value = [{ id: randomId(), conditions: [condition] }]
+  editingId.value = condition.id
+}
+
+function addConditionInGroup(groupIndex: number, conditionIndex: number): void {
+  if (!tryChangeFocus()) {
+    return
   }
-  model.value = [...model.value.slice(0, index), fresh, ...model.value.slice(index)]
-  editingId.value = fresh.id
+  const condition = freshCondition()
+  model.value = model.value.map((group, index) =>
+    index === groupIndex
+      ? {
+          ...group,
+          conditions: [
+            ...group.conditions.slice(0, conditionIndex + 1),
+            condition,
+            ...group.conditions.slice(conditionIndex + 1)
+          ]
+        }
+      : group
+  )
+  editingId.value = condition.id
+}
+
+function addGroupAfter(groupIndex: number): void {
+  if (!tryChangeFocus()) {
+    return
+  }
+  const condition = freshCondition()
+  const group: ConditionGroup = { id: randomId(), conditions: [condition] }
+  model.value = [
+    ...model.value.slice(0, groupIndex + 1),
+    group,
+    ...model.value.slice(groupIndex + 1)
+  ]
+  editingId.value = condition.id
 }
 
 function startEditing(id: string): void {
@@ -227,19 +261,19 @@ function onEditDone(id: string): void {
   }
 }
 
-function isEntered(group: FilterGroup): boolean {
-  return enteredGroupId.value === group.entries[0]!.id
+function isEntered(group: ConditionGroup): boolean {
+  return enteredGroupId.value === group.id
 }
 
 // Drop the entered marker when the model mutation removed or split the group it pointed at.
 watch(
-  () => groups.value,
+  () => model.value,
   (next) => {
     if (enteredGroupId.value === null) {
       return
     }
     const stillEnterable = next.some(
-      (g) => g.entries[0]!.id === enteredGroupId.value && g.entries.length > 1
+      (g) => g.id === enteredGroupId.value && g.conditions.length > 1
     )
     if (!stillEnterable) {
       enteredGroupId.value = null
@@ -247,7 +281,7 @@ watch(
   }
 )
 
-function onGroupKeydown(event: KeyboardEvent, group: FilterGroup): void {
+function onGroupKeydown(event: KeyboardEvent, group: ConditionGroup): void {
   if (event.target !== event.currentTarget) {
     return
   }
@@ -258,12 +292,12 @@ function onGroupKeydown(event: KeyboardEvent, group: FilterGroup): void {
   }
   if (event.key === ' ' || event.key === 'Enter') {
     event.preventDefault()
-    enteredGroupId.value = group.entries[0]!.id
-    void nextTick(() => pillRefs.get(group.entries[0]!.id)?.focus())
+    enteredGroupId.value = group.id
+    void nextTick(() => pillRefs.get(group.conditions[0]!.id)?.focus())
   }
 }
 
-function onGroupEscape(event: KeyboardEvent, group: FilterGroup): void {
+function onGroupEscape(event: KeyboardEvent, group: ConditionGroup): void {
   if (!isEntered(group)) {
     return
   }
@@ -273,7 +307,7 @@ function onGroupEscape(event: KeyboardEvent, group: FilterGroup): void {
   void nextTick(() => wrapper?.focus())
 }
 
-function onGroupClickOutside(group: FilterGroup): void {
+function onGroupClickOutside(group: ConditionGroup): void {
   if (!isEntered(group)) {
     return
   }
@@ -297,34 +331,30 @@ function onGroupClickOutside(group: FilterGroup): void {
       :title="_t('Add condition')"
       :aria-label="_t('Add condition')"
       @mousedown.prevent
-      @click="addCondition(0, null)"
+      @click="addEmpty"
     />
-    <template v-for="(group, groupIndex) in allowOr ? groups : []" :key="group.entries[0]!.id">
+    <template v-for="(group, groupIndex) in allowOr ? model : []" :key="group.id">
       <!-- Connectors (AND/OR) are intentionally kept untranslated:
            they have no agreed product-wide localisations yet. -->
       <button
         v-if="groupIndex > 0"
         type="button"
         class="metric-backend-form-attribute-filter__connector"
-        :aria-label="
-          _t('Toggle connector, currently %{connector}', {
-            connector: group.entries[0]!.connector!
-          })
-        "
+        :aria-label="_t('Toggle connector, currently %{connector}', { connector: 'OR' })"
         :title="_t('Toggle AND / OR')"
         @mousedown.prevent
-        @click="toggleConnector(group.entries[0]!)"
+        @click="mergeWithPrevious(groupIndex)"
       >
-        {{ untranslated(group.entries[0]!.connector!) }}
+        {{ untranslated('OR') }}
       </button>
       <div
-        v-if="group.entries.length > 1"
+        v-if="group.conditions.length > 1"
         v-click-outside="() => onGroupClickOutside(group)"
         class="metric-backend-form-attribute-filter__group"
         data-testid="attribute-filter-group"
         :data-af-scope="isEntered(group) ? '' : undefined"
         :tabindex="isEntered(group) ? -1 : 0"
-        :aria-label="_t('AND group of %{count} conditions', { count: group.entries.length })"
+        :aria-label="_t('AND group of %{count} conditions', { count: group.conditions.length })"
         @keydown="(e) => onGroupKeydown(e, group)"
         @keydown.escape="(e) => onGroupEscape(e, group)"
       >
@@ -339,40 +369,36 @@ function onGroupClickOutside(group: FilterGroup): void {
           @mousedown.prevent
           @click="removeGroup(group)"
         />
-        <template v-for="(entry, entryIndex) in group.entries" :key="entry.id">
+        <template v-for="(condition, conditionIndex) in group.conditions" :key="condition.id">
           <button
-            v-if="entryIndex > 0"
+            v-if="conditionIndex > 0"
             type="button"
             class="metric-backend-form-attribute-filter__connector"
             data-af-item
             :tabindex="isEntered(group) ? 0 : -1"
-            :aria-label="
-              _t('Toggle connector, currently %{connector}', {
-                connector: entry.connector!
-              })
-            "
+            :aria-label="_t('Toggle connector, currently %{connector}', { connector: 'AND' })"
             :title="_t('Toggle AND / OR')"
             @mousedown.prevent
-            @click="toggleConnector(entry)"
+            @click="splitGroup(groupIndex, conditionIndex)"
           >
-            {{ untranslated(entry.connector!) }}
+            {{ untranslated('AND') }}
           </button>
           <AttributeFilterPill
-            :ref="pillRefSetter(entry.id)"
-            :condition="entry"
+            :ref="pillRefSetter(condition.id)"
+            :condition="condition"
             :operators="operators"
             :query-suggestions="querySuggestions"
             :query-value-suggestions="queryValueSuggestions"
             removable
-            :editing="entry.id === editingId"
+            :editing="condition.id === editingId"
             :tab-focusable="isEntered(group)"
-            @remove="removeCondition(entry)"
-            @edit="startEditing(entry.id)"
-            @done="onEditDone(entry.id)"
-            @update:key="(value) => updateKey(entry, value)"
-            @update:attribute-type="(value) => updateAttributeType(entry, value)"
-            @update:operator="(value) => updateOperator(entry, value)"
-            @update:value="(value) => updateValue(entry, value)"
+            @remove="removeCondition(condition)"
+            @edit="startEditing(condition.id)"
+            @done="onEditDone(condition.id)"
+            @update:key="(value) => updateKey(condition, value)"
+            @update:attribute-type="(value) => updateAttributeType(condition, value)"
+            @update:operator="(value) => updateOperator(condition, value)"
+            @update:value="(value) => updateValue(condition, value)"
           />
           <CmkIconButton
             class="metric-backend-form-attribute-filter__add"
@@ -381,28 +407,28 @@ function onGroupClickOutside(group: FilterGroup): void {
             data-af-item
             :tabindex="isEntered(group) ? 0 : -1"
             :title="_t('Add condition')"
-            :aria-label="addConditionLabel(entry)"
+            :aria-label="addConditionLabel(condition)"
             @mousedown.prevent
-            @click="addCondition(group.startIndex + entryIndex + 1, 'AND')"
+            @click="addConditionInGroup(groupIndex, conditionIndex)"
           />
         </template>
       </div>
       <AttributeFilterPill
         v-else
-        :ref="pillRefSetter(group.entries[0]!.id)"
-        :condition="group.entries[0]!"
+        :ref="pillRefSetter(group.conditions[0]!.id)"
+        :condition="group.conditions[0]!"
         :operators="operators"
         :query-suggestions="querySuggestions"
         :query-value-suggestions="queryValueSuggestions"
         removable
-        :editing="group.entries[0]!.id === editingId"
-        @remove="removeCondition(group.entries[0]!)"
-        @edit="startEditing(group.entries[0]!.id)"
-        @done="onEditDone(group.entries[0]!.id)"
-        @update:key="(value) => updateKey(group.entries[0]!, value)"
-        @update:attribute-type="(value) => updateAttributeType(group.entries[0]!, value)"
-        @update:operator="(value) => updateOperator(group.entries[0]!, value)"
-        @update:value="(value) => updateValue(group.entries[0]!, value)"
+        :editing="group.conditions[0]!.id === editingId"
+        @remove="removeCondition(group.conditions[0]!)"
+        @edit="startEditing(group.conditions[0]!.id)"
+        @done="onEditDone(group.conditions[0]!.id)"
+        @update:key="(value) => updateKey(group.conditions[0]!, value)"
+        @update:attribute-type="(value) => updateAttributeType(group.conditions[0]!, value)"
+        @update:operator="(value) => updateOperator(group.conditions[0]!, value)"
+        @update:value="(value) => updateValue(group.conditions[0]!, value)"
       />
       <CmkIconButton
         class="metric-backend-form-attribute-filter__add"
@@ -410,45 +436,45 @@ function onGroupClickOutside(group: FilterGroup): void {
         size="large"
         :title="_t('Add condition')"
         :aria-label="
-          group.entries.length > 1
+          group.conditions.length > 1
             ? _t('Add condition after this group')
-            : addConditionLabel(group.entries[0]!)
+            : addConditionLabel(group.conditions[0]!)
         "
         @mousedown.prevent
-        @click="addCondition(group.startIndex + group.entries.length, 'OR')"
+        @click="addGroupAfter(groupIndex)"
       />
     </template>
     <!-- AND-only mode: flat pills joined by a static AND label, no group box or connector toggles. -->
-    <template v-for="(entry, index) in allowOr ? [] : model" :key="entry.id">
+    <template v-for="(condition, index) in allowOr ? [] : flatConditions" :key="condition.id">
       <!-- Connectors (AND) are intentionally kept untranslated:
            they have no agreed product-wide localisations yet. -->
       <span v-if="index > 0" class="metric-backend-form-attribute-filter__connector-static">
         {{ untranslated('AND') }}
       </span>
       <AttributeFilterPill
-        :ref="pillRefSetter(entry.id)"
-        :condition="entry"
+        :ref="pillRefSetter(condition.id)"
+        :condition="condition"
         :operators="operators"
         :query-suggestions="querySuggestions"
         :query-value-suggestions="queryValueSuggestions"
         removable
-        :editing="entry.id === editingId"
-        @remove="removeCondition(entry)"
-        @edit="startEditing(entry.id)"
-        @done="onEditDone(entry.id)"
-        @update:key="(value) => updateKey(entry, value)"
-        @update:attribute-type="(value) => updateAttributeType(entry, value)"
-        @update:operator="(value) => updateOperator(entry, value)"
-        @update:value="(value) => updateValue(entry, value)"
+        :editing="condition.id === editingId"
+        @remove="removeCondition(condition)"
+        @edit="startEditing(condition.id)"
+        @done="onEditDone(condition.id)"
+        @update:key="(value) => updateKey(condition, value)"
+        @update:attribute-type="(value) => updateAttributeType(condition, value)"
+        @update:operator="(value) => updateOperator(condition, value)"
+        @update:value="(value) => updateValue(condition, value)"
       />
       <CmkIconButton
         class="metric-backend-form-attribute-filter__add"
         name="add"
         size="large"
         :title="_t('Add condition')"
-        :aria-label="addConditionLabel(entry)"
+        :aria-label="addConditionLabel(condition)"
         @mousedown.prevent
-        @click="addCondition(index + 1, 'AND')"
+        @click="addConditionInGroup(0, index)"
       />
     </template>
   </div>
