@@ -16,9 +16,14 @@ const props = withDefaults(
     linkedTo?: CellLink | undefined
     columnId?: string | undefined
     emptyLabel?: string | undefined
+    button?: boolean | undefined
   }>(),
   { hardBreakEvery: 15, linkedTo: undefined }
 )
+
+const emit = defineEmits<{
+  (event: 'click', payload: MouseEvent): void
+}>()
 
 const SOFT_BREAK_CHARS = /([ \-_.])/g
 const ZWSP = '​'
@@ -31,7 +36,13 @@ const display = computed(() => {
 </script>
 
 <template>
-  <BaseCell class="monitoring-string-cell" :column-id="columnId" :linked-to="linkedTo">
+  <BaseCell
+    class="monitoring-string-cell"
+    :column-id="columnId"
+    :linked-to="linkedTo"
+    :button="button"
+    @click="emit('click', $event)"
+  >
     <template #default>
       <span
         :title="value"

@@ -362,6 +362,10 @@ const slideInTabs = computed<SlideInTab[]>(() => {
   ]
 })
 
+function openSlideIn(host: HostEntry): void {
+  slideInHost.value = host
+}
+
 function closeSlideIn(): void {
   slideInHost.value = null
 }
@@ -481,6 +485,7 @@ function navigateToLegacy() {
                 :table-row="tableRow"
                 :actions="rowActions"
                 @action="onHostAction"
+                @open="openSlideIn"
               />
             </template>
             <template #empty-state>

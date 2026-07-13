@@ -29,6 +29,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (event: 'action', payload: { action: CellAction; host: HostEntry }): void
+  (event: 'open', host: HostEntry): void
 }>()
 
 const { _t } = usei18n()
@@ -60,7 +61,13 @@ function toggleSelected(selected: boolean): void {
   />
   <StateCell v-if="hasColumn('state')" column-id="state" :state="row.state" />
   <ModesCell v-if="hasColumn('modes')" column-id="modes" :modes="row.modes ?? []" />
-  <StringCell v-if="hasColumn('name')" column-id="name" :value="row.name" />
+  <StringCell
+    v-if="hasColumn('name')"
+    column-id="name"
+    :value="row.name"
+    :button="true"
+    @click="emit('open', row)"
+  />
   <StringCell v-if="hasColumn('address')" column-id="address" :value="row.address" />
   <NumberCell
     v-if="hasColumn('num_services')"

@@ -53,6 +53,26 @@ test('renders host name and ip in their cells', () => {
   expect(screen.getByTitle('10.0.0.1')).toBeInTheDocument()
 })
 
+test('emits open with the host when the name cell button is clicked', async () => {
+  const host = makeHost()
+  const onOpen = vi.fn()
+  const { container } = render(
+    defineComponent({
+      components: { HostRow },
+      render() {
+        return h('table', [
+          h('tbody', [h('tr', [h(HostRow, { row: host, tableRow: makeTableRow(), onOpen })])])
+        ])
+      }
+    })
+  )
+
+  const nameButton = container.querySelector('.monitoring-string-cell button')!
+  await fireEvent.click(nameButton)
+
+  expect(onOpen).toHaveBeenCalledWith(host)
+})
+
 test('renders state badge with success color for state UP', () => {
   const { container } = mountRow(makeHost({ state: 'UP' }))
 
