@@ -243,10 +243,9 @@ def write_human_output(human_path: str, violations: list[str]) -> None:
 
 def main() -> int:
     if len(sys.argv) < 6:
-        print(
+        sys.stderr.write(
             f"Usage: {sys.argv[0]} <human_out_path> <machine_out_path> <human_exit_code_path> "
-            f"<machine_exit_code_path> <source_file>...",
-            file=sys.stderr,
+            f"<machine_exit_code_path> <source_file>...\n"
         )
         return 2
 
@@ -274,7 +273,7 @@ def main() -> int:
     fail_on_violation = not (human_exit_code_path or machine_exit_code_path)
     if fail_on_violation and violations:
         with open(human_out_path) as f:
-            print(f.read(), file=sys.stderr)
+            sys.stderr.write(f.read() + "\n")
 
     return 0 if not fail_on_violation else exit_code
 

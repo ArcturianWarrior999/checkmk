@@ -12,11 +12,11 @@ load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@cmk_types//:types.bzl", "types")
 load("@rules_mypy//mypy:mypy.bzl", "mypy")
 load("//bazel/tools:lint_astrein.bzl", "lint_astrein_aspect")
-load("//bazel/tools:lint_license_header.bzl", "lint_license_header_aspect")
 load("//bazel/tools:lint_ps_script_analyzer.bzl", "lint_ps_script_analyzer_aspect")
 load("//bazel/tools:lint_py_import_cycles.bzl", "lint_py_import_cycles_aspect")
-load("//bazel/tools:lint_python_extensions.bzl", "lint_python_extension_aspect")
 load("//packages/cmk-repo-checks:deballast.bzl", "lint_deballast_aspect")
+load("//packages/cmk-repo-checks:lint_license_header.bzl", "lint_license_header_aspect")
+load("//packages/cmk-repo-checks:lint_python_extensions.bzl", "lint_python_extension_aspect")
 
 eslint = lint_eslint_aspect(
     binary = Label(":eslint"),
@@ -104,11 +104,11 @@ deballast = lint_deballast_aspect(
 )
 
 license_header_checker = lint_license_header_aspect(
-    binary = Label("//bazel/tools:license_header_checker"),
+    binary = Label("//packages/cmk-repo-checks:license_header_checker_bin"),
 )
 
 python_extension_checker = lint_python_extension_aspect(
-    binary = Label("//bazel/tools:python_extension_checker"),
+    binary = Label("//packages/cmk-repo-checks:python_extension_checker_bin"),
 )
 
 ps_script_analyzer = lint_ps_script_analyzer_aspect(

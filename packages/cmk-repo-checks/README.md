@@ -45,7 +45,19 @@ tags = ["deballast-keep=//cmk/base/modes:modes"],  # loaded at runtime via disco
 A target whose deps are all runtime-loaded (e.g. sphinx autodoc builds) opts out entirely with `tags = ["no-deballast"]`; the generic `no-lint` tag is honored, too.
 A `deballast-keep` tag that names no declared dep is reported as stale, so exemptions cannot outlive the dep they exempt.
 
-### Development
+## license-header
+
+Checks that every `.py` file carries the correct copyright/license header for its location (GPL, Checkmk Enterprise, OMD, and the notification/alert-handler variants).
+It is implemented as a Bazel aspect (`lint_license_header.bzl`) driving the per-target checker `cmk/repo_checks/license_header_checker.py`, which selects the expected header from the file path (enterprise editions, notification dirs, and specific OMD files get their own patterns) and reports mismatches.
+Like the other checkers it surfaces through `bazel lint` and materializes report files under `--config=...`.
+
+## python-extension
+
+Flags Python source files that lack a `.py` extension, so they get picked up by formatters, linters, and type checking.
+It is implemented as a Bazel aspect (`lint_python_extensions.bzl`) driving `cmk/repo_checks/python_extension_checker.py`, which parses each declared src and reports extension-less files whose content is Python.
+Because it runs as an aspect over Bazel `srcs`, it only covers files that are part of a `py_*` target; a target opts out with `tags = ["no-python-extension-checker"]`.
+
+## Development
 
 ```console
 # Run the tests
