@@ -2072,7 +2072,7 @@ class ActivateChangesManager:
     def _pre_activate_changes(self, *, debug: bool) -> None:
         try:
             if hooks.registered("pre-distribute-changes"):
-                hooks.call("pre-distribute-changes", collect_all_hosts())
+                hooks.call("pre-distribute-changes", collect_all_hosts(folder_tree()))
         except Exception as e:
             logger.exception("error calling pre-distribute-changes hook")
             if debug:
@@ -3156,7 +3156,7 @@ def _update_links_for_agent_receiver() -> None:
         uuid_lookup_dir=paths.uuid_lookup_dir,
     )
 
-    uuid_link_manager.update_links(collect_all_hosts())
+    uuid_link_manager.update_links(collect_all_hosts(folder_tree()))
 
 
 def get_pending_changes_tooltip(changes_info: PendingChangesInfo) -> str:

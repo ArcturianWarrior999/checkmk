@@ -4191,8 +4191,8 @@ def validate_all_hosts(
     return {}
 
 
-def collect_all_hosts() -> Mapping[HostName, CollectedHostAttributes]:
-    return _collect_hosts(folder_tree().root_folder())
+def collect_all_hosts(tree: FolderTree) -> Mapping[HostName, CollectedHostAttributes]:
+    return _collect_hosts(tree.root_folder())
 
 
 def _collect_hosts(folder: Folder) -> Mapping[HostName, CollectedHostAttributes]:

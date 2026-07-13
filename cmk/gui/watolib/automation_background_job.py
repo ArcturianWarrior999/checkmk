@@ -49,7 +49,7 @@ from cmk.gui.watolib.automations import (
     RemoteAutomationGetStatusResponseRaw,
 )
 from cmk.gui.watolib.host_attributes import CollectedHostAttributes
-from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
+from cmk.gui.watolib.hosts_and_folders import collect_all_hosts, folder_tree
 
 from .automation_commands import AutomationCommandRegistry
 
@@ -134,7 +134,7 @@ def checkmk_automation_job_entry_point(
         api_request=args.api_request,
         user_permission_config=args.user_permission_config,
         for_cmk_version=Version.from_str(args.for_cmk_version),
-        collect_all_hosts=collect_all_hosts,
+        collect_all_hosts=lambda: collect_all_hosts(folder_tree()),
     )
 
 

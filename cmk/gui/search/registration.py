@@ -8,7 +8,7 @@ from cmk.gui import hooks
 from cmk.gui.background_job.job import BackgroundJobRegistry
 from cmk.gui.pages import PageEndpoint, PageRegistry
 from cmk.gui.watolib.host_match_item_generator import MatchItemGeneratorHosts
-from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
+from cmk.gui.watolib.hosts_and_folders import collect_all_hosts, folder_tree
 from cmk.gui.watolib.rule_match_item_generator import MatchItemGeneratorRules
 from cmk.gui.watolib.rulespecs import rulespec_registry, RulespecGroupRegistry
 
@@ -40,7 +40,7 @@ def register(
     match_item_generator_registry.register(
         MatchItemGeneratorHosts(
             "hosts",
-            collect_all_hosts,
+            lambda: collect_all_hosts(folder_tree()),
         )
     )
     livestatus_engine.register(match_plugin_registry)

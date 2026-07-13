@@ -53,7 +53,7 @@ from cmk.gui.watolib.automations import (
     MKAutomationException,
     verify_request_compatibility,
 )
-from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
+from cmk.gui.watolib.hosts_and_folders import collect_all_hosts, folder_tree
 from cmk.utils.local_secrets import DistributedSetupSecret
 from cmk.utils.paths import configuration_lockfile
 
@@ -248,7 +248,7 @@ class PageAutomation(AjaxPage):
             stdin_data=stdin_data,
             timeout=timeout,
             debug=debug,
-            collect_all_hosts=collect_all_hosts,
+            collect_all_hosts=lambda: collect_all_hosts(folder_tree()),
         )
         # Don't use write_text() here (not needed, because no HTML document is rendered)
         response.set_data(

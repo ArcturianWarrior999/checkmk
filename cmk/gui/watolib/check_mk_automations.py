@@ -26,7 +26,7 @@ from cmk.gui.watolib.automations import (
     get_local_automation_failure_message,
     MKAutomationException,
 )
-from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
+from cmk.gui.watolib.hosts_and_folders import collect_all_hosts, folder_tree
 from cmk.ruleset_matcher.labels import HostLabel, Labels
 from cmk.ruleset_matcher.matcher import RuleSpec
 from cmk.utils.automation_config import LocalAutomationConfig, RemoteAutomationConfig
@@ -65,7 +65,7 @@ def _automation_serialized(
             timeout=timeout,
             force_cli_interface=force_cli_interface,
             debug=debug,
-            collect_all_hosts=collect_all_hosts,
+            collect_all_hosts=lambda: collect_all_hosts(folder_tree()),
         )
         return AutomationResponse(
             command=command,
