@@ -12,7 +12,12 @@ export const a11yData = [
   {
     keys: ['—'],
     description:
-      "No interactive affordances. The cell renders a plain <td> and inherits the table's keyboard semantics."
+      "Without the button prop the cell renders a plain <td> and inherits the table's keyboard semantics."
+  },
+  {
+    keys: ['Enter', 'Space'],
+    description:
+      'With the button prop the cell renders a native <button>, is keyboard focusable, and activates on Enter/Space, emitting a click event.'
   }
 ]
 
@@ -33,6 +38,12 @@ export const panelConfig = {
     ],
     initialState: 'left',
     help: 'Align the cell content; for a full highlight, also aligns its inner content.'
+  },
+  buttonEnabled: {
+    type: 'boolean' as const,
+    title: 'button',
+    initialState: false,
+    help: 'Render the cell as a <button> with a trailing chevron; a click emits an event.'
   },
   linkEnabled: {
     type: 'boolean' as const,
@@ -202,7 +213,12 @@ const columns = computed<ColumnDef<DemoRow>[]>(() => [
           @update:filter-state="filterState = $event"
         >
           <template #row>
-            <BaseCell :linked-to="linkedTo" :highlight="highlight" :justify="justify">
+            <BaseCell
+              :linked-to="linkedTo"
+              :highlight="highlight"
+              :justify="justify"
+              :button="propState.buttonEnabled"
+            >
               {{ propState.defaultContent }}
             </BaseCell>
           </template>

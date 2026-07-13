@@ -3,6 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import userEvent from '@testing-library/user-event'
 import { render } from '@testing-library/vue'
 import { type ComputedRef, computed, defineComponent, h, nextTick, provide } from 'vue'
 
@@ -15,6 +16,8 @@ import BaseCell from '@/monitoring/shared/components/cell/BaseCell.vue'
 
 type CellProps = {
   breakpoints?: CellBreakpoints
+  button?: boolean
+  onClick?: (payload: MouseEvent) => void
 }
 
 const TEST_COLUMN_ID = 'col'
@@ -97,6 +100,20 @@ test('falls back to the default slot when no breakpoint slot matches the current
     }
   )
   expect(container.querySelector('td')).toHaveTextContent('fallback')
+})
+
+test('renders a native <button> and emits click when the button prop is set', async () => {
+  const onClick = vi.fn()
+  const { container } = await mountCell({ button: true, onClick }, { cellWidth: 500 })
+  const button = container.querySelector('button')
+  expect(button).not.toBeNull()
+  await userEvent.click(button!)
+  expect(onClick).toHaveBeenCalledTimes(1)
+})
+
+test('renders no button and emits nothing without the button prop', async () => {
+  const { container } = await mountCell({}, { cellWidth: 500 })
+  expect(container.querySelector('button')).toBeNull()
 })
 
 test('skips named slots that the consumer did not provide', async () => {

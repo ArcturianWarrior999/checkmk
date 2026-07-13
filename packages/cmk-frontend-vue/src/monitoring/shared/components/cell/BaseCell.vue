@@ -7,6 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import { type CSSProperties, computed, inject, useSlots } from 'vue'
 
 import CmkIcon from '@/components/CmkIcon/CmkIcon.vue'
+import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
 import {
   COLUMN_LAYOUT_KEY,
@@ -29,6 +30,11 @@ const props = defineProps<{
   linkedTo?: CellLink | undefined
   highlight?: CellHighlight | undefined
   justify?: ColumnJustify | undefined
+  button?: boolean | undefined
+}>()
+
+const emit = defineEmits<{
+  (event: 'click', payload: MouseEvent): void
 }>()
 
 const slots = useSlots()
@@ -105,8 +111,27 @@ const highlightStyle = computed<CSSProperties>(() =>
     }"
     :style="pinnedStyle"
   >
+    <button
+      v-if="button"
+      type="button"
+      class="monitoring-base-cell__button"
+      @click="emit('click', $event)"
+    >
+      <div v-if="highlight" :class="highlightClasses" :style="highlightStyle">
+        <slot :name="activeSlot" />
+      </div>
+      <div v-else class="monitoring-base-cell__plain">
+        <slot :name="activeSlot" />
+      </div>
+      <CmkMultitoneIcon
+        class="monitoring-base-cell__chevron"
+        name="chevron-right"
+        primary-color="font"
+        size="small"
+      />
+    </button>
     <a
-      v-if="linkedTo && linkedTo.variant !== 'icon'"
+      v-else-if="linkedTo && linkedTo.variant !== 'icon'"
       class="monitoring-base-cell__link"
       :href="linkedTo.href"
       :target="linkedTo.target"
@@ -170,6 +195,39 @@ const highlightStyle = computed<CSSProperties>(() =>
     .monitoring-base-cell__link-icon {
       flex: 0 0 auto;
       margin: 0 var(--dimension-3) 0 var(--dimension-2);
+    }
+  }
+
+  .monitoring-base-cell__button {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 31px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--ux-theme-3);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--success);
+      outline-offset: -1px;
+    }
+
+    .monitoring-base-cell__chevron {
+      flex: 0 0 auto;
+      align-self: center;
+      margin-left: auto;
+      margin-top: calc(-1 * var(--dimension-2));
+      margin-right: var(--dimension-3);
     }
   }
 
