@@ -281,21 +281,6 @@ def _fraction_from_json(data: Mapping[str, object], codec: QuantityCodec) -> Fra
     )
 
 
-def engine_quantity_codec(additional: Sequence[QuantitySpec] = ()) -> QuantityCodec:
-    # The standard engine quantities, optionally combined with a consumer's additional specs (e.g. the
-    # pro quantities), so a caller never has to reconstruct the engine set.
-    engine_specs = (
-        QuantitySpec("rrd_metric", _rrd_metric_to_json, _rrd_metric_from_json),
-        QuantitySpec("constant", _constant_to_json, _constant_from_json),
-        QuantitySpec("scalar_of", _scalar_of_to_json, _scalar_of_from_json),
-        QuantitySpec("sum", _sum_to_json, _sum_from_json),
-        QuantitySpec("product", _product_to_json, _product_from_json),
-        QuantitySpec("difference", _difference_to_json, _difference_from_json),
-        QuantitySpec("fraction", _fraction_to_json, _fraction_from_json),
-    )
-    return QuantityCodec((*engine_specs, *additional))
-
-
 class GraphCodec:
     def __init__(self, quantities: QuantityCodec) -> None:
         self._quantities = quantities
@@ -417,7 +402,18 @@ class GraphCodec:
 
 
 def graph_codec(additional: Sequence[QuantitySpec] = ()) -> GraphCodec:
-    return GraphCodec(engine_quantity_codec(additional))
+    # The standard engine quantities, optionally combined with a consumer's additional specs (e.g. the
+    # pro quantities), so a caller never has to reconstruct the engine set.
+    engine_specs = (
+        QuantitySpec("rrd_metric", _rrd_metric_to_json, _rrd_metric_from_json),
+        QuantitySpec("constant", _constant_to_json, _constant_from_json),
+        QuantitySpec("scalar_of", _scalar_of_to_json, _scalar_of_from_json),
+        QuantitySpec("sum", _sum_to_json, _sum_from_json),
+        QuantitySpec("product", _product_to_json, _product_from_json),
+        QuantitySpec("difference", _difference_to_json, _difference_from_json),
+        QuantitySpec("fraction", _fraction_to_json, _fraction_from_json),
+    )
+    return GraphCodec(QuantityCodec((*engine_specs, *additional)))
 
 
 def consolidation_function_of(options: Mapping[str, object]) -> ConsolidationFunction:
