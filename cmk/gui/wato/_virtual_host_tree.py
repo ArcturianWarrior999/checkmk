@@ -24,7 +24,11 @@ from cmk.gui.sidebar import PageHandlers, SidebarSnapin
 from cmk.gui.type_defs import HTTPVariables, IconNames, StaticIcon, VirtualHostTreeSpec
 from cmk.gui.utils.html import HTML
 from cmk.gui.utils.urls import makeuri_contextless
-from cmk.gui.watolib.hosts_and_folders import folder_tree, get_folder_title_path
+from cmk.gui.watolib.hosts_and_folders import (
+    FolderTree,
+    get_folder_title_path,
+    make_folder_tree,
+)
 from cmk.ruleset_matcher.tags import TagGroup, TagGroupID, TagID
 
 
@@ -91,7 +95,7 @@ class VirtualHostTree(SidebarSnapin):
             return
 
         self._show_tree_selection()
-        self._show_tree(config.tags.tag_groups)
+        self._show_tree(make_folder_tree(config), config.tags.tag_groups)
 
     def _show_tree_selection(self) -> None:
         with html.form_context("vtree"):
@@ -113,10 +117,10 @@ class VirtualHostTree(SidebarSnapin):
             html.br()
         html.final_javascript(self._javascript())
 
-    def _show_tree(self, tag_groups: Sequence[TagGroup]) -> None:
+    def _show_tree(self, folder_tree: FolderTree, tag_groups: Sequence[TagGroup]) -> None:
         tree_spec = self._trees[self._current_tree_id]["tree_spec"]
 
-        tree = self._compute_tag_tree(tree_spec, tag_groups)
+        tree = self._compute_tag_tree(folder_tree, tree_spec, tag_groups)
         html.open_div(class_="tag_tree")
         self._show_tag_tree_level(
             tree_spec, [], self._current_tree_path, _("Virtual host tree"), tree, tag_groups
@@ -332,15 +336,18 @@ function virtual_host_tree_enter(path)
 }
 """
 
-    def _compute_tag_tree(self, tree_spec: Sequence[str], tag_groups: Sequence[TagGroup]) -> Tree:
+    def _compute_tag_tree(
+        self, folder_tree: FolderTree, tree_spec: Sequence[str], tag_groups: Sequence[TagGroup]
+    ) -> Tree:
         tag_group_map, topics = self._get_tag_config(tag_groups)
         tree = Tree({})
         for host_row in self._get_all_hosts():
-            self._add_host_to_tree(tree_spec, tree, host_row, tag_group_map, topics)
+            self._add_host_to_tree(folder_tree, tree_spec, tree, host_row, tag_group_map, topics)
         return tree
 
     def _add_host_to_tree(
         self,
+        folder_tree: FolderTree,
         tree_spec: Sequence[str],
         tree: Tree,
         host_row: tuple[
@@ -375,8 +382,9 @@ function virtual_host_tree_enter(path)
         if wato_folder.startswith("/wato/"):
             folder_path = wato_folder[6:-9]
             folder_path_components = folder_path.split("/")
-            if folder_tree().folder_exists(folder_path):
-                folder_titles = get_folder_title_path(folder_path)[1:]  # omit main folder
+            if folder_tree.folder_exists(folder_path):
+                # omit the main folder
+                folder_titles = get_folder_title_path(folder_tree, folder_path)[1:]
 
         state, have_svc_problems = self._calculate_state(state, num_crit, num_unknown, num_warn)
 

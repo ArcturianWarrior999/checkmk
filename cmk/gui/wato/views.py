@@ -17,6 +17,7 @@ from cmk.gui.utils.html import HTML
 from cmk.gui.view_utils import CellSpec
 from cmk.gui.views.sorter import Sorter
 from cmk.gui.watolib.hosts_and_folders import (
+    folder_tree,
     get_folder_title_path,
     get_folder_title_path_with_links,
 )
@@ -50,9 +51,9 @@ def get_wato_folder(row: Row, how: str, with_links: bool = True, *, request: Req
     wato_path = filename[6:-9]
     try:
         title_path: list[str] | list[HTML] = (
-            get_folder_title_path_with_links(wato_path)
+            get_folder_title_path_with_links(folder_tree(), wato_path)
             if with_links
-            else get_folder_title_path(wato_path)
+            else get_folder_title_path(folder_tree(), wato_path)
         )
     except MKGeneralException:
         # happens when a path can not be resolved using the local Setup.

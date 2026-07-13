@@ -4221,20 +4221,15 @@ def make_action_link(request: Request, vars_: HTTPVariables) -> str:
 
 
 @request_memoize()
-def get_folder_title_path(path: PathWithoutSlash) -> list[str]:
+def get_folder_title_path(tree: FolderTree, path: PathWithoutSlash) -> list[str]:
     """Return a list with all the titles of the paths'
     components, e.g. "muc/north" -> [ "Main", "Munich", "North" ]"""
-    return folder_tree().folder(path).title_path()
+    return tree.folder(path).title_path()
 
 
 @request_memoize()
-def get_folder_title_path_with_links(path: PathWithoutSlash) -> list[HTML]:
-    return folder_tree().folder(path).title_path_with_links()
-
-
-def get_folder_title(path: str) -> str:
-    """Return the title of a folder - which is given as a string path"""
-    return folder_tree().folder(path).title()
+def get_folder_title_path_with_links(tree: FolderTree, path: PathWithoutSlash) -> list[HTML]:
+    return tree.folder(path).title_path_with_links()
 
 
 def _ensure_trailing_slash(path: str) -> PathWithSlash:
