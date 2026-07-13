@@ -1933,10 +1933,8 @@ class Folder:
         return path_for_rule_matching[len("/wato/") :].rstrip("/")
 
     @classmethod
-    def from_path_for_rule_matching(cls, path_for_rule_matching: str) -> Folder:
-        return folder_tree().folder(
-            cls.make_path_from_path_for_rule_matching(path_for_rule_matching)
-        )
+    def from_path_for_rule_matching(cls, tree: FolderTree, path_for_rule_matching: str) -> Folder:
+        return tree.folder(cls.make_path_from_path_for_rule_matching(path_for_rule_matching))
 
     def object_ref(self) -> ObjectRef:
         return ObjectRef(ObjectRefType.Folder, self.path())
