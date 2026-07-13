@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import type { RowData } from '@tanstack/vue-table'
+import type { RowData, Updater } from '@tanstack/vue-table'
 import type { ComputedRef, InjectionKey } from 'vue'
 
 import type { TranslatedString } from '@/lib/i18nString'
@@ -21,6 +21,8 @@ declare module '@tanstack/vue-table' {
     justify?: ColumnJustify
     filter?: ColumnFilterDefinition
     selectColumn?: boolean
+    /** The stretch column absorbs all remaining width. Ignored by MonitoringTable. */
+    stretch?: boolean
   }
 }
 
@@ -32,6 +34,10 @@ const JUSTIFY_TO_FLEX: Readonly<Record<ColumnJustify, 'flex-start' | 'center' | 
 
 export function justifyToFlex(justify: ColumnJustify): 'flex-start' | 'center' | 'flex-end' {
   return JUSTIFY_TO_FLEX[justify]
+}
+
+export function resolveUpdater<S>(updater: Updater<S>, current: S): S {
+  return typeof updater === 'function' ? (updater as (old: S) => S)(current) : updater
 }
 
 export type BreakpointToken = 's' | 'm' | 'l' | 'xl'
@@ -68,3 +74,12 @@ export interface ColumnLayoutInfo {
 export const COLUMN_LAYOUT_KEY: InjectionKey<ComputedRef<Map<string, ColumnLayoutInfo>>> = Symbol(
   'monitoringTableColumnLayout'
 )
+
+/** Drag handlers provided by EditableTable for row reordering, consumed by DragHandleCell. */
+export interface RowDragHandlers {
+  dragStart: (event: DragEvent) => void
+  drag: (event: DragEvent) => void
+  dragEnd: (event: DragEvent) => void
+}
+
+export const ROW_DRAG_KEY: InjectionKey<RowDragHandlers> = Symbol('editableTableRowDrag')

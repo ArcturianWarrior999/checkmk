@@ -10,7 +10,6 @@ import {
   type ColumnPinningState,
   type Row,
   type RowSelectionState,
-  type Updater,
   getCoreRowModel,
   useVueTable
 } from '@tanstack/vue-table'
@@ -28,7 +27,8 @@ import {
   type ColumnLayoutInfo,
   MONITORING_SERVICE,
   TABLE_BORDER_SPACING,
-  TABLE_BORDER_SPACING_PX
+  TABLE_BORDER_SPACING_PX,
+  resolveUpdater
 } from './MonitoringTableContext'
 import MonitoringTableHeader from './MonitoringTableHeader.vue'
 
@@ -58,10 +58,6 @@ const emit = defineEmits<{
 const monitoringService = inject(MONITORING_SERVICE)
 const showSkeleton = computed(() => !props.hasLoaded || props.fetchState === 'foreground')
 const showEmptyState = computed(() => props.hasLoaded && props.rows.length === 0)
-
-function resolveUpdater<S>(updater: Updater<S>, current: S): S {
-  return typeof updater === 'function' ? (updater as (old: S) => S)(current) : updater
-}
 
 const rowSelection = defineModel<RowSelectionState>('rowSelection', { default: () => ({}) })
 
