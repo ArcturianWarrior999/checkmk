@@ -158,42 +158,6 @@ def _display_from_json(data: object) -> CurveAttributes | None:
     return None if data is None else _attributes_from_json(data)
 
 
-def _bound_to_json(bound: int | float | Quantity, codec: QuantityCodec) -> Json:
-    if isinstance(bound, int | float):
-        return {"kind": "number", "value": bound}
-    return {"kind": "quantity", "quantity": codec.serialize(bound)}
-
-
-def _bound_from_json(data: object, codec: QuantityCodec) -> int | float | Quantity:
-    data = _as_mapping(data)
-    if data["kind"] == "number":
-        return _as_number(data["value"])
-    return codec.deserialize(data["quantity"])
-
-
-def _range_to_json(vertical_range: MinimalRange | FixedRange, codec: QuantityCodec) -> Json:
-    return {
-        "kind": "minimal" if isinstance(vertical_range, MinimalRange) else "fixed",
-        "lower": None
-        if vertical_range.lower is None
-        else _bound_to_json(vertical_range.lower, codec),
-        "upper": None
-        if vertical_range.upper is None
-        else _bound_to_json(vertical_range.upper, codec),
-    }
-
-
-def _range_from_json(data: object, codec: QuantityCodec) -> MinimalRange | FixedRange:
-    data = _as_mapping(data)
-    cls = MinimalRange if data["kind"] == "minimal" else FixedRange
-    lower = data["lower"]
-    upper = data["upper"]
-    return cls(
-        lower=None if lower is None else _bound_from_json(lower, codec),
-        upper=None if upper is None else _bound_from_json(upper, codec),
-    )
-
-
 def _rrd_metric_to_json(quantity: Quantity, codec: QuantityCodec) -> Json:
     quantity = ensure_type(quantity, RRDMetric)
     return {
@@ -332,88 +296,136 @@ def engine_quantity_codec(additional: Sequence[QuantitySpec] = ()) -> QuantityCo
     return QuantityCodec((*engine_specs, *additional))
 
 
-def _curve_to_json(curve: Curve, codec: QuantityCodec) -> Json:
-    return {
-        "quantity": codec.serialize(curve.quantity),
-        "attributes": _attributes_to_json(curve.attributes),
-    }
+class GraphCodec:
+    def __init__(self, quantities: QuantityCodec) -> None:
+        self._quantities = quantities
+
+    def _bound_to_json(self, bound: int | float | Quantity) -> Json:
+        if isinstance(bound, int | float):
+            return {"kind": "number", "value": bound}
+        return {"kind": "quantity", "quantity": self._quantities.serialize(bound)}
+
+    def _bound_from_json(self, data: object) -> int | float | Quantity:
+        data = _as_mapping(data)
+        if data["kind"] == "number":
+            return _as_number(data["value"])
+        return self._quantities.deserialize(data["quantity"])
+
+    def _range_to_json(self, vertical_range: MinimalRange | FixedRange) -> Json:
+        return {
+            "kind": "minimal" if isinstance(vertical_range, MinimalRange) else "fixed",
+            "lower": None
+            if vertical_range.lower is None
+            else self._bound_to_json(vertical_range.lower),
+            "upper": None
+            if vertical_range.upper is None
+            else self._bound_to_json(vertical_range.upper),
+        }
+
+    def _range_from_json(self, data: object) -> MinimalRange | FixedRange:
+        data = _as_mapping(data)
+        cls = MinimalRange if data["kind"] == "minimal" else FixedRange
+        lower = data["lower"]
+        upper = data["upper"]
+        return cls(
+            lower=None if lower is None else self._bound_from_json(lower),
+            upper=None if upper is None else self._bound_from_json(upper),
+        )
+
+    def _curve_to_json(self, curve: Curve) -> Json:
+        return {
+            "quantity": self._quantities.serialize(curve.quantity),
+            "attributes": _attributes_to_json(curve.attributes),
+        }
+
+    def _curve_from_json(self, data: object) -> Curve:
+        data = _as_mapping(data)
+        return Curve(
+            quantity=self._quantities.deserialize(data["quantity"]),
+            attributes=_attributes_from_json(data["attributes"]),
+        )
+
+    def _stack_from_json(self, data: object) -> Stack:
+        data = _as_mapping(data)
+        reference = data["reference"]
+        return Stack(
+            members=[self._curve_from_json(member) for member in _as_list(data["members"])],
+            inverse=ensure_type(data["inverse"], bool),
+            reference=None if reference is None else self._curve_from_json(reference),
+        )
+
+    def _line_from_json(self, data: object) -> Line:
+        data = _as_mapping(data)
+        return Line(
+            curve=self._curve_from_json(data["curve"]), inverse=ensure_type(data["inverse"], bool)
+        )
+
+    def _rule_from_json(self, data: object) -> Rule:
+        data = _as_mapping(data)
+        return Rule(
+            curve=self._curve_from_json(data["curve"]), inverse=ensure_type(data["inverse"], bool)
+        )
+
+    def serialize_graph(self, graph: Graph) -> Json:
+        return {
+            "name": graph.name,
+            "title": graph.title,
+            "graph_type": graph.graph_type,
+            "vertical_range": (
+                None if graph.vertical_range is None else self._range_to_json(graph.vertical_range)
+            ),
+            "stacks": [
+                {
+                    "members": [self._curve_to_json(member) for member in stack.members],
+                    "inverse": stack.inverse,
+                    "reference": (
+                        None if stack.reference is None else self._curve_to_json(stack.reference)
+                    ),
+                }
+                for stack in graph.stacks
+            ],
+            "lines": [
+                {"curve": self._curve_to_json(line.curve), "inverse": line.inverse}
+                for line in graph.lines
+            ],
+            "rules": [
+                {"curve": self._curve_to_json(rule.curve), "inverse": rule.inverse}
+                for rule in graph.rules
+            ],
+        }
+
+    def deserialize_graph(self, data: object) -> Graph:
+        data = _as_mapping(data)
+        vertical_range = data["vertical_range"]
+        return Graph(
+            name=ensure_type(data["name"], str),
+            title=ensure_type(data["title"], str),
+            graph_type=ensure_type(data["graph_type"], str),
+            vertical_range=(
+                None if vertical_range is None else self._range_from_json(vertical_range)
+            ),
+            stacks=[self._stack_from_json(stack) for stack in _as_list(data["stacks"])],
+            lines=[self._line_from_json(line) for line in _as_list(data["lines"])],
+            rules=[self._rule_from_json(rule) for rule in _as_list(data["rules"])],
+        )
+
+    def serialize_graphs(self, graphs: Sequence[Graph]) -> Json:
+        return {"graphs": [self.serialize_graph(graph) for graph in graphs]}
+
+    def deserialize_graphs(self, data: Mapping[str, object]) -> Sequence[Graph]:
+        return [self.deserialize_graph(graph) for graph in ensure_type(data["graphs"], list)]
 
 
-def _curve_from_json(data: object, codec: QuantityCodec) -> Curve:
-    data = _as_mapping(data)
-    return Curve(
-        quantity=codec.deserialize(data["quantity"]),
-        attributes=_attributes_from_json(data["attributes"]),
-    )
-
-
-def _stack_from_json(data: object, codec: QuantityCodec) -> Stack:
-    data = _as_mapping(data)
-    reference = data["reference"]
-    return Stack(
-        members=[_curve_from_json(member, codec) for member in _as_list(data["members"])],
-        inverse=ensure_type(data["inverse"], bool),
-        reference=None if reference is None else _curve_from_json(reference, codec),
-    )
-
-
-def _line_from_json(data: object, codec: QuantityCodec) -> Line:
-    data = _as_mapping(data)
-    return Line(
-        curve=_curve_from_json(data["curve"], codec), inverse=ensure_type(data["inverse"], bool)
-    )
-
-
-def _rule_from_json(data: object, codec: QuantityCodec) -> Rule:
-    data = _as_mapping(data)
-    return Rule(
-        curve=_curve_from_json(data["curve"], codec), inverse=ensure_type(data["inverse"], bool)
-    )
+def graph_codec(additional: Sequence[QuantitySpec] = ()) -> GraphCodec:
+    return GraphCodec(engine_quantity_codec(additional))
 
 
 def serialize_graph(graph: Graph, codec: QuantityCodec) -> Json:
-    return {
-        "name": graph.name,
-        "title": graph.title,
-        "graph_type": graph.graph_type,
-        "vertical_range": (
-            None if graph.vertical_range is None else _range_to_json(graph.vertical_range, codec)
-        ),
-        "stacks": [
-            {
-                "members": [_curve_to_json(member, codec) for member in stack.members],
-                "inverse": stack.inverse,
-                "reference": (
-                    None if stack.reference is None else _curve_to_json(stack.reference, codec)
-                ),
-            }
-            for stack in graph.stacks
-        ],
-        "lines": [
-            {"curve": _curve_to_json(line.curve, codec), "inverse": line.inverse}
-            for line in graph.lines
-        ],
-        "rules": [
-            {"curve": _curve_to_json(rule.curve, codec), "inverse": rule.inverse}
-            for rule in graph.rules
-        ],
-    }
+    return GraphCodec(codec).serialize_graph(graph)
 
 
 def deserialize_graph(data: object, codec: QuantityCodec) -> Graph:
-    data = _as_mapping(data)
-    vertical_range = data["vertical_range"]
-    return Graph(
-        name=ensure_type(data["name"], str),
-        title=ensure_type(data["title"], str),
-        graph_type=ensure_type(data["graph_type"], str),
-        vertical_range=(
-            None if vertical_range is None else _range_from_json(vertical_range, codec)
-        ),
-        stacks=[_stack_from_json(stack, codec) for stack in _as_list(data["stacks"])],
-        lines=[_line_from_json(line, codec) for line in _as_list(data["lines"])],
-        rules=[_rule_from_json(rule, codec) for rule in _as_list(data["rules"])],
-    )
+    return GraphCodec(codec).deserialize_graph(data)
 
 
 def consolidation_function_of(options: Mapping[str, object]) -> ConsolidationFunction:
