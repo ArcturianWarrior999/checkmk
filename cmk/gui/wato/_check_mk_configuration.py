@@ -2531,7 +2531,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "barracuda_mailqueues",
-            Checkbox(title=_("Barracuda: Mail queue"), label=_("Use the new service name")),
+            Checkbox(title=_("Barracuda: mail queue"), label=_("Use the new service name")),
         ),
         (
             "brocade_sys_mem",
@@ -2675,7 +2675,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "fortigate_node_memory",
-            Checkbox(title=_("Fortigate node memory"), label=_("Use the new service name")),
+            Checkbox(title=_("FortiGate node memory"), label=_("Use the new service name")),
         ),
         (
             "hr_fs",
@@ -2695,7 +2695,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
             "http",
             Checkbox(
                 title=_(
-                    "Check HTTP: Use HTTPS instead of HTTP for SSL/TLS connections (Deprecated/ineffective)"
+                    "Check HTTP: use HTTPS instead of HTTP for SSL/TLS connections (deprecated/ineffective)"
                 ),
                 label=_("Use the new service name"),
             ),
@@ -2818,7 +2818,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         (
             "mem_used",
             Checkbox(
-                title=_("Main memory usage (UNIX / Other Devices)"),
+                title=_("Main memory usage (Unix / other devices)"),
                 label=_("Use the new service name"),
             ),
         ),
@@ -2841,11 +2841,11 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "mssql_backup",
-            Checkbox(title=_("MSSQL Backup"), label=_("Use the new service name")),
+            Checkbox(title=_("MSSQL backup"), label=_("Use the new service name")),
         ),
         (
             "mssql_blocked_sessions",
-            Checkbox(title=_("MSSQL Blocked Sessions"), label=_("Use the new service name")),
+            Checkbox(title=_("MSSQL blocked sessions"), label=_("Use the new service name")),
         ),
         (
             "mssql_counters_cache_hits",
@@ -2857,7 +2857,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "mssql_counters_locks",
-            Checkbox(title=_("MSSQL Locks"), label=_("Use the new service name")),
+            Checkbox(title=_("MSSQL locks"), label=_("Use the new service name")),
         ),
         (
             "mssql_counters_locks_per_batch",
@@ -2865,7 +2865,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "mssql_counters_pageactivity",
-            Checkbox(title=_("MSSQL Page Activity"), label=_("Use the new service name")),
+            Checkbox(title=_("MSSQL page activity"), label=_("Use the new service name")),
         ),
         (
             "mssql_counters_sqlstats",
@@ -2917,7 +2917,7 @@ def use_new_descriptions_for_valuespec(context: GlobalSettingsContext) -> ValueS
         ),
         (
             "netscaler_mem",
-            Checkbox(title=_("Netscaler memory Usage"), label=_("Use the new service name")),
+            Checkbox(title=_("Netscaler memory usage"), label=_("Use the new service name")),
         ),
         (
             "nullmailer_mailq",
@@ -3187,13 +3187,13 @@ ConfigVariableChooseSNMPBackend = ConfigVariable(
     ident="snmp_backend_default",
     valuespec=lambda context: Transform(
         valuespec=DropdownChoice(
-            title=_("Choose SNMP back-end"),
+            title=_("Choose SNMP backend"),
             choices=[
                 (SNMPBackendEnum.CLASSIC, _("Use Classic SNMP Backend")),
-                (SNMPBackendEnum.INLINE, _("Use Inline SNMP Backend")),
+                (SNMPBackendEnum.INLINE, _("Use inline SNMP backend")),
             ],
             help=_(
-                "By default Checkmk uses command line calls of Net-SNMP tools like snmpget or snmpwalk to gather SNMP information. For each request a new command line program is being executed. It is now possible to use the inline SNMP implementation which calls the respective libraries directly via its Python bindings. This should increase the performance of SNMP checks in a significant way. Both SNMP modes are features which improve the performance for large installations and are only available via our subscription."
+                "By default, Checkmk uses command line calls of Net-SNMP tools like snmpget or snmpwalk to gather SNMP information. For each request a new command line program is being executed. It is now possible to use the inline SNMP implementation which calls the respective libraries directly via its Python bindings. This should increase the performance of SNMP checks in a significant way. Both SNMP modes are features which improve the performance for large installations and are only available via our subscription."
             ),
         ),
         to_valuespec=_transform_snmp_backend_hosts_to_valuespec,
@@ -5038,7 +5038,7 @@ def _valuespec_extra_service_conf_service_period() -> TimeperiodSelection:
 def _valuespec_extra_host_conf_notes_url() -> TextInput:
     return TextInput(
         label=_("URL:"),
-        title=_("Notes (URL) for Hosts"),
+        title=_("Notes (URL) for hosts"),
         help=_(
             "With this setting you can set links to documentations for Hosts. "
             "You can use some macros within the URL which are dynamically "
@@ -5098,7 +5098,7 @@ ExtraServiceConfDisplayName = ServiceRulespec(
 def _valuespec_extra_service_conf_notes_url() -> TextInput:
     return TextInput(
         label=_("URL:"),
-        title=_("Notes (URL) for Services"),
+        title=_("Notes (URL) for services"),
         help=_(
             "With this setting you can set links to documentations for each service. "
             "You can use some macros within the URL which are dynamically "
@@ -5331,7 +5331,7 @@ ExtraHostConfEscapePluginOutput = HostRulespec(
 
 def _valuespec_extra_service_conf__ESCAPE_PLUGIN_OUTPUT() -> DropdownChoice:
     return DropdownChoice(
-        title=_("Escape HTML in service output (Dangerous to deactivate - read help)"),
+        title=_("Escape HTML in service output (dangerous to deactivate - read help)"),
         help=_(
             "By default, for security reasons, the GUI does not interpret any HTML "
             "code received from external sources, like service output or log messages. "
@@ -5500,7 +5500,7 @@ ManagementBulkwalkHosts = BinaryHostRulespec(
 
 def _valuespec_snmp_bulk_size() -> Integer:
     return Integer(
-        title=_("Bulk walk: Number of OIDs per bulk"),
+        title=_("Bulk walk: number of OIDs per bulk"),
         label=_("Number of OIDs to request per bulk: "),
         minvalue=1,
         maxvalue=100,
@@ -5987,6 +5987,7 @@ def _valuespec_check_mk_exit_status() -> Dictionary:
                         ),
                         (
                             "otel_metrics",
+                            # weblate-flags: read-only, domain-specific
                             _individual_spec(_("Metric Backend")),
                         ),
                     ],

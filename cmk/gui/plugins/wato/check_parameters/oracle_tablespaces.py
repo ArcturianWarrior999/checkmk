@@ -39,7 +39,7 @@ def _parameter_valuespec_oracle_tablespaces() -> Dictionary:
             (
                 "autoextend",
                 DropdownChoice(
-                    title=_("Expected autoextend setting"),
+                    title=_("Expected auto-extend setting"),
                     choices=[
                         (True, _("Autoextend is expected to be ON")),
                         (False, _("Autoextend is expected to be OFF")),

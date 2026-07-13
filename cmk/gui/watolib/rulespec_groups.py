@@ -260,7 +260,7 @@ class RulespecGroupEnforcedServicesApplications(RulespecSubGroup):
 
     @property
     def title(self) -> str:
-        return _("Applications, Processes & Services")
+        return _("Applications, processes & services")
 
 
 class RulespecGroupEnforcedServicesEnvironment(RulespecSubGroup):
@@ -435,7 +435,7 @@ class RulespecGroupCheckParametersApplications(RulespecSubGroup):
 
     @property
     def title(self) -> str:
-        return _("Applications, Processes & Services")
+        return _("Applications, processes & services")
 
 
 class RulespecGroupCheckParametersVirtualization(RulespecSubGroup):
@@ -559,7 +559,7 @@ class RulespecGroupDatasourceProgramsCloud(RulespecSubGroup):
 
     @property
     def title(self) -> str:
-        return _("Cloud based environments")
+        return _("Cloud-based environments")
 
 
 class RulespecGroupDatasourceProgramsContainer(RulespecSubGroup):

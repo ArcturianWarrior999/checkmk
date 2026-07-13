@@ -301,7 +301,7 @@ class SiteManagement:
                                 custom_validate=[
                                     validators.LengthInRange(
                                         min_value=1,
-                                        error_msg=Message("Text field can not be empty"),
+                                        error_msg=Message("Text field cannot be empty"),
                                     )
                                 ],
                             ),
@@ -635,7 +635,7 @@ class SiteManagement:
         ]
         return TransformDataForLegacyFormatOrRecomposeFunction(
             wrapped_form_spec=CascadingSingleChoiceExtended(
-                title=Title("Attribute Sync Connections"),
+                title=Title("Attribute sync connections"),
                 elements=elements,
                 help_text=Help(
                     "Periodic user attribute synchronization keeps existing user attributes "

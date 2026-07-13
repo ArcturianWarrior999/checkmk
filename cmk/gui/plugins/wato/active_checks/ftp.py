@@ -23,7 +23,7 @@ from cmk.ruleset_matcher.definition import RuleGroup
 
 def _valuespec_active_checks_ftp() -> Dictionary:
     return Dictionary(
-        title=_("Check FTP Service"),
+        title=_("Check FTP service"),
         elements=[
             (
                 "port",

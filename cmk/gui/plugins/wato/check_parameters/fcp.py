@@ -104,6 +104,6 @@ rulespec_registry.register(
         item_spec=lambda: TextInput(title=_("Port"), allow_empty=False),
         match_type="dict",
         parameter_valuespec=_parameter_valuespec_fcp,
-        title=lambda: _("Fibrechannel Interfaces"),
+        title=lambda: _("Fibre channel interfaces"),
     )
 )

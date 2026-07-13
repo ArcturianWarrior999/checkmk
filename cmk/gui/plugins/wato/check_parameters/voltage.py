@@ -15,7 +15,7 @@ from cmk.gui.valuespec import Dictionary, Float, TextInput, Tuple
 
 def _parameter_valuespec_voltage() -> Dictionary:
     return Dictionary(
-        title=_("Voltage Sensor"),
+        title=_("Voltage sensor"),
         optional_keys=True,
         elements=[
             (

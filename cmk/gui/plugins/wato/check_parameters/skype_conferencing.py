@@ -44,7 +44,7 @@ def _parameter_valuespec_skype_conferencing() -> Dictionary:
             (
                 "create_conference_latency",
                 Dictionary(
-                    title=_("Create Conference Latency"),
+                    title=_("Create conference latency"),
                     elements=[
                         (
                             "upper",

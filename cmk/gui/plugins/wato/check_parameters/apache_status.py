@@ -55,7 +55,7 @@ def _parameter_form_spec_apache_status() -> Dictionary:
 
 rule_spec_apache_status = CheckParameters(
     name="apache_status",
-    title=Title("Apache Status"),
+    title=Title("Apache status"),
     topic=Topic.APPLICATIONS,
     parameter_form=_parameter_form_spec_apache_status,
     condition=HostAndItemCondition(

@@ -458,7 +458,7 @@ class Age(ValueSpec[int]):
         for uid, title, val, tkovr_fac in [
             ("days", _("days"), days, 24),
             ("hours", _("hours"), hours, 60),
-            ("minutes", _("mins"), minutes, 60),
+            ("minutes", _("min"), minutes, 60),
             ("seconds", _("secs"), seconds, 60),
         ]:
             if uid in self._display:
@@ -569,7 +569,7 @@ class TimeSpan(ValueSpec[float]):
         for uid, title, val, tkovr_fac in [
             ("days", _("days"), int(days), 24),
             ("hours", _("hours"), int(hours), 60),
-            ("minutes", _("mins"), int(minutes), 60),
+            ("minutes", _("min"), int(minutes), 60),
             ("seconds", _("s"), int(seconds_whole), 1),
             ("milliseconds", _("ms"), seconds_frac * 1000, 0.001),
         ]:
@@ -8473,7 +8473,7 @@ class _CAorCAChain(UploadOrPasteTextFile):
         validate: ValueSpecValidateFunc[Any] | None = None,
     ):
         super().__init__(
-            file_title=_("CRT/PEM File") if file_title is None else file_title,
+            file_title=_("CRT/PEM file") if file_title is None else file_title,
             allow_empty=allow_empty,
             elements=[_CAInput()],
             mime_types=[

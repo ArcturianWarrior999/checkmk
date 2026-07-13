@@ -77,7 +77,7 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
                     # xgettext: no-python-format
                     "CPU utilization is delivered by the operating "
                     "system as a per CPU core basis. Thus each core contributes "
-                    "with a 100% at full utilization, producing a maximum load "
+                    "with 100% at full utilization, producing a maximum load "
                     "of N*100% (N=number of cores). For simplicity this maximum "
                     "can be rescaled down, making 100% the maximum and thinking "
                     "in terms of total CPU utilization."
@@ -90,7 +90,7 @@ def process_level_elements() -> list[tuple[str, ValueSpec]]:
                     "Starting from version 1.6.0 this value must be configured. "
                     "Read Werk #6646 for further information."
                 ),
-                invalid_choice_error=_("CPU rescale maximum load is Unspecified.")
+                invalid_choice_error=_("CPU rescale maximum load is unspecified.")
                 + " "
                 + _(
                     "Starting from version 1.6.0 this value must be configured. "

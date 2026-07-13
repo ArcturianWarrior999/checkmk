@@ -493,7 +493,7 @@ class ModeDiagnostics(WatoMode[object]):
                 FixedValue(
                     value=True,
                     totext="",
-                    title=_("Checkmk Overview"),
+                    title=_("Checkmk overview"),
                     help=_(
                         "Checkmk agent, number, version and edition of sites, cluster host; "
                         "number of hosts, services, CMK Helper, Live Helper, "
@@ -508,7 +508,7 @@ class ModeDiagnostics(WatoMode[object]):
                 FixedValue(
                     value=True,
                     totext="",
-                    title=_("Crash Reports"),
+                    title=_("Crash reports"),
                     help=_(
                         "The latest crash reports<br>"
                         "<b>Note</b>: Some crash reports may contain sensitive data like "
@@ -519,7 +519,7 @@ class ModeDiagnostics(WatoMode[object]):
             (
                 OPT_CHECKMK_LOG_FILES,
                 self._get_component_specific_checkmk_files_choices(
-                    _("Checkmk Log files"),
+                    _("Checkmk log files"),
                     [
                         (f, get_checkmk_file_info(f))
                         for f in self._checkmk_files_map[FILE_MAP_LOG.file_type]
@@ -529,7 +529,7 @@ class ModeDiagnostics(WatoMode[object]):
             (
                 OPT_CHECKMK_CONFIG_FILES,
                 self._get_component_specific_checkmk_files_choices(
-                    _("Checkmk Configuration files"),
+                    _("Checkmk configuration files"),
                     [
                         (f, get_checkmk_file_info(f))
                         for f in self._checkmk_files_map[FILE_MAP_CONFIG.file_type]
@@ -576,7 +576,7 @@ class ModeDiagnostics(WatoMode[object]):
             (
                 OPT_COMP_HOSTS_AND_FOLDERS,
                 Dictionary(
-                    title=_("Hosts and Folders"),
+                    title=_("Hosts and folders"),
                     help=_(
                         "Configuration files ('*.mk' or '*.conf') from etc/check_mk.%(_CHECKMK_FILES_NOTE)s"
                     )

@@ -691,7 +691,7 @@ class ModeBulkImport(WatoMode):
                         allowed_extensions=[".csv"],
                         mime_types=["text/csv"],
                         title=_("Import hosts"),
-                        file_title=_("CSV File"),
+                        file_title=_("CSV file"),
                     ),
                 ),
                 (
@@ -811,6 +811,6 @@ class ModeBulkImport(WatoMode):
                 ),
             ],
             render="form",
-            title=_("File Parsing Settings"),
+            title=_("File parsing settings"),
             default_keys=["has_title_line"],
         )

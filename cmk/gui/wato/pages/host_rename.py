@@ -347,7 +347,7 @@ class ModeBulkRenameHost(WatoMode):
                 (
                     "recurse",
                     Checkbox(
-                        title=_("Folder Selection"),
+                        title=_("Folder selection"),
                         label=_("Include all subfolders"),
                         default_value=True,
                     ),
@@ -366,7 +366,7 @@ class ModeBulkRenameHost(WatoMode):
                     "renamings",
                     ListOf(
                         valuespec=self._vs_host_renaming(),
-                        title=_("Renaming Operations"),
+                        title=_("Renaming operations"),
                         add_label=_("Add renaming"),
                         allow_empty=False,
                     ),

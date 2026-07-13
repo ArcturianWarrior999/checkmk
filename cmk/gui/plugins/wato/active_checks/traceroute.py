@@ -57,7 +57,7 @@ def _valuespec_active_checks_traceroute() -> Dictionary:
                         ]
                     ),
                     title=_("Router that must or must not be used"),
-                    add_label=_("Add Condition"),
+                    add_label=_("Add condition"),
                 ),
             ),
             (

@@ -20,7 +20,7 @@ def _parameter_valuespec_checkpoint_packets() -> Dictionary:
             (
                 "accepted",
                 Levels(
-                    title=_("Maximum Rate of Accepted Packets"),
+                    title=_("Maximum rate of accepted packets"),
                     default_value=None,
                     default_levels=(100000, 200000),
                     unit="pkts/sec",
@@ -29,7 +29,7 @@ def _parameter_valuespec_checkpoint_packets() -> Dictionary:
             (
                 "rejected",
                 Levels(
-                    title=_("Maximum Rate of Rejected Packets"),
+                    title=_("Maximum rate of rejected packets"),
                     default_value=None,
                     default_levels=(100000, 200000),
                     unit="pkts/sec",
@@ -38,7 +38,7 @@ def _parameter_valuespec_checkpoint_packets() -> Dictionary:
             (
                 "dropped",
                 Levels(
-                    title=_("Maximum Rate of Dropped Packets"),
+                    title=_("Maximum rate of dropped packets"),
                     default_value=None,
                     default_levels=(100000, 200000),
                     unit="pkts/sec",
@@ -80,7 +80,7 @@ rulespec_registry.register(
         check_group_name="checkpoint_packets",
         group=RulespecGroupCheckParametersNetworking,
         parameter_valuespec=_parameter_valuespec_checkpoint_packets,
-        title=lambda: _("Check Point firewall packet rates"),
+        title=lambda: _("Check point firewall packet rates"),
     )
 )
 
@@ -143,6 +143,6 @@ rulespec_registry.register(
             allow_empty=True,
         ),
         parameter_valuespec=_parameter_valuespec_checkpoint_tunnels,
-        title=lambda: _("Check Point tunnel status"),
+        title=lambda: _("Check point tunnel status"),
     )
 )

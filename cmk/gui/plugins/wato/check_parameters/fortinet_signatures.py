@@ -59,6 +59,6 @@ rulespec_registry.register(
         group=RulespecGroupCheckParametersNetworking,
         match_type="dict",
         parameter_valuespec=_parameter_valuespec_fortinet_signatures,
-        title=lambda: _("Fortigate Signatures"),
+        title=lambda: _("FortiGate signatures"),
     )
 )

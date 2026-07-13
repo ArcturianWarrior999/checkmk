@@ -356,11 +356,11 @@ class ACTestLivestatusSecured(ACTest):
 
     def help(self) -> str:
         return _(
-            "<p>In distributed setups Livestatus is used to transport the status information "
-            "gathered in one site to the central site. Since Checkmk 1.6 it is natively "
+            "<p>In distributed setups, Livestatus is used to transport the status information "
+            "gathered in one site to the central site. Since Checkmk 1.6, it is natively "
             "possible and highly recommended to encrypt this Livestatus traffic.</p> "
             "<p>This can be enabled using the global setting "
-            '<a href="wato.py?mode=edit_configvar&varname=site_livestatus_tcp">Access to Livestatus via TCP</a>. Before enabling this you should ensure that all your Livestatus clients '
+            '<a href="wato.py?mode=edit_configvar&varname=site_livestatus_tcp">Access to Livestatus via TCP</a>. Before enabling this, you should ensure that all your Livestatus clients '
             "are able to handle the SSL encrypted Livestatus communication. Have a look at "
             '<a href="werk.py?werk=7017">Werk #7017</a> for further information.</p>'
         )
@@ -1501,7 +1501,7 @@ class ACTestDeprecatedCheckManpages(ACTest):
                     version=__version__,
                     deprecated_version="2.3.0",
                     removed_version="2.4.0",
-                    title_entity=_("Check man page"),
+                    title_entity=_("Check manual page"),
                     title_api=_("legacy"),
                     site_id=site_id,
                     path=plugin_filepath,
@@ -1823,7 +1823,7 @@ class ACTestCheckMKCheckerNumber(ACTest):
             yield ACSingleResult(
                 state=ACResultState.WARN,
                 text=_(
-                    "Configuring more checkers than the number of available CPUs (%(num_cpu)d) have "
+                    "Configuring more checkers than the number of available CPUs (%(num_cpu)d) has "
                     "a detrimental effect, since they are not I/O bound."
                 )
                 % {"num_cpu": num_cpu},
