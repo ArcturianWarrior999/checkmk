@@ -1,0 +1,86 @@
+/**
+ * Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+ * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+ * conditions defined in the file COPYING, which is part of this source code package.
+ */
+import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
+
+import { fromApiAst } from './calculation/formula/convert'
+import type { Formula } from './calculation/formula/grammar'
+
+/** Default `title` for every new item. */
+export const DEFAULT_TITLE_MACRO = '$DEFAULT_TITLE$'
+
+/** Spreadsheet-style identifier: 'A'..'Z','AA','AB',... — unique across all items. */
+export type ItemId = string
+
+// Item shapes are the REST API data-source schemas.
+export type RRDMetricItem = components['schemas']['CustomGraphRRDMetricDataSource']
+export type RRDQueryItem = components['schemas']['CustomGraphRRDQueryDataSource']
+export type MetricBackendItem = components['schemas']['CustomGraphMetricBackendDataSource']
+export type ConstantItem = components['schemas']['CustomGraphConstantDataSource']
+export type ScalarItem = components['schemas']['CustomGraphScalarDataSource']
+/**
+ * The API schema with `ast` swapped for the parser's `Formula` — same shape, but with
+ * non-empty function operands and the `ArithmeticNode` subset. Assignable to the API
+ * type (writes pass through, see `toApiAst`); reads narrow via `fromApiAst`.
+ */
+export type FormulaItem = Omit<components['schemas']['CustomGraphRRDFormulaDataSource'], 'ast'> & {
+  ast: Formula
+}
+
+export type GraphItem =
+  | RRDMetricItem
+  | RRDQueryItem
+  | MetricBackendItem
+  | ConstantItem
+  | ScalarItem
+  | FormulaItem
+
+/** The `type` discriminant of every item kind (API spelling: `rrd_metric`, `rrd_formula`, …). */
+export type ItemType = GraphItem['type']
+
+/** How a line is drawn (API spelling: `stack`, not the former `stacked`). */
+export type LineType = RRDMetricItem['line_type']
+
+/** The tab a type belongs to. Drives list filtering and the "cannot mix" rule. */
+export type Domain = 'rrd' | 'metric_backend'
+
+/** The single source for which item kinds produce N lines instead of one. */
+const MULTI_LINE_TYPES = ['rrd_query', 'metric_backend'] as const
+type MultiLineType = (typeof MULTI_LINE_TYPES)[number]
+
+/** Items that produce exactly one line and therefore carry a `color`. */
+export type SingleLineItem = Exclude<GraphItem, { type: MultiLineType }>
+
+export type FormulaDraft = { type: 'rrd_formula'; ast: Formula; title: string; color: string }
+
+/** What an editor's commit produces: the AST, or the messages explaining why it cannot. */
+export type CommitResult = { ast: Formula } | { errors: string[] }
+
+export function domainOf(type: ItemType): Domain {
+  return type === 'metric_backend' ? 'metric_backend' : 'rrd'
+}
+
+/** Dynamic items (RRD queries) yield N series and must be consolidated before use in a formula. */
+export function isDynamic(type: ItemType): boolean {
+  return type === 'rrd_query'
+}
+
+/** Narrows to formula items. */
+export function isFormula(item: GraphItem): item is FormulaItem {
+  return item.type === 'rrd_formula'
+}
+
+/** Narrows to items that produce exactly one line. */
+export function isSingleLine(item: GraphItem): item is SingleLineItem {
+  return !MULTI_LINE_TYPES.some((type) => type === item.type)
+}
+
+/** A data source as the REST API types it. */
+export type ApiDataSource = components['schemas']['CustomGraphDefinition']['data_sources'][number]
+
+/** Converts a wire-format data source to a designer item; throws on an invalid formula ast. */
+export function fromApiDataSource(source: ApiDataSource): GraphItem {
+  return source.type === 'rrd_formula' ? { ...source, ast: fromApiAst(source.ast) } : source
+}
