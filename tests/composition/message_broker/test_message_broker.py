@@ -47,6 +47,7 @@ def pong_received_message(stdout: IO[str], wait_for: int) -> bool:
 class TestCMKBrokerTest:
     """Make sure our cmk-broker-test tool works"""
 
+    @pytest.mark.medium_test_chain
     def test_ping_ok(self, central_site: Site) -> None:
         """Test if we can ping ourselves"""
         with rabbitmq_info_on_failure([central_site]):
@@ -82,9 +83,9 @@ def _next_free_port(site: Site, key: str, port: str) -> int:
     return int(site.run(["lib/omd/next_free_port", key, port]).stdout.strip())
 
 
-@pytest.mark.medium_test_chain
 @pytest.mark.skip_if_edition("cloud")
 class TestMessageBroker:
+    @pytest.mark.medium_test_chain
     def test_message_broker_central_remote(self, central_site: Site, remote_site: Site) -> None:
         """Test if the connection between central and remote site works"""
         with rabbitmq_info_on_failure([central_site, remote_site]):
@@ -247,7 +248,6 @@ def _broker_users(site: Site) -> set[str]:
 
 @pytest.mark.skip_if_edition("cloud")
 class TestRemoteLocalActivationBrokerSafety:
-    @pytest.mark.medium_test_chain
     def test_local_activation_on_remote_keeps_central_broker_user(
         self, central_site: Site, remote_site: Site
     ) -> None:
