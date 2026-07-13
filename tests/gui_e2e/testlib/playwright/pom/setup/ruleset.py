@@ -31,6 +31,7 @@ class Ruleset(CmkPage):
         navigate_to_page: bool = True,
     ) -> None:
         self.rule_name = rule_name
+        self._escaped_rule_name = re.escape(rule_name).replace("/", r"\/")
         self.section_name = section_name
         self._exact = exact_rule
         super().__init__(page, navigate_to_page)
@@ -51,7 +52,7 @@ class Ruleset(CmkPage):
         else:
             results = popup.get_by_role(role="listitem")
 
-        rule_pattern = re.compile(f"{re.escape(self.rule_name)}$")
+        rule_pattern = re.compile(f"{self._escaped_rule_name}$")
         selection = results.get_by_role(role="link", name=rule_pattern, exact=self._exact)
 
         selection.click()
@@ -70,8 +71,7 @@ class Ruleset(CmkPage):
 
     @property
     def created_new_rule_message(self) -> Pattern[str]:
-        escaped = re.escape(self.rule_name)
-        return re.compile(f'Created new rule in rule set "{escaped}" .*')
+        return re.compile(f'Created new rule in rule set "{self._escaped_rule_name}" .*')
 
     @property
     def add_rule_button(self) -> Locator:
