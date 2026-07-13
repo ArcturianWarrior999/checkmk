@@ -67,11 +67,12 @@ class CombinedGraphsServiceSearch(CmkPage):
             raise exc
 
         timeranges_list = [
-            "The last 4 hours",
-            "The last 25 hours",
-            "The last 8 days",
-            "The last 35 days",
-            "The last 400 days",
+            "Last 1 h",
+            "Last 4 h",
+            "Last 25 h",
+            "Last 8 d",
+            "Last 35 d",
+            "Last 400 d",
         ]
         for timerange in timeranges_list:
             timerange_graph = self.timerange_graph(graph_title, timerange)

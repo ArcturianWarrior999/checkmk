@@ -401,11 +401,12 @@ class GeneralConfig:
 
     graph_timeranges: list[GraphTimerange] = field(
         default_factory=lambda: [
-            GraphTimerange(title="The last 4 hours", duration=4 * 60 * 60),
-            GraphTimerange(title="The last 25 hours", duration=25 * 60 * 60),
-            GraphTimerange(title="The last 8 days", duration=8 * 24 * 60 * 60),
-            GraphTimerange(title="The last 35 days", duration=35 * 24 * 60 * 60),
-            GraphTimerange(title="The last 400 days", duration=400 * 24 * 60 * 60),
+            GraphTimerange(title="Last 1 h", duration=60 * 60),
+            GraphTimerange(title="Last 4 h", duration=4 * 60 * 60),
+            GraphTimerange(title="Last 25 h", duration=25 * 60 * 60),
+            GraphTimerange(title="Last 8 d", duration=8 * 24 * 60 * 60),
+            GraphTimerange(title="Last 35 d", duration=35 * 24 * 60 * 60),
+            GraphTimerange(title="Last 400 d", duration=400 * 24 * 60 * 60),
         ]
     )
 

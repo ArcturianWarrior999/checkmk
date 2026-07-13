@@ -36,6 +36,8 @@ def _valuespec(context: GlobalSettingsContext) -> ListOf[dict[str, object]]:
         # astrein: disable=localization-named-placeholder
         totext=_("%d time ranges"),
         default_value=[dict(graph_range) for graph_range in context.configured_graph_timeranges],
+        allow_empty=False,
+        empty_text=_("Please specify at least one graph time range."),
     )
 
 
