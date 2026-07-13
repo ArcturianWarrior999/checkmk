@@ -24,12 +24,12 @@ from cmk.gui.dashboard.type_defs import (
 )
 from cmk.gui.openapi.framework.model import api_field, api_model, ApiOmitted
 from cmk.gui.openapi.framework.model.common_fields import (
+    ColorHex,
     timerange_from_internal,
     TimerangeModel,
 )
 from cmk.gui.type_defs import GraphPresentation, GraphRenderOptionsVS, SizePT
 
-from ..type_defs import ColorHex
 from ._base import BaseWidgetContent
 
 

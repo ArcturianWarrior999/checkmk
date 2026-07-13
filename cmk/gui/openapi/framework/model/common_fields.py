@@ -14,6 +14,7 @@ from typing import Annotated, ClassVar, Literal, overload, override, Self
 from annotated_types import Ge
 from pydantic import (
     Discriminator,
+    Field,
     GetCoreSchemaHandler,
     GetJsonSchemaHandler,
     model_validator,
@@ -43,6 +44,9 @@ type AnnotatedHostName = Annotated[
     TypedPlainValidator(str, HostName.parse),
     PlainSerializer(str, return_type=str),
 ]
+
+# without alpha channel, either 3 or 6 hex digits
+type ColorHex = Annotated[str, Field(pattern=r"^#(?:[0-9A-Fa-f]{3}){1,2}$")]
 
 
 class BinaryBase64(bytes):
