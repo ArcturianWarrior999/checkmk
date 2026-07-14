@@ -102,7 +102,7 @@ const filterState = ref<ColumnFiltersState>([])
 const columns = computed<ColumnDef<DemoRow>[]>(() => [
   {
     id: 'cell',
-    header: 'Modes',
+    header: 'Mode',
     minSize: propState.value.minWidth,
     maxSize: propState.value.maxWidth,
     meta: { justify: justify.value }

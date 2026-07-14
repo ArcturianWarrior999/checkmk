@@ -163,7 +163,7 @@ const columns: ColumnDef<HostEntry>[] = [
   },
   {
     accessorKey: 'modes',
-    header: _t('Modes'),
+    header: _t('Mode'),
     enableSorting: false,
     minSize: 80,
     maxSize: 120,
