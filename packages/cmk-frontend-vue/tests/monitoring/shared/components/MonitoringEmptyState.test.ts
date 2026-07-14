@@ -35,16 +35,16 @@ test('shows the search-specific message and hint when a search query is set', ()
   renderEmptyState(makeServiceStub('nonexistent-host'))
 
   expect(screen.getByText('No results found for your search.')).toBeInTheDocument()
-  expect(screen.getByText('Check for typing errors or try a broader term.')).toBeInTheDocument()
+  expect(
+    screen.getByText('Check for typing errors, try using wildcards or a broader term.')
+  ).toBeInTheDocument()
 })
 
-test('shows the filter-specific message and no hint when only a filter is active', () => {
+test('shows the filter-specific message and hint when only a filter is active', () => {
   renderEmptyState(makeServiceStub('', 1))
 
   expect(screen.getByText('No results found for your active filters.')).toBeInTheDocument()
-  expect(
-    screen.queryByText('Check for typing errors or try a broader term.')
-  ).not.toBeInTheDocument()
+  expect(screen.getByText('Remove one or more filters to widen the result.')).toBeInTheDocument()
 })
 
 test('shows the combined message and hint when both a filter and a search are active', () => {
