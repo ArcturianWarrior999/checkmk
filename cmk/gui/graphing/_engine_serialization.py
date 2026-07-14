@@ -71,29 +71,29 @@ def _as_number(value: object) -> int | float:
 
 
 # Quantity is an open protocol spanning packages, and the engine must stay serialization-free, so the
-# codec is an external registry keyed by tag: it dispatches on each quantity's own type() forward and
-# on the serialized tag reverse. The engine layer registers its own quantities below; the pro layer
+# codec is an external registry keyed by kind: it dispatches on each quantity's own kind() forward and
+# on the serialized kind reverse. The engine layer registers its own quantities below; the pro layer
 # composes its aggregation quantities on top.
 
 
 @dataclass(frozen=True)
 class QuantitySpec:
-    tag: str
+    kind: str
     to_dict: Callable[[Quantity, QuantityCodec], Json]
     from_dict: Callable[[Mapping[str, object], QuantityCodec], Quantity]
 
 
 class QuantityCodec:
     def __init__(self, specs: Sequence[QuantitySpec]) -> None:
-        self._by_tag = {spec.tag: spec for spec in specs}
+        self._by_kind = {spec.kind: spec for spec in specs}
 
     def serialize(self, quantity: Quantity) -> Json:
-        tag = quantity.type()
-        return {"type": tag, **self._by_tag[tag].to_dict(quantity, self)}
+        kind = quantity.kind()
+        return {"kind": kind, **self._by_kind[kind].to_dict(quantity, self)}
 
     def deserialize(self, data: object) -> Quantity:
         data = _as_mapping(data)
-        return self._by_tag[ensure_type(data["type"], str)].from_dict(data, self)
+        return self._by_kind[ensure_type(data["kind"], str)].from_dict(data, self)
 
 
 _NOTATIONS: Mapping[str, type] = {

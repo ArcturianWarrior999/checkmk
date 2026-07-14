@@ -55,7 +55,7 @@ class Negated:
 
     operand: Quantity
 
-    def type(self) -> str:
+    def kind(self) -> str:
         return "negated"
 
     def ident(self) -> str:
@@ -91,7 +91,7 @@ class _FanOut:
 
     labels: Sequence[str]
 
-    def type(self) -> str:
+    def kind(self) -> str:
         return "fan_out"
 
     def ident(self) -> str:
