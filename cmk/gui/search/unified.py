@@ -12,14 +12,14 @@ from cmk.shared_typing.unified_search import (
 )
 
 from .sorting import get_sorter
-from .type_defs import IndexedEngine, SearchEngine
+from .type_defs import SearchEngine
 
 
 class UnifiedSearch:
     def __init__(
         self,
         *,
-        indexed_engine: IndexedEngine,
+        indexed_engine: SearchEngine,
         monitoring_engine: SearchEngine,
     ) -> None:
         self._indexed_engine = indexed_engine
@@ -46,7 +46,9 @@ class UnifiedSearch:
                     self._indexed_engine.search(query, provider=ProviderName.customize)
                 )
             case ProviderName.monitoring:
-                monitoring_results.extend(self._monitoring_engine.search(query))
+                monitoring_results.extend(
+                    self._monitoring_engine.search(query, provider=ProviderName.monitoring)
+                )
             case _:
                 setup_results = list(
                     self._indexed_engine.search(query, provider=ProviderName.setup)
@@ -54,7 +56,9 @@ class UnifiedSearch:
                 customize_results = list(
                     self._indexed_engine.search(query, provider=ProviderName.customize)
                 )
-                monitoring_results.extend(self._monitoring_engine.search(query))
+                monitoring_results.extend(
+                    self._monitoring_engine.search(query, provider=ProviderName.monitoring)
+                )
 
         search_results = [*setup_results, *monitoring_results, *customize_results]
         get_sorter(sort_type, query)(search_results)

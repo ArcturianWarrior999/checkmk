@@ -20,7 +20,7 @@ class TestUnifiedSearch:
     def engine(self) -> UnifiedSearch:
         return UnifiedSearch(
             indexed_engine=_FakeIndexedEngine(),
-            monitoring_engine=_FakeEngine(ProviderName.monitoring),
+            monitoring_engine=_FakeMonitoringEngine(),
         )
 
     def test_match_with_all_providers(self, engine: UnifiedSearch) -> None:
@@ -49,12 +49,11 @@ class TestUnifiedSearch:
         assert value == expected
 
 
-class _FakeEngine:
-    def __init__(self, provider: ProviderName) -> None:
-        self._provider: ProviderName = provider
-        self._results = _generate_fake_result_items(self._provider)
+class _FakeMonitoringEngine:
+    def __init__(self) -> None:
+        self._results = _generate_fake_result_items(ProviderName.monitoring)
 
-    def search(self, query: str) -> list[UnifiedSearchResultItem]:
+    def search(self, query: str, *, provider: ProviderName) -> list[UnifiedSearchResultItem]:
         return [item for item in self._results if query in item.title]
 
 

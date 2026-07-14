@@ -12,10 +12,6 @@ type VisibilityCheck = Callable[[str], bool]
 
 
 class SearchEngine(Protocol):
-    def search(self, query: str) -> Iterable[UnifiedSearchResultItem]: ...
-
-
-class IndexedEngine(Protocol):
     def search(
         self,
         query: str,

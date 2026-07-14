@@ -1396,12 +1396,12 @@ class MonitoringSearchEngine:
             config, permission_registry
         )
 
-    def search(self, query: str) -> Iterable[UnifiedSearchResultItem]:
+    def search(self, query: str, *, provider: ProviderName) -> Iterable[UnifiedSearchResultItem]:
         if self._is_invalid_regex(query):
             return []
 
         return itertools.chain.from_iterable(
-            transform_legacy_results_to_unified(results, topic, provider=ProviderName.monitoring)
+            transform_legacy_results_to_unified(results, topic, provider=provider)
             for topic, results in self._legacy_engine.generate_results(
                 query, self._user_permissions
             )
