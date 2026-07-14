@@ -404,11 +404,17 @@ const slideInTabs = computed<SlideInTab[]>(() => {
 })
 
 function openSlideIn(host: HostEntry): void {
+  if (slideInHost.value === null) {
+    hostService.beginAutoPause()
+  }
   slideInActionId.value = null
   slideInHost.value = host
 }
 
 function closeSlideIn(): void {
+  if (slideInHost.value !== null) {
+    hostService.endAutoPause()
+  }
   slideInHost.value = null
   slideInActionId.value = null
 }
