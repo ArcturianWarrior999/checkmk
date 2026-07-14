@@ -12,7 +12,7 @@ import pytest
 import time_machine
 
 from cmk.agent_based.v2 import Result, Service, State, StringTable
-from cmk.legacy_checks import azure_ad
+from cmk.plugins.azure_deprecated.agent_based import azure_ad
 
 STRING_TABLE = [
     ["users_count", "2"],

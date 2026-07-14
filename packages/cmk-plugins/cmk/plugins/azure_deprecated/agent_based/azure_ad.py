@@ -25,7 +25,7 @@ from cmk.agent_based.v2 import (
     State,
     StringTable,
 )
-from cmk.plugins.azure.lib import AZURE_AGENT_SEPARATOR
+from cmk.plugins.azure_deprecated.agent_based.lib import AZURE_AGENT_SEPARATOR
 
 type Section = Mapping[str | None, Any]
 

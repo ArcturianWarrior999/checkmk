@@ -5,7 +5,7 @@
 
 
 from cmk.agent_based.v2 import Metric, Result, Service, State
-from cmk.legacy_checks import azure_ad
+from cmk.plugins.azure_deprecated.agent_based import azure_ad
 
 STRING_TABLE = [
     ["users_count", "2"],
