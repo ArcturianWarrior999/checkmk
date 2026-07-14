@@ -58,7 +58,14 @@ def register(
 ) -> None:
     snapin_registry.register(SidebarSnapinWATOMini)
     snapin_registry.register(SidebarSnapinWATOFoldertree)
-    match_item_generator_registry.register(MatchItemGeneratorSetup)
+    match_item_generator_registry.register(
+        MatchItemGeneratorMainMenu(
+            "setup",
+            provider="setup",
+            topic_generator=MainMenuSetup.get_topics,
+            topic=_("Setup"),
+        )
+    )
     main_menu_registry.register(MainMenuSetup)
 
 
@@ -147,14 +154,6 @@ MainMenuSetup = MainMenuItem(
     header=NavItemHeader(show_more=True),
     set_focus_on_element_by_id="unified-search-input-setup",
     hint=_l("Add and configure hosts and services"),
-)
-
-
-MatchItemGeneratorSetup = MatchItemGeneratorMainMenu(
-    "setup",
-    provider="setup",
-    topic_generator=MainMenuSetup.get_topics,
-    topic=_("Setup"),
 )
 
 
