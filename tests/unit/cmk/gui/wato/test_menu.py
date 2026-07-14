@@ -6,9 +6,10 @@
 
 import pytest
 
+from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
 from cmk.gui.search import MatchItem
 from cmk.gui.utils.roles import UserPermissions
-from cmk.gui.wato._snapins import get_wato_menu_items, MatchItemGeneratorSetupMenu
+from cmk.gui.wato._snapins import get_wato_menu_items
 from cmk.shared_typing.main_menu import NavItemTopic, NavItemTopicEntry
 
 
@@ -106,9 +107,10 @@ def test_unique_wato_menu_item_titels() -> None:
 
 def test_match_item_generator_setup_menu() -> None:
     assert list(
-        MatchItemGeneratorSetupMenu(
+        MatchItemGeneratorMainMenu(
             "setup",
-            lambda p: [
+            provider="setup",
+            topic_generator=lambda p: [
                 NavItemTopic(
                     id="topic",
                     title="Topic",
@@ -119,6 +121,7 @@ def test_match_item_generator_setup_menu() -> None:
                     sort_index=0,
                 )
             ],
+            topic="Setup",
         ).generate_match_items(UserPermissions({}, {}, {}, []))
     ) == [
         MatchItem(title="Item 1", topic="Setup", url="url 1", match_texts=["item 1"]),

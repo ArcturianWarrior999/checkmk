@@ -26,7 +26,7 @@ from __future__ import annotations
 import abc
 import copy
 import json
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import suppress
 from dataclasses import dataclass, replace
 from typing import Literal, override, Self
@@ -80,7 +80,6 @@ from cmk.gui.permissions import (
     permission_registry,
     permission_section_registry,
 )
-from cmk.gui.search.match_items import ABCMatchItemGenerator, MatchItem, MatchItems
 from cmk.gui.table import init_rowselect, Table, table_element
 from cmk.gui.type_defs import (
     AnnotatedUserId,
@@ -96,7 +95,6 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_sites import get_configured_site_choices
 from cmk.gui.utils.flashed_messages import flash, get_flashed_messages
 from cmk.gui.utils.html import HTML
-from cmk.gui.utils.loading_transition import LoadingTransition
 from cmk.gui.utils.roles import is_user_with_publish_permissions, UserPermissions
 from cmk.gui.utils.selection_id import SelectionId
 from cmk.gui.utils.speaklater import LazyString
@@ -2583,43 +2581,6 @@ def _customize_menu_topics(user_permissions: UserPermissions) -> list[NavItemTop
         )
 
     return topics
-
-
-class MatchItemGeneratorCustomizeMenu(ABCMatchItemGenerator):
-    def __init__(
-        self,
-        name: str,
-        topic_generator: Callable[[UserPermissions], Iterable[NavItemTopic]],
-    ) -> None:
-        super().__init__(name, provider="customize")
-        self._topic_generator = topic_generator
-
-    def generate_match_items(self, user_permissions: UserPermissions) -> MatchItems:
-        yield from (
-            MatchItem(
-                title=main_menu_item.title,
-                topic=main_menu_topic.title,
-                url=main_menu_item.url,
-                match_texts=[
-                    main_menu_item.title,
-                    *(main_menu_item.main_menu_search_terms or []),
-                ],
-                loading_transition=LoadingTransition(main_menu_item.loading_transition)
-                if main_menu_item.loading_transition
-                else None,
-            )
-            for main_menu_topic in self._topic_generator(user_permissions)
-            for main_menu_item in get_main_menu_items_prefixed_by_segment(main_menu_topic)
-            if main_menu_item.url
-        )
-
-    @staticmethod
-    def is_affected_by_change(change_action_name: str) -> bool:
-        return False
-
-    @property
-    def is_localization_dependent(self) -> bool:
-        return True
 
 
 def hide_customize_menu() -> bool:

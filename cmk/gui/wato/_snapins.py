@@ -5,7 +5,6 @@
 
 # mypy: disable-error-code="redundant-expr"
 
-from collections.abc import Callable, Iterable
 from typing import TypedDict
 
 from cmk.gui import site_config, sites
@@ -21,14 +20,10 @@ from cmk.gui.main_menu import (
     get_main_menu_items_prefixed_by_segment,
     MainMenuRegistry,
 )
+from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
 from cmk.gui.main_menu_types import MainMenuItem
 from cmk.gui.permissions import permission_registry
-from cmk.gui.search import (
-    ABCMatchItemGenerator,
-    MatchItem,
-    MatchItemGeneratorRegistry,
-    MatchItems,
-)
+from cmk.gui.search import MatchItemGeneratorRegistry
 from cmk.gui.sidebar import (
     footnotelinks,
     make_main_menu,
@@ -44,7 +39,6 @@ from cmk.gui.views.store import get_permitted_views
 from cmk.gui.watolib.activate_changes import ActivateChanges
 from cmk.gui.watolib.hosts_and_folders import folder_tree, FolderTree
 from cmk.gui.watolib.main_menu import main_module_registry, MainModuleTopic
-from cmk.shared_typing.loading_transition import LoadingTransition
 from cmk.shared_typing.main_menu import (
     LoadingTransition as MainMenuLoadingTransition,
 )
@@ -156,46 +150,12 @@ MainMenuSetup = MainMenuItem(
 )
 
 
-class MatchItemGeneratorSetupMenu(ABCMatchItemGenerator):
-    def __init__(
-        self,
-        name: str,
-        topic_generator: Callable[[UserPermissions], Iterable[NavItemTopic]] | None,
-    ) -> None:
-        super().__init__(name, provider="setup")
-        self._topic_generator = topic_generator
-
-    def generate_match_items(self, user_permissions: UserPermissions) -> MatchItems:
-        yield from (
-            MatchItem(
-                title=main_menu_item.title,
-                topic=_("Setup"),
-                url=main_menu_item.url,
-                match_texts=[
-                    main_menu_item.title,
-                    *(main_menu_item.main_menu_search_terms or []),
-                ],
-                loading_transition=LoadingTransition(main_menu_item.loading_transition)
-                if main_menu_item.loading_transition
-                else None,
-            )
-            for main_menu_topic in (
-                self._topic_generator(user_permissions) if self._topic_generator else []
-            )
-            for main_menu_item in get_main_menu_items_prefixed_by_segment(main_menu_topic)
-            if main_menu_item.url
-        )
-
-    @staticmethod
-    def is_affected_by_change(_change_action_name: str) -> bool:
-        return False
-
-    @property
-    def is_localization_dependent(self) -> bool:
-        return True
-
-
-MatchItemGeneratorSetup = MatchItemGeneratorSetupMenu("setup", MainMenuSetup.get_topics)
+MatchItemGeneratorSetup = MatchItemGeneratorMainMenu(
+    "setup",
+    provider="setup",
+    topic_generator=MainMenuSetup.get_topics,
+    topic=_("Setup"),
+)
 
 
 class SidebarSnapinWATOMini(SidebarSnapin):

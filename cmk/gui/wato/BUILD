@@ -108,6 +108,7 @@ py_library(
         "//cmk/gui:customer",
         "//cmk/gui:deprecations",
         "//cmk/gui:html_toolkit",
+        "//cmk/gui:main_menu_match_items",
         "//cmk/gui:messaging",
         "//cmk/gui:ntop",
         "//cmk/gui:page_toolkit",

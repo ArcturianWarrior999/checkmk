@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.gui.main_menu import MainMenuRegistry
+from cmk.gui.main_menu_match_items import MatchItemGeneratorMainMenu
 from cmk.gui.openapi.framework.registry import VersionedEndpointRegistry
 from cmk.gui.openapi.restful_objects.endpoint_family import EndpointFamilyRegistry
 from cmk.gui.permissions import declare_dynamic_permissions
@@ -14,7 +15,6 @@ from ._core import (
     _load_pagetype_permissions,
     BuiltinPagetypeTopicRegistry,
     declare,
-    MatchItemGeneratorCustomizeMenu,
     PagetypeTopics,
 )
 from ._core import register as _register_core
@@ -30,7 +30,11 @@ def register(
 ) -> None:
     _register_core(main_menu_registry, builtin_pagetype_topic_registry)
     match_item_generator_registry.register(
-        MatchItemGeneratorCustomizeMenu("customize", _customize_menu_topics)
+        MatchItemGeneratorMainMenu(
+            "customize",
+            provider="customize",
+            topic_generator=_customize_menu_topics,
+        )
     )
     declare(PagetypeTopics)
     declare_dynamic_permissions(_load_pagetype_permissions)

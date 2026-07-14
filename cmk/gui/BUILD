@@ -232,6 +232,23 @@ py_library(
 )
 
 py_library(
+    name = "main_menu_match_items",
+    srcs = ["main_menu_match_items.py"],
+    imports = ["../.."],
+    visibility = [
+        "//cmk:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        ":page_toolkit",
+        "//cmk/gui/search:match_items",
+        "//cmk/gui/utils:loading_transition",
+        "//cmk/gui/utils:roles",
+        "//packages/cmk-shared-typing:cmk_shared_typing_py",
+    ],
+)
+
+py_library(
     name = "agent",
     srcs = [
         "agent_bakery.py",
