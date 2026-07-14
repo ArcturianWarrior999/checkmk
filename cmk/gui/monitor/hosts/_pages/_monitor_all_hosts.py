@@ -140,7 +140,7 @@ class MonitorAllHostsPage(Page):
                         url=makeuri_contextless(
                             ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"
                         ),
-                        title=_("Return to standard view"),
+                        title=_("Return to classic view"),
                     ),
                 )
             ),
