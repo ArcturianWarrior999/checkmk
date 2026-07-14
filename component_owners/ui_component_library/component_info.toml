@@ -1,0 +1,10 @@
+type = "Component"
+display_name = "UI Component Library"
+has_support_component = true
+members_required = 2
+product_managers = ["cedric.archenoul@checkmk.com"]
+description = """
+- The UI Component Library is a collection of feature-independent, reusable UI components.
+- Part of the Design System and changes need to be aligned with both Development and UX.
+- Live demo available at https://devdocs.lan.checkmk.net/ui-component-library/.
+"""
