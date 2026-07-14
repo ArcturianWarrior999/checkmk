@@ -3,14 +3,14 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from .engines.indexed import (
+from .engines.livestatus import IncorrectLabelInputError, LivestatusSearchEngine
+from .engines.redis import (
     IndexBuilder,
-    IndexedSearchEngine,
     IndexNotFoundException,
     IndexSearcher,
     PermissionsHandler,
+    RedisSearchEngine,
 )
-from .engines.monitoring import IncorrectLabelInputError, MonitoringSearchEngine
 from .match_items import ABCMatchItemGenerator as ABCMatchItemGenerator
 from .match_items import match_item_generator_registry as match_item_generator_registry
 from .match_items import MatchItem as MatchItem
@@ -25,12 +25,12 @@ __all__ = [
     "IndexBuilder",
     "IndexNotFoundException",
     "IndexSearcher",
-    "IndexedSearchEngine",
+    "LivestatusSearchEngine",
     "MatchItem",
     "MatchItemGeneratorRegistry",
     "MatchItems",
-    "MonitoringSearchEngine",
     "PermissionsHandler",
+    "RedisSearchEngine",
     "SearchPermissionsHandler",
     "UnifiedSearch",
     "match_item_generator_registry",

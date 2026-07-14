@@ -1376,7 +1376,7 @@ match_plugin_registry.register(MonitorMenuMatchPlugin())
 
 
 # TODO: rework monitoring search façade to return correct payload for unified search.
-class MonitoringSearchEngine:
+class LivestatusSearchEngine:
     def __init__(
         self,
         config: Config,

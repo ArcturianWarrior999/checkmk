@@ -24,13 +24,13 @@ from cmk.shared_typing.unified_search import (
 )
 
 from .collapsing import get_collapser
-from .engines.indexed import IndexedSearchEngine, PermissionsHandler
-from .engines.monitoring import MonitoringSearchEngine
+from .engines.livestatus import LivestatusSearchEngine
+from .engines.redis import PermissionsHandler, RedisSearchEngine
 from .unified import UnifiedSearch
 
 # Before making this something configurable, we want to first hardcode this setting to a reasonable
 # value and get feedback from users.
-_MONITORING_ENGINE_ROW_LIMIT: Final = 500
+_LIVESTATUS_ENGINE_ROW_LIMIT: Final = 500
 
 
 class PageUnifiedSearch(AjaxPage):
@@ -45,7 +45,7 @@ class PageUnifiedSearch(AjaxPage):
         collapser_disabled = self._parse_disabled_collapser(ctx.request)
 
         unified_search_engine = UnifiedSearch(
-            indexed_engine=IndexedSearchEngine(
+            redis_engine=RedisSearchEngine(
                 ctx.config,
                 {
                     ProviderName.setup: PermissionsHandler(self._edition, ctx.config, ctx.request),
@@ -54,10 +54,10 @@ class PageUnifiedSearch(AjaxPage):
                     ),
                 },
             ),
-            monitoring_engine=MonitoringSearchEngine(
+            livestatus_engine=LivestatusSearchEngine(
                 ctx.config,
                 ctx.request,
-                row_limit=_MONITORING_ENGINE_ROW_LIMIT,
+                row_limit=_LIVESTATUS_ENGINE_ROW_LIMIT,
             ),
         )
 
@@ -70,7 +70,7 @@ class PageUnifiedSearch(AjaxPage):
         collapse = get_collapser(provider=provider, disabled=collapser_disabled)
         search_results, search_count = collapse(result.results, result.counts)
         # NOTE: checking the original counts instead of the collapsed counts because the result
-        # limiting occurs inside the monitoring engine, not during post-processing.
+        # limiting occurs inside the livestatus engine, not during post-processing.
         messages = self._collect_api_response_messages(result.counts)
 
         return asdict(
@@ -101,13 +101,13 @@ class PageUnifiedSearch(AjaxPage):
         result_counts: UnifiedSearchResultCounts,
     ) -> Sequence[UnifiedSearchApiResponseMessage]:
         messages = []
-        if result_counts.monitoring == _MONITORING_ENGINE_ROW_LIMIT:
+        if result_counts.monitoring == _LIVESTATUS_ENGINE_ROW_LIMIT:
             messages.append(
                 UnifiedSearchApiResponseMessage(
                     header=_(
-                        "Display limit of %(_MONITORING_ENGINE_ROW_LIMIT)d monitoring results reached."
+                        "Display limit of %(_LIVESTATUS_ENGINE_ROW_LIMIT)d monitoring results reached."
                     )
-                    % {"_MONITORING_ENGINE_ROW_LIMIT": _MONITORING_ENGINE_ROW_LIMIT},
+                    % {"_LIVESTATUS_ENGINE_ROW_LIMIT": _LIVESTATUS_ENGINE_ROW_LIMIT},
                     detail=_("Refine your search or press Enter for host/service search."),
                     message_variant=MessageVariant.info,
                 )

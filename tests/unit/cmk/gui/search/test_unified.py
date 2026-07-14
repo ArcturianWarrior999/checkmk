@@ -19,8 +19,8 @@ class TestUnifiedSearch:
     @pytest.fixture(scope="class")
     def engine(self) -> UnifiedSearch:
         return UnifiedSearch(
-            indexed_engine=_FakeIndexedEngine(),
-            monitoring_engine=_FakeMonitoringEngine(),
+            redis_engine=_FakeRedisEngine(),
+            livestatus_engine=_FakeLivestatusEngine(),
         )
 
     def test_match_with_all_providers(self, engine: UnifiedSearch) -> None:
@@ -49,7 +49,7 @@ class TestUnifiedSearch:
         assert value == expected
 
 
-class _FakeMonitoringEngine:
+class _FakeLivestatusEngine:
     def __init__(self) -> None:
         self._results = _generate_fake_result_items(ProviderName.monitoring)
 
@@ -57,7 +57,7 @@ class _FakeMonitoringEngine:
         return [item for item in self._results if query in item.title]
 
 
-class _FakeIndexedEngine:
+class _FakeRedisEngine:
     def __init__(self) -> None:
         self._results = [
             *_generate_fake_result_items(ProviderName.setup),

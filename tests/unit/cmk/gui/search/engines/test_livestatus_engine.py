@@ -5,7 +5,7 @@
 
 import pytest
 
-from cmk.gui.search.engines.monitoring import (
+from cmk.gui.search.engines.livestatus import (
     FilterBehaviour,
     GroupMatchPlugin,
     HostMatchPlugin,

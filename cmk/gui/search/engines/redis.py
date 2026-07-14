@@ -661,7 +661,7 @@ class SearchIndexBackgroundJob(BackgroundJob):
         super().__init__(self.job_prefix)
 
 
-class IndexedSearchEngine:
+class RedisSearchEngine:
     def __init__(
         self,
         config: Config,

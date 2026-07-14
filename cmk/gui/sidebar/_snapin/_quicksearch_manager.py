@@ -9,7 +9,7 @@ from collections.abc import Iterable
 
 from cmk.ccc.exceptions import MKException
 from cmk.gui.i18n import _
-from cmk.gui.search.engines.monitoring import (
+from cmk.gui.search.engines.livestatus import (
     ABCLivestatusMatchPlugin,
     ABCQuicksearchConductor,
     BasicPluginQuicksearchConductor,

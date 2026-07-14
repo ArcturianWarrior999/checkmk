@@ -19,11 +19,11 @@ class UnifiedSearch:
     def __init__(
         self,
         *,
-        indexed_engine: SearchEngine,
-        monitoring_engine: SearchEngine,
+        redis_engine: SearchEngine,
+        livestatus_engine: SearchEngine,
     ) -> None:
-        self._indexed_engine = indexed_engine
-        self._monitoring_engine = monitoring_engine
+        self._redis_engine = redis_engine
+        self._livestatus_engine = livestatus_engine
 
     def search(
         self,
@@ -38,26 +38,22 @@ class UnifiedSearch:
 
         match provider:
             case ProviderName.setup:
-                setup_results = list(
-                    self._indexed_engine.search(query, provider=ProviderName.setup)
-                )
+                setup_results = list(self._redis_engine.search(query, provider=ProviderName.setup))
             case ProviderName.customize:
                 customize_results = list(
-                    self._indexed_engine.search(query, provider=ProviderName.customize)
+                    self._redis_engine.search(query, provider=ProviderName.customize)
                 )
             case ProviderName.monitoring:
                 monitoring_results.extend(
-                    self._monitoring_engine.search(query, provider=ProviderName.monitoring)
+                    self._livestatus_engine.search(query, provider=ProviderName.monitoring)
                 )
             case _:
-                setup_results = list(
-                    self._indexed_engine.search(query, provider=ProviderName.setup)
-                )
+                setup_results = list(self._redis_engine.search(query, provider=ProviderName.setup))
                 customize_results = list(
-                    self._indexed_engine.search(query, provider=ProviderName.customize)
+                    self._redis_engine.search(query, provider=ProviderName.customize)
                 )
                 monitoring_results.extend(
-                    self._monitoring_engine.search(query, provider=ProviderName.monitoring)
+                    self._livestatus_engine.search(query, provider=ProviderName.monitoring)
                 )
 
         search_results = [*setup_results, *monitoring_results, *customize_results]
