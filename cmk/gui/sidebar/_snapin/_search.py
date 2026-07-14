@@ -20,7 +20,6 @@ from cmk.gui.search.engines.monitoring import (
     ABCQuicksearchConductor,
     get_url_builder,
     IncorrectLabelInputError,
-    TooManyRowsError,
 )
 from cmk.gui.type_defs import (
     IconNames,
@@ -31,7 +30,7 @@ from cmk.gui.type_defs import (
 from cmk.gui.utils.roles import UserPermissions
 
 from ._base import PageHandlers, SidebarSnapin
-from ._quicksearch_manager import SnapinQuicksearchManager
+from ._quicksearch_manager import SnapinQuicksearchManager, TooManyRowsError
 
 
 def _maybe_strip(param: str | None) -> str | None:

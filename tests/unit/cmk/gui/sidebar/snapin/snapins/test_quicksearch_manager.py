@@ -5,12 +5,8 @@
 
 import pytest
 
-from cmk.gui.search.engines.monitoring import (
-    ABCQuicksearchConductor,
-    FilterBehaviour,
-    TooManyRowsError,
-)
-from cmk.gui.sidebar._snapin._quicksearch_manager import SnapinQuicksearchManager
+from cmk.gui.search.engines.monitoring import ABCQuicksearchConductor, FilterBehaviour
+from cmk.gui.sidebar._snapin._quicksearch_manager import SnapinQuicksearchManager, TooManyRowsError
 from cmk.gui.type_defs import HTTPVariables, SearchResult
 
 

@@ -7,6 +7,7 @@ import contextlib
 import re
 from collections.abc import Iterable
 
+from cmk.ccc.exceptions import MKException
 from cmk.gui.i18n import _
 from cmk.gui.search.engines.monitoring import (
     ABCLivestatusMatchPlugin,
@@ -16,12 +17,15 @@ from cmk.gui.search.engines.monitoring import (
     LivestatusQuicksearchConductor,
     match_plugin_registry,
     sanitize_and_validate_regex,
-    TooManyRowsError,
     UrlBuilder,
     UsedFilters,
 )
 from cmk.gui.type_defs import HTTPVariables, SearchQuery, SearchResultsByTopic
 from cmk.gui.utils.roles import UserPermissions
+
+
+class TooManyRowsError(MKException):
+    pass
 
 
 class SnapinQuicksearchManager:

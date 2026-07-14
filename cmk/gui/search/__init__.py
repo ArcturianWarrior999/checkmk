@@ -10,13 +10,7 @@ from .engines.indexed import (
     IndexSearcher,
     PermissionsHandler,
 )
-from .engines.monitoring import (
-    ABCQuicksearchConductor,
-    IncorrectLabelInputError,
-    MonitoringSearchEngine,
-    QuicksearchManager,
-    TooManyRowsError,
-)
+from .engines.monitoring import IncorrectLabelInputError, MonitoringSearchEngine
 from .match_items import ABCMatchItemGenerator as ABCMatchItemGenerator
 from .match_items import match_item_generator_registry as match_item_generator_registry
 from .match_items import MatchItem as MatchItem
@@ -27,7 +21,6 @@ from .unified import UnifiedSearch
 
 __all__ = [
     "ABCMatchItemGenerator",
-    "ABCQuicksearchConductor",
     "IncorrectLabelInputError",
     "IndexBuilder",
     "IndexNotFoundException",
@@ -38,9 +31,7 @@ __all__ = [
     "MatchItems",
     "MonitoringSearchEngine",
     "PermissionsHandler",
-    "QuicksearchManager",
     "SearchPermissionsHandler",
-    "TooManyRowsError",
     "UnifiedSearch",
     "match_item_generator_registry",
 ]

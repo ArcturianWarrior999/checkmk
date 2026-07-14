@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import abc
-import contextlib
 import itertools
 import re
 from collections.abc import Iterable
@@ -13,7 +12,7 @@ from enum import Enum, unique
 from typing import override, Protocol
 
 import cmk.ccc.plugin_registry
-from cmk.ccc.exceptions import MKException, MKGeneralException
+from cmk.ccc.exceptions import MKGeneralException
 from cmk.gui import sites
 from cmk.gui.config import active_config, Config
 from cmk.gui.exceptions import MKUserError
@@ -90,10 +89,6 @@ def sanitize_and_validate_regex(query: str) -> str:
     sanitized = query.replace("*", ".*")
     validate_regex(sanitized, varname=None)
     return sanitized
-
-
-class TooManyRowsError(MKException):
-    pass
 
 
 class IncorrectLabelInputError(MKUserError):
@@ -548,12 +543,10 @@ class QuicksearchManager:
         row_limit: int,
         search_order: Iterable[tuple[str, str]],
         build_url: UrlBuilder,
-        raise_too_many_rows_error: bool,
     ) -> None:
         self._row_limit = row_limit
         self._search_order = search_order
         self._build_url = build_url
-        self.raise_too_many_rows_error = raise_too_many_rows_error
 
     def generate_results(
         self, query: SearchQuery, user_permissions: UserPermissions
@@ -561,37 +554,6 @@ class QuicksearchManager:
         search_objects = self._determine_search_objects(query, user_permissions)
         self._conduct_search(search_objects)
         return self._evaluate_results(search_objects)
-
-    def generate_search_url(self, query: SearchQuery, user_permissions: UserPermissions) -> str:
-        search_objects = self._determine_search_objects(query, user_permissions)
-
-        # Hitting enter on the search field to open the search in the
-        # page content area is currently only supported for livestatus
-        # search plugins
-        search_objects = [
-            s for s in search_objects if isinstance(s, LivestatusQuicksearchConductor)
-        ]
-
-        with contextlib.suppress(TooManyRowsError):
-            self._conduct_search(search_objects)
-
-        # Generate a search page for the topmost search_object with results
-        url_params: HTTPVariables = []
-        for search_object in search_objects:
-            if search_object.num_rows() > 0:
-                url_params.extend(search_object.get_search_url_params())
-                break
-        else:
-            url_params.extend(
-                [
-                    ("view_name", "allservices"),
-                    ("filled_in", "filter"),
-                    ("_show_filter_form", "0"),
-                    ("service_regex", query),
-                ]
-            )
-
-        return self._build_url(url_params)
 
     def _determine_search_objects(
         self, query: SearchQuery, user_permissions: UserPermissions
@@ -698,16 +660,6 @@ class QuicksearchManager:
 
             if total_rows > self._row_limit:
                 search_object.remove_rows_from_end(total_rows - self._row_limit)
-                if self.raise_too_many_rows_error:
-                    raise TooManyRowsError(
-                        _("More than %(count)d results") % {"count": self._row_limit}
-                    )
-
-            if search_object.row_limit_exceeded():
-                if self.raise_too_many_rows_error:
-                    raise TooManyRowsError(
-                        _("More than %(count)d results") % {"count": self._row_limit}
-                    )
 
             if (
                 search_object.num_rows() > 0
@@ -1439,7 +1391,6 @@ class MonitoringSearchEngine:
             # TODO: this probably shouldn't be tied to the same setting as quicksearch.
             search_order=search_order or config.quicksearch_search_order,
             build_url=get_url_builder(request),
-            raise_too_many_rows_error=False,
         )
         self._user_permissions = user_permissions or UserPermissions.from_config(
             config, permission_registry
