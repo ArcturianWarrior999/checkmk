@@ -152,13 +152,22 @@ const { panActive, panDx, panRulerTicks, panClipId, panCursor, panTickX, onPanMo
     onCommit: (timeRange) => emit('pan', { timeRange })
   })
 
+// Rebuilt lazily inside draw() (rather than via its own watch(props.metrics, ...)) so it can
+// never run stale relative to the time_range draw() is about to use: two independent
+// watchers on overlapping-but-different prop sets give no ordering guarantee between them,
+// and a m4Cache built against an old time_range but painted against a new one silently
+// truncates the drawn data partway through the (now wider) axis.
 let m4Cache: M4Cache[] = []
-let dataTimeRange = props.time_range
-function rebuildM4(): void {
-  dataTimeRange = props.time_range
-  m4Cache = props.metrics.map((metric) => m4(metric.data_points, dataTimeRange, M4_BUCKETS))
+let m4CacheMetrics: TimeSeriesGraphProps['metrics'] | null = null
+let m4CacheTimeRange: TimeRange | null = null
+function ensureM4Cache(): void {
+  if (m4CacheMetrics === props.metrics && m4CacheTimeRange === props.time_range) {
+    return
+  }
+  m4CacheMetrics = props.metrics
+  m4CacheTimeRange = props.time_range
+  m4Cache = props.metrics.map((metric) => m4(metric.data_points, props.time_range, M4_BUCKETS))
 }
-watch(() => props.metrics, rebuildM4, { immediate: true, deep: true })
 
 // HiDPI: bitmap sized in physical pixels (cssSize * dpr), CSS size in logical pixels, the
 // ctx transform keeps draw code in CSS-pixel coordinates regardless of DPR.
@@ -171,6 +180,8 @@ function draw(): void {
   if (!ctx) {
     return
   }
+
+  ensureM4Cache()
 
   const columnCount = Math.max(1, Math.floor(plotWidth.value))
   const visibleTimeRange: [number, number] = [props.time_range.start, props.time_range.end]
