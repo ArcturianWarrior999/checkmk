@@ -4653,6 +4653,19 @@ class MonitorHostsClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def action_menu(
+        self,
+        hostname: str,
+        site_id: str,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "get",
+            url=f"/monitor/hosts/{hostname}/action_menu",
+            query_params={"site_id": site_id},
+            expect_ok=expect_ok,
+        )
+
     def reschedule(
         self,
         hosts: list[dict[str, str]],

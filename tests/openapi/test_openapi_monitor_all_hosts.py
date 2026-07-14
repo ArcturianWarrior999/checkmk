@@ -284,6 +284,57 @@ class TestMonitorHostOverviewQueryParamValidation:
         assert resp.status_code == 400
 
 
+class TestMonitorHostActionMenuAuth:
+    def test_invalid_credentials(self, clients: ClientRegistry) -> None:
+        client = clients.MonitorHosts
+        client.set_credentials("foouser", "barpassword")
+
+        resp = client.action_menu(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 401
+        assert "credentials" in resp.json["detail"]
+
+    def test_insufficient_permissions(
+        self, clients: ClientRegistry, with_user: tuple[UserId, str]
+    ) -> None:
+        client = clients.MonitorHosts
+        client.set_credentials(*with_user)
+
+        resp = client.action_menu(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 403
+        assert "permission" in resp.json["detail"]
+
+
+class TestMonitorHostActionMenuQueryParamValidation:
+    def test_unknown_site_is_rejected(self, clients: ClientRegistry) -> None:
+        resp = clients.MonitorHosts.action_menu(
+            hostname="heute", site_id="no-such-site", expect_ok=False
+        )
+        assert resp.status_code == 400
+
+
+class TestMonitorHostActionMenu:
+    def test_missing_host_returns_404(
+        self,
+        clients: ClientRegistry,
+        mock_livestatus: MockLiveStatusConnection,
+    ) -> None:
+        mock_livestatus.add_table("hosts", [])
+        mock_livestatus.expect_query(
+            "GET hosts\nColumns: ...\nFilter: host_name = no-such-host\nColumnHeaders: off",
+            match_type="ellipsis",
+            sites=[_SITE_ID],
+        )
+
+        with mock_livestatus(expect_status_query=True):
+            resp = clients.MonitorHosts.action_menu(
+                hostname="no-such-host", site_id=_SITE_ID, expect_ok=False
+            )
+
+        assert resp.status_code == 404
+
+
 class TestMonitorHostOverview:
     @time_machine.travel("2026-07-13 11:39:00+00:00", tick=False)
     def test_get_host_overview(
