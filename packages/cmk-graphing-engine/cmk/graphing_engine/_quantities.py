@@ -57,10 +57,9 @@ class EvaluationContext:
 class EvaluatedQuantity:
     value: float | None
     time_series: TimeSeries
-    # Per-series display carried by a fan-out leaf's results: the label tells the fanned curves apart
-    # (folded into the title), and a non-empty color overrides the index-based distinct colour.
+    # Per-series label carried by a fan-out leaf's results: it tells the fanned curves apart, folded
+    # into the title.
     label: str = ""
-    color: str = ""
 
 
 class Quantity(Protocol):
