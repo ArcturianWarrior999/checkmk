@@ -28,10 +28,10 @@ import type { ValidationMessages } from '@/form'
 import { fetchSuggestions } from '@/form/private/FormAutocompleter/autocompleter'
 
 import FormAttributeFilter from './attribute-filter/FormAttributeFilter.vue'
-import type { AttributeFilterModel, AttributeType, Condition } from './attribute-filter/types'
+import type { AttributeFilterModel, AttributeKind, Condition } from './attribute-filter/types'
 import {
-  ATTRIBUTE_TYPE_ORDER,
-  type AttributeTypeKey,
+  ATTRIBUTE_KIND_ORDER,
+  type AttributeKindKey,
   KEY_IDENTS,
   type ThreeLists,
   VALUE_IDENTS,
@@ -67,13 +67,13 @@ const dataPointAttributes = defineModel<GraphLineQueryAttributes>('dataPointAttr
   default: []
 })
 
-const LOCATION_TO_TYPE: Record<string, AttributeTypeKey> = {
+const LOCATION_TO_KIND: Record<string, AttributeKindKey> = {
   resource_attributes: 'resource',
   scope_attributes: 'scope',
   data_point_attributes: 'datapoint'
 }
 
-const SECTION_TITLES: Record<AttributeTypeKey, TranslatedString> = {
+const SECTION_TITLES: Record<AttributeKindKey, TranslatedString> = {
   resource: _t('Resource'),
   scope: _t('Scope'),
   datapoint: _t('Data point')
@@ -91,17 +91,17 @@ const filterModel = ref<AttributeFilterModel>(
     () => randomId()
   )
 )
-// A key may be offered under more than one attribute type, so record the set of
-// types each suggested key belongs to (see `resolveAttributeType`).
-const keyTypeCache = new Map<string, Set<AttributeTypeKey>>()
+// A key may be offered under more than one attribute kind, so record the set of
+// kinds each suggested key belongs to (see `resolveAttributeKind`).
+const keyKindCache = new Map<string, Set<AttributeKindKey>>()
 const validationMessages = ref<string[]>([])
 
-function cacheKeyType(name: string, attributeType: AttributeTypeKey): void {
-  const types = keyTypeCache.get(name)
-  if (types) {
-    types.add(attributeType)
+function cacheKeyKind(name: string, attributeKind: AttributeKindKey): void {
+  const kinds = keyKindCache.get(name)
+  if (kinds) {
+    kinds.add(attributeKind)
   } else {
-    keyTypeCache.set(name, new Set([attributeType]))
+    keyKindCache.set(name, new Set([attributeKind]))
   }
 }
 
@@ -149,9 +149,9 @@ immediateWatch(
     const lists: ThreeLists = fromModel(filterModel.value)
     newValidation.forEach((message) => {
       validationMessages.value.push(message.message)
-      const attributeType = LOCATION_TO_TYPE[message.location[0] ?? '']
-      if (attributeType !== undefined) {
-        lists[attributeType] = message.replacement_value as GraphLineQueryAttributes
+      const attributeKind = LOCATION_TO_KIND[message.location[0] ?? '']
+      if (attributeKind !== undefined) {
+        lists[attributeKind] = message.replacement_value as GraphLineQueryAttributes
       }
     })
     filterModel.value = toModel(lists, () => randomId())
@@ -161,11 +161,11 @@ immediateWatch(
 async function querySuggestions(query: string): Promise<Response | ErrorResponse> {
   // The three key autocompleters are independent, so fetch them concurrently.
   const responses = await Promise.all(
-    ATTRIBUTE_TYPE_ORDER.map((attributeType) => {
+    ATTRIBUTE_KIND_ORDER.map((attributeKind) => {
       const autocompleter: Autocompleter = {
         fetch_method: 'rest_autocomplete',
         data: {
-          ident: KEY_IDENTS[attributeType],
+          ident: KEY_IDENTS[attributeKind],
           params: {
             context: buildAutocompleteContext(filterModel.value, {
               metricName: props.metricName,
@@ -178,7 +178,7 @@ async function querySuggestions(query: string): Promise<Response | ErrorResponse
     })
   )
   const sections: Section[] = []
-  ATTRIBUTE_TYPE_ORDER.forEach((attributeType, index) => {
+  ATTRIBUTE_KIND_ORDER.forEach((attributeKind, index) => {
     const response = responses[index]
     if (!response || response instanceof ErrorResponse) {
       return
@@ -192,11 +192,11 @@ async function querySuggestions(query: string): Promise<Response | ErrorResponse
     )
     for (const suggestion of suggestions) {
       if (suggestion.name) {
-        cacheKeyType(suggestion.name, attributeType)
+        cacheKeyKind(suggestion.name, attributeKind)
       }
     }
     if (suggestions.length > 0) {
-      sections.push({ title: SECTION_TITLES[attributeType], suggestions })
+      sections.push({ title: SECTION_TITLES[attributeKind], suggestions })
     }
   })
   const userEntry: Section[] = query
@@ -209,13 +209,13 @@ async function queryValueSuggestions(
   condition: Condition,
   query: string
 ): Promise<Response | ErrorResponse> {
-  if (condition.attributeType === null || !condition.key) {
+  if (condition.attributeKind === null || !condition.key) {
     return new Response([])
   }
   const autocompleter: Autocompleter = {
     fetch_method: 'rest_autocomplete',
     data: {
-      ident: VALUE_IDENTS[condition.attributeType],
+      ident: VALUE_IDENTS[condition.attributeKind],
       params: {
         context: buildAutocompleteContext(filterModel.value, {
           metricName: props.metricName,
@@ -237,11 +237,11 @@ async function queryValueSuggestions(
   )
 }
 
-function resolveAttributeType(key: string): AttributeType {
-  // A key offered under more than one attribute type is ambiguous: leave it
-  // unresolved so the attribute-type dropdown opens for the user to choose.
-  const types = keyTypeCache.get(key)
-  return types?.size === 1 ? [...types][0]! : null
+function resolveAttributeKind(key: string): AttributeKind {
+  // A key offered under more than one attribute kind is ambiguous: leave it
+  // unresolved so the attribute-kind dropdown opens for the user to choose.
+  const kinds = keyKindCache.get(key)
+  return kinds?.size === 1 ? [...kinds][0]! : null
 }
 
 function clearAttributeSelection(): void {
@@ -299,7 +299,7 @@ defineExpose({ clearAttributeSelection, hasInvalidAttributes, getValidationMessa
           :operators="['eq']"
           :query-suggestions="querySuggestions"
           :query-value-suggestions="queryValueSuggestions"
-          :resolve-attribute-type="resolveAttributeType"
+          :resolve-attribute-kind="resolveAttributeKind"
           :aria-label="_t('Attributes')"
         />
       </component>

@@ -13,7 +13,7 @@ import CmkDropdown from '@/components/CmkDropdown/CmkDropdown.vue'
 import type { QuerySuggestionsFn } from '@/components/CmkSuggestions/types'
 
 import InlineEditPill from '../InlineEditPill.vue'
-import { ATTRIBUTE_TYPE_LABELS, attributeTypePrefix, operatorPhrase, pillLabel } from './pill-label'
+import { ATTRIBUTE_KIND_LABELS, attributeKindPrefix, operatorPhrase, pillLabel } from './pill-label'
 import {
   EXISTENCE_OPERATORS,
   STRING_OPERATORS,
@@ -21,7 +21,7 @@ import {
   isOperator,
   operatorTakesValue
 } from './types'
-import type { AttributeType, Condition, Operator } from './types'
+import type { AttributeKind, Condition, Operator } from './types'
 
 const { _t } = usei18n()
 
@@ -52,7 +52,7 @@ const emit = defineEmits<{
   (e: 'edit'): void
   (e: 'done'): void
   (e: 'update:key', value: string): void
-  (e: 'update:attributeType', value: AttributeType): void
+  (e: 'update:attributeKind', value: AttributeKind): void
   (e: 'update:operator', value: Operator): void
   (e: 'update:value', value: string): void
 }>()
@@ -65,14 +65,14 @@ const valueOptions = computed(() => ({
   querySuggestions: (query: string) => props.queryValueSuggestions(props.condition, query)
 }))
 
-const attributeTypeEmpty = computed(() => props.condition.attributeType === null)
+const attributeKindEmpty = computed(() => props.condition.attributeKind === null)
 const keyEmpty = computed(() => !props.condition.key)
 const valueEmpty = computed(() => props.condition.value === '')
 
 const keyDropdownRef = useTemplateRef<InstanceType<typeof CmkDropdown>>('keyDropdownRef')
 const valueDropdownRef = useTemplateRef<InstanceType<typeof CmkDropdown>>('valueDropdownRef')
-const attributeTypeDropdownRef = useTemplateRef<InstanceType<typeof CmkDropdown>>(
-  'attributeTypeDropdownRef'
+const attributeKindDropdownRef = useTemplateRef<InstanceType<typeof CmkDropdown>>(
+  'attributeKindDropdownRef'
 )
 const pendingValueOpen = ref(false)
 
@@ -91,7 +91,7 @@ watch(
       if (!props.condition.key) {
         void nextTick(() => keyDropdownRef.value?.open())
       } else {
-        void nextTick(() => attributeTypeDropdownRef.value?.focus())
+        void nextTick(() => attributeKindDropdownRef.value?.focus())
       }
     } else {
       showValidationErrors.value = false
@@ -100,7 +100,7 @@ watch(
   { immediate: true }
 )
 
-const attributeTypeText = computed(() => attributeTypePrefix(props.condition.attributeType).trim())
+const attributeKindText = computed(() => attributeKindPrefix(props.condition.attributeKind).trim())
 const operatorText = computed(() => operatorPhrase(props.condition.operator))
 
 function onKeyUpdate(value: string | null): void {
@@ -143,14 +143,14 @@ watch(
   { flush: 'post' }
 )
 
-const attributeTypeInput = computed<string | null>({
-  get: () => props.condition.attributeType,
+const attributeKindInput = computed<string | null>({
+  get: () => props.condition.attributeKind,
   set: (value) => {
     const valid =
-      value !== null && Object.hasOwn(ATTRIBUTE_TYPE_LABELS, value)
-        ? (value as AttributeType)
+      value !== null && Object.hasOwn(ATTRIBUTE_KIND_LABELS, value)
+        ? (value as AttributeKind)
         : null
-    emit('update:attributeType', valid)
+    emit('update:attributeKind', valid)
   }
 })
 
@@ -161,8 +161,8 @@ watch(
       return
     }
     void nextTick(() => {
-      if (props.condition.attributeType === null) {
-        attributeTypeDropdownRef.value?.open()
+      if (props.condition.attributeKind === null) {
+        attributeKindDropdownRef.value?.open()
         return
       }
       if (showValue.value && props.condition.value === '') {
@@ -173,7 +173,7 @@ watch(
 )
 
 watch(
-  () => props.condition.attributeType,
+  () => props.condition.attributeKind,
   (next, prev) => {
     if (
       !props.editing ||
@@ -189,7 +189,7 @@ watch(
   }
 )
 
-const attributeTypeOptions = computed(() => ({
+const attributeKindOptions = computed(() => ({
   type: 'fixed' as const,
   suggestions: [
     { name: 'resource', title: _t('Resource') },
@@ -259,16 +259,16 @@ defineExpose({
       <span
         v-if="condition.key"
         data-af-item
-        class="metric-backend-attribute-filter-pill__segment metric-backend-attribute-filter-pill__segment--attribute-type"
+        class="metric-backend-attribute-filter-pill__segment metric-backend-attribute-filter-pill__segment--attribute-kind"
       >
         <CmkDropdown
-          ref="attributeTypeDropdownRef"
-          v-model="attributeTypeInput"
-          :options="attributeTypeOptions"
-          :input-hint="_t('Attribute type')"
-          :label="_t('Attribute type')"
+          ref="attributeKindDropdownRef"
+          v-model="attributeKindInput"
+          :options="attributeKindOptions"
+          :input-hint="_t('Attribute kind')"
+          :label="_t('Attribute kind')"
           :required="validationVisible"
-          :form-validation="validationVisible && attributeTypeEmpty"
+          :form-validation="validationVisible && attributeKindEmpty"
         />
       </span>
       <span
@@ -322,9 +322,9 @@ defineExpose({
     </template>
     <template #read-only>
       <span
-        v-if="attributeTypeText !== ''"
-        class="metric-backend-attribute-filter-pill__segment metric-backend-attribute-filter-pill__segment--attribute-type metric-backend-attribute-filter-pill__segment--dimmed"
-        >{{ attributeTypeText }}</span
+        v-if="attributeKindText !== ''"
+        class="metric-backend-attribute-filter-pill__segment metric-backend-attribute-filter-pill__segment--attribute-kind metric-backend-attribute-filter-pill__segment--dimmed"
+        >{{ attributeKindText }}</span
       >
       <span
         class="metric-backend-attribute-filter-pill__segment metric-backend-attribute-filter-pill__segment--key"

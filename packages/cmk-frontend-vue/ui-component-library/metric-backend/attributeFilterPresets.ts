@@ -22,7 +22,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'individual-1',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'service.name',
           operator: 'eq',
           value: 'frontend'
@@ -34,7 +34,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'individual-2',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
@@ -46,7 +46,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'individual-3',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'
@@ -60,21 +60,21 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'gx-g1-a',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'service.name',
           operator: 'eq',
           value: 'frontend'
         },
         {
           id: 'gx-g1-b',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
         },
         {
           id: 'gx-g1-c',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'
@@ -86,21 +86,21 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'gx-g2-a',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'service.name',
           operator: 'eq',
           value: 'checkout'
         },
         {
           id: 'gx-g2-b',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.method',
           operator: 'eq',
           value: 'POST'
         },
         {
           id: 'gx-g2-c',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.status_code',
           operator: 'eq',
           value: '500'
@@ -112,7 +112,7 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'gx-extra',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'host.name',
           operator: 'contains',
           value: 'prod'
@@ -126,35 +126,35 @@ export const filterPresets: Record<PresetName, AttributeFilterModel> = {
       conditions: [
         {
           id: 'single-1',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'service.name',
           operator: 'eq',
           value: 'frontend'
         },
         {
           id: 'single-2',
-          attributeType: 'resource',
+          attributeKind: 'resource',
           key: 'deployment.environment',
           operator: 'eq',
           value: 'production'
         },
         {
           id: 'single-3',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.method',
           operator: 'eq',
           value: 'GET'
         },
         {
           id: 'single-4',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.route',
           operator: 'starts_with',
           value: '/api'
         },
         {
           id: 'single-5',
-          attributeType: 'datapoint',
+          attributeKind: 'datapoint',
           key: 'http.status_code',
           operator: 'eq',
           value: '200'

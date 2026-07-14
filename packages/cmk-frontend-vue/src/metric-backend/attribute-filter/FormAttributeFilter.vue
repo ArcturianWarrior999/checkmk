@@ -19,7 +19,7 @@ import { handleArrowNav } from './focus-nav'
 import { isConditionValid, operatorTakesValue } from './types'
 import type {
   AttributeFilterModel,
-  AttributeType,
+  AttributeKind,
   Condition,
   ConditionGroup,
   Operator
@@ -33,12 +33,12 @@ const props = withDefaults(
   defineProps<{
     querySuggestions: QuerySuggestionsFn
     queryValueSuggestions: (condition: Condition, query: string) => ReturnType<QuerySuggestionsFn>
-    resolveAttributeType?: ((key: string) => AttributeType) | undefined
+    resolveAttributeKind?: ((key: string) => AttributeKind) | undefined
     operators?: Operator[] | undefined
     allowOr?: boolean
     ariaLabel?: string | undefined
   }>(),
-  { resolveAttributeType: undefined, operators: undefined, allowOr: true }
+  { resolveAttributeKind: undefined, operators: undefined, allowOr: true }
 )
 
 const model = defineModel<AttributeFilterModel>({ default: () => [] })
@@ -71,7 +71,7 @@ const flatConditions = computed<Condition[]>(() => model.value.flatMap((group) =
 function freshCondition(): Condition {
   return {
     id: randomId(),
-    attributeType: null,
+    attributeKind: null,
     key: '',
     operator: props.operators?.[0] ?? 'eq',
     value: ''
@@ -101,16 +101,16 @@ function removeGroup(group: ConditionGroup): void {
 // Apply the inferred type in the same mutation as the key; only override when
 // the resolver hits, so a user-picked type survives an edit into free-text.
 function updateKey(target: Condition, value: string): void {
-  const inferred = props.resolveAttributeType?.(value) ?? null
+  const inferred = props.resolveAttributeKind?.(value) ?? null
   mapConditions((c) =>
     c.id === target.id
-      ? { ...c, key: value, ...(inferred !== null ? { attributeType: inferred } : {}) }
+      ? { ...c, key: value, ...(inferred !== null ? { attributeKind: inferred } : {}) }
       : c
   )
 }
 
-function updateAttributeType(target: Condition, value: AttributeType): void {
-  mapConditions((c) => (c.id === target.id ? { ...c, attributeType: value } : c))
+function updateAttributeKind(target: Condition, value: AttributeKind): void {
+  mapConditions((c) => (c.id === target.id ? { ...c, attributeKind: value } : c))
 }
 
 function updateOperator(target: Condition, value: Operator): void {
@@ -396,7 +396,7 @@ function onGroupClickOutside(group: ConditionGroup): void {
             @edit="startEditing(condition.id)"
             @done="onEditDone(condition.id)"
             @update:key="(value) => updateKey(condition, value)"
-            @update:attribute-type="(value) => updateAttributeType(condition, value)"
+            @update:attribute-kind="(value) => updateAttributeKind(condition, value)"
             @update:operator="(value) => updateOperator(condition, value)"
             @update:value="(value) => updateValue(condition, value)"
           />
@@ -426,7 +426,7 @@ function onGroupClickOutside(group: ConditionGroup): void {
         @edit="startEditing(group.conditions[0]!.id)"
         @done="onEditDone(group.conditions[0]!.id)"
         @update:key="(value) => updateKey(group.conditions[0]!, value)"
-        @update:attribute-type="(value) => updateAttributeType(group.conditions[0]!, value)"
+        @update:attribute-kind="(value) => updateAttributeKind(group.conditions[0]!, value)"
         @update:operator="(value) => updateOperator(group.conditions[0]!, value)"
         @update:value="(value) => updateValue(group.conditions[0]!, value)"
       />
@@ -463,7 +463,7 @@ function onGroupClickOutside(group: ConditionGroup): void {
         @edit="startEditing(condition.id)"
         @done="onEditDone(condition.id)"
         @update:key="(value) => updateKey(condition, value)"
-        @update:attribute-type="(value) => updateAttributeType(condition, value)"
+        @update:attribute-kind="(value) => updateAttributeKind(condition, value)"
         @update:operator="(value) => updateOperator(condition, value)"
         @update:value="(value) => updateValue(condition, value)"
       />

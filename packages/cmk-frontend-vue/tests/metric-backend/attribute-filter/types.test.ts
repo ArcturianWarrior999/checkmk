@@ -10,7 +10,7 @@ import type { AttributeCondition } from '@/metric-backend/attribute-filter/types
 
 function condition(overrides: Partial<AttributeCondition> = {}): AttributeCondition {
   return {
-    attributeType: 'resource',
+    attributeKind: 'resource',
     key: 'service.name',
     operator: 'eq',
     value: 'foo',
@@ -27,8 +27,8 @@ describe('isConditionValid', () => {
     expect(isConditionValid(condition({ key }))).toBe(false)
   })
 
-  test('returns false when attributeType is null', () => {
-    expect(isConditionValid(condition({ attributeType: null }))).toBe(false)
+  test('returns false when attributeKind is null', () => {
+    expect(isConditionValid(condition({ attributeKind: null }))).toBe(false)
   })
 
   test('returns false when a value-taking operator has an empty value', () => {

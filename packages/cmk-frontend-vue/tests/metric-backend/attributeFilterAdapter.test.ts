@@ -35,7 +35,7 @@ describe('toModel', () => {
     const model = toModel(lists, newId)
 
     expect(model).toHaveLength(1)
-    expect(model[0]!.conditions.map((c) => [c.attributeType, c.key, c.value, c.operator])).toEqual([
+    expect(model[0]!.conditions.map((c) => [c.attributeKind, c.key, c.value, c.operator])).toEqual([
       ['resource', 'service.name', 'frontend', 'eq'],
       ['scope', 'otel.library.name', 'http', 'eq'],
       ['datapoint', 'http.method', 'GET', 'eq'],
@@ -49,15 +49,15 @@ describe('toModel', () => {
 })
 
 describe('fromModel', () => {
-  test('buckets conditions back into the three lists by attributeType', () => {
+  test('buckets conditions back into the three lists by attributeKind', () => {
     expect(fromModel(toModel(lists, newId))).toEqual(lists)
   })
 
-  test('drops conditions with no attributeType or empty key (pills still being created)', () => {
+  test('drops conditions with no attributeKind or empty key (pills still being created)', () => {
     const model = group(
-      { id: 'a', attributeType: null, key: '', operator: 'eq', value: '' },
-      { id: 'b', attributeType: 'resource', key: '', operator: 'eq', value: 'x' },
-      { id: 'c', attributeType: 'scope', key: 'otel.library.name', operator: 'eq', value: 'http' }
+      { id: 'a', attributeKind: null, key: '', operator: 'eq', value: '' },
+      { id: 'b', attributeKind: 'resource', key: '', operator: 'eq', value: 'x' },
+      { id: 'c', attributeKind: 'scope', key: 'otel.library.name', operator: 'eq', value: 'http' }
     )
 
     expect(fromModel(model)).toEqual({
@@ -94,8 +94,8 @@ describe('buildAutocompleteContext', () => {
 
   test('omits incomplete conditions (missing key or value) from the context', () => {
     const model = group(
-      { id: 'a', attributeType: 'resource', key: 'service.name', operator: 'eq', value: '' },
-      { id: 'b', attributeType: 'resource', key: 'host.name', operator: 'eq', value: 'web-01' }
+      { id: 'a', attributeKind: 'resource', key: 'service.name', operator: 'eq', value: '' },
+      { id: 'b', attributeKind: 'resource', key: 'host.name', operator: 'eq', value: 'web-01' }
     )
 
     expect(buildAutocompleteContext(model)).toEqual({
@@ -105,8 +105,8 @@ describe('buildAutocompleteContext', () => {
 
   test('excludes the condition being edited via excludeId', () => {
     const model = group(
-      { id: 'self', attributeType: 'datapoint', key: 'http.method', operator: 'eq', value: 'GET' },
-      { id: 'other', attributeType: 'datapoint', key: 'http.route', operator: 'eq', value: '/api' }
+      { id: 'self', attributeKind: 'datapoint', key: 'http.method', operator: 'eq', value: 'GET' },
+      { id: 'other', attributeKind: 'datapoint', key: 'http.route', operator: 'eq', value: '/api' }
     )
 
     expect(

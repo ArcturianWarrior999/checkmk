@@ -77,7 +77,7 @@ export const panelConfig = {
   }
 } satisfies PanelConfigFor<
   typeof FormAttributeFilter,
-  'modelValue' | 'querySuggestions' | 'queryValueSuggestions' | 'resolveAttributeType' | 'ariaLabel'
+  'modelValue' | 'querySuggestions' | 'queryValueSuggestions' | 'resolveAttributeKind' | 'ariaLabel'
 > & { preset: ListPropDef<PresetName>; operators: MultiSelectPropDef<Operator> }
 </script>
 
@@ -99,7 +99,7 @@ import FormAttributeFilter from '@/metric-backend/attribute-filter/FormAttribute
 import type {
   AttributeCondition,
   AttributeFilterModel,
-  AttributeType
+  AttributeKind
 } from '@/metric-backend/attribute-filter/types'
 
 import { filterPresets } from './attributeFilterPresets'
@@ -107,12 +107,12 @@ import { filterPresets } from './attributeFilterPresets'
 defineProps<{ screenshotMode: boolean }>()
 
 interface TypedSection extends Section {
-  attributeType: Exclude<AttributeType, null>
+  attributeKind: Exclude<AttributeKind, null>
 }
 
 const dummyKeySections: TypedSection[] = [
   {
-    attributeType: 'resource',
+    attributeKind: 'resource',
     title: 'Resource',
     suggestions: [
       { name: 'service.name', title: 'service.name' },
@@ -122,7 +122,7 @@ const dummyKeySections: TypedSection[] = [
     ]
   },
   {
-    attributeType: 'scope',
+    attributeKind: 'scope',
     title: 'Scope',
     suggestions: [
       { name: 'otel.library.name', title: 'otel.library.name' },
@@ -130,7 +130,7 @@ const dummyKeySections: TypedSection[] = [
     ]
   },
   {
-    attributeType: 'datapoint',
+    attributeKind: 'datapoint',
     title: 'Data point',
     suggestions: [
       { name: 'http.method', title: 'http.method' },
@@ -167,9 +167,9 @@ async function querySuggestions(query: string): Promise<Response> {
   ])
 }
 
-function resolveAttributeType(key: string): AttributeType {
+function resolveAttributeKind(key: string): AttributeKind {
   const section = dummyKeySections.find((s) => s.suggestions.some((sug) => sug.name === key))
-  return section?.attributeType ?? null
+  return section?.attributeKind ?? null
 }
 
 const dummyValuePresets: Record<string, string[]> = {
@@ -196,7 +196,7 @@ async function queryValueSuggestions(
 
 const propState = new PanelStateCreator<
   typeof FormAttributeFilter,
-  'modelValue' | 'querySuggestions' | 'queryValueSuggestions' | 'resolveAttributeType' | 'ariaLabel'
+  'modelValue' | 'querySuggestions' | 'queryValueSuggestions' | 'resolveAttributeKind' | 'ariaLabel'
 >().createRef(panelConfig)
 
 function clonePreset(name: PresetName): AttributeFilterModel {
@@ -224,7 +224,7 @@ const selectedOperators = computed(() => propState.value.operators)
         v-model="filters"
         :query-suggestions="querySuggestions"
         :query-value-suggestions="queryValueSuggestions"
-        :resolve-attribute-type="resolveAttributeType"
+        :resolve-attribute-kind="resolveAttributeKind"
         :operators="selectedOperators"
         :allow-or="propState.allowOr"
       />

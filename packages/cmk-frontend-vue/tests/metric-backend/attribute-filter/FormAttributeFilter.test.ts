@@ -13,7 +13,7 @@ import FormAttributeFilter from '@/metric-backend/attribute-filter/FormAttribute
 import { pillLabel } from '@/metric-backend/attribute-filter/pill-label'
 import type {
   AttributeFilterModel,
-  AttributeType,
+  AttributeKind,
   Condition,
   ConditionGroup,
   Operator
@@ -26,7 +26,7 @@ const KEY_SUGGESTIONS = [
 ]
 
 function condition(id: string, overrides: Partial<Condition> = {}): Condition {
-  return { id, attributeType: null, key: '', operator: 'eq', value: '', ...overrides }
+  return { id, attributeKind: null, key: '', operator: 'eq', value: '', ...overrides }
 }
 
 function conditionGroup(id: string, ...conditions: Condition[]): ConditionGroup {
@@ -43,7 +43,7 @@ function makeModel(): AttributeFilterModel {
     conditionGroup('group-a', condition('pill-a')),
     conditionGroup(
       'group-b',
-      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+      condition('pill-b', { attributeKind: 'scope', key: 'otel.library.name' })
     )
   ]
 }
@@ -52,7 +52,7 @@ function singlePill(overrides: Partial<Condition> = {}): AttributeFilterModel {
   return [
     conditionGroup(
       'group-a',
-      condition('pill-a', { attributeType: 'resource', key: 'service.name', ...overrides })
+      condition('pill-a', { attributeKind: 'resource', key: 'service.name', ...overrides })
     )
   ]
 }
@@ -70,7 +70,7 @@ function echoQueryValueSuggestions(_: unknown, query: string): Promise<Response>
 
 function renderForm(
   initial: AttributeFilterModel,
-  resolve?: (key: string) => AttributeType,
+  resolve?: (key: string) => AttributeKind,
   initialOperators?: Operator[],
   allowOr: boolean = true
 ): {
@@ -88,7 +88,7 @@ function renderForm(
         allowOr,
         querySuggestions,
         queryValueSuggestions: echoQueryValueSuggestions,
-        resolveAttributeType: resolve
+        resolveAttributeKind: resolve
       }
     },
     template: `
@@ -98,7 +98,7 @@ function renderForm(
         :operators="operators"
         :query-suggestions="querySuggestions"
         :query-value-suggestions="queryValueSuggestions"
-        :resolve-attribute-type="resolveAttributeType"
+        :resolve-attribute-kind="resolveAttributeKind"
       />
     `
   })
@@ -142,22 +142,22 @@ async function pickOperator(pill: HTMLElement, phrase: string): Promise<void> {
   await userEvent.click(await screen.findByRole('option', { name: phrase }))
 }
 
-async function pickAttributeType(pill: HTMLElement, label: string): Promise<void> {
+async function pickAttributeKind(pill: HTMLElement, label: string): Promise<void> {
   await enterEditMode(pill)
   // Let any pending auto-open settle so the click below cannot toggle a
   // just-opened dropdown closed again.
   await new Promise((resolve) => setTimeout(resolve, 0))
-  const typeCombobox = within(pill).getByRole('combobox', { name: 'Attribute type' })
-  if (typeCombobox.getAttribute('aria-expanded') !== 'true') {
-    await userEvent.click(typeCombobox)
+  const kindCombobox = within(pill).getByRole('combobox', { name: 'Attribute kind' })
+  if (kindCombobox.getAttribute('aria-expanded') !== 'true') {
+    await userEvent.click(kindCombobox)
   }
   await userEvent.click(await screen.findByRole('option', { name: label }))
 }
 
-test('picking a known key applies key and inferred attributeType in one mutation', async () => {
+test('picking a known key applies key and inferred attributeKind in one mutation', async () => {
   const { model } = renderForm(makeModel(), (key) => (key === 'http.method' ? 'datapoint' : null))
   // The pill emits only `update:key`; the parent owns the resolver and merges
-  // the inferred attributeType into the same model mutation. A regression that
+  // the inferred attributeKind into the same model mutation. A regression that
   // re-splits this into two sequential emits would let the second write
   // overwrite the first via `defineModel`'s deferred prop propagation.
   await pickKey(pillsInOrder()[0]!, 'http.method')
@@ -166,37 +166,37 @@ test('picking a known key applies key and inferred attributeType in one mutation
   expect(conditions[0]).toMatchObject({
     id: 'pill-a',
     key: 'http.method',
-    attributeType: 'datapoint'
+    attributeKind: 'datapoint'
   })
   // Pill B must be untouched — guards against any cross-row contamination
   // that a sloppier identity strategy could introduce.
   expect(conditions[1]).toMatchObject({
     id: 'pill-b',
     key: 'otel.library.name',
-    attributeType: 'scope'
+    attributeKind: 'scope'
   })
 })
 
-test('picking a key without a resolver hit preserves the existing attributeType', async () => {
-  // Seed pill-a with a non-null attributeType so the assertion exercises the
+test('picking a key without a resolver hit preserves the existing attributeKind', async () => {
+  // Seed pill-a with a non-null attributeKind so the assertion exercises the
   // "no inference → leave the type alone" path. A free-text key edit on a
   // resolver-less form must not silently wipe a user-picked type.
   const initial = makeModel()
-  initial[0]!.conditions[0]!.attributeType = 'resource'
+  initial[0]!.conditions[0]!.attributeKind = 'resource'
   initial[0]!.conditions[0]!.key = 'service.name'
   const { model } = renderForm(initial)
   await pickKey(pillsInOrder()[0]!, 'foo.bar')
 
-  expect(conditionsOf(model.value!)[0]).toMatchObject({ key: 'foo.bar', attributeType: 'resource' })
+  expect(conditionsOf(model.value!)[0]).toMatchObject({ key: 'foo.bar', attributeKind: 'resource' })
 })
 
-test('manual attributeType change persists on the targeted row', async () => {
+test('manual attributeKind change persists on the targeted row', async () => {
   const { model } = renderForm(makeModel())
-  await pickAttributeType(pillsInOrder()[1]!, 'Data point')
+  await pickAttributeKind(pillsInOrder()[1]!, 'Data point')
 
   const conditions = conditionsOf(model.value!)
-  expect(conditions[1]!.attributeType).toBe('datapoint')
-  expect(conditions[0]!.attributeType).toBe(null)
+  expect(conditions[1]!.attributeKind).toBe('datapoint')
+  expect(conditions[0]!.attributeKind).toBe(null)
 })
 
 test('manual operator change persists on the targeted row', async () => {
@@ -253,9 +253,9 @@ test('picking a key with no resolver hit auto-opens the type dropdown', async ()
   const pillA = pillsInOrder()[0]!
   await pickKey(pillA, 'foo.bar')
 
-  const typeCombobox = within(pillA).getByRole('combobox', { name: 'Attribute type' })
+  const kindCombobox = within(pillA).getByRole('combobox', { name: 'Attribute kind' })
   await waitFor(() => {
-    expect(typeCombobox.getAttribute('aria-expanded')).toBe('true')
+    expect(kindCombobox.getAttribute('aria-expanded')).toBe('true')
   })
 })
 
@@ -264,10 +264,10 @@ test('picking a key with a resolver hit does not auto-open the type dropdown', a
   const pillA = pillsInOrder()[0]!
   await pickKey(pillA, 'http.method')
 
-  const typeCombobox = within(pillA).getByRole('combobox', { name: 'Attribute type' })
+  const kindCombobox = within(pillA).getByRole('combobox', { name: 'Attribute kind' })
   // Give the watcher's nextTick a chance to run; aria-expanded must stay 'false'.
   await new Promise((resolve) => setTimeout(resolve, 0))
-  expect(typeCombobox.getAttribute('aria-expanded')).toBe('false')
+  expect(kindCombobox.getAttribute('aria-expanded')).toBe('false')
 })
 
 test('picking a key with a resolver hit auto-opens the value dropdown', async () => {
@@ -285,7 +285,7 @@ test('picking the type after a no-hit key auto-opens the value dropdown', async 
   renderForm(makeModel(), () => null)
   const pillA = pillsInOrder()[0]!
   await pickKey(pillA, 'foo.bar')
-  await pickAttributeType(pillA, 'Resource')
+  await pickAttributeKind(pillA, 'Resource')
 
   const valueCombobox = within(pillA).getByRole('combobox', { name: 'Attribute value' })
   await waitFor(() => {
@@ -331,7 +331,7 @@ test('empty-state add button creates a single row with documented defaults', asy
 
   const conditions = conditionsOf(model.value!)
   expect(conditions).toHaveLength(1)
-  expect(conditions[0]).toMatchObject({ attributeType: null, key: '', operator: 'eq', value: '' })
+  expect(conditions[0]).toMatchObject({ attributeKind: null, key: '', operator: 'eq', value: '' })
   expect(conditions[0]!.id).toEqual(expect.any(String))
   expect(conditions[0]!.id.length).toBeGreaterThan(0)
 })
@@ -347,7 +347,7 @@ test('per-pill add button inserts a fresh row after it as a new OR clause, leavi
   const conditions = conditionsOf(model.value!)
   expect(conditions[0]!.id).toBe('pill-a')
   expect(conditions[2]!.id).toBe('pill-b')
-  expect(conditions[1]).toMatchObject({ attributeType: null, key: '', operator: 'eq', value: '' })
+  expect(conditions[1]).toMatchObject({ attributeKind: null, key: '', operator: 'eq', value: '' })
   expect(conditions[1]!.id).toEqual(expect.any(String))
   expect(conditions[1]!.id).not.toBe('pill-a')
   expect(conditions[1]!.id).not.toBe('pill-b')
@@ -410,7 +410,7 @@ test('same-family swap with an empty value auto-opens the value dropdown', async
 
 const ERROR_CLASS = 'cmk-dropdown__validation-error'
 
-const FIELD_LABELS = ['Attribute type', 'Attribute key', 'Attribute operator', 'Attribute value']
+const FIELD_LABELS = ['Attribute kind', 'Attribute key', 'Attribute operator', 'Attribute value']
 
 function field(pill: HTMLElement, label: string): HTMLElement {
   return within(pill).getByRole('combobox', { name: label })
@@ -421,7 +421,7 @@ describe('pill required-field validation', () => {
     renderForm(makeModel())
     const pill = pillsInOrder()[0]!
     await enterEditMode(pill)
-    // 'Attribute type' is excluded: it is hidden while the key is empty.
+    // 'Attribute kind' is excluded: it is hidden while the key is empty.
     for (const label of ['Attribute key', 'Attribute operator', 'Attribute value']) {
       expect(field(pill, label)).not.toHaveClass(ERROR_CLASS)
     }
@@ -431,7 +431,7 @@ describe('pill required-field validation', () => {
     renderForm(makeModel())
     const pill = pillsInOrder()[0]!
     await enterEditMode(pill)
-    expect(within(pill).queryByRole('combobox', { name: 'Attribute type' })).toBeNull()
+    expect(within(pill).queryByRole('combobox', { name: 'Attribute kind' })).toBeNull()
   })
 
   test('a partly-filled but uncommitted pill flags nothing', async () => {
@@ -450,7 +450,7 @@ describe('pill required-field validation', () => {
 
     expect(conditionsOf(model.value!)[0]!.key).toBe('http.method')
     const pill = pillsInOrder()[0]!
-    for (const label of ['Attribute type', 'Attribute key']) {
+    for (const label of ['Attribute kind', 'Attribute key']) {
       expect(field(pill, label)).not.toHaveClass(ERROR_CLASS)
       expect(field(pill, label)).not.toHaveTextContent('(required)')
     }
@@ -477,11 +477,11 @@ test('opening a second pill closes the previously open one', async () => {
   renderForm([
     conditionGroup(
       'g-a',
-      condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'foo' })
+      condition('pill-a', { attributeKind: 'resource', key: 'service.name', value: 'foo' })
     ),
     conditionGroup(
       'g-b',
-      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name', value: 'bar' })
+      condition('pill-b', { attributeKind: 'scope', key: 'otel.library.name', value: 'bar' })
     )
   ])
   await enterEditMode(pillsInOrder()[0]!)
@@ -519,7 +519,7 @@ test('click outside closes a fully-valid edit pill back to read-only', async () 
   renderForm([
     conditionGroup(
       'g',
-      condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+      condition('pill-a', { attributeKind: 'scope', key: 'otel.library.name', value: 'foo' })
     )
   ])
   const pillA = pillsInOrder()[0]!
@@ -577,7 +577,7 @@ describe('Escape in edit mode', () => {
       renderForm([
         conditionGroup(
           'g',
-          condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+          condition('pill-a', { attributeKind: 'scope', key: 'otel.library.name', value: 'foo' })
         )
       ])
       const pillA = pillsInOrder()[0]!
@@ -620,7 +620,7 @@ describe('Escape in edit mode', () => {
     renderForm([
       conditionGroup(
         'g',
-        condition('pill-a', { attributeType: 'scope', key: 'otel.library.name', value: 'foo' })
+        condition('pill-a', { attributeKind: 'scope', key: 'otel.library.name', value: 'foo' })
       )
     ])
     const pillA = pillsInOrder()[0]!
@@ -704,7 +704,7 @@ describe('combined pill keyboard stop', () => {
     '%s on a focused chip of a populated pill focuses the first inline dropdown without opening it',
     async (_name, key) => {
       // pill-b is the populated read-only pill in the standard fixture: it has
-      // both attributeType and key set, so the attribute-type dropdown is
+      // both attributeKind and key set, so the attribute-kind dropdown is
       // visible and is the first dropdown in DOM order.
       renderForm(makeModel())
       const pillB = pillsInOrder()[1]!
@@ -712,7 +712,7 @@ describe('combined pill keyboard stop', () => {
 
       await userEvent.keyboard(key)
 
-      const firstDropdown = within(pillB).getByRole('combobox', { name: 'Attribute type' })
+      const firstDropdown = within(pillB).getByRole('combobox', { name: 'Attribute kind' })
       await waitFor(() => expect(document.activeElement).toBe(firstDropdown))
       expect(firstDropdown).toHaveAttribute('aria-expanded', 'false')
     }
@@ -844,8 +844,8 @@ describe('combined group keyboard stop', () => {
     renderForm([
       conditionGroup(
         'g',
-        condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'x' }),
-        condition('pill-b', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+        condition('pill-a', { attributeKind: 'resource', key: 'service.name', value: 'x' }),
+        condition('pill-b', { attributeKind: 'resource', key: 'foo.bar', value: 'y' })
       )
     ])
     const group = await expandGroup()
@@ -919,8 +919,8 @@ describe('arrow-nav within multi-element stops', () => {
       renderForm([
         conditionGroup(
           'g',
-          condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'x' }),
-          condition('pill-b', { attributeType: 'resource', key: 'foo.bar', value: 'y' })
+          condition('pill-a', { attributeKind: 'resource', key: 'service.name', value: 'x' }),
+          condition('pill-b', { attributeKind: 'resource', key: 'foo.bar', value: 'y' })
         )
       ])
       await expand()
@@ -1016,12 +1016,12 @@ test('connector renders as a toggle button between adjacent pills', () => {
   renderForm([
     conditionGroup(
       'g-a',
-      condition('pill-a', { attributeType: 'resource', key: 'service.name', value: 'web-01' })
+      condition('pill-a', { attributeKind: 'resource', key: 'service.name', value: 'web-01' })
     ),
     conditionGroup(
       'g-b',
       condition('pill-b', {
-        attributeType: 'scope',
+        attributeKind: 'scope',
         key: 'otel.library.name',
         operator: 'contains',
         value: 'api'
@@ -1130,8 +1130,8 @@ test('every pill in an AND group has a per-pill + that inserts an AND pill at th
   const { model } = renderForm([
     conditionGroup(
       'g',
-      condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
-      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+      condition('pill-a', { attributeKind: 'resource', key: 'service.name' }),
+      condition('pill-b', { attributeKind: 'scope', key: 'otel.library.name' })
     )
   ])
   await userEvent.click(screen.getByRole('button', { name: 'Add condition after service.name' }))
@@ -1151,8 +1151,8 @@ test('the after-group + starts a new OR clause that renders as a bare pill', asy
   const { model } = renderForm([
     conditionGroup(
       'g',
-      condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
-      condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+      condition('pill-a', { attributeKind: 'resource', key: 'service.name' }),
+      condition('pill-b', { attributeKind: 'scope', key: 'otel.library.name' })
     )
   ])
   await userEvent.click(screen.getByRole('button', { name: 'Add condition after this group' }))
@@ -1220,8 +1220,8 @@ describe('AND-only mode (allowOr false)', () => {
       [
         conditionGroup(
           'g',
-          condition('pill-a', { attributeType: 'resource', key: 'service.name' }),
-          condition('pill-b', { attributeType: 'scope', key: 'otel.library.name' })
+          condition('pill-a', { attributeKind: 'resource', key: 'service.name' }),
+          condition('pill-b', { attributeKind: 'scope', key: 'otel.library.name' })
         )
       ],
       undefined,

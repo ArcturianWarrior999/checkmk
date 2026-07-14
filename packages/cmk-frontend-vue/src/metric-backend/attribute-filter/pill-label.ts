@@ -7,15 +7,15 @@ import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
 import { operatorTakesValue } from './types'
-import type { AttributeCondition, AttributeType, Operator } from './types'
+import type { AttributeCondition, AttributeKind, Operator } from './types'
 
-export const ATTRIBUTE_TYPE_LABELS: Record<Exclude<AttributeType, null>, string> = {
+export const ATTRIBUTE_KIND_LABELS: Record<Exclude<AttributeKind, null>, string> = {
   resource: 'Resource',
   scope: 'Scope',
   datapoint: 'Data point'
 }
 
-function attributeTypePrefixes(): Record<Exclude<AttributeType, null>, TranslatedString> {
+function attributeKindPrefixes(): Record<Exclude<AttributeKind, null>, TranslatedString> {
   const { _t } = usei18n()
   return {
     resource: _t('[Resource]'),
@@ -42,8 +42,8 @@ function operatorPhrases(): Record<Operator, TranslatedString> {
   }
 }
 
-export function attributeTypePrefix(attributeType: AttributeType): string {
-  return attributeType === null ? '' : `${attributeTypePrefixes()[attributeType]} `
+export function attributeKindPrefix(attributeKind: AttributeKind): string {
+  return attributeKind === null ? '' : `${attributeKindPrefixes()[attributeKind]} `
 }
 
 export function operatorPhrase(operator: Operator): TranslatedString {
@@ -51,7 +51,7 @@ export function operatorPhrase(operator: Operator): TranslatedString {
 }
 
 export function pillLabel(condition: AttributeCondition): string {
-  const prefix = attributeTypePrefix(condition.attributeType)
+  const prefix = attributeKindPrefix(condition.attributeKind)
   const phrase = operatorPhrase(condition.operator)
   const key = condition.key ?? ''
   if (operatorTakesValue(condition.operator)) {

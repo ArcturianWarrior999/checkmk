@@ -23,7 +23,7 @@ function echoQueryValueSuggestions(_: Condition, query: string): Promise<Respons
 function renderPill(initialOperator: Operator = 'eq', value = 'GET', operators?: Operator[]) {
   const condition = ref<Condition>({
     id: 'pill',
-    attributeType: null,
+    attributeKind: null,
     key: 'http.method',
     operator: initialOperator,
     value

@@ -4,17 +4,17 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { pillLabel } from '@/metric-backend/attribute-filter/pill-label'
-import type { AttributeCondition, AttributeType } from '@/metric-backend/attribute-filter/types'
+import type { AttributeCondition, AttributeKind } from '@/metric-backend/attribute-filter/types'
 
 function makeCondition(
-  attributeType: AttributeType,
+  attributeKind: AttributeKind,
   operator: AttributeCondition['operator'],
   value = ''
 ): AttributeCondition {
-  return { attributeType, key: 'http.method', operator, value }
+  return { attributeKind, key: 'http.method', operator, value }
 }
 
-test('attribute-type prefix is rendered', () => {
+test('attribute-kind prefix is rendered', () => {
   expect(pillLabel(makeCondition(null, 'eq', 'GET'))).toBe('http.method is GET')
   expect(pillLabel(makeCondition('resource', 'eq', 'GET'))).toBe('[Resource] http.method is GET')
   expect(pillLabel(makeCondition('scope', 'eq', 'GET'))).toBe('[Scope] http.method is GET')

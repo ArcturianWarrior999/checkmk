@@ -4,7 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 
-export type AttributeType = 'resource' | 'scope' | 'datapoint' | null
+export type AttributeKind = 'resource' | 'scope' | 'datapoint' | null
 
 export const STRING_OPERATORS = [
   'eq',
@@ -39,7 +39,7 @@ export function isOperator(value: string): value is Operator {
 }
 
 export interface AttributeCondition {
-  attributeType: AttributeType
+  attributeKind: AttributeKind
   key: string | null
   operator: Operator
   value: string
@@ -49,7 +49,7 @@ export function isConditionValid(c: AttributeCondition): boolean {
   return (
     c.key !== '' &&
     c.key !== null &&
-    c.attributeType !== null &&
+    c.attributeKind !== null &&
     !(operatorTakesValue(c.operator) && c.value === '')
   )
 }

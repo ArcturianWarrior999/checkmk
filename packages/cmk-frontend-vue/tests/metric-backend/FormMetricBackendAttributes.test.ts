@@ -13,7 +13,7 @@ import { defineComponent, ref } from 'vue'
 import FormMetricBackendAttributes from '@/metric-backend/FormMetricBackendAttributes.vue'
 import { KEY_IDENTS } from '@/metric-backend/attributeFilterAdapter'
 
-// Keys the backend offers under each attribute-type key autocompleter, keyed by its ident.
+// Keys the backend offers under each attribute-kind key autocompleter, keyed by its ident.
 const KEY_SUGGESTIONS: Record<string, string[]> = {
   [KEY_IDENTS.resource]: ['service.name'],
   [KEY_IDENTS.scope]: ['otel.library.name'],

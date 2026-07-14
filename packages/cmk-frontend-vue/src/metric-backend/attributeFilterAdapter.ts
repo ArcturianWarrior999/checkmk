@@ -5,19 +5,19 @@
  */
 import type { GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
 
-import type { AttributeFilterModel, AttributeType, Condition } from './attribute-filter/types'
+import type { AttributeFilterModel, AttributeKind, Condition } from './attribute-filter/types'
 
-export type AttributeTypeKey = Exclude<AttributeType, null>
+export type AttributeKindKey = Exclude<AttributeKind, null>
 
-export const ATTRIBUTE_TYPE_ORDER: AttributeTypeKey[] = ['resource', 'scope', 'datapoint']
+export const ATTRIBUTE_KIND_ORDER: AttributeKindKey[] = ['resource', 'scope', 'datapoint']
 
-export const KEY_IDENTS: Record<AttributeTypeKey, string> = {
+export const KEY_IDENTS: Record<AttributeKindKey, string> = {
   resource: 'monitored_resource_attributes_keys_backend',
   scope: 'monitored_scope_attributes_keys_backend',
   datapoint: 'monitored_data_point_attributes_keys_backend'
 }
 
-export const VALUE_IDENTS: Record<AttributeTypeKey, string> = {
+export const VALUE_IDENTS: Record<AttributeKindKey, string> = {
   resource: 'monitored_resource_attributes_values_backend',
   scope: 'monitored_scope_attributes_values_backend',
   datapoint: 'monitored_data_point_attributes_values_backend'
@@ -31,11 +31,11 @@ export interface ThreeLists {
 
 export function toModel(lists: ThreeLists, newId: () => string): AttributeFilterModel {
   const conditions: Condition[] = []
-  for (const attributeType of ATTRIBUTE_TYPE_ORDER) {
-    for (const attr of lists[attributeType]) {
+  for (const attributeKind of ATTRIBUTE_KIND_ORDER) {
+    for (const attr of lists[attributeKind]) {
       conditions.push({
         id: newId(),
-        attributeType,
+        attributeKind,
         key: attr.key,
         operator: 'eq',
         value: attr.value
@@ -50,10 +50,10 @@ export function fromModel(model: AttributeFilterModel): ThreeLists {
   const lists: ThreeLists = { resource: [], scope: [], datapoint: [] }
   for (const condition of model.flatMap((group) => group.conditions)) {
     // Skip key-less conditions (a pill still being created).
-    if (condition.attributeType === null || !condition.key) {
+    if (condition.attributeKind === null || !condition.key) {
       continue
     }
-    lists[condition.attributeType].push({ key: condition.key, value: condition.value })
+    lists[condition.attributeKind].push({ key: condition.key, value: condition.value })
   }
   return lists
 }
@@ -76,7 +76,7 @@ export interface ContextOptions {
 
 type AttrsKey = 'resource_attributes' | 'scope_attributes' | 'data_point_attributes'
 
-const CONTEXT_KEYS: Record<AttributeTypeKey, AttrsKey> = {
+const CONTEXT_KEYS: Record<AttributeKindKey, AttrsKey> = {
   resource: 'resource_attributes',
   scope: 'scope_attributes',
   datapoint: 'data_point_attributes'
@@ -93,11 +93,11 @@ export function buildAutocompleteContext(
     context.metric_name = options.metricName
   }
   const conditions = model.flatMap((group) => group.conditions)
-  for (const attributeType of ATTRIBUTE_TYPE_ORDER) {
+  for (const attributeKind of ATTRIBUTE_KIND_ORDER) {
     const attrs = conditions
       .filter(
         (c) =>
-          c.attributeType === attributeType &&
+          c.attributeKind === attributeKind &&
           c.id !== options.excludeId &&
           c.key !== null &&
           c.key !== '' &&
@@ -105,7 +105,7 @@ export function buildAutocompleteContext(
       )
       .map((c) => ({ key: c.key as string, value: c.value }))
     if (attrs.length > 0) {
-      context[CONTEXT_KEYS[attributeType]] = attrs
+      context[CONTEXT_KEYS[attributeKind]] = attrs
     }
   }
   if (options.attributeKey) {
