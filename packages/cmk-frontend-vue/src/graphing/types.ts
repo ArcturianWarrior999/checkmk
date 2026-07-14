@@ -27,13 +27,15 @@ export interface BurgerMenuGroup {
   actions: BurgerMenuAction[]
 }
 
-// Props shared by GraphFigure and (via extension) GraphPanel.
-export interface GraphFigureProps {
+// The presentational panel around the renderer with header, legend, and brush zones;
+// the hosting group owns the data fetch and range state.
+export interface GraphPanelProps {
   metrics: Metric[]
   // The range the fetched data actually covers (as opposed to requestedTimeRange).
   // Absent until the first data fetch completes. Explicit undefined is accepted
   // so that parent components can forward their own optional range prop directly.
   dataTimeRange?: TimeRange | undefined
+  requestedTimeRange: RequestedTimeRange
   interactive?: boolean
   title?: string
   showTitle?: boolean
@@ -43,12 +45,6 @@ export interface GraphFigureProps {
   // the plot (canvas) size by subtracting its margins.
   figureWidth?: number
   figureHeight?: number
-}
-
-// GraphPanel adds the optional footer zone (legend, time ranges) and the
-// export/action burger menu.
-export interface GraphPanelProps extends GraphFigureProps {
-  requestedTimeRange: RequestedTimeRange
   burgerMenuGroups?: BurgerMenuGroup[]
   showBurgerMenu?: boolean
   showLegend?: boolean

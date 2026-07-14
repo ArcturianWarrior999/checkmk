@@ -14,6 +14,7 @@ import DashboardContentLinkedView from './DashboardContentLinkedView.vue'
 import DashboardContentNtop from './DashboardContentNtop.vue'
 import DashboardContentSidebarElement from './DashboardContentSidebarElement.vue'
 import DashboardContentStaticText from './DashboardContentStaticText.vue'
+import DashboardContentTimeSeriesGraph from './DashboardContentTimeSeriesGraph.vue'
 import DashboardContentTopList from './DashboardContentTopList.vue'
 import DashboardContentUserMessages from './DashboardContentUserMessages.vue'
 import DashboardContentNetworkFlowDonut from './NetworkFlow/DashboardContentNetworkFlowDonut.vue'
@@ -22,11 +23,16 @@ import { CONTENT_FIGURE_TYPES, GRAPH_TYPES, NTOP_TYPES } from './types.ts'
 </script>
 
 <script setup lang="ts">
+import { useInjectCmkToken } from '@/dashboard/composables/useCmkToken'
 import type { WidgetContent } from '@/dashboard/types/widget'
 
 import type { ContentProps } from './types.ts'
 
 defineProps<ContentProps>()
+
+// The REST endpoints of the new graphing engine are not token-authenticated, so public (token)
+// dashboards keep using the legacy server-rendered graph component.
+const cmkToken = useInjectCmkToken()
 
 function contentTypeToComponent(contentType: string): Component {
   switch (true) {
@@ -48,6 +54,11 @@ function contentTypeToComponent(contentType: string): Component {
       return DashboardContentUserMessages
     case contentType === 'sidebar_element':
       return DashboardContentSidebarElement
+    // Performance graphs and single timeseries render client-side on the new graphing engine;
+    // the remaining GRAPH_TYPES still go through the legacy server-rendered graph component.
+    case (contentType === 'performance_graph' || contentType === 'single_timeseries') &&
+      cmkToken === undefined:
+      return DashboardContentTimeSeriesGraph
     case CONTENT_FIGURE_TYPES.includes(contentType):
       return DashboardContentFigure
     case GRAPH_TYPES.includes(contentType):

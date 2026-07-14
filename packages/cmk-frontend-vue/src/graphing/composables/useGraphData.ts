@@ -7,10 +7,16 @@ import type { CmkTimeSeriesGraph } from 'cmk-shared-typing/typescript/cmk_time_s
 import { type Ref, readonly, ref, watch } from 'vue'
 
 import client, { unwrap } from '@/lib/rest-api-client/client'
+import { useDebounceFn } from '@/lib/useDebounce'
 
 import type { HorizontalLine, Metric, TimeRange } from '../components/TimeSeriesGraph'
 import type { ConsolidationFn } from '../components/consolidation'
 import type { RequestedTimeRange } from '../types'
+
+// The fetch endpoint only needs the self-contained definition; a caller holding a full
+// render shell additionally contributes its header title to the resolved graph.
+export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'graph_type' | 'internal'> &
+  Partial<Pick<CmkTimeSeriesGraph, 'options'>>
 
 export interface ResolvedGraph {
   title: string
@@ -28,7 +34,7 @@ function computeStep(start: number, end: number, canvasWidth: number): number {
 // (see build_template_graphs -> to_cmk_time_series_graph in cmk/gui/views/graph.py). This
 // composable only re-fetches evaluated data for those definitions as the requested range changes.
 export function useGraphData(
-  getGraphs: () => CmkTimeSeriesGraph[],
+  getGraphs: () => GraphDataDefinition[],
   getRequestedTimeRange: () => RequestedTimeRange,
   getCanvasWidth: () => number,
   getConsolidationFn: () => ConsolidationFn,
@@ -43,6 +49,10 @@ export function useGraphData(
   const isLoadingRef = ref(false)
   const errorRef = ref<string | null>(null)
 
+  // Step of the most recently requested load; a resize only re-fetches when the
+  // width-derived step actually changes.
+  let lastRequestedStep: number | null = null
+
   async function load() {
     const definitions = getGraphs()
     const range = getRequestedTimeRange()
@@ -52,6 +62,7 @@ export function useGraphData(
 
     try {
       const step = computeStep(range.start, range.end, getCanvasWidth())
+      lastRequestedStep = step
       const requestedTimeRange = { start: range.start, end: range.end, step }
       const consolidationFunction = getConsolidationFn()
       const combinationMode = getCombinationMode()
@@ -71,7 +82,7 @@ export function useGraphData(
             })
           )
           return {
-            title: definition.options.header.title ?? '',
+            title: definition.options?.header.title ?? '',
             metrics: fetched.metrics,
             timeRange: fetched.time_range,
             horizontalLines: fetched.horizontal_lines
@@ -89,6 +100,20 @@ export function useGraphData(
   watch([getGraphs, getRequestedTimeRange, getConsolidationFn], () => void load(), {
     immediate: true,
     deep: true
+  })
+
+  // A resize only re-renders client-side; re-fetch (debounced, resizes stream) when the
+  // plotted width changes the requested step, so the data resolution keeps matching the
+  // drawn pixels.
+  const debouncedLoad = useDebounceFn(() => void load(), 300)
+  watch(getCanvasWidth, (width) => {
+    if (lastRequestedStep === null) {
+      return
+    }
+    const range = getRequestedTimeRange()
+    if (computeStep(range.start, range.end, width) !== lastRequestedStep) {
+      debouncedLoad()
+    }
   })
 
   return {

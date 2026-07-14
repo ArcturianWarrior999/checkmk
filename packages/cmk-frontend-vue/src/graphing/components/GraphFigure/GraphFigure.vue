@@ -1,0 +1,260 @@
+<!--
+Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+conditions defined in the file COPYING, which is part of this source code package.
+-->
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+
+import usei18n from '@/lib/i18n'
+import { useResizeObserver } from '@/lib/useResizeObserver'
+import useTimer from '@/lib/useTimer.ts'
+
+import CmkIcon from '@/components/CmkIcon'
+
+import { useGraphData } from '../../composables/useGraphData'
+import { useGraphInteraction } from '../../composables/useGraphInteraction'
+import { useGraphVisibility } from '../../composables/useGraphVisibility'
+import type { BurgerMenuGroup, RequestedTimeRange } from '../../types.ts'
+import GraphBurgerMenu from '../GraphBurgerMenu.vue'
+import GraphTimestamp from '../GraphTimestamp.vue'
+import TimeSeriesGraph, { type GraphOptions, type Size, type ZoomPayload } from '../TimeSeriesGraph'
+import { deriveYAxis } from '../TimeSeriesGraph/yAxis'
+import type { ConsolidationFn } from '../consolidation'
+import { CANVAS_MARGIN_HORIZONTAL } from '../constants'
+import GraphLegendCompact from '../legend/GraphLegendCompact.vue'
+import { type TimerangeModel, computeEpochTimeRange } from './computeEpochTimeRange'
+
+const MIN_FIGURE_SIZE = 50
+const REFRESH_INTERVAL_MS = 60_000
+const CONSOLIDATION_FUNCTION: ConsolidationFn = 'max'
+const FONT_SIZE_PT = 8
+
+const props = withDefaults(
+  defineProps<{
+    graphType: string
+    internal: string
+    timerange: TimerangeModel
+    showLegend?: boolean
+    showTimestamp?: boolean
+    showBurgerMenu?: boolean
+    burgerMenuGroups?: BurgerMenuGroup[]
+  }>(),
+  {
+    showLegend: false,
+    showTimestamp: false,
+    showBurgerMenu: false,
+    burgerMenuGroups: () => []
+  }
+)
+
+const { _t } = usei18n()
+
+const graphAreaDiv = ref<HTMLDivElement | null>(null)
+// The renderer draws into this outer figure size and insets the axis/label margins itself, so the
+// figure fills the whole measured graph area; subtracting the margins here would double-count them.
+const figureSize = ref<Size>({ width: 800, height: 200, mode: 'resizable' })
+const { observe } = useResizeObserver((entries) => {
+  const size = entries[0]!.contentBoxSize![0]!
+  figureSize.value = {
+    width: Math.max(MIN_FIGURE_SIZE, size.inlineSize),
+    height: Math.max(MIN_FIGURE_SIZE, size.blockSize),
+    mode: 'resizable'
+  }
+})
+observe(graphAreaDiv)
+
+// The fetch resolution follows the plotted pixel width (figure minus the horizontal axis margins),
+// so the requested step matches the columns actually drawn.
+const plotWidth = computed(() =>
+  Math.max(1, Math.round(figureSize.value.width - CANVAS_MARGIN_HORIZONTAL))
+)
+
+// The committed fetch window: the configured range resolved to epochs, or the fixed
+// window a time-zoom requested.
+const requestedTimeRange = ref<RequestedTimeRange>(computeEpochTimeRange(props.timerange))
+const timeZoomActive = ref(false)
+
+const graphDefinitions = computed(() => [{ graph_type: props.graphType, internal: props.internal }])
+
+const { graphs, isLoading, error } = useGraphData(
+  () => graphDefinitions.value,
+  () => requestedTimeRange.value,
+  () => plotWidth.value,
+  () => CONSOLIDATION_FUNCTION
+)
+const graph = computed(() => graphs.value[0] ?? null)
+
+const refresh = () => {
+  requestedTimeRange.value = computeEpochTimeRange(props.timerange)
+}
+const timer = useTimer(refresh, REFRESH_INTERVAL_MS)
+
+watch(isLoading, (loading) => {
+  if (loading || timeZoomActive.value) {
+    return
+  }
+  if (error.value === null) {
+    timer.reportSuccess()
+  } else {
+    timer.reportFailure()
+  }
+})
+
+watch(
+  () => [props.graphType, props.internal, JSON.stringify(props.timerange)],
+  () => {
+    timeZoomActive.value = false
+    refresh()
+    timer.start()
+  }
+)
+
+const { viewTimeRange, viewValueRange, inspectionActive, onZoom, onPan, onReset } =
+  useGraphInteraction(() => graph.value?.timeRange)
+
+const {
+  hiddenMetricNames,
+  hiddenLineNames,
+  highlightedMetricName,
+  visibleMetrics,
+  visibleHorizontalLines
+} = useGraphVisibility(
+  () => graph.value?.metrics ?? [],
+  () => graph.value?.horizontalLines ?? []
+)
+
+const onZoomIntent = (payload: ZoomPayload) => {
+  onZoom(payload)
+  if (!payload.valueRange) {
+    timeZoomActive.value = true
+    requestedTimeRange.value = {
+      start: Math.round(payload.timeRange.start),
+      end: Math.round(payload.timeRange.end)
+    }
+    timer.stop()
+  }
+}
+
+const onResetIntent = () => {
+  onReset()
+  if (!timeZoomActive.value) {
+    return
+  }
+  timeZoomActive.value = false
+  refresh()
+  timer.start()
+}
+
+// The host's surroundings render the title (e.g. the dashboard widget frame); the graph
+// time is shown by the header's GraphTimestamp, not by the renderer.
+const graphOptions = computed(
+  (): GraphOptions => ({
+    name: '',
+    header: { title: null, show_graph_time: false },
+    x_axis: null,
+    y_axis: deriveYAxis(graph.value?.metrics ?? []),
+    show_pin: false,
+    font_size_pt: FONT_SIZE_PT
+  })
+)
+
+onMounted(() => {
+  timer.start()
+})
+
+onBeforeUnmount(() => {
+  timer.stop()
+})
+</script>
+
+<template>
+  <div class="graphing-graph-figure">
+    <!-- The spinner only covers the initial load; while a refetch is pending the held
+         data stays rendered (the transient zoom bridges it). -->
+    <CmkIcon
+      v-if="isLoading && graph === null"
+      name="load-graph"
+      size="xlarge"
+      class="graphing-graph-figure__loading-icon"
+    />
+    <div v-else-if="error" class="graphing-graph-figure__error error">
+      {{ _t('Failed to fetch graph data:') }} {{ error }}
+    </div>
+    <template v-else-if="graph">
+      <div v-if="showTimestamp || showBurgerMenu" class="graphing-graph-figure__header">
+        <GraphTimestamp v-if="showTimestamp" :time-range="graph.timeRange" />
+        <GraphBurgerMenu
+          v-if="showBurgerMenu"
+          class="graphing-graph-figure__burger-menu"
+          :groups="burgerMenuGroups"
+        />
+      </div>
+      <div ref="graphAreaDiv" class="graphing-graph-figure__graph">
+        <TimeSeriesGraph
+          :time_range="viewTimeRange"
+          :metrics="visibleMetrics"
+          :horizontal_lines="visibleHorizontalLines"
+          :value-range="viewValueRange"
+          zoom-mode="time"
+          :size="figureSize"
+          :min-time-range="null"
+          :min-value-range="null"
+          :inspecting="inspectionActive"
+          :pan-enabled="true"
+          :consolidation-function="CONSOLIDATION_FUNCTION"
+          :options="graphOptions"
+          :highlighted-metric-name="highlightedMetricName"
+          @zoom="onZoomIntent"
+          @pan="onPan"
+          @reset="onResetIntent"
+        />
+      </div>
+      <GraphLegendCompact
+        v-if="showLegend"
+        :metrics="graph.metrics"
+        :horizontal-lines="graph.horizontalLines"
+        :hidden-metric-names="hiddenMetricNames"
+        :hidden-line-names="hiddenLineNames"
+        @update:hidden-metric-names="hiddenMetricNames = $event"
+        @update:hidden-line-names="hiddenLineNames = $event"
+        @hover-metric="highlightedMetricName = $event"
+      />
+    </template>
+  </div>
+</template>
+
+<style scoped>
+.graphing-graph-figure {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.graphing-graph-figure__loading-icon {
+  margin: auto;
+}
+
+.graphing-graph-figure__error {
+  padding: var(--dimension-6);
+}
+
+.graphing-graph-figure__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-top: var(--dimension-3);
+  margin-bottom: var(--dimension-4);
+}
+
+.graphing-graph-figure__burger-menu {
+  margin-left: auto;
+}
+
+.graphing-graph-figure__graph {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+</style>
