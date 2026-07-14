@@ -36,7 +36,7 @@ def test_register_with_system_apache(tmp_path: Path, mocker: MockerFixture) -> N
     content = apache_config.read_bytes()
     assert (
         sha256(content).hexdigest()
-        == "5290b64cc49ba4eab4d007a5baa24bbd8fbf514529cce22d103bc5d879f0df37"
+        == "a01fa53ad72000c4c700c42cfc722be177214b7127b7b8e6a3dfe16cbb1f02dc"
     ), (
         "The content of [site].conf was changed. Have you updated the apache_hook_version()? The "
         "number needs to be increased with every change to inform the user about an additional step "
@@ -145,8 +145,22 @@ def test_create_apache_hook_well_known_oauth_authorization_server(tmp_path: Path
     create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", apache_hook_version())
 
     content = apache_config.read_text()
-    assert "<Location /.well-known/oauth-authorization-server/unit/check_mk/authserver>" in content
+    assert "<Location /.well-known/oauth-authorization-server/oauth-unit>" in content
     assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_authorization_server.py" in content
+
+
+def test_create_apache_hook_oauth_authorization_server_endpoints(tmp_path: Path) -> None:
+    apache_config = tmp_path / "omd/apache/unit.conf"
+    apache_config.parent.mkdir(parents=True)
+    create_apache_hook(apache_config, "unit", "127.0.0.1", "5000", apache_hook_version())
+
+    content = apache_config.read_text()
+    assert "<Location /oauth-unit/authorize>" in content
+    assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_authorize.py" in content
+    assert "<Location /oauth-unit/token>" in content
+    assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_token.py" in content
+    assert "<Location /oauth-unit/register>" in content
+    assert "ProxyPass http://127.0.0.1:5000/unit/check_mk/oauth_client_registration.py" in content
 
 
 def test_write_apache_listen_conf_ipv4(tmp_path: Path) -> None:
