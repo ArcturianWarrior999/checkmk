@@ -15,8 +15,8 @@ from typing import NoReturn
 
 from cmk.livestatus_client import SingleSiteConnection
 
-# This will be substituted at 'make dist' time.
-__version__ = "3.0.0b1"
+# Substituted with the actual version at build time, see :livedump_versioned.
+__version__ = "UNSET"
 
 
 @dataclass(slots=True)

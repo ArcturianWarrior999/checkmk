@@ -81,7 +81,6 @@ pkg_files(
         ":cmk-validate-config.py",
         ":cmk-validate-plugins.py",
         ":init-redis.py",
-        ":livedump",
         ":message-broker-certs",
         ":mkevent",
         ":mkp.py",

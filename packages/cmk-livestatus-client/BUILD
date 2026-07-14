@@ -1,11 +1,14 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 load("//bazel/rules:doctest.bzl", "py_doc_test")
+load("//bazel/rules:file_from_flag.bzl", "file_from_flag")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
+load("//bazel/rules:replace_string_in_file.bzl", "replace_string_in_file")
 
 exports_files([
     "dev-requirements.in",
@@ -90,14 +93,37 @@ py_library(
     ],
 )
 
-# Keep __main__.py in a separate target to avoid mypy errors on the standalone package.
+# The livedump command line tool. Not part of the cmk.livestatus_client
+# library or its wheel; it is shipped as bin/livedump via the package tar.
 py_library(
-    name = "cmk-livestatus-client-main",
-    srcs = ["cmk/livestatus_client/__main__.py"],
+    name = "livedump",
+    srcs = ["livedump.py"],
     imports = ["."],
-    tags = ["no-mypy"],
-    visibility = ["//cmk:__pkg__"],
     deps = [":cmk-livestatus-client"],
+)
+
+# Stamp the shipped livedump with the actual version, like bin/omd does.
+replace_string_in_file(
+    name = "livedump_version_in",
+    src = "livedump.py",
+    out = "livedump_in.py",
+    replace_dict = {'__version__ = "UNSET"': '__version__ = "{CMK_VERSION}"'},
+)
+
+file_from_flag(
+    name = "livedump_versioned",
+    src = "livedump_version_in",
+    out = "livedump_bin.py",
+    replace_labels = {"CMK_VERSION": "@cmk//version"},
+)
+
+pkg_files(
+    name = "livedump_bin",
+    srcs = [":livedump_versioned"],
+    attributes = pkg_attributes(
+        mode = "0755",
+    ),
+    renames = {"livedump_bin.py": "bin/livedump"},
 )
 
 py_doc_test(
@@ -125,7 +151,6 @@ py_wheel(
     visibility = ["//visibility:public"],
     deps = [
         ":cmk-livestatus-client",
-        ":cmk-livestatus-client-main",
         ":cmk_livestatus_client_py_typed",
         ":livestatus-api",
         ":livestatus-connection",
@@ -162,6 +187,7 @@ filegroup(
 
 package_wheel(
     name = "cmk_livestatus_client_pkg_tar",
+    additional_files = [":livedump_bin"],
     visibility = ["//visibility:public"],
     whl = "cmk-livestatus-client_whl",
 )
@@ -185,6 +211,7 @@ py_requirements_test(
     libs = [
         ":cmk-livestatus-client",
         ":examples",
+        ":livedump",
     ],
     requirements_in = "requirements.in",
 )
