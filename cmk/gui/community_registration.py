@@ -55,7 +55,7 @@ from cmk.gui.quick_setup.v0_unstable._registry import quick_setup_registry
 from cmk.gui.rule_specs.legacy_converter import (
     convert_dictionary_formspec_to_valuespec,
 )
-from cmk.gui.search import match_item_generator_registry
+from cmk.gui.search import match_item_generator_registry, match_plugin_registry
 from cmk.gui.sidebar import snapin_registry
 from cmk.gui.sites import site_choices
 from cmk.gui.token_auth import token_authenticated_page_registry
@@ -190,6 +190,7 @@ def register(
         main_module_topic_registry,
         snapin_registry,
         match_item_generator_registry,
+        match_plugin_registry,
         sample_config_generator_registry,
         host_attribute_registry,
         host_attribute_topic_registry,

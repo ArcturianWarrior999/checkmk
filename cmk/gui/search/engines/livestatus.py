@@ -881,21 +881,6 @@ class GroupMatchPlugin(ABCLivestatusMatchPlugin):
         return filter_value, [(filter_name, filter_value)]
 
 
-match_plugin_registry.register(
-    GroupMatchPlugin(
-        group_type="service",
-        name="sg",
-    )
-)
-
-match_plugin_registry.register(
-    GroupMatchPlugin(
-        group_type="host",
-        name="hg",
-    )
-)
-
-
 class ServiceMatchPlugin(ABCLivestatusMatchPlugin):
     def __init__(self) -> None:
         super().__init__(["services"], "services", "s")
@@ -942,9 +927,6 @@ class ServiceMatchPlugin(ABCLivestatusMatchPlugin):
             search_key = "service_regex"
 
         return field_value, [(search_key, field_value)]
-
-
-match_plugin_registry.register(ServiceMatchPlugin())
 
 
 class ServiceStateMatchPlugin(ABCLivestatusMatchPlugin):
@@ -1018,9 +1000,6 @@ class ServiceStateMatchPlugin(ABCLivestatusMatchPlugin):
         url_infos.append(("service", service_field))
 
         return service_field, url_infos
-
-
-match_plugin_registry.register(ServiceStateMatchPlugin())
 
 
 class HostMatchPlugin(ABCLivestatusMatchPlugin):
@@ -1108,28 +1087,6 @@ class HostMatchPlugin(ABCLivestatusMatchPlugin):
                 url_info.append(("host_address_prefix", "yes"))
 
         return field_value, url_info
-
-
-match_plugin_registry.register(
-    HostMatchPlugin(
-        livestatus_field="name",
-        name="h",
-    )
-)
-
-match_plugin_registry.register(
-    HostMatchPlugin(
-        livestatus_field="alias",
-        name="al",
-    )
-)
-
-match_plugin_registry.register(
-    HostMatchPlugin(
-        livestatus_field="address",
-        name="ad",
-    )
-)
 
 
 class HosttagMatchPlugin(ABCLivestatusMatchPlugin):
@@ -1240,9 +1197,6 @@ class HosttagMatchPlugin(ABCLivestatusMatchPlugin):
         return "", url_infos
 
 
-match_plugin_registry.register(HosttagMatchPlugin())
-
-
 class ABCLabelMatchPlugin(ABCLivestatusMatchPlugin):
     @staticmethod
     def _input_to_key_value(inpt: str) -> Label:
@@ -1332,10 +1286,6 @@ class ServiceLabelMatchPlugin(ABCLabelMatchPlugin):
         )
 
 
-match_plugin_registry.register(HostLabelMatchPlugin())
-match_plugin_registry.register(ServiceLabelMatchPlugin())
-
-
 class MonitorMenuMatchPlugin(ABCBasicMatchPlugin):
     """Create matches for the entries of the monitor menu"""
 
@@ -1372,7 +1322,18 @@ class MonitorMenuMatchPlugin(ABCBasicMatchPlugin):
         ]
 
 
-match_plugin_registry.register(MonitorMenuMatchPlugin())
+def register(match_plugin_registry: MatchPluginRegistry) -> None:
+    match_plugin_registry.register(GroupMatchPlugin(group_type="service", name="sg"))
+    match_plugin_registry.register(GroupMatchPlugin(group_type="host", name="hg"))
+    match_plugin_registry.register(ServiceMatchPlugin())
+    match_plugin_registry.register(ServiceStateMatchPlugin())
+    match_plugin_registry.register(HostMatchPlugin(livestatus_field="name", name="h"))
+    match_plugin_registry.register(HostMatchPlugin(livestatus_field="alias", name="al"))
+    match_plugin_registry.register(HostMatchPlugin(livestatus_field="address", name="ad"))
+    match_plugin_registry.register(HosttagMatchPlugin())
+    match_plugin_registry.register(HostLabelMatchPlugin())
+    match_plugin_registry.register(ServiceLabelMatchPlugin())
+    match_plugin_registry.register(MonitorMenuMatchPlugin())
 
 
 # TODO: rework monitoring search façade to return correct payload for unified search.

@@ -3,7 +3,12 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from .engines.livestatus import IncorrectLabelInputError, LivestatusSearchEngine
+from .engines.livestatus import (
+    IncorrectLabelInputError,
+    LivestatusSearchEngine,
+    match_plugin_registry,
+    MatchPluginRegistry,
+)
 from .engines.redis import (
     IndexBuilder,
     IndexNotFoundException,
@@ -29,9 +34,11 @@ __all__ = [
     "MatchItem",
     "MatchItemGeneratorRegistry",
     "MatchItems",
+    "MatchPluginRegistry",
     "PermissionsHandler",
     "RedisSearchEngine",
     "SearchPermissionsHandler",
     "UnifiedSearch",
     "match_item_generator_registry",
+    "match_plugin_registry",
 ]

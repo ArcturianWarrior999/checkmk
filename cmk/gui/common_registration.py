@@ -63,7 +63,7 @@ from cmk.gui.permissions import PermissionRegistry, PermissionSectionRegistry
 from cmk.gui.quick_setup import registration as quick_setup_registration
 from cmk.gui.quick_setup.v0_unstable._registry import QuickSetupRegistry
 from cmk.gui.rule_specs.registering import register_plugin
-from cmk.gui.search import MatchItemGeneratorRegistry
+from cmk.gui.search import MatchItemGeneratorRegistry, MatchPluginRegistry
 from cmk.gui.search import registration as search_registration
 from cmk.gui.sidebar import SnapinRegistry
 from cmk.gui.token_auth import TokenAuthenticatedPageRegistry
@@ -148,6 +148,7 @@ def register(
     main_module_topic_registry: MainModuleTopicRegistry,
     snapin_registry: SnapinRegistry,
     match_item_generator_registry: MatchItemGeneratorRegistry,
+    match_plugin_registry: MatchPluginRegistry,
     sample_config_generator_registry: SampleConfigGeneratorRegistry,
     host_attribute_registry: HostAttributeRegistry,
     host_attribute_topic_registry: HostAttributeTopicRegistry,
@@ -383,6 +384,7 @@ def register(
         page_registry,
         job_registry,
         match_item_generator_registry,
+        match_plugin_registry,
         rulespec_group_registry,
     )
     register_oauth2_connections(

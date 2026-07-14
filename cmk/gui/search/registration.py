@@ -12,6 +12,8 @@ from cmk.gui.watolib.hosts_and_folders import collect_all_hosts
 from cmk.gui.watolib.rule_match_item_generator import MatchItemGeneratorRules
 from cmk.gui.watolib.rulespecs import rulespec_registry, RulespecGroupRegistry
 
+from .engines import livestatus as livestatus_engine
+from .engines.livestatus import MatchPluginRegistry
 from .engines.redis import launch_requests_processing_background, SearchIndexBackgroundJob
 from .match_items import MatchItemGeneratorRegistry
 from .pages import PageUnifiedSearch
@@ -22,6 +24,7 @@ def register(
     page_registry: PageRegistry,
     job_registry: BackgroundJobRegistry,
     match_item_generator_registry: MatchItemGeneratorRegistry,
+    match_plugin_registry: MatchPluginRegistry,
     rulespec_group_registry: RulespecGroupRegistry,
 ) -> None:
     page_registry.register(PageEndpoint("ajax_unified_search", PageUnifiedSearch(edition)))
@@ -40,3 +43,4 @@ def register(
             collect_all_hosts,
         )
     )
+    livestatus_engine.register(match_plugin_registry)
