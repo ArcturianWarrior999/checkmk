@@ -219,22 +219,14 @@ def _run_cron() -> None:
     # crond - RHEL (AlmaLinux)
     cron_cmd = "crond" if Path("/etc/redhat-release").exists() else "cron"
 
-    cron_path = which(cron_cmd) or next(
-        (
-            str(path)
-            for prefix in ("/usr/sbin", "/sbin")
-            if (path := Path(prefix) / cron_cmd).exists()
-        ),
-        None,
-    )
-    if not cron_path:
+    if not which(cron_cmd):
         raise RuntimeError(f"No cron executable found (tried {cron_cmd})")
 
     if run(["pgrep", cron_cmd], check=False, capture_output=True).returncode == 0:
         return
 
     # Start cron daemon. It forks an will keep running in the background
-    run([cron_path], check=True, sudo=True)
+    run([cron_cmd], check=True, sudo=True)
 
 
 @pytest.fixture(scope="session")

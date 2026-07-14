@@ -273,6 +273,29 @@ py_library(
 )
 
 py_library(
+    name = "performance",
+    testonly = True,
+    srcs = glob(
+        include = ["performance/**/*.py"],
+    ),
+    imports = [".."],
+    deps = [
+        "//cmk:validate_plugins",
+        requirement("pytest"),
+        requirement("psycopg"),
+        requirement("jira"),
+        requirement("matplotlib"),
+        requirement("psutil"),
+        requirement("requests"),
+        requirement("playwright"),
+        requirement("pytest_benchmark"),
+        "//tests/testlib",
+        "//tests/testlib/common:repo",
+        "//tests/testlib/common:utils",
+    ],
+)
+
+py_library(
     name = "plugins_integration",
     testonly = True,
     srcs = glob(
@@ -415,6 +438,9 @@ py_library(
 sh_library(
     name = "tests_sh",
     srcs = [
+        "performance/database/mk_client_cert.sh",
+        "performance/database/mk_server_cert.sh",
+        "performance/perftest.sh",
         "scripts/find_modified_lock_files",
         "scripts/setup_openldap.sh",
         "scripts/setup_postfix.sh",

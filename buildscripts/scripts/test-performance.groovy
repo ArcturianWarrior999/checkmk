@@ -63,10 +63,9 @@ void main() {
             mount_credentials: true,
             privileged: true,
         ) {
-            def faked_artifacts_cli_arg = fake_artifacts ? "--package-contains-faked-artifacts" : "";
             test_jenkins_helper.execute_test([
                 name: make_target,
-                cmd: "FAKED_ARTIFACTS='${faked_artifacts_cli_arg}' tests/run_tests.sh ${make_target}",
+                cmd: "tests/run_tests.sh ${make_target}",
                 // output_file: "test-performance.txt",
                 container_name: "this-distro-container",
 

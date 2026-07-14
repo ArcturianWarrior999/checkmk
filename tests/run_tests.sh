@@ -255,49 +255,7 @@ test-relay-integration-docker() {
 
 test-performance() {
     prepare-playwright
-    local benchmark_args=(
-        --benchmark-verbose
-        --self-contained-html
-        --log-level=INFO
-        --log-cli-level=INFO
-    )
-    local rc=0
-    local tmp_rc=0
-    local branch="$(make --no-print-directory --file="$REPO_PATH/defines.make" print-BRANCH_VERSION)"
-    local version="${VERSION:-daily}"
-    [ "$version" == "daily" ] && version="${branch}-$(date '+%Y.%m.%d')"
-    local benchmark_dir="${RESULT_PATH:-$REPO_PATH/results}/performance/${version}.${EDITION}"
-    local metric_backend_dir="${RESULT_PATH:-$REPO_PATH/results}/performance-metric-backend/${version}.${EDITION}"
-    mkdir -p "$benchmark_dir" "$metric_backend_dir"
-
-    bazel run //tests/performance:performance_test -- \
-        --benchmark-json="$benchmark_dir/benchmark.json" \
-        --html="$benchmark_dir/report.htm" \
-        --junitxml="$benchmark_dir/junit.xml" \
-        --ignore-running-procs \
-        ${FAKED_ARTIFACTS:+"$FAKED_ARTIFACTS"} \
-        "${benchmark_args[@]}" || tmp_rc=$?
-    rc=$((rc | tmp_rc))
-    echo "bazel run //tests/performance:performance_test finished with rc '${tmp_rc}'. Final result: '${rc}'"
-
-    bazel run //non-free/packages/cmk-metric-backend:performance -- \
-        --benchmark-json="$metric_backend_dir/benchmark.json" \
-        --html="$metric_backend_dir/report.htm" \
-        --junitxml="$metric_backend_dir/junit.xml" \
-        "${benchmark_args[@]}" || tmp_rc=$?
-    rc=$((rc | tmp_rc))
-    echo "bazel run //non-free/packages/cmk-metric-backend:performance finished with rc '${tmp_rc}'. Final result: '${rc}'"
-
-    $UVENV "$(realpath "$SCRIPT_DIR/performance/perftest.sh")" "$benchmark_dir" \
-        --skip-scenario-prefix=test_performance_metric_backend_ || tmp_rc=$?
-    rc=$((rc | tmp_rc))
-    echo "Upload test_performance finished with rc '${tmp_rc}'. Final result: '${rc}'"
-
-    $UVENV "$(realpath "$SCRIPT_DIR/performance/perftest.sh")" "$metric_backend_dir" \
-        --scenario-prefix=test_performance_metric_backend_ || tmp_rc=$?
-    rc=$((rc | tmp_rc))
-    echo "Upload test_performance_metric_backend finished with rc '${tmp_rc}'. Final result: '${rc}'"
-    return $rc
+    $UVENV "$(realpath "$SCRIPT_DIR/performance/perftest.sh")"
 }
 
 test-performance-docker() {
