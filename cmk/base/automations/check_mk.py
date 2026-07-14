@@ -1168,6 +1168,7 @@ def _execute_autodiscovery(
         logger.debug("No hosts marked by discovery check for autodiscovery")
         return {}, False
 
+    queue_size_at_start = len(autodiscovery_queue)
     logger.debug("Autodiscovery: Discovering all hosts marked by discovery check:")
 
     activation_required = False
@@ -1246,13 +1247,41 @@ def _execute_autodiscovery(
                     )
                     if not autodiscovery_result.skipped:
                         autodiscovery_queue.remove(host_name)
+                    else:
+                        logger.debug(
+                            "Autodiscovery: host %(host_name)s retained in queue for next run",
+                            {"host_name": host_name},
+                        )
 
                     if autodiscovery_result.discovery_result:
                         discovery_results[host_name] = autodiscovery_result.discovery_result
                         activation_required |= autodiscovery_result.activate
 
-    except (MKTimeout, TimeoutError) as exc:
-        logger.warning(str(exc))
+    except (MKTimeout, TimeoutError):
+        remaining_hosts = list(autodiscovery_queue)
+        logger.warning(
+            "Autodiscovery: timed out after %(elapsed).1fs (limit: %(limit)ds). "
+            "Processed %(processed)d host(s), %(remaining)d host(s) remaining in queue: %(hosts)s",
+            {
+                "elapsed": time.monotonic() - start,
+                "limit": limit,
+                "processed": len(hosts_processed),
+                "remaining": len(remaining_hosts),
+                "hosts": ", ".join(remaining_hosts) if remaining_hosts else "none",
+            },
+        )
+
+    logger.debug(
+        "Autodiscovery: run complete: queue_start=%(queue_start)d queue_end=%(queue_end)d "
+        "processed=%(processed)d results=%(results)d activation_required=%(activation_required)s",
+        {
+            "queue_start": queue_size_at_start,
+            "queue_end": len(autodiscovery_queue),
+            "processed": len(hosts_processed),
+            "results": len(discovery_results),
+            "activation_required": activation_required,
+        },
+    )
 
     if not activation_required:
         return discovery_results, False
