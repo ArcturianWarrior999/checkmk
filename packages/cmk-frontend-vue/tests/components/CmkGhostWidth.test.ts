@@ -6,11 +6,11 @@
 import { render } from '@testing-library/vue'
 import { describe, expect, test } from 'vitest'
 
-import GhostWidth from '@/components/date-time/private/display/GhostWidth.vue'
+import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
 
-describe('GhostWidth', () => {
+describe('CmkGhostWidth', () => {
   test('renders one hidden ghost span per variant plus the slot', () => {
-    const { container } = render(GhostWidth, {
+    const { container } = render(CmkGhostWidth, {
       props: { variants: ['AM', 'PM'] },
       slots: { default: '<span class="slot">Hi</span>' }
     })
@@ -22,7 +22,7 @@ describe('GhostWidth', () => {
   })
 
   test('empty variants render no ghosts', () => {
-    const { container } = render(GhostWidth, {
+    const { container } = render(CmkGhostWidth, {
       props: { variants: [] },
       slots: { default: '<span class="slot">Hi</span>' }
     })

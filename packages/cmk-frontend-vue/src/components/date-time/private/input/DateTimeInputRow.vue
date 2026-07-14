@@ -9,6 +9,7 @@ import { computed } from 'vue'
 import { untranslated } from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
+import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
 import CmkLabel from '@/components/CmkLabel.vue'
 
 import type {
@@ -18,7 +19,6 @@ import type {
   Weekday,
   WeekdayNames
 } from '../../types'
-import GhostWidth from '../display/GhostWidth.vue'
 import DateTimeInput from './DateTimeInput.vue'
 
 const props = withDefaults(
@@ -72,12 +72,12 @@ const weekdayDisplay = computed<TranslatedString>(() =>
 <template>
   <div class="cmk-date-time-input-row">
     <CmkLabel aria-hidden="true">{{ props.label }}</CmkLabel>
-    <GhostWidth
+    <CmkGhostWidth
       :variants="Object.values(props.weekdayNames)"
       class="cmk-date-time-input-row__weekday"
     >
       <span aria-hidden="true">{{ weekdayDisplay }}</span>
-    </GhostWidth>
+    </CmkGhostWidth>
     <DateTimeInput
       v-model="model"
       :date-format="props.dateFormat"

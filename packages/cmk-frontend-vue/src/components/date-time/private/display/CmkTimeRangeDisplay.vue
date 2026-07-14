@@ -10,9 +10,10 @@ import { computed } from 'vue'
 import usei18n, { untranslated } from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
+import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
+
 import { formatDate, formatTime } from '../../dateTimeUtils'
 import type { DateTimePartsDraft, ResolvedDateTimeSettings, TimeValue } from '../../types'
-import GhostWidth from './GhostWidth.vue'
 import TimeZoneTag from './TimeZoneTag.vue'
 
 const props = defineProps<{
@@ -58,17 +59,17 @@ const timeWidthVariants = computed(() =>
       <b>{{ dateText(props.from.date) }}</b>
     </span>
     <span class="cmk-time-range-display__divider" aria-hidden="true">{{ untranslated('|') }}</span>
-    <GhostWidth :variants="timeWidthVariants">
+    <CmkGhostWidth :variants="timeWidthVariants">
       <span :aria-label="emptyName(props.from.time)">{{ timeText(props.from.time) }}</span>
-    </GhostWidth>
+    </CmkGhostWidth>
     <span>{{ _t('To') }}</span>
     <span :aria-label="emptyName(props.to.date)">
       <b>{{ dateText(props.to.date) }}</b>
     </span>
     <span class="cmk-time-range-display__divider" aria-hidden="true">{{ untranslated('|') }}</span>
-    <GhostWidth :variants="timeWidthVariants">
+    <CmkGhostWidth :variants="timeWidthVariants">
       <span :aria-label="emptyName(props.to.time)">{{ timeText(props.to.time) }}</span>
-    </GhostWidth>
+    </CmkGhostWidth>
   </div>
 </template>
 

@@ -59,6 +59,7 @@ import UclCmkTimeRangeTooltip from './form-elements/date-time/UclCmkTimeRangeToo
 import UclCmkFilterDisplayItem from './form-elements/filter/UclCmkFilterDisplayItem.vue'
 import UclCmkFilterInputItem from './form-elements/filter/UclCmkFilterInputItem.vue'
 import UclCmkFilterSelection from './form-elements/filter/UclCmkFilterSelection.vue'
+import UclCmkGhostWidth from './foundation-elements/CmkGhostWidth/UclCmkGhostWidth.vue'
 import UclCmkHtml from './foundation-elements/CmkHtml/UclCmkHtml.vue'
 import UclCmkIcon from './foundation-elements/CmkIcon/UclCmkIcon.vue'
 import UclCmkIconEmblem from './foundation-elements/CmkIcon/UclCmkIconEmblem.vue'
@@ -159,6 +160,7 @@ const foundationElementsPages = [
   new Page('CmkMultitoneIcon', UclCmkMultitoneIcon),
   new Page('CmkHeading', UclCmkHeading),
   new Page('CmkParagraph', UclCmkParagraph),
+  new Page('CmkGhostWidth', UclCmkGhostWidth),
   new Page('CmkHtml', UclCmkHtml),
   new Page('CmkIndent', UclCmkIndent),
   new Page('CmkKeyboardKey', UclCmkKeyboardKey),

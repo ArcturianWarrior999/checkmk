@@ -7,7 +7,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
-import GhostWidth from '../display/GhostWidth.vue'
+import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
+
 import { type SegmentedFieldApi, selectInputOnFocus } from './useSegmentedField'
 
 withDefaults(
@@ -41,7 +42,7 @@ const { _t } = usei18n()
       <span v-if="view.separator" class="cmk-segmented-field__separator" aria-hidden="true">{{
         view.separator
       }}</span>
-      <GhostWidth :variants="view.options">
+      <CmkGhostWidth :variants="view.options">
         <input
           :ref="(el) => api.registerInput(view.key, el as HTMLInputElement | null)"
           class="cmk-segmented-field__segment"
@@ -66,7 +67,7 @@ const { _t } = usei18n()
           @focus="selectInputOnFocus"
           @blur="api.onBlur"
         />
-      </GhostWidth>
+      </CmkGhostWidth>
     </template>
   </span>
 </template>
