@@ -9,6 +9,8 @@ import { computed } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkLink from '@/components/CmkLink.vue'
+import CmkHeading from '@/components/typography/CmkHeading.vue'
+import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
 import type { HostOverview } from '@/monitoring/shared/api/types'
 
@@ -112,6 +114,13 @@ function formatTimestamp(iso: string): string {
       <dt>{{ _t('Age') }}</dt>
       <dd>{{ formatTimestamp(data.last_state_change) }}</dd>
     </dl>
+
+    <section class="monitoring-host-overview-tab__relations">
+      <CmkHeading type="h3">{{ _t('Relations') }}</CmkHeading>
+      <CmkParagraph class="monitoring-host-overview-tab__relations-empty">
+        {{ _t('No relations set') }}
+      </CmkParagraph>
+    </section>
   </div>
 </template>
 
@@ -142,6 +151,16 @@ function formatTimestamp(iso: string): string {
   grid-template-columns: minmax(120px, max-content) 1fr;
   gap: var(--dimension-4) var(--spacing);
   margin: 0;
+}
+
+.monitoring-host-overview-tab__relations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dimension-4);
+}
+
+.monitoring-host-overview-tab__relations-empty {
+  color: var(--font-color-dimmed);
 }
 
 .monitoring-host-overview-tab__grid dt {
