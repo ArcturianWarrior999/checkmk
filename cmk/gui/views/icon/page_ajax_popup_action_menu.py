@@ -5,11 +5,8 @@
 
 """Realizes the popup action menu for hosts/services in views"""
 
-import contextlib
-
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.site import SiteId
-from cmk.gui import sites
 from cmk.gui.display_options import display_options
 from cmk.gui.htmllib.html import html
 from cmk.gui.http import request
@@ -17,18 +14,16 @@ from cmk.gui.i18n import _
 from cmk.gui.pages import PageContext
 from cmk.gui.painter.v0.helpers import replace_action_url_macros, transform_action_url
 from cmk.gui.permissions import permission_registry
-from cmk.gui.type_defs import Row, StaticIcon
+from cmk.gui.type_defs import StaticIcon
 from cmk.gui.utils.roles import UserPermissions
-from cmk.livestatus_client import livestatus_lql
-from cmk.utils.servicename import ServiceName
 
 from .base import IconConfig
 from .painter import (
     get_icons,
     IconEntry,
     IconObjectType,
-    iconpainter_columns,
     LegacyIconEntry,
+    query_icon_row,
 )
 
 
@@ -41,7 +36,7 @@ def ajax_popup_action_menu(ctx: PageContext) -> None:
 
     display_options.load_from_html(request, html)
 
-    row = _query_action_data(what, host, site, svcdesc)
+    row = query_icon_row(what, host, site, svcdesc)
     icons = get_icons(
         what,
         row,
@@ -79,19 +74,3 @@ def ajax_popup_action_menu(ctx: PageContext) -> None:
                 html.close_a()
             html.close_li()
     html.close_ul()
-
-
-def _query_action_data(
-    what: IconObjectType, host: HostName, site: SiteId, svcdesc: ServiceName | None
-) -> Row:
-    # Now fetch the needed data from livestatus
-    columns = list(iconpainter_columns(what, toplevel=False))
-    with contextlib.suppress(KeyError):
-        columns.remove("site")
-
-    query = livestatus_lql([host], columns, svcdesc)
-
-    with sites.prepend_site(), sites.only_sites(site):
-        row = sites.live().query_row(query)
-
-    return dict(zip(["site"] + columns, row))
