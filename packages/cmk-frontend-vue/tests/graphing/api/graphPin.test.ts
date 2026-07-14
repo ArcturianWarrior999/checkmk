@@ -7,10 +7,59 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import client from '@/lib/rest-api-client/client'
 
-import { saveGraphPin } from '@/graphing/api/graphPin'
+import { loadGraphPin, saveGraphPin } from '@/graphing/api/graphPin'
 
+const GET_PIN_PATH = '/domain-types/graph/actions/get_pin/invoke'
 const SET_PIN_PATH = '/domain-types/graph/actions/set_pin/invoke'
 const CONTENT_TYPE = { params: { header: { 'Content-Type': 'application/json' } } }
+
+describe('loadGraphPin', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let getSpy: any
+
+  beforeEach(() => {
+    getSpy = vi.spyOn(client, 'GET')
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function mockPinTime(pinTime: number | null): void {
+    getSpy.mockResolvedValueOnce({
+      data: { pin_time: pinTime },
+      error: undefined,
+      response: new Response(null, { status: 200 })
+    } as never)
+  }
+
+  test('returns the persisted pin time', async () => {
+    mockPinTime(1700000000)
+
+    const pinTime = await loadGraphPin()
+
+    expect(pinTime).toBe(1700000000)
+    expect(getSpy).toHaveBeenCalledWith(GET_PIN_PATH)
+  })
+
+  test('returns null when no pin is set', async () => {
+    mockPinTime(null)
+
+    const pinTime = await loadGraphPin()
+
+    expect(pinTime).toBeNull()
+  })
+
+  test('throws when the response is not ok', async () => {
+    getSpy.mockResolvedValueOnce({
+      data: undefined,
+      error: {},
+      response: new Response('', { status: 403, statusText: 'Forbidden' })
+    } as never)
+
+    await expect(loadGraphPin()).rejects.toThrow()
+  })
+})
 
 describe('saveGraphPin', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

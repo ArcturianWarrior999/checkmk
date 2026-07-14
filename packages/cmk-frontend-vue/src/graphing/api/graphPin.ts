@@ -5,6 +5,10 @@
  */
 import client, { unwrap } from '@/lib/rest-api-client/client'
 
+export async function loadGraphPin(): Promise<number | null> {
+  return unwrap(await client.GET('/domain-types/graph/actions/get_pin/invoke')).pin_time
+}
+
 export async function saveGraphPin(pinTime: number | null): Promise<void> {
   unwrap(
     await client.POST('/domain-types/graph/actions/set_pin/invoke', {

@@ -5,8 +5,8 @@
  */
 import { ref, watch } from 'vue'
 
-import { saveGraphPin } from '../api/graphPin'
 import type { PinPayload, TimeRange, ZoomMode, ZoomPayload } from '../components/TimeSeriesGraph'
+import { useGlobalPin } from './useGlobalPin'
 import { useGraphView } from './useGraphView'
 
 // Stands in for the baseline until the first data fetch delivers one; hosts gate
@@ -16,7 +16,10 @@ const EMPTY_TIME_RANGE: TimeRange = { start: 0, end: 0, step: 1 }
 // The per-graph interaction owner: the renderer is view-only (emit-and-wait) and this
 // composable holds everything that moves it — the view state machine, the zoom mode,
 // and the pin — plus the handlers that route the renderer's intents into the machine.
-export function useGraphInteraction(getBaseline: () => TimeRange | undefined) {
+export function useGraphInteraction(
+  getBaseline: () => TimeRange | undefined,
+  getShowPin: () => boolean = () => false
+) {
   const {
     timeRange: viewTimeRange,
     valueRange: viewValueRange,
@@ -25,7 +28,18 @@ export function useGraphInteraction(getBaseline: () => TimeRange | undefined) {
   } = useGraphView(() => getBaseline() ?? EMPTY_TIME_RANGE)
 
   const zoomMode = ref<ZoomMode>('time')
-  const pinTime = ref<number | null>(null)
+
+  const { pinTime, ensurePinLoaded, setPin, clearPin } = useGlobalPin()
+
+  watch(
+    getShowPin,
+    (showPin) => {
+      if (showPin) {
+        ensurePinLoaded()
+      }
+    },
+    { immediate: true }
+  )
 
   watch(getBaseline, (baseline) => {
     if (baseline !== undefined) {
@@ -45,20 +59,8 @@ export function useGraphInteraction(getBaseline: () => TimeRange | undefined) {
     handleIntent({ kind: 'reset' })
   }
 
-  function persistPin(newPinTime: number | null): void {
-    saveGraphPin(newPinTime).catch((error: unknown) => {
-      console.error('Failed to save the graph pin', error)
-    })
-  }
-
   function onPinCreate(payload: PinPayload): void {
-    pinTime.value = payload.time
-    persistPin(payload.time)
-  }
-
-  function clearPin(): void {
-    pinTime.value = null
-    persistPin(null)
+    setPin(payload.time)
   }
 
   return {
