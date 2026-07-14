@@ -929,6 +929,7 @@ excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 [components."cmk.gui.nonfree.ultimate"]
 allows = [
   "@ccc",
+  "@crypto",
   "@livestatus_client",
   "@metric_backend",
   "@plugin_apis",
