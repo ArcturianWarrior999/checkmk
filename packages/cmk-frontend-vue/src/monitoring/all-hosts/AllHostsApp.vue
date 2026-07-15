@@ -38,6 +38,7 @@ import type {
 import MonitoringEmptyState from '../shared/components/MonitoringEmptyState.vue'
 import MonitoringResultsCount from '../shared/components/MonitoringResultsCount.vue'
 import MonitoringTable from '../shared/components/MonitoringTable.vue'
+import MonitoringTruncationNotice from '../shared/components/MonitoringTruncationNotice.vue'
 import RefreshCountdown from '../shared/components/RefreshCountdown.vue'
 import ActionFeedback, {
   type ActionFeedback as ActionFeedbackResult
@@ -531,6 +532,7 @@ function navigateToLegacy() {
       <template #left>
         <div class="monitoring-all-hosts-app__left-pane">
           <MonitoringResultsCount class="monitoring-all-hosts-app__results-count" />
+          <MonitoringTruncationNotice class="monitoring-all-hosts-app__truncation-notice" />
           <ActionFeedback
             v-if="feedback"
             v-model:open="feedbackOpen"
@@ -694,6 +696,11 @@ function navigateToLegacy() {
 }
 
 .monitoring-all-hosts-app__results-count {
+  flex: 0 0 auto;
+  margin: var(--spacing-half) 0 var(--spacing);
+}
+
+.monitoring-all-hosts-app__truncation-notice {
   flex: 0 0 auto;
   margin: var(--spacing-half) 0 var(--spacing);
 }

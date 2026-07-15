@@ -26,6 +26,7 @@ import { useColumnFilterBridge } from './useColumnFilterBridge'
 export interface PagedResponse<T> {
   items: T[]
   meta: {
+    limit: number
     matched: number
     total: number
   }
@@ -54,6 +55,10 @@ export abstract class MonitoringService<T> extends ServiceBase {
   readonly items: Ref<T[]> = shallowRef<T[]>([])
   readonly matched: Ref<number> = ref(0)
   readonly total: Ref<number> = ref(0)
+  readonly limit: Ref<number> = ref(0)
+  readonly resultsTruncated: ComputedRef<boolean> = computed(
+    () => this.limit.value > 0 && this.matched.value > this.limit.value
+  )
   /** The kind of fetch currently in flight, or `'idle'`. */
   readonly fetchState: Ref<FetchState> = ref('idle')
   readonly hasLoaded: Ref<boolean> = ref(false)
@@ -231,6 +236,7 @@ export abstract class MonitoringService<T> extends ServiceBase {
       this.items.value = response.items
       this.matched.value = response.meta.matched
       this.total.value = response.meta.total
+      this.limit.value = response.meta.limit
       this.committedSearchQuery.value = searchQueryForFetch
     } catch (error: unknown) {
       if (this.currentAbort !== abort) {
