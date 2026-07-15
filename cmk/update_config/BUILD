@@ -96,7 +96,7 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:graphing",
         "//packages/cmk-plugin-apis:rulesets",
-        "//packages/cmk-werks:tool",
+        "//packages/cmk-werks",
         "//packages/cmk-wsgi",
         requirement("python-dateutil"),
     ],

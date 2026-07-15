@@ -11,8 +11,8 @@ import subprocess
 from pathlib import Path
 
 from cmk.utils.werks.__main__ import main as cmk_utils_werks_main
-from cmk.werks.tool.cli import main as cmk_werks_cli_main
-from cmk.werks.tool.utils.__main__ import main as cmk_werks_main
+from cmk.werks.cli import main as cmk_werks_cli_main
+from cmk.werks.utils.__main__ import main as cmk_werks_main
 
 
 def _git_repo_root() -> Path:

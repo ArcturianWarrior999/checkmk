@@ -13,7 +13,7 @@ from pydantic import TypeAdapter
 import cmk.utils.werks
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.plugins.actions.werks import load_unacknowledged_werks, UnacknowledgedWerks
-from cmk.werks.tool.models import Class, Compatibility, EditionV3, Level, WerkV3
+from cmk.werks.models import Class, Compatibility, EditionV3, Level, WerkV3
 
 
 def generate_werk(

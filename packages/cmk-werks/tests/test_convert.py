@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
-from cmk.werks.tool.convert import werkv1_to_werkv2
+from cmk.werks.convert import werkv1_to_werkv2
 
 WERK_V1_SIMPLE = """Title: Simple Title
 Class: fix

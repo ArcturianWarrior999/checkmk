@@ -1,15 +1,11 @@
 # cmk-werks
 
 Tools for managing Checkmk werks (changelog entries).
-Contains the `cmk.werks` namespace and the `cmk.werk_ids_server` HTTP service that allocates werk IDs centrally.
+Contains the `cmk.werks` library and CLI used across the repo, and the `cmk.werk_ids_server` HTTP service that allocates werk IDs centrally.
 
-## cmk.werks.tool — library and CLI
+## cmk.werks — library and CLI
 
-`cmk.werks.tool` provides the `werk` CLI plus werk parsing, validation, formatting, and ID management.
-
-## cmk.werks.site — site runtime helpers
-
-`cmk.werks.site` contains the werk handling used inside a Checkmk site (e.g. werk acknowledgement storage).
+`cmk.werks` provides werk parsing, validation, formatting, and ID management.
 
 ## cmk.werk_ids_server — werk ID server
 

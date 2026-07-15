@@ -362,7 +362,7 @@ py_library(
         "//cmk/utils:werks",
         "//packages/cmk-ccc:version",
         "//packages/cmk-plugin-apis:discover_plugins",
-        "//packages/cmk-werks:tool",
+        "//packages/cmk-werks",
     ],
 )
 

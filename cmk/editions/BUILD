@@ -99,7 +99,7 @@ py_library(
         "//packages/cmk-plugins:all_families",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-trace",
-        "//packages/cmk-werks:tool",
+        "//packages/cmk-werks",
     ],
 )
 

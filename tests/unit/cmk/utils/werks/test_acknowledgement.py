@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from cmk.utils.werks import load
-from cmk.werks.tool.models import Class, Compatibility, EditionV3, Level, WerkV3
+from cmk.werks.models import Class, Compatibility, EditionV3, Level, WerkV3
 
 WERK_V1 = {
     "15374": {

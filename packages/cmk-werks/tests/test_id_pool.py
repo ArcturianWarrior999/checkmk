@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 import requests
 
-from cmk.werks.tool.id_pool import (
+from cmk.werks.id_pool import (
     _server_error_message,
     add_id_to_stash,
     dump_stash_to_file,
@@ -23,7 +23,7 @@ from cmk.werks.tool.id_pool import (
     pick_id_from_stash,
     WerkIDsClient,
 )
-from cmk.werks.tool.schemas.werk import LegacyStash, Stash, WerkId
+from cmk.werks.schemas.werk import LegacyStash, Stash, WerkId
 
 # ---------------------------------------------------------------------------
 # Stash unit tests

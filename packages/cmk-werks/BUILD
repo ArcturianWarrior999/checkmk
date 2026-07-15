@@ -26,31 +26,29 @@ js_binary(
 )
 
 py_library(
-    name = "tool",
+    name = "cmk-werks",
     srcs = [
-        # compatibility shim for venv entry points
+        "cmk/werks/__init__.py",
+        "cmk/werks/__main__.py",
         "cmk/werks/cli.py",
-        "cmk/werks/tool/__init__.py",
-        "cmk/werks/tool/__main__.py",
-        "cmk/werks/tool/cli.py",
-        "cmk/werks/tool/collect.py",
-        "cmk/werks/tool/config.py",
-        "cmk/werks/tool/constants.py",
-        "cmk/werks/tool/convert.py",
-        "cmk/werks/tool/error.py",
-        "cmk/werks/tool/format.py",
-        "cmk/werks/tool/id_pool.py",
-        "cmk/werks/tool/in_out_elements.py",
-        "cmk/werks/tool/load.py",
-        "cmk/werks/tool/markup.py",
-        "cmk/werks/tool/models.py",
-        "cmk/werks/tool/parse.py",
-        "cmk/werks/tool/schemas/__init__.py",
-        "cmk/werks/tool/schemas/werk.py",
-        "cmk/werks/tool/utils/__init__.py",
-        "cmk/werks/tool/utils/__main__.py",
-        "cmk/werks/tool/utils/collect.py",
-        "cmk/werks/tool/validate.py",
+        "cmk/werks/collect.py",
+        "cmk/werks/config.py",
+        "cmk/werks/constants.py",
+        "cmk/werks/convert.py",
+        "cmk/werks/error.py",
+        "cmk/werks/format.py",
+        "cmk/werks/id_pool.py",
+        "cmk/werks/in_out_elements.py",
+        "cmk/werks/load.py",
+        "cmk/werks/markup.py",
+        "cmk/werks/models.py",
+        "cmk/werks/parse.py",
+        "cmk/werks/schemas/__init__.py",
+        "cmk/werks/schemas/werk.py",
+        "cmk/werks/utils/__init__.py",
+        "cmk/werks/utils/__main__.py",
+        "cmk/werks/utils/collect.py",
+        "cmk/werks/validate.py",
     ],
     data = ["cmk/werks/py.typed"],
     imports = ["."],
@@ -72,7 +70,7 @@ py_library(
 py_doc_test(
     name = "doctest",
     size = "small",
-    srcs = ["tool"],
+    srcs = ["cmk-werks"],
     tags = ["no-mypy"],
 )
 
@@ -82,7 +80,7 @@ py_cmk_test(
     srcs = glob(["tests/**/*.py"]),
     deps = [
         ":cmk-werk-ids-server",
-        ":tool",
+        ":cmk-werks",
         requirement("flask"),
         requirement("gitpython"),
         requirement("requests"),
@@ -98,7 +96,7 @@ py_wheel(
     # TODO: Duplicated from pyproject.toml
     version = "1.0.0",
     visibility = ["//visibility:public"],
-    deps = [":tool"],
+    deps = [":cmk-werks"],
 )
 
 py_library(
@@ -114,7 +112,7 @@ py_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        ":tool",
+        ":cmk-werks",
         "//cmk/utils:paths",
         "//packages/cmk-ccc:store",
     ],
@@ -159,7 +157,7 @@ filegroup(
 # and not the editable sources from the repo which are included via sitecustomize.py
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {"werk": "cmk.werks.tool.cli:main"},
+    console_scripts = {"werk": "cmk.werks.cli:main"},
     distribution = "cmk-werks-entrypoint",
     version = "1.0.0",
     visibility = ["//visibility:public"],
@@ -187,26 +185,26 @@ sh_library(
 
 py_binary(
     name = "werk",
-    srcs = ["cmk/werks/tool/__main__.py"],
+    srcs = ["cmk/werks/__main__.py"],
     imports = ["."],
-    main = "cmk/werks/tool/__main__.py",
+    main = "cmk/werks/__main__.py",
     visibility = ["//visibility:public"],
-    deps = [":tool"],
+    deps = ["//packages/cmk-werks"],
 )
 
 py_binary(
     name = "utils-bin",
-    srcs = ["cmk/werks/tool/utils/__main__.py"],
+    srcs = ["cmk/werks/utils/__main__.py"],
     imports = ["."],
-    main = "cmk/werks/tool/utils/__main__.py",
+    main = "cmk/werks/utils/__main__.py",
     visibility = ["//visibility:public"],
-    deps = [":tool"],
+    deps = ["//packages/cmk-werks"],
 )
 
 py_requirements_test(
     name = "requirements-test",
     libs = [
-        ":tool",
+        ":cmk-werks",
     ],
     requirements_in = "requirements.in",
 )

@@ -11,12 +11,12 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from cmk.ccc.version import __version__, Version
-from cmk.werks.tool.models import EditionV2, EditionV3, WerkV3
-from cmk.werks.tool.utils import (
+from cmk.werks.models import EditionV2, EditionV3, WerkV3
+from cmk.werks.utils import (
     load_raw_files,
     write_precompiled_werks,
 )
-from cmk.werks.tool.utils.collect import main as collect
+from cmk.werks.utils.collect import main as collect
 
 
 def path_dir(value: str) -> Path:

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import cmk.utils.paths
 from cmk.ccc import store
-from cmk.werks.tool.models import WerkV3
-from cmk.werks.tool.utils import write_precompiled_werks
+from cmk.werks.models import WerkV3
+from cmk.werks.utils import write_precompiled_werks
 
 ACKNOWLEDGEMENT_PATH = cmk.utils.paths.var_dir / "acknowledged_werks.mk"
 UNACKNOWLEDGED_WERKS_JSON = cmk.utils.paths.var_dir / "unacknowledged_werks.json"

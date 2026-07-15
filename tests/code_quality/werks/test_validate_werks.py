@@ -9,10 +9,10 @@ from pathlib import Path
 import pytest
 
 from cmk.utils.werks.__main__ import main as cmk_utils_werks_main
-from cmk.werks.tool.config import try_load_current_version_from_defines_make
-from cmk.werks.tool.utils import load_precompiled_werks_file
-from cmk.werks.tool.utils.__main__ import main as cmk_werks_main
-from cmk.werks.tool.validate import main as validate_main
+from cmk.werks.config import try_load_current_version_from_defines_make
+from cmk.werks.utils import load_precompiled_werks_file
+from cmk.werks.utils.__main__ import main as cmk_werks_main
+from cmk.werks.validate import main as validate_main
 from tests.code_quality.bazel_utils import bazel_repo_root
 
 WERKS_DIR = bazel_repo_root() / ".werks"

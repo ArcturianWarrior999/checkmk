@@ -8,10 +8,10 @@ from itertools import chain
 
 import pytest
 
-from cmk.werks.tool.cli import (
+from cmk.werks.cli import (
     _reserve_werk_ids,
 )
-from cmk.werks.tool.schemas.werk import WerkId
+from cmk.werks.schemas.werk import WerkId
 
 
 def tw(data: Iterable[int]) -> list[WerkId]:

@@ -214,9 +214,9 @@ def test_python_optimized_and_lto_enable(site: Site) -> None:
             id="pyc for imports from the big monolith cmk namespace",
         ),
         pytest.param(
-            "cmk.werks.tool.config",
-            f"lib/python{PYVER.major}.{PYVER.minor}/site-packages/cmk/werks/tool/config.py",
-            f"lib/python{PYVER.major}.{PYVER.minor}/site-packages/cmk/werks/tool/__pycache__/config.cpython-{PYVER.major}{PYVER.minor}.pyc",
+            "cmk.werks.config",
+            f"lib/python{PYVER.major}.{PYVER.minor}/site-packages/cmk/werks/config.py",
+            f"lib/python{PYVER.major}.{PYVER.minor}/site-packages/cmk/werks/__pycache__/config.cpython-{PYVER.major}{PYVER.minor}.pyc",
             id="pyc for imports from cmk packages namespace",
         ),
         pytest.param(
