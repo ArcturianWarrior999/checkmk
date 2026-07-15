@@ -33,6 +33,7 @@ def test_init_scripts(site: Site) -> None:
             "cmc",
             "dcd",
             "liveproxyd",
+            "mcp-server",
             "mknotifyd",
         }
     if site.edition.is_ultimate_edition() or site.edition.is_ultimatemt_edition():
@@ -45,7 +46,7 @@ def test_init_scripts(site: Site) -> None:
         or site.edition.is_ultimate_edition()
         or site.edition.is_ultimatemt_edition()
     ):
-        scripts |= {"mcp-server", "metric-backend"}
+        scripts |= {"metric-backend"}
     if not site.edition.is_cloud_edition():
         scripts |= {"jaeger"}
 

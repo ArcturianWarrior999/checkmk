@@ -73,6 +73,8 @@ edition_deps = select({
         "//non-free/packages/cmc-protocols:pkg_tar",
         "//non-free/packages/cmk-bakery:pkg_tar",
         "//non-free/packages/cmk-core-helpers:pkg_tar",
+        "//non-free/packages/cmk-mcp:omd_skel_tar",
+        "//non-free/packages/cmk-mcp:pkg_tar",
         "//non-free/packages/cmk-mknotifyd:pkg_tar",
         "//non-free/packages/cmk-notification-plugins-nonfree:pkg_tar",
         "//non-free/packages/cmk-plugins-nonfree:pkg_tar-kube_extended",
@@ -219,6 +221,7 @@ edition_skel_permissions = select({
     ],
     "@cmk//edition:pro": [
         "//omd/packages/apache-omd:skel.permissions",
+        "//non-free/packages/cmk-mcp:skel.permissions",
         "//non-free/packages/cmk-mknotifyd:skel.permissions",
         "//omd/non-free/packages/cmc:skel.permissions",
         "//omd/non-free/packages/cmk-dcd:skel.permissions",
