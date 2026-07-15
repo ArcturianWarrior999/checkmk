@@ -30,16 +30,32 @@ class TestMonitorHostsAuth:
         assert resp.status_code == 401
         assert "credentials" in resp.json["detail"]
 
-    def test_insufficient_permissions(
-        self, clients: ClientRegistry, with_user: tuple[UserId, str]
+    def test_normal_user_is_permitted(
+        self,
+        clients: ClientRegistry,
+        with_user: tuple[UserId, str],
+        mock_livestatus: MockLiveStatusConnection,
     ) -> None:
         client = clients.MonitorHosts
         client.set_credentials(*with_user)
 
-        resp = client.list_all(limit=100, expect_ok=False)
+        mock_livestatus.add_table("hosts", _HOSTS)
+        # see_all-less user → sites.live() adds an AuthUser line; match loosely to tolerate it.
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_TABLE_COLUMNS}",
+                "OrderBy: name asc natural",
+                f"Limit: {_LIMIT}",
+            ],
+            match_type="loose",
+        )
+        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"], match_type="loose")
 
-        assert resp.status_code == 403
-        assert "permission" in resp.json["detail"]
+        with mock_livestatus(expect_status_query=True):
+            resp = client.list_all(limit=_LIMIT)
+
+        assert resp.status_code == 200
 
 
 class TestMonitorHostsQueryParamValidation:
@@ -287,16 +303,31 @@ class TestMonitorHostOverviewAuth:
         assert resp.status_code == 401
         assert "credentials" in resp.json["detail"]
 
-    def test_insufficient_permissions(
-        self, clients: ClientRegistry, with_user: tuple[UserId, str]
+    def test_normal_user_is_permitted(
+        self,
+        clients: ClientRegistry,
+        with_user: tuple[UserId, str],
+        mock_livestatus: MockLiveStatusConnection,
     ) -> None:
         client = clients.MonitorHosts
         client.set_credentials(*with_user)
 
-        resp = client.get(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+        mock_livestatus.add_table("hosts", [])
+        # see_all-less user → sites.live() adds an AuthUser line; match loosely to tolerate it.
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_OVERVIEW_COLUMNS}",
+                "Filter: name = heute",
+            ],
+            sites=[_SITE_ID],
+            match_type="loose",
+        )
 
-        assert resp.status_code == 403
-        assert "permission" in resp.json["detail"]
+        with mock_livestatus(expect_status_query=True):
+            resp = client.get(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 404
 
 
 class TestMonitorHostOverviewQueryParamValidation:

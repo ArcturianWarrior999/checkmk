@@ -151,8 +151,6 @@ class HostsRequestBody:
 
 def list_hosts(body: HostsRequestBody = HostsRequestBody()) -> HostsResponse:
     """List hosts to be consumed by the all host monitoring page."""
-    user.need_permission("general.see_all")
-
     host_repo = LiveStatusHostRepository(connection=sites.live())
 
     parsed_filters = (
@@ -221,14 +219,12 @@ ENDPOINT_LIST_HOSTS = VersionedEndpoint(
         method="post",
     ),
     permissions=EndpointPermissions(
+        # Declared for the permission tracker: inspected via user.may() during the request, but
+        # none is required.
         required=permissions.Undocumented(
             permissions.AnyPerm(
                 [
-                    permissions.Perm("general.see_all"),
-                    # NOTE: these need to be included in order to make the REST API framework happy.
-                    # The "see_all" permission is the only one that is required to check. The
-                    # "ignore_hard_limit" permission is checked optionally to decide whether a client
-                    # may remove the row limit entirely.
+                    permissions.OkayToIgnorePerm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),
                     permissions.OkayToIgnorePerm("mkeventd.seeall"),
                     permissions.OkayToIgnorePerm("general.ignore_hard_limit"),

@@ -8,7 +8,6 @@ from typing import Annotated, Self
 
 from cmk.ccc.site import SiteId
 from cmk.gui import sites
-from cmk.gui.logged_in import user
 from cmk.gui.openapi.framework import (
     ApiContext,
     APIVersion,
@@ -128,8 +127,6 @@ def get_host_overview(
     api_context: ApiContext,
 ) -> HostOverviewResponse:
     """Show the overview for a single host."""
-    user.need_permission("general.see_all")
-
     host_repo = LiveStatusHostRepository(connection=sites.live())
     site_alias = api_context.config.sites[site_id]["alias"]
 
@@ -164,12 +161,12 @@ ENDPOINT_GET_HOST_OVERVIEW = VersionedEndpoint(
         method="get",
     ),
     permissions=EndpointPermissions(
+        # Declared for the permission tracker: inspected via user.may() during the request, but
+        # none is required.
         required=permissions.Undocumented(
             permissions.AnyPerm(
                 [
-                    permissions.Perm("general.see_all"),
-                    # NOTE: these two need to be included in order to make the REST API framework
-                    # happy. The "see_all" permission is the only one that is required to check.
+                    permissions.OkayToIgnorePerm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),
                     permissions.OkayToIgnorePerm("mkeventd.seeall"),
                 ]
