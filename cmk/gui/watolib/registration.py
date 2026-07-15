@@ -58,7 +58,6 @@ from .bulk_discovery import BulkDiscoveryBackgroundJob
 from .config_domain_name import (
     ConfigDomainRegistry,
     ConfigVariableGroupRegistry,
-    SampleConfigGeneratorRegistry,
 )
 from .config_hostname import config_hostname_autocompleter
 from .config_sync import ReplicationPathRegistry
@@ -96,6 +95,7 @@ from .rulespecs import (
     RulespecGroupEnforcedServices,
     RulespecGroupRegistry,
 )
+from .sample_config import SampleConfigGeneratorRegistry
 from .services import ServiceDiscoveryBackgroundJob
 from .single_choice_editable_visitor import SingleChoiceEditableVisitor
 from .time_specific_visitor import TimeSpecificVisitor

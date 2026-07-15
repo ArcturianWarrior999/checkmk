@@ -6,8 +6,9 @@
 import abc
 
 from cmk.gui.groups import AllGroupSpecs, GroupName, GroupSpec
-from cmk.gui.watolib.config_domain_name import SampleConfigGenerator
 from cmk.gui.watolib.groups_io import save_group_information
+
+from ._registry import SampleConfigGenerator
 
 
 class SampleConfigGeneratorABCGroups(SampleConfigGenerator):

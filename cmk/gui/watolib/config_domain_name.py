@@ -229,35 +229,6 @@ def generate_hosts_to_update_settings(hostnames: Sequence[HostName]) -> Serializ
     return {"hosts_to_update": hostnames}
 
 
-class SampleConfigGenerator(abc.ABC):
-    @classmethod
-    def ident(cls) -> str:
-        """Unique key which can be used to identify a generator"""
-        raise NotImplementedError
-
-    # TODO: @abc.abstractmethod
-    @classmethod
-    def sort_index(cls) -> int:
-        """The generators are executed in this order (low to high)"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def generate(self) -> None:
-        """Execute the sample configuration creation step"""
-        raise NotImplementedError
-
-
-class SampleConfigGeneratorRegistry(cmk.ccc.plugin_registry.Registry[type[SampleConfigGenerator]]):
-    def plugin_name(self, instance: type[SampleConfigGenerator]) -> str:
-        return instance.ident()
-
-    def get_generators(self) -> list[SampleConfigGenerator]:
-        """Return the generators in the order they are expected to be executed"""
-        return sorted([g_class() for g_class in self.values()], key=lambda e: e.sort_index())
-
-
-sample_config_generator_registry = SampleConfigGeneratorRegistry()
-
 # .
 #   .--Global configuration------------------------------------------------.
 #   |       ____ _       _           _                    __ _             |

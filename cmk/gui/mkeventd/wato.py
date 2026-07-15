@@ -143,8 +143,6 @@ from cmk.gui.watolib.config_domain_name import (
     ConfigVariableGroupRegistry,
     ConfigVariableRegistry,
     GlobalSettingsContext,
-    SampleConfigGenerator,
-    SampleConfigGeneratorRegistry,
 )
 from cmk.gui.watolib.config_domains import ConfigDomainGUI, ConfigDomainOMD
 from cmk.gui.watolib.config_sync import (
@@ -186,6 +184,10 @@ from cmk.gui.watolib.rulespecs import (
     RulespecGroupRegistry,
     RulespecRegistry,
     ServiceRulespec,
+)
+from cmk.gui.watolib.sample_config import (
+    SampleConfigGenerator,
+    SampleConfigGeneratorRegistry,
 )
 from cmk.gui.watolib.sidebar_reload import sidebar_reload_change_hook
 from cmk.gui.watolib.translation import HostnameTranslation

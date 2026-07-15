@@ -35,11 +35,6 @@ from cmk.gui.userdb import (
     UserSpec,
 )
 from cmk.gui.utils.htpasswd import Htpasswd
-from cmk.gui.watolib.config_domain_name import (
-    sample_config_generator_registry,
-    SampleConfigGenerator,
-    SampleConfigGeneratorRegistry,
-)
 from cmk.gui.watolib.config_domains import ConfigDomainCACertificates
 from cmk.gui.watolib.global_settings import save_global_settings
 from cmk.gui.watolib.hosts_and_folders import folder_tree
@@ -69,6 +64,11 @@ from cmk.utils.paths import (
 
 from ._abc import SampleConfigGeneratorABCGroups
 from ._constants import SHIPPED_RULES, USE_NEW_DESCRIPTIONS_FOR_SETTING
+from ._registry import (
+    sample_config_generator_registry,
+    SampleConfigGenerator,
+    SampleConfigGeneratorRegistry,
+)
 
 
 # TODO: Must only be unlocked when it was not locked before. We should find a more

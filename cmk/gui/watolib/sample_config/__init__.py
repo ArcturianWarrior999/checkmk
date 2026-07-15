@@ -18,10 +18,18 @@ from ._impl import (
     register,
     SampleConfigGeneratorGroups,
 )
+from ._registry import (
+    sample_config_generator_registry,
+    SampleConfigGenerator,
+    SampleConfigGeneratorRegistry,
+)
 
 __all__ = [
+    "SampleConfigGenerator",
     "SampleConfigGeneratorABCGroups",
     "SampleConfigGeneratorGroups",
+    "SampleConfigGeneratorRegistry",
+    "sample_config_generator_registry",
     "CMK_INV_RULES",
     "new_notification_parameter_id",
     "new_notification_rule_id",

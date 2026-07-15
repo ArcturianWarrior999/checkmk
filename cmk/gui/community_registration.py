@@ -95,7 +95,6 @@ from cmk.gui.watolib.config_domain_name import (
     config_domain_registry,
     config_variable_group_registry,
     config_variable_registry,
-    sample_config_generator_registry,
 )
 from cmk.gui.watolib.config_sync import replication_path_registry
 from cmk.gui.watolib.groups_io import contact_group_usage_finder_registry
@@ -113,7 +112,10 @@ from cmk.gui.watolib.notification_parameter import (
 )
 from cmk.gui.watolib.piggyback_hub import distribute_piggyback_hub_configs
 from cmk.gui.watolib.rulespecs import rulespec_group_registry, rulespec_registry
-from cmk.gui.watolib.sample_config import SampleConfigGeneratorGroups
+from cmk.gui.watolib.sample_config import (
+    sample_config_generator_registry,
+    SampleConfigGeneratorGroups,
+)
 from cmk.gui.watolib.simple_config_file import config_file_registry
 from cmk.gui.watolib.sites import site_management_registry, SiteManagement
 from cmk.gui.watolib.snapshots import make_cre_snapshot_manager

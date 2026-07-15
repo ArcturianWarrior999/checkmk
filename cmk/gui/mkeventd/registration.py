@@ -24,7 +24,6 @@ from cmk.gui.watolib.config_domain_name import (
     ConfigDomainRegistry,
     ConfigVariableGroupRegistry,
     ConfigVariableRegistry,
-    SampleConfigGeneratorRegistry,
 )
 from cmk.gui.watolib.config_sync import ReplicationPathRegistry
 from cmk.gui.watolib.groups_io import ContactGroupUsageFinderRegistry
@@ -32,6 +31,7 @@ from cmk.gui.watolib.main_menu import MainModuleRegistry
 from cmk.gui.watolib.mode import ModeRegistry
 from cmk.gui.watolib.notification_parameter import NotificationParameterRegistry
 from cmk.gui.watolib.rulespecs import RulespecGroupRegistry, RulespecRegistry
+from cmk.gui.watolib.sample_config import SampleConfigGeneratorRegistry
 from cmk.gui.watolib.timeperiods import TimeperiodUsageFinderRegistry
 
 from . import _filters, views, wato
