@@ -128,19 +128,20 @@ def _constant_time_series(value: float | None, time_range: TimeRange) -> TimeSer
 
 def _apply_operator(
     operator: _Operator,
-    operands: Sequence[EvaluatedQuantity | None],
+    operands: Sequence[EvaluatedQuantity],
     context: EvaluationContext,
 ) -> EvaluatedQuantity:
-    values = [None if operand is None else operand.value for operand in operands]
-    time_series = [
-        _constant_time_series(None, context.time_range) if operand is None else operand.time_series
-        for operand in operands
-    ]
+    # The scalar value and every series point run through the same _apply, so an operator's None
+    # handling (Sum folds present values, Product / Difference / Fraction null on a gap) is identical
+    # at both levels.
     return EvaluatedQuantity(
-        value=None if any(value is None for value in values) else operator(values),
+        value=_apply(operator, [operand.value for operand in operands]),
         time_series=TimeSeries(
             time_range=context.time_range,
-            values=[_apply(operator, point) for point in zip(*(ts.values for ts in time_series))],
+            values=[
+                _apply(operator, point)
+                for point in zip(*(operand.time_series.values for operand in operands))
+            ],
         ),
     )
 
@@ -155,6 +156,19 @@ def _collapse(results: Sequence[EvaluatedQuantity]) -> EvaluatedQuantity | None:
             return single
         case _:
             raise ValueError("a fan-out quantity cannot be an operand of an operation")
+
+
+def _collapse_operands(
+    results: Sequence[Sequence[EvaluatedQuantity]],
+) -> Sequence[EvaluatedQuantity] | None:
+    # An operation is absent unless it has operands and every one of them is present: an empty
+    # operation and any absent operand alike make the whole operation absent (value and series). Gaps
+    # within present operands are handled point-wise by _apply.
+    operands = [_collapse(result) for result in results]
+    present = [operand for operand in operands if operand is not None]
+    if not operands or len(present) != len(operands):
+        return None
+    return present
 
 
 @dataclass(frozen=True)
@@ -320,8 +334,8 @@ class Sum:
             yield from summand.metrics()
 
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
-        operands = [_collapse(summand.evaluate(context)) for summand in self.summands]
-        if not operands or operands[0] is None:
+        operands = _collapse_operands([summand.evaluate(context) for summand in self.summands])
+        if operands is None:
             return []
         return [_apply_operator(_op_sum, operands, context)]
 
@@ -349,7 +363,9 @@ class Product:
             yield from factor.metrics()
 
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
-        operands = [_collapse(factor.evaluate(context)) for factor in self.factors]
+        operands = _collapse_operands([factor.evaluate(context) for factor in self.factors])
+        if operands is None:
+            return []
         return [_apply_operator(_op_product, operands, context)]
 
     def attributes(
@@ -377,11 +393,12 @@ class Difference:
         yield from self.subtrahend.metrics()
 
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
-        minuend = _collapse(self.minuend.evaluate(context))
-        if minuend is None:
+        operands = _collapse_operands(
+            [self.minuend.evaluate(context), self.subtrahend.evaluate(context)]
+        )
+        if operands is None:
             return []
-        subtrahend = _collapse(self.subtrahend.evaluate(context))
-        return [_apply_operator(_op_difference, [minuend, subtrahend], context)]
+        return [_apply_operator(_op_difference, operands, context)]
 
     def attributes(
         self,
@@ -408,9 +425,12 @@ class Fraction:
         yield from self.divisor.metrics()
 
     def evaluate(self, context: EvaluationContext) -> Sequence[EvaluatedQuantity]:
-        dividend = _collapse(self.dividend.evaluate(context))
-        divisor = _collapse(self.divisor.evaluate(context))
-        return [_apply_operator(_op_fraction, [dividend, divisor], context)]
+        operands = _collapse_operands(
+            [self.dividend.evaluate(context), self.divisor.evaluate(context)]
+        )
+        if operands is None:
+            return []
+        return [_apply_operator(_op_fraction, operands, context)]
 
     def attributes(
         self,

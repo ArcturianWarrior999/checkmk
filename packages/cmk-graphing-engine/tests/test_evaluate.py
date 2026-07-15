@@ -185,6 +185,15 @@ def test_evaluate_value_of_a_fraction_by_zero_is_none() -> None:
     assert _evaluate_value(Fraction(dividend=a, divisor=b), metric_data) is None
 
 
+def test_evaluate_value_of_an_empty_sum_is_none() -> None:
+    assert _evaluate_value(Sum(summands=[]), {}) is None
+
+
+def test_evaluate_value_of_an_empty_product_is_none() -> None:
+    # An empty product must be absent, not math.prod([]) == 1.0.
+    assert _evaluate_value(Product(factors=[]), {}) is None
+
+
 # --- evaluate_time_series ----------------------------------------------------------------------------
 
 
@@ -216,6 +225,17 @@ def test_evaluate_time_series_of_a_sum_drops_none_points() -> None:
     time_series = {a: _time_series(1.0, None, 3.0), b: _time_series(10.0, 20.0, None)}
     result = _evaluate_time_series(Sum(summands=[a, b]), metric_data, time_series, _TR)
     assert result == _time_series(11.0, 20.0, 3.0)
+
+
+def test_evaluate_an_operation_with_an_absent_operand_is_absent() -> None:
+    a = _metric("a")
+    metric_data = {a: _data(value=1.0)}
+    time_series = {a: _time_series(1.0, 2.0, 3.0)}
+    # b is absent entirely: the sum is absent in both its value and its series, rather than the value
+    # nulling while the series silently collapses to a's data.
+    sum_ab = Sum(summands=[a, _metric("b")])
+    assert _evaluate_value(sum_ab, metric_data) is None
+    assert _evaluate_time_series(sum_ab, metric_data, time_series, _TR) is None
 
 
 def test_evaluate_time_series_of_a_product_is_none_at_points_with_a_gap() -> None:
