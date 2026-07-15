@@ -94,7 +94,22 @@ filegroup(
     name = "agents",
     srcs = glob(
         include = ["**/agents/**/*"],
-        exclude = ["**/agents/**/*.py"],
+        exclude = [
+            "**/agents/**/*.py",
+            "oracle/agents/.gitignore",
+            "oracle/agents/README.md",
+        ],
+    ),
+)
+
+filegroup(
+    name = "_ignored",
+    srcs = glob(
+        # Fails if empty. Make sure to move the exclude above when these move.
+        [
+            "oracle/agents/.gitignore*",
+            "oracle/agents/README.md*",
+        ],
     ),
 )
 
