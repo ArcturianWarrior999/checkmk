@@ -13,7 +13,7 @@ import httpx
 from fastapi.testclient import TestClient
 
 from cmk.agent_receiver.lib.certs import serialize_to_pem
-from cmk.agent_receiver.lib.mtls_auth_validator import INJECTED_UUID_HEADER
+from cmk.agent_receiver.lib.mtls_auth_validator import INJECTED_ISSUER_HEADER, INJECTED_UUID_HEADER
 from cmk.agent_receiver.relay.lib.shared_types import RelayID, Serial, TaskID
 from cmk.relay_protocols.monitoring_data import MonitoringData
 from cmk.relay_protocols.tasks import (
@@ -25,7 +25,7 @@ from cmk.relay_protocols.tasks import (
     TaskListResponse,
 )
 
-from .certs import generate_csr_pair
+from .certs import generate_csr_pair, relay_ca_common_name
 from .relay_config_generator import RelayConfig
 from .site_mock import User
 
@@ -83,12 +83,20 @@ class RelayClient:
         self.relay_id = relay_id
         self.identity_cn = identity_cn or relay_id
         self._serial: Serial | None = None
+        # Relay endpoints are mTLS-authorized against this CA (see mtls_auth_validator.py).
+        # Real traffic gets this injected by the ClientCertWorker from the actual
+        # certificate; here we set the expected value directly since this client is
+        # used against the in-process TestClient, which never presents a certificate.
+        self._relay_issuer_cn = relay_ca_common_name(site_name)
 
     def refresh_cert(self) -> httpx.Response:
         csr_pair = generate_csr_pair(cn=self.relay_id)
         return self.fastAPI_client.post(  # type: ignore[no-any-return]
             f"/{self.site_name}/relays/{self.relay_id}/csr",
-            headers={INJECTED_UUID_HEADER: self.identity_cn},
+            headers={
+                INJECTED_UUID_HEADER: self.identity_cn,
+                INJECTED_ISSUER_HEADER: self._relay_issuer_cn,
+            },
             json={
                 "csr": serialize_to_pem(csr_pair[1]),
             },
@@ -97,11 +105,17 @@ class RelayClient:
     def get_status(self) -> httpx.Response:
         return self.fastAPI_client.get(  # type: ignore[no-any-return]
             f"/{self.site_name}/relays/{self.relay_id}/status",
-            headers={INJECTED_UUID_HEADER: self.identity_cn},
+            headers={
+                INJECTED_UUID_HEADER: self.identity_cn,
+                INJECTED_ISSUER_HEADER: self._relay_issuer_cn,
+            },
         )
 
     def get_tasks(self, status: str | None = None) -> httpx.Response:
-        headers = {INJECTED_UUID_HEADER: self.identity_cn}
+        headers = {
+            INJECTED_UUID_HEADER: self.identity_cn,
+            INJECTED_ISSUER_HEADER: self._relay_issuer_cn,
+        }
         if self._serial:
             headers[HEADERS.SERIAL] = str(self._serial)
         params: dict[str, str] = {}
@@ -119,7 +133,10 @@ class RelayClient:
         return TaskListResponse.model_validate(response.json())
 
     def update_task(self, task_id: str, result_type: str, result_payload: str) -> httpx.Response:
-        headers = {INJECTED_UUID_HEADER: self.identity_cn}
+        headers = {
+            INJECTED_UUID_HEADER: self.identity_cn,
+            INJECTED_ISSUER_HEADER: self._relay_issuer_cn,
+        }
         if self._serial:
             headers[HEADERS.SERIAL] = str(self._serial)
         return self.fastAPI_client.patch(  # type: ignore[no-any-return]
@@ -132,7 +149,10 @@ class RelayClient:
         )
 
     def forward_monitoring_data(self, monitoring_data: MonitoringData) -> httpx.Response:
-        headers = {INJECTED_UUID_HEADER: self.identity_cn}
+        headers = {
+            INJECTED_UUID_HEADER: self.identity_cn,
+            INJECTED_ISSUER_HEADER: self._relay_issuer_cn,
+        }
         if self._serial:
             headers[HEADERS.SERIAL] = str(self._serial)
         return self.fastAPI_client.post(  # type: ignore[no-any-return]
