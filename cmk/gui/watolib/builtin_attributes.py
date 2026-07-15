@@ -1673,5 +1673,7 @@ class HostAttributeLabels(ABCHostAttributeValueSpec):
         if ":" in data:
             raise ValidationError(f"Invalid label key: {data!r}")
 
-    def filter_matches(self, crit: list, value: list, hostname: HostName) -> bool:
-        return set(value).issuperset(set(crit))
+    def filter_matches(
+        self, crit: Mapping[str, str], value: Mapping[str, str], hostname: HostName
+    ) -> bool:
+        return set(value.items()).issuperset(set(crit.items()))
