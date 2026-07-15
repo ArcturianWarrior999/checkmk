@@ -6,6 +6,7 @@
 import abc
 
 import cmk.ccc.plugin_registry
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 
 
 class SampleConfigGenerator(abc.ABC):
@@ -21,7 +22,7 @@ class SampleConfigGenerator(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         """Execute the sample configuration creation step"""
         raise NotImplementedError
 

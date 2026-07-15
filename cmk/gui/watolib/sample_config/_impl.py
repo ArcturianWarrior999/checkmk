@@ -37,7 +37,7 @@ from cmk.gui.userdb import (
 from cmk.gui.utils.htpasswd import Htpasswd
 from cmk.gui.watolib.config_domains import ConfigDomainCACertificates
 from cmk.gui.watolib.global_settings import save_global_settings
-from cmk.gui.watolib.hosts_and_folders import folder_tree
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 from cmk.gui.watolib.notifications import (
     NotificationParameterConfigFile,
     NotificationRuleConfigFile,
@@ -74,7 +74,7 @@ from ._registry import (
 # TODO: Must only be unlocked when it was not locked before. We should find a more
 # robust way for doing something like this. If it is locked before, it can now happen
 # that this call unlocks the wider locking when calling this funktion in a wrong way.
-def init_wato_datastructures(with_wato_lock: bool = False) -> None:
+def init_wato_datastructures(tree: FolderTree, with_wato_lock: bool = False) -> None:
     if (
         os.path.exists(ConfigDomainCACertificates.trusted_cas_file)
         and not _need_to_create_sample_config()
@@ -85,7 +85,7 @@ def init_wato_datastructures(with_wato_lock: bool = False) -> None:
     def init() -> None:
         if not os.path.exists(ConfigDomainCACertificates.trusted_cas_file):
             ConfigDomainCACertificates().activate()
-        _create_sample_config()
+        _create_sample_config(tree)
 
     if with_wato_lock:
         with store.lock_checkmk_configuration(configuration_lockfile):
@@ -104,7 +104,7 @@ def _need_to_create_sample_config() -> bool:
     )
 
 
-def _create_sample_config() -> None:
+def _create_sample_config(tree: FolderTree) -> None:
     """Create a very basic sample configuration
 
     But only if none of the files that we will create already exists. That is
@@ -118,7 +118,7 @@ def _create_sample_config() -> None:
     for generator in sample_config_generator_registry.get_generators():
         try:
             logger.debug("Starting [%(generator)s]", {"generator": generator.ident()})
-            generator.generate()
+            generator.generate(tree)
             logger.debug("Finished [%(generator)s]", {"generator": generator.ident()})
         except Exception:
             logger.exception(
@@ -193,12 +193,12 @@ class ConfigGeneratorBasicWATOConfig(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 11
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         save_global_settings(self._initial_global_settings(), skip_cse_edition_check=True)
 
         self._initialize_tag_config()
 
-        root_folder = folder_tree().root_folder()
+        root_folder = tree.root_folder()
         rulesets = FolderRulesets.load_folder_rulesets(root_folder)
         rulesets.replace_folder_config(root_folder, SHIPPED_RULES)
         rulesets.save_folder(pprint_value=False, debug=False)
@@ -245,7 +245,7 @@ class ConfigGeneratorLocalSiteConnection(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 20
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         site_mgmt = site_management_registry["site_management"]
         site_mgmt.save_sites(
             self._default_single_site_configuration(),
@@ -301,7 +301,7 @@ class ConfigGeneratorBuiltinHostLabels(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 25
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         update_builtin_host_labels(
             builtin_host_labels_file, {BuiltinLabelsKey.SITE: str(omd_site())}
         )
@@ -319,7 +319,7 @@ class ConfigGeneratorAcknowledgeInitialWerks(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 40
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         werks.acknowledge_all_werks(check_permission=False)
 
 
@@ -338,7 +338,7 @@ class ConfigGeneratorInitialAdminUser(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 55
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         pw_hash = Htpasswd(htpasswd_file).get_hash(UserId("cmkadmin"))
         if pw_hash is None:
             raise ValueError("No password found for user 'cmkadmin'")
@@ -385,7 +385,7 @@ class ConfigGeneratorRegistrationUser(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 60
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         create_cmk_automation_user(
             name=self.name,
             role=self.role,

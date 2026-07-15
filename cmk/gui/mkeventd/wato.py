@@ -159,6 +159,7 @@ from cmk.gui.watolib.config_variable_groups import (
 from cmk.gui.watolib.global_settings import load_configuration_settings, save_global_settings
 from cmk.gui.watolib.host_attributes import CollectedHostAttributes
 from cmk.gui.watolib.hosts_and_folders import (
+    FolderTree,
     make_action_link,
 )
 from cmk.gui.watolib.main_menu import ABCMainModule, MainModuleRegistry, MainModuleTopic
@@ -1520,7 +1521,7 @@ class SampleConfigGeneratorECSampleRulepack(SampleConfigGenerator):
     def sort_index(cls) -> int:
         return 50
 
-    def generate(self) -> None:
+    def generate(self, tree: FolderTree) -> None:
         ec.save_rule_packs(
             [ec.default_rule_pack([])],
             pretty_print=True,

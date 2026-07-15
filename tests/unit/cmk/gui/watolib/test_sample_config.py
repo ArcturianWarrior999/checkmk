@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from cmk.gui.watolib.groups_io import load_contact_group_information
+from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.sample_config import (
     init_wato_datastructures,
     sample_config_generator_registry,
@@ -47,7 +48,7 @@ def test_get_sorted_generators() -> None:
 
 
 def test_init_wato_data_structures(request_context: None) -> None:
-    init_wato_datastructures()
+    init_wato_datastructures(folder_tree())
     assert Path(omd_root, "etc/check_mk/conf.d/wato/rules.mk").exists()
     assert Path(omd_root, "etc/check_mk/multisite.d/wato/tags.mk").exists()
     assert Path(omd_root, "etc/check_mk/conf.d/wato/global.mk").exists()
@@ -58,7 +59,7 @@ def test_init_wato_data_structures(request_context: None) -> None:
 
 @pytest.mark.usefixtures("request_context")
 def test_sample_config_gen_groups() -> None:
-    SampleConfigGeneratorGroups().generate()
+    SampleConfigGeneratorGroups().generate(folder_tree())
     assert load_contact_group_information() == {
         "all": {
             "alias": "Everything",

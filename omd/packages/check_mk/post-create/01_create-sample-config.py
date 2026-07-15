@@ -11,7 +11,9 @@ import sys
 
 from cmk.ccc.version import edition
 from cmk.gui import main_modules
+from cmk.gui.config import active_config
 from cmk.gui.session_context import SuperUserContext
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sample_config import init_wato_datastructures
 from cmk.gui.wsgi.app import gui_context
 from cmk.utils import log, paths
@@ -44,7 +46,7 @@ def main(args: list[str]) -> int:
         return 1
 
     with gui_context(), SuperUserContext():
-        init_wato_datastructures()
+        init_wato_datastructures(make_folder_tree(active_config))
     return 0
 
 
