@@ -100,25 +100,6 @@ py_wheel(
 )
 
 py_library(
-    name = "site",
-    srcs = [
-        "cmk/werks/site/__init__.py",
-        "cmk/werks/site/acknowledgement.py",
-    ],
-    imports = ["."],
-    visibility = [
-        "//cmk:__subpackages__",
-        "//omd:__subpackages__",
-        "//tests:__subpackages__",
-    ],
-    deps = [
-        ":cmk-werks",
-        "//cmk/utils:paths",
-        "//packages/cmk-ccc:store",
-    ],
-)
-
-py_library(
     name = "cmk-werk-ids-server",
     srcs = [
         "cmk/werk_ids_server/__init__.py",
