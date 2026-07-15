@@ -249,7 +249,7 @@ class IndexBuilder:
         return client.exists(cls._KEY_INDEX_BUILT) == 1
 
 
-class PermissionsHandler:
+class SetupPermissionsHandler:
     def __init__(self, edition: Edition, config: Config, request: Request) -> None:
         self._edition = edition
         self._config = config

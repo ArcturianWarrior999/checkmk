@@ -25,7 +25,7 @@ from cmk.shared_typing.unified_search import (
 
 from .collapsing import get_collapser
 from .engines.livestatus import LivestatusSearchEngine
-from .engines.redis import PermissionsHandler, RedisSearchEngine
+from .engines.redis import RedisSearchEngine, SetupPermissionsHandler
 from .unified import UnifiedSearch
 
 # Before making this something configurable, we want to first hardcode this setting to a reasonable
@@ -48,7 +48,9 @@ class PageUnifiedSearch(AjaxPage):
             redis_engine=RedisSearchEngine(
                 ctx.config,
                 {
-                    ProviderName.setup: PermissionsHandler(self._edition, ctx.config, ctx.request),
+                    ProviderName.setup: SetupPermissionsHandler(
+                        self._edition, ctx.config, ctx.request
+                    ),
                     ProviderName.customize: CustomizePermissionsHandler(
                         UserPermissions.from_config(ctx.config, permission_registry)
                     ),
