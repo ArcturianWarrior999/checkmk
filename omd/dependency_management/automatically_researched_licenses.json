@@ -1959,6 +1959,7 @@
   "pkg:pypi/clickhouse-connect@1.4.2": "Apache-2.0",
   "pkg:pypi/cryptography@46.0.5": "Apache-2.0 OR BSD-3-Clause",
   "pkg:pypi/cryptography@48.0.0": "Apache-2.0 OR BSD-3-Clause",
+  "pkg:pypi/cryptography@49.0.0": "Apache-2.0 OR BSD-3-Clause",
   "pkg:pypi/datamodel-code-generator@0.42.0": "MIT",
   "pkg:pypi/decorator@5.2.1": "BSD-2-Clause",
   "pkg:pypi/dnspython@2.8.0": "ISC",
