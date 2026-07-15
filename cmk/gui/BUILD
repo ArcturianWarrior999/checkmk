@@ -215,7 +215,9 @@ py_library(
         "//cmk/gui/utils:roles",
         "//cmk/gui/utils:selection_id",
         "//cmk/gui/utils:speaklater",
+        "//cmk/gui/utils:timeout_manager",
         "//cmk/gui/utils:urls",
+        "//cmk/gui/utils:user_errors",
         "//cmk/utils",
         "//cmk/utils:paths",
         "//packages/cmk-ccc:plugin-registry",
@@ -225,31 +227,6 @@ py_library(
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
-    ],
-)
-
-# Separate from :page_toolkit so that importers of the pages framework
-# don't inherit the request-setup dependencies (flask, theme, html
-# rendering) that only set_global_vars needs.
-py_library(
-    name = "request_globals",
-    srcs = ["request_globals.py"],
-    imports = ["../.."],
-    visibility = [
-        "//cmk:__subpackages__",
-        "//non-free/packages:__subpackages__",
-        "//packages/cmk-wsgi:__pkg__",
-        "//tests:__subpackages__",
-    ],
-    deps = [
-        ":config",
-        ":core_toolkit",
-        ":html_toolkit",
-        ":page_toolkit",
-        "//cmk/gui/utils:mobile",
-        "//cmk/gui/utils:output_funnel",
-        "//cmk/gui/utils:timeout_manager",
-        "//cmk/gui/utils:user_errors",
         requirement("flask"),
     ],
 )

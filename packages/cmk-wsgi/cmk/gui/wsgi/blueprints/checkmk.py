@@ -16,7 +16,7 @@ from werkzeug.security import safe_join
 from cmk.ccc import store
 from cmk.gui import hooks, sites
 from cmk.gui.http import request
-from cmk.gui.request_globals import set_global_vars
+from cmk.gui.pages import set_global_vars
 from cmk.gui.utils.timeout_manager import timeout_manager
 from cmk.gui.wsgi.applications import CheckmkApp
 

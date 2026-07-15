@@ -8,7 +8,7 @@ from typing import override
 from cmk.ccc import tty
 from cmk.gui.config import active_config
 from cmk.gui.exceptions import MKUserError
-from cmk.gui.request_globals import set_global_vars
+from cmk.gui.pages import set_global_vars
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.site_config import is_distributed_setup_remote_site
 from cmk.gui.watolib.hosts_and_folders import folder_tree
