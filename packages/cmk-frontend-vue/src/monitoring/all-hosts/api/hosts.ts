@@ -7,6 +7,8 @@ import type { SortingState } from '@tanstack/vue-table'
 
 import client, { unwrap } from '@/lib/rest-api-client/client'
 
+import type { RequestedLimit } from '@/monitoring/shared/services/MonitoringService'
+
 import type {
   FilterNode,
   HostOverview,
@@ -17,7 +19,7 @@ import type {
 import { DEFAULT_BATCH_SIZE } from '../../shared/constants'
 
 export interface HostQueryParams {
-  limit?: number
+  limit?: RequestedLimit
   sort?: SortingState
   searchQuery?: string
   filter?: FilterNode | undefined
@@ -31,7 +33,7 @@ export class HostApi {
     const sort = (params.sort ?? []).map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
     const searchQuery = params.searchQuery?.trim()
     const body: HostsRequestBody = {
-      limit: params.limit ?? DEFAULT_BATCH_SIZE,
+      limit: params.limit === undefined ? DEFAULT_BATCH_SIZE : params.limit,
       ...(sort.length > 0 && { sort }),
       ...(searchQuery && { q: searchQuery }),
       ...(params.filter && { filter: params.filter })

@@ -26,6 +26,7 @@ export class HostService extends MonitoringService<HostEntry> {
   protected async fetchBatch(signal: AbortSignal): Promise<PagedResponse<HostEntry>> {
     const response = await this.api.fetchHosts(
       {
+        limit: this.requestedLimit.value,
         sort: this.sortState.value,
         searchQuery: this.searchQuery.value,
         filter: this.filterState.value

@@ -14,6 +14,7 @@ function makeServiceStub({
   limit = 1000,
   matched = 2171,
   fetchState = 'idle' as FetchState,
+  canRaiseLimit = true,
   committedSearchQuery = '',
   activeFilterCount = 0
 } = {}) {
@@ -24,6 +25,7 @@ function makeServiceStub({
     matched: matchedRef,
     fetchState: ref(fetchState),
     resultsTruncated: computed(() => limitRef.value > 0 && matchedRef.value > limitRef.value),
+    canRaiseLimit: ref(canRaiseLimit),
     committedSearchQuery: ref(committedSearchQuery),
     filters: { activeFilterCount }
   }
@@ -37,11 +39,13 @@ function renderNotice(stub: ReturnType<typeof makeServiceStub>) {
   })
 }
 
-test('shows a single info line when the result set is capped', () => {
+test('shows a single info line pointing to the selector when the result set is capped', () => {
   renderNotice(makeServiceStub())
 
   expect(
-    screen.getByText('Showing 1000 of 2171 hosts. Narrow your search to see the rest.')
+    screen.getByText(
+      'Showing 1000 of 2171 hosts. Narrow your search, or raise the row limit above.'
+    )
   ).toBeInTheDocument()
 })
 
@@ -49,7 +53,17 @@ test('says "matching hosts" when a search or filter is active', () => {
   renderNotice(makeServiceStub({ committedSearchQuery: 'web' }))
 
   expect(
-    screen.getByText('Showing 1000 of 2171 matching hosts. Narrow your search to see the rest.')
+    screen.getByText(
+      'Showing 1000 of 2171 matching hosts. Narrow your search, or raise the row limit above.'
+    )
+  ).toBeInTheDocument()
+})
+
+test('omits the "raise the row limit" hint when no higher limit is available', () => {
+  renderNotice(makeServiceStub({ limit: 5000, matched: 8000, canRaiseLimit: false }))
+
+  expect(
+    screen.getByText('Showing 5000 of 8000 hosts. Narrow your search to see the rest.')
   ).toBeInTheDocument()
 })
 

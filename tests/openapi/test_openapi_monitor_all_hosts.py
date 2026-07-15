@@ -126,6 +126,27 @@ class TestMonitorHosts:
 
         assert len(resp.json["hosts"]) == len(_HOSTS)
 
+    def test_hosts_without_limit(
+        self,
+        clients: ClientRegistry,
+        mock_livestatus: MockLiveStatusConnection,
+    ) -> None:
+        mock_livestatus.add_table("hosts", _HOSTS)
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                f"Columns: {_HOST_TABLE_COLUMNS}",
+                "OrderBy: name asc natural",
+            ]
+        )
+        mock_livestatus.expect_query(["GET status", "Columns: num_hosts"])
+
+        with mock_livestatus(expect_status_query=True):
+            resp = clients.MonitorHosts.list_all(limit=None)
+
+        assert len(resp.json["hosts"]) == len(_HOSTS)
+        assert resp.json["meta"]["limit"] == 0
+
 
 class TestMonitorHostsQuery:
     @pytest.mark.parametrize("query", ["", "   "])

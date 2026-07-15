@@ -37,8 +37,8 @@ from ._filters import FilterNode, parse_as_livestatus_filter
 from ._modes import build_host_modes, ModeInfo
 from ._validators import parse_host_search_query, parse_host_sort_options
 
-# NOTE: currently hardcoding these constraints. It's to be determined where these should come from,
-# e.g. global settings.
+# View-local limits, deliberately not coupled to the global soft/hard query limit settings so they
+# never affect the legacy views.
 _MIN_NUMBER_OF_HOSTS = 0
 _MAX_NUMBER_OF_HOSTS = 5_000
 _DEFAULT_LIMIT = 1_000
@@ -94,7 +94,10 @@ class HostEntry:
 
 @api_model
 class HostsPageMeta:
-    limit: int = api_field(description="Requested page size", example=1000)
+    limit: int = api_field(
+        description="Applied row limit. 0 means no limit was applied (unlimited).",
+        example=1000,
+    )
     matched: int = api_field(description="Total matched hosts", example=42)
     total: int = api_field(description="Total number of hosts", example=1234)
 
@@ -107,10 +110,16 @@ class HostsResponse:
 
 @api_model
 class HostsRequestBody:
-    limit: Annotated[int, Interval(ge=_MIN_NUMBER_OF_HOSTS, le=_MAX_NUMBER_OF_HOSTS)] = api_field(
-        description="Number of hosts to return",
-        example=_DEFAULT_LIMIT,
-        default=_DEFAULT_LIMIT,
+    limit: Annotated[int, Interval(ge=_MIN_NUMBER_OF_HOSTS, le=_MAX_NUMBER_OF_HOSTS)] | None = (
+        api_field(
+            description=(
+                "Number of hosts to return. Pass null to remove the limit entirely; this requires "
+                "the 'general.ignore_hard_limit' permission and otherwise falls back to the maximum "
+                f"of {_MAX_NUMBER_OF_HOSTS}."
+            ),
+            example=_DEFAULT_LIMIT,
+            default=_DEFAULT_LIMIT,
+        )
     )
     sort: Annotated[
         list[HostSort] | ApiOmitted,
@@ -154,17 +163,29 @@ def list_hosts(body: HostsRequestBody = HostsRequestBody()) -> HostsResponse:
 
     return _handle_list_hosts(
         host_repo,
-        limit=body.limit,
+        limit=_resolve_limit(body.limit, may_remove_limit=user.may("general.ignore_hard_limit")),
         query="" if isinstance(body.q, ApiOmitted) else body.q,
         sorters=_DEFAULT_SORT if isinstance(body.sort, ApiOmitted) else body.sort,
         filters=parsed_filters,
     )
 
 
+def _resolve_limit(requested: int | None, *, may_remove_limit: bool) -> int | None:
+    """Resolve the requested row limit into the one to actually apply.
+
+    A ``None`` request means "remove the limit". We only honor that for users allowed to ignore the
+    hard limit; everyone else is clamped to the safety ceiling. Numeric requests are already bounded
+    to the ceiling by the request schema, so they pass through unchanged.
+    """
+    if requested is None:
+        return None if may_remove_limit else _MAX_NUMBER_OF_HOSTS
+    return requested
+
+
 def _handle_list_hosts(
     host_repo: HostRepository,
     *,
-    limit: int = _DEFAULT_LIMIT,
+    limit: int | None = _DEFAULT_LIMIT,
     query: str = "",
     sorters: Sequence[HostSort] = _DEFAULT_SORT,
     filters: HostFilter = HostFilter(""),
@@ -176,16 +197,17 @@ def _handle_list_hosts(
         filters=filters,
     )
     total_host_count = host_repo.count_total()
-    matched_host_count = (
-        host_repo.count_matched(query=query, filters=filters)
-        if query or filters
-        else total_host_count
-    )
+    if limit is None:
+        matched_host_count = len(hosts)
+    elif query or filters:
+        matched_host_count = host_repo.count_matched(query=query, filters=filters)
+    else:
+        matched_host_count = total_host_count
 
     return HostsResponse(
         hosts=[HostEntry.from_domain(host) for host in hosts],
         meta=HostsPageMeta(
-            limit=limit,
+            limit=limit if limit is not None else 0,
             matched=matched_host_count,
             total=total_host_count,
         ),
@@ -203,10 +225,13 @@ ENDPOINT_LIST_HOSTS = VersionedEndpoint(
             permissions.AnyPerm(
                 [
                     permissions.Perm("general.see_all"),
-                    # NOTE: these two need to be included in order to make the REST API framework
-                    # happy. The "see_all" permission is the only one that is required to check.
+                    # NOTE: these need to be included in order to make the REST API framework happy.
+                    # The "see_all" permission is the only one that is required to check. The
+                    # "ignore_hard_limit" permission is checked optionally to decide whether a client
+                    # may remove the row limit entirely.
                     permissions.OkayToIgnorePerm("bi.see_all"),
                     permissions.OkayToIgnorePerm("mkeventd.seeall"),
+                    permissions.OkayToIgnorePerm("general.ignore_hard_limit"),
                 ]
             )
         )

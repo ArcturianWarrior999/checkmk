@@ -18,7 +18,7 @@ import type { KeyShortcutService } from '@/lib/keyShortcuts'
 import { ServiceBase } from '@/lib/service/base'
 
 import type { FilterNode } from '@/monitoring/shared/api/types'
-import { POLL_INTERVAL_MS } from '@/monitoring/shared/constants'
+import { DEFAULT_BATCH_SIZE, POLL_INTERVAL_MS } from '@/monitoring/shared/constants'
 
 import { FilterStore, type QuickFilter, type QuickFilterConfig } from './FilterStore'
 import { useColumnFilterBridge } from './useColumnFilterBridge'
@@ -49,7 +49,11 @@ export interface MonitoringServiceOptions<T> {
   columns?: ColumnDef<T>[]
   /** Quick-filter presets */
   quickFilters?: QuickFilterConfig[]
+  limitTiers?: number[]
+  mayRemoveLimit?: boolean
 }
+
+export type RequestedLimit = number | null
 
 export abstract class MonitoringService<T> extends ServiceBase {
   readonly items: Ref<T[]> = shallowRef<T[]>([])
@@ -59,6 +63,13 @@ export abstract class MonitoringService<T> extends ServiceBase {
   readonly resultsTruncated: ComputedRef<boolean> = computed(
     () => this.limit.value > 0 && this.matched.value > this.limit.value
   )
+
+  readonly offeredLimits: RequestedLimit[]
+  readonly requestedLimit: Ref<RequestedLimit>
+  readonly canRaiseLimit: ComputedRef<boolean> = computed(() => {
+    const index = this.offeredLimits.indexOf(this.requestedLimit.value)
+    return index >= 0 && index < this.offeredLimits.length - 1
+  })
   /** The kind of fetch currently in flight, or `'idle'`. */
   readonly fetchState: Ref<FetchState> = ref('idle')
   readonly hasLoaded: Ref<boolean> = ref(false)
@@ -95,7 +106,19 @@ export abstract class MonitoringService<T> extends ServiceBase {
     options: MonitoringServiceOptions<T> = {}
   ) {
     super(serviceId, shortCutService)
-    const { pollIntervalMs = POLL_INTERVAL_MS, quickFilters = [], columns = [] } = options
+    const {
+      pollIntervalMs = POLL_INTERVAL_MS,
+      quickFilters = [],
+      columns = [],
+      limitTiers = [],
+      mayRemoveLimit = false
+    } = options
+
+    const numericTiers: RequestedLimit[] = limitTiers.length
+      ? [...limitTiers]
+      : [DEFAULT_BATCH_SIZE]
+    this.offeredLimits = mayRemoveLimit ? [...numericTiers, null] : numericTiers
+    this.requestedLimit = ref(this.offeredLimits[0] ?? DEFAULT_BATCH_SIZE)
 
     this.filters = new FilterStore(quickFilters, this.searchQuery)
     const bridge = useColumnFilterBridge(columns, this.filters)
@@ -167,6 +190,22 @@ export abstract class MonitoringService<T> extends ServiceBase {
 
   updateFilters(node: FilterNode | undefined): void {
     this.filterState.value = node
+    void this.fetch()
+  }
+
+  // Selecting "no limit" pauses the auto-refresh so an unbounded result set isn't re-fetched on
+  // every tick; switching back to a bounded limit resumes it.
+  setRequestedLimit(value: RequestedLimit): void {
+    if (value === this.requestedLimit.value) {
+      return
+    }
+    const wasUnlimited = this.requestedLimit.value === null
+    this.requestedLimit.value = value
+    if (value === null) {
+      this.manualPaused.value = true
+    } else if (wasUnlimited) {
+      this.manualPaused.value = false
+    }
     void this.fetch()
   }
 

@@ -76,6 +76,17 @@ describe('HostApi.fetchHosts', () => {
     expect(postSpy).toHaveBeenCalledWith('/monitor/hosts', { ...CONTENT_TYPE, body: { limit: 50 } })
   })
 
+  it('forwards a null limit to request no limit at all', async () => {
+    mockSuccess(makeHostsResponse([]))
+
+    await new HostApi().fetchHosts({ limit: null })
+
+    expect(postSpy).toHaveBeenCalledWith('/monitor/hosts', {
+      ...CONTENT_TYPE,
+      body: { limit: null }
+    })
+  })
+
   it('serializes sort entries as column:direction strings', async () => {
     mockSuccess(makeHostsResponse([]))
 

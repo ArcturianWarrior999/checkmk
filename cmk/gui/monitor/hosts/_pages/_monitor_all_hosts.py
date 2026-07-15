@@ -127,6 +127,7 @@ class MonitorAllHostsPage(Page):
                         self._commands, user, _SUPPORTED_ACTIONS
                     ).as_models(),
                     row_actions=_row_actions(ctx.config),
+                    may_ignore_hard_limit=user.may("general.ignore_hard_limit"),
                     legacy_view_button=MonitoringPageLinkButton(
                         url=makeuri_contextless(
                             ctx.request, vars_=[("view_name", "allhosts")], filename="view.py"

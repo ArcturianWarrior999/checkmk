@@ -46,12 +46,18 @@ class LiveStatusHostRepository:
     def fetch(
         self,
         *,
-        limit: int,
+        limit: int | None,
         query: str,
         sorters: Sequence[HostSort],
         filters: HostFilter,
     ) -> Sequence[Host]:
         query_ = _sanitize_query(query)
+        extra_headers = [
+            *filters.splitlines(),
+            _build_primary_sort(sorters),
+        ]
+        if limit is not None:
+            extra_headers.append(f"Limit: {limit}")
         q = Query(
             [
                 Hosts.name,
@@ -68,11 +74,7 @@ class LiveStatusHostRepository:
                 Hosts.scheduled_downtime_depth,
             ],
             _build_query_filter(query_),
-            extra_headers=[
-                *filters.splitlines(),
-                _build_primary_sort(sorters),
-                f"Limit: {limit}",
-            ],
+            extra_headers=extra_headers,
         )
 
         with detailed_connection(self._connection) as conn:

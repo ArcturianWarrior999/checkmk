@@ -32,7 +32,7 @@ def get_fake_host_repository(*, n_hosts: int) -> HostRepository:
         def fetch(
             self,
             *,
-            limit: int,
+            limit: int | None,
             query: str,
             sorters: Sequence[HostSort],
             filters: HostFilter,

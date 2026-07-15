@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HostService } from '@/monitoring/all-hosts/services/HostService'
 import type { HostEntry, HostsResponse } from '@/monitoring/shared/api/types'
+import { DEFAULT_BATCH_SIZE } from '@/monitoring/shared/constants'
 
 import { makeKeyShortcutService } from '../../shared/services/testHelpers'
 
@@ -69,6 +70,7 @@ describe('HostService', () => {
 
     expect(fetchHosts).toHaveBeenLastCalledWith(
       {
+        limit: DEFAULT_BATCH_SIZE,
         sort: [{ id: 'name', desc: false }],
         searchQuery: ''
       },
@@ -86,8 +88,96 @@ describe('HostService', () => {
     await vi.advanceTimersByTimeAsync(0)
 
     expect(fetchHosts).toHaveBeenLastCalledWith(
-      { sort: [], searchQuery: 'web01' },
+      { limit: DEFAULT_BATCH_SIZE, sort: [], searchQuery: 'web01' },
       expect.any(AbortSignal)
     )
+  })
+
+  it('offers the configured limits and starts at the smallest one', async () => {
+    const fetchHosts = vi.fn().mockResolvedValue(makeHostsResponse([], 0, 0))
+    service = new HostService({ fetchHosts }, makeKeyShortcutService(), {
+      limitTiers: [1000, 5000]
+    })
+
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(service.offeredLimits).toEqual([1000, 5000])
+    expect(service.requestedLimit.value).toBe(1000)
+    expect(service.canRaiseLimit.value).toBe(true)
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      expect.objectContaining({ limit: 1000 }),
+      expect.any(AbortSignal)
+    )
+  })
+
+  it('appends an unlimited limit when the user may remove the limit', async () => {
+    const fetchHosts = vi.fn().mockResolvedValue(makeHostsResponse([], 0, 0))
+    service = new HostService({ fetchHosts }, makeKeyShortcutService(), {
+      limitTiers: [1000, 5000],
+      mayRemoveLimit: true
+    })
+
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(service.offeredLimits).toEqual([1000, 5000, null])
+  })
+
+  it('does not offer an unlimited limit when the user may not remove the limit', async () => {
+    const fetchHosts = vi.fn().mockResolvedValue(makeHostsResponse([], 0, 0))
+    service = new HostService({ fetchHosts }, makeKeyShortcutService(), {
+      limitTiers: [1000, 5000],
+      mayRemoveLimit: false
+    })
+
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(service.offeredLimits).toEqual([1000, 5000])
+  })
+
+  it('refetches with the chosen limit when it is changed', async () => {
+    const fetchHosts = vi.fn().mockResolvedValue(makeHostsResponse([], 0, 0))
+    service = new HostService({ fetchHosts }, makeKeyShortcutService(), {
+      limitTiers: [1000, 5000]
+    })
+
+    await vi.advanceTimersByTimeAsync(0)
+
+    service.setRequestedLimit(5000)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      expect.objectContaining({ limit: 5000 }),
+      expect.any(AbortSignal)
+    )
+    expect(service.canRaiseLimit.value).toBe(false)
+
+    service.setRequestedLimit(1000)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      expect.objectContaining({ limit: 1000 }),
+      expect.any(AbortSignal)
+    )
+  })
+
+  it('pauses the auto-refresh while the limit is unlimited and resumes when it is bounded again', async () => {
+    const fetchHosts = vi.fn().mockResolvedValue(makeHostsResponse([], 0, 0))
+    service = new HostService({ fetchHosts }, makeKeyShortcutService(), {
+      limitTiers: [1000, 5000],
+      mayRemoveLimit: true
+    })
+
+    await vi.advanceTimersByTimeAsync(0)
+    expect(service.paused.value).toBe(false)
+
+    service.setRequestedLimit(null)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(fetchHosts).toHaveBeenLastCalledWith(
+      expect.objectContaining({ limit: null }),
+      expect.any(AbortSignal)
+    )
+    expect(service.paused.value).toBe(true)
+
+    service.setRequestedLimit(1000)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(service.paused.value).toBe(false)
   })
 })

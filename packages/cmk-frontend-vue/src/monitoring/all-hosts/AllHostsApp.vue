@@ -34,8 +34,10 @@ import type {
   NumericFilter,
   StringInputFilter
 } from '@/monitoring/shared/components/filter/types'
+import { HOST_LIMIT_TIERS } from '@/monitoring/shared/constants'
 
 import MonitoringEmptyState from '../shared/components/MonitoringEmptyState.vue'
+import MonitoringLimitSelector from '../shared/components/MonitoringLimitSelector.vue'
 import MonitoringResultsCount from '../shared/components/MonitoringResultsCount.vue'
 import MonitoringTable from '../shared/components/MonitoringTable.vue'
 import MonitoringTruncationNotice from '../shared/components/MonitoringTruncationNotice.vue'
@@ -319,6 +321,8 @@ const hostApi = new HostApi()
 
 const hostService = new HostService(hostApi, getKeyShortcutServiceInstance(), {
   pollIntervalMs: props.poll_interval_ms,
+  limitTiers: HOST_LIMIT_TIERS,
+  mayRemoveLimit: props.may_ignore_hard_limit ?? false,
   columns,
   quickFilters: [
     {
@@ -512,14 +516,17 @@ function navigateToLegacy() {
           {{ _t('Reset all filters') }}
         </button>
       </div>
-      <RefreshCountdown
-        :remaining="hostService.secondsRemaining.value"
-        :interval="hostService.pollIntervalSeconds"
-        :paused="hostService.paused.value"
-        :manual-paused="hostService.manualPaused.value"
-        size="small"
-        @toggle="hostService.togglePause()"
-      />
+      <div class="monitoring-all-hosts-app__header-end">
+        <MonitoringLimitSelector />
+        <RefreshCountdown
+          :remaining="hostService.secondsRemaining.value"
+          :interval="hostService.pollIntervalSeconds"
+          :paused="hostService.paused.value"
+          :manual-paused="hostService.manualPaused.value"
+          size="small"
+          @toggle="hostService.togglePause()"
+        />
+      </div>
     </div>
     <CmkSplitPane
       :collapsed="!activeAction"
@@ -651,6 +658,13 @@ function navigateToLegacy() {
 
 .monitoring-all-hosts-app__toolbar {
   display: flex;
+  align-items: center;
+  gap: var(--spacing);
+}
+
+.monitoring-all-hosts-app__header-end {
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: var(--spacing);
 }

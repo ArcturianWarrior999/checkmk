@@ -24,6 +24,8 @@ const truncated = computed(
     monitoringService?.fetchState.value !== 'foreground'
 )
 
+const canRaiseLimit = computed(() => monitoringService?.canRaiseLimit.value ?? false)
+
 const narrowed = computed(
   () =>
     (monitoringService?.filters.activeFilterCount ?? 0) > 0 ||
@@ -33,11 +35,22 @@ const narrowed = computed(
 const message = computed(() => {
   const limit = monitoringService?.limit.value ?? 0
   const matched = monitoringService?.matched.value ?? 0
-  return narrowed.value
-    ? _t('Showing %{limit} of %{matched} matching hosts. Narrow your search to see the rest.', {
-        limit,
-        matched
-      })
+  if (narrowed.value) {
+    return canRaiseLimit.value
+      ? _t(
+          'Showing %{limit} of %{matched} matching hosts. Narrow your search, or raise the row limit above.',
+          { limit, matched }
+        )
+      : _t('Showing %{limit} of %{matched} matching hosts. Narrow your search to see the rest.', {
+          limit,
+          matched
+        })
+  }
+  return canRaiseLimit.value
+    ? _t(
+        'Showing %{limit} of %{matched} hosts. Narrow your search, or raise the row limit above.',
+        { limit, matched }
+      )
     : _t('Showing %{limit} of %{matched} hosts. Narrow your search to see the rest.', {
         limit,
         matched
