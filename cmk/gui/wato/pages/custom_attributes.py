@@ -55,7 +55,11 @@ from cmk.gui.watolib.custom_attributes import (
     update_user_custom_attrs,
 )
 from cmk.gui.watolib.host_attributes import host_attribute_topic_registry
-from cmk.gui.watolib.hosts_and_folders import folder_preserving_link
+from cmk.gui.watolib.hosts_and_folders import (
+    folder_preserving_link,
+    FolderTree,
+    make_folder_tree,
+)
 from cmk.gui.watolib.mode import mode_url, ModeRegistry, redirect, WatoMode
 from cmk.gui.watolib.pending_changes import (
     Change,
@@ -130,7 +134,9 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _update_config(self, custom_attributes: Sequence[T], *, pprint_value: bool) -> None:
+    def _update_config(
+        self, tree: FolderTree, custom_attributes: Sequence[T], *, pprint_value: bool
+    ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -248,7 +254,9 @@ class ModeEditCustomAttr[T: CustomAttrSpec](WatoMode):
         self._add_extra_attrs_from_html_vars()
 
         save_custom_attrs_to_mk_file(self._all_attrs)
-        self._update_config(self._attrs, pprint_value=config.wato_pprint_config)
+        self._update_config(
+            make_folder_tree(config), self._attrs, pprint_value=config.wato_pprint_config
+        )
 
         return redirect(mode_url(self._type + "_attrs"))
 
@@ -361,7 +369,11 @@ class ModeEditCustomUserAttr(ModeEditCustomAttr[CustomUserAttrSpec]):
         return _("Make this variable available in notifications")
 
     def _update_config(
-        self, custom_attributes: Sequence[CustomUserAttrSpec], *, pprint_value: bool
+        self,
+        tree: FolderTree,
+        custom_attributes: Sequence[CustomUserAttrSpec],
+        *,
+        pprint_value: bool,
     ) -> None:
         update_user_custom_attrs(get_user_attributes(custom_attributes), datetime.now())
 
@@ -449,9 +461,13 @@ class ModeEditCustomHostAttr(ModeEditCustomAttr[CustomHostAttrSpec]):
         )
 
     def _update_config(
-        self, custom_attributes: Sequence[CustomHostAttrSpec], *, pprint_value: bool
+        self,
+        tree: FolderTree,
+        custom_attributes: Sequence[CustomHostAttrSpec],
+        *,
+        pprint_value: bool,
     ) -> None:
-        update_host_custom_attrs(custom_attributes, pprint_value=pprint_value)
+        update_host_custom_attrs(tree, custom_attributes, pprint_value=pprint_value)
 
     def _show_in_table_option(self) -> None:
         self._render_table_option(
@@ -493,7 +509,7 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
 
     @abc.abstractmethod
     def _update_config(
-        self, custom_attributes: Sequence[T_CustomAttrSpec], *, pprint_value: bool
+        self, tree: FolderTree, custom_attributes: Sequence[T_CustomAttrSpec], *, pprint_value: bool
     ) -> None:
         raise NotImplementedError
 
@@ -571,7 +587,9 @@ class ModeCustomAttrs[T_CustomAttrSpec: CustomAttrSpec](WatoMode):
             use_git=config.wato_use_git,
             pprint_value=config.wato_pprint_config,
         )
-        self._update_config(self._attrs, pprint_value=config.wato_pprint_config)
+        self._update_config(
+            make_folder_tree(config), self._attrs, pprint_value=config.wato_pprint_config
+        )
         pending_changes.add(
             Change(
                 action_name="edit-%sattrs" % self._type,
@@ -630,7 +648,11 @@ class ModeCustomUserAttrs(ModeCustomAttrs[CustomUserAttrSpec]):
         return self._all_attrs["user"]
 
     def _update_config(
-        self, custom_attributes: Sequence[CustomUserAttrSpec], *, pprint_value: bool
+        self,
+        tree: FolderTree,
+        custom_attributes: Sequence[CustomUserAttrSpec],
+        *,
+        pprint_value: bool,
     ) -> None:
         update_user_custom_attrs(get_user_attributes(custom_attributes), datetime.now())
 
@@ -669,9 +691,13 @@ class ModeCustomHostAttrs(ModeCustomAttrs[CustomHostAttrSpec]):
         return self._all_attrs["host"]
 
     def _update_config(
-        self, custom_attributes: Sequence[CustomHostAttrSpec], *, pprint_value: bool
+        self,
+        tree: FolderTree,
+        custom_attributes: Sequence[CustomHostAttrSpec],
+        *,
+        pprint_value: bool,
     ) -> None:
-        update_host_custom_attrs(custom_attributes, pprint_value=pprint_value)
+        update_host_custom_attrs(tree, custom_attributes, pprint_value=pprint_value)
 
     def title(self) -> str:
         return _("Custom host attributes")

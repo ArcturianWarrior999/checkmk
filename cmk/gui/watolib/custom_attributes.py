@@ -2,6 +2,7 @@
 # Copyright (C) 2021 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+import dataclasses
 import pprint
 from collections.abc import Sequence
 from datetime import datetime
@@ -14,7 +15,7 @@ from cmk.gui.logged_in import user
 from cmk.gui.type_defs import CustomHostAttrSpec, CustomUserAttrSpec
 from cmk.gui.userdb import UserAttribute
 from cmk.gui.watolib.config_domain_name import wato_fileheader
-from cmk.gui.watolib.hosts_and_folders import folder_tree
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 from cmk.gui.watolib.utils import multisite_dir
 
 
@@ -30,12 +31,14 @@ def update_user_custom_attrs(
 
 
 def update_host_custom_attrs(
-    custom_attributes: Sequence[CustomHostAttrSpec], *, pprint_value: bool
+    tree: FolderTree, custom_attributes: Sequence[CustomHostAttrSpec], *, pprint_value: bool
 ) -> None:
-    # Patch the current requests config with the changed config
+    # Patch the current request's config with the changed attributes. The tree holds
+    # a config snapshot from its construction time, so it needs the update explicitly
+    # for the save below to serialize the hosts with the new attribute set.
     active_config.wato_host_attrs = custom_attributes
+    tree.config = dataclasses.replace(tree.config, wato_host_attrs=custom_attributes)
 
-    tree = folder_tree()
     tree.invalidate_caches()
     tree.root_folder().recursively_save_hosts(pprint_value=pprint_value, acting_user=user)
 

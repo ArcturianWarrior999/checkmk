@@ -23,6 +23,7 @@ from cmk.gui.watolib.custom_attributes import (
     save_custom_attrs_to_mk_file,
     update_host_custom_attrs,
 )
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 
 from ._family import CUSTOM_HOST_ATTR_FAMILY
 from ._utils import attr_etag, DOMAIN_TYPE, RW_PERMISSIONS, serialize_attr
@@ -58,7 +59,11 @@ def create_custom_host_attr_v1(
     )
     all_attrs["host"].append(new_attr)
     save_custom_attrs_to_mk_file(all_attrs)
-    update_host_custom_attrs(all_attrs["host"], pprint_value=api_context.config.wato_pprint_config)
+    update_host_custom_attrs(
+        make_folder_tree(api_context.config),
+        all_attrs["host"],
+        pprint_value=api_context.config.wato_pprint_config,
+    )
     return ApiResponse(
         status_code=201,
         body=serialize_attr(new_attr),
