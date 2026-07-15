@@ -583,6 +583,30 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
     ]
 
 
+def test_build_matched_graphs_keeps_threshold_rules_when_adding_predictive_lines() -> None:
+    service = _service()
+    cpu_user = MetricName("cpu_user")
+    predict = MetricName("predict_cpu_user")
+    fetch_data = _FakeRRDFetchData(
+        performance_response={service: _perf_data(_perf(cpu_user, warning=80.0), _perf(predict))}
+    )
+    graphs = build_matched_graphs(
+        services=[service],
+        localizer=_id,
+        fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
+        graph_type=_KIND,
+        registered_graphs=[],
+        registered_metrics=_METRICS,
+    )
+    # Injecting the predictive companion line must not drop the fallback threshold rules.
+    [graph] = [g for g in graphs if g.name == cpu_user]
+    assert _dline(_rrd(predict)) in graph.lines
+    assert [rule.curve.quantity for rule in graph.rules] == [
+        ScalarOf(metric=_rrd(cpu_user), scalar_kind=scalar_kind)
+        for scalar_kind in _FALLBACK_RULE_TYPES
+    ]
+
+
 # --- multiple services -----------------------------------------------------------------------------
 
 

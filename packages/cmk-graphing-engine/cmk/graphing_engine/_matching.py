@@ -121,6 +121,7 @@ def _add_predictive_lines(
             vertical_range=graph.vertical_range,
             stacks=graph.stacks,
             lines=[*graph.lines, *added],
+            rules=graph.rules,
         ),
         names,
     )
