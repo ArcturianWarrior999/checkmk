@@ -67,7 +67,14 @@ from cmk.gui.wato.pages._html_elements import wato_html_head
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
 from cmk.gui.watolib.config_domain_name import CORE
 from cmk.gui.watolib.host_attributes import all_host_attributes
-from cmk.gui.watolib.hosts_and_folders import Folder, folder_preserving_link, Host, make_action_link
+from cmk.gui.watolib.hosts_and_folders import (
+    Folder,
+    folder_preserving_link,
+    FolderTree,
+    Host,
+    make_action_link,
+    make_folder_tree,
+)
 from cmk.gui.watolib.main_menu import MenuItem
 from cmk.gui.watolib.mode import mode_url, ModeRegistry, redirect, WatoMode
 from cmk.gui.watolib.pending_changes import (
@@ -225,7 +232,9 @@ class ModeTags(ABCTagMode):
             request.get_item_input("_delete", dict(self._tag_config.get_tag_group_choices()))[1]
         )
 
+        tree = make_folder_tree(config)
         message = _rename_tags_after_confirmation(
+            tree,
             self.breadcrumb(),
             OperationRemoveTagGroup(del_id),
             pprint_value=config.wato_pprint_config,
@@ -241,7 +250,7 @@ class ModeTags(ABCTagMode):
                 self._tag_config.validate_config()
             except MKGeneralException as e:
                 raise MKUserError(None, "%s" % e)
-            update_tag_config(self._tag_config, pprint_value=config.wato_pprint_config)
+            update_tag_config(tree, self._tag_config, pprint_value=config.wato_pprint_config)
             pending_changes.add(
                 Change(
                     action_name="edit-tags",
@@ -273,7 +282,9 @@ class ModeTags(ABCTagMode):
                         % {"title": group.title},
                     )
 
+        tree = make_folder_tree(config)
         message = _rename_tags_after_confirmation(
+            tree,
             self.breadcrumb(),
             OperationRemoveAuxTag(TagGroupID(del_id)),
             pprint_value=config.wato_pprint_config,
@@ -289,7 +300,7 @@ class ModeTags(ABCTagMode):
                 self._tag_config.validate_config()
             except MKGeneralException as e:
                 raise MKUserError(None, "%s" % e)
-            update_tag_config(self._tag_config, pprint_value=config.wato_pprint_config)
+            update_tag_config(tree, self._tag_config, pprint_value=config.wato_pprint_config)
             pending_changes.add(
                 Change(
                     action_name="edit-tags",
@@ -314,7 +325,9 @@ class ModeTags(ABCTagMode):
             self._tag_config.validate_config()
         except MKGeneralException as e:
             raise MKUserError(None, "%s" % e)
-        update_tag_config(self._tag_config, pprint_value=config.wato_pprint_config)
+        update_tag_config(
+            make_folder_tree(config), self._tag_config, pprint_value=config.wato_pprint_config
+        )
         self._load_effective_config()
         pending_changes.add(
             Change(
@@ -586,13 +599,16 @@ class ModeTagUsage(ABCTagMode):
             local_site=omd_site(),
             user_id=user.id,
         )
+        tree = make_folder_tree(config)
         self._show_tag_list(
+            tree=tree,
             pprint_value=config.wato_pprint_config,
             debug=config.debug,
             pending_changes=pending_changes,
             table_row_limit=config.table_row_limit,
         )
         self._show_aux_tag_list(
+            tree=tree,
             pprint_value=config.wato_pprint_config,
             debug=config.debug,
             pending_changes=pending_changes,
@@ -602,6 +618,7 @@ class ModeTagUsage(ABCTagMode):
     def _show_tag_list(
         self,
         *,
+        tree: FolderTree,
         pprint_value: bool,
         debug: bool,
         pending_changes: PendingChanges,
@@ -614,6 +631,7 @@ class ModeTagUsage(ABCTagMode):
                         table,
                         tag_group,
                         tag,
+                        tree=tree,
                         pprint_value=pprint_value,
                         debug=debug,
                         pending_changes=pending_changes,
@@ -625,6 +643,7 @@ class ModeTagUsage(ABCTagMode):
         tag_group: cmk.ruleset_matcher.tags.TagGroup,
         tag: cmk.ruleset_matcher.tags.GroupedTag,
         *,
+        tree: FolderTree,
         pprint_value: bool,
         debug: bool,
         pending_changes: PendingChanges,
@@ -644,6 +663,7 @@ class ModeTagUsage(ABCTagMode):
             tag_group.id, remove_tag_ids=[tag.id], replace_tag_ids={}
         )
         affected_folders, affected_hosts, affected_rulesets = change_host_tags(
+            tree,
             operation,
             TagCleanupMode.CHECK,
             pprint_value=pprint_value,
@@ -680,6 +700,7 @@ class ModeTagUsage(ABCTagMode):
     def _show_aux_tag_list(
         self,
         *,
+        tree: FolderTree,
         pprint_value: bool,
         debug: bool,
         pending_changes: PendingChanges,
@@ -690,6 +711,7 @@ class ModeTagUsage(ABCTagMode):
                 self._show_aux_tag_row(
                     table,
                     aux_tag,
+                    tree=tree,
                     pprint_value=pprint_value,
                     debug=debug,
                     pending_changes=pending_changes,
@@ -700,6 +722,7 @@ class ModeTagUsage(ABCTagMode):
         table: Table,
         aux_tag: cmk.ruleset_matcher.tags.AuxTag,
         *,
+        tree: FolderTree,
         pprint_value: bool,
         debug: bool,
         pending_changes: PendingChanges,
@@ -718,6 +741,7 @@ class ModeTagUsage(ABCTagMode):
             raise Exception("uninitialized tag")
         operation = OperationRemoveAuxTag(TagGroupID(aux_tag.id))
         affected_folders, affected_hosts, affected_rulesets = change_host_tags(
+            tree,
             operation,
             TagCleanupMode.CHECK,
             pprint_value=pprint_value,
@@ -808,7 +832,11 @@ class ModeEditAuxtag(ABCEditTagMode):
         except MKGeneralException as e:
             raise MKUserError(None, "%s" % e)
 
-        update_tag_config(changed_hosttags_config, pprint_value=config.wato_pprint_config)
+        update_tag_config(
+            make_folder_tree(config),
+            changed_hosttags_config,
+            pprint_value=config.wato_pprint_config,
+        )
 
         return redirect(mode_url("tags"))
 
@@ -897,6 +925,7 @@ class ModeEditTagGroup(ABCEditTagMode):
             local_site=omd_site(),
             user_id=user.id,
         )
+        tree = make_folder_tree(config)
         if self._new:
             # Inserts and verifies changed tag group
             try:
@@ -904,7 +933,7 @@ class ModeEditTagGroup(ABCEditTagMode):
                 changed_hosttags_config.validate_config()
             except MKGeneralException as e:
                 raise MKUserError(None, "%s" % e)
-            update_tag_config(changed_hosttags_config, pprint_value=config.wato_pprint_config)
+            update_tag_config(tree, changed_hosttags_config, pprint_value=config.wato_pprint_config)
             pending_changes.add(
                 Change(
                     action_name="edit-hosttags",
@@ -933,6 +962,7 @@ class ModeEditTagGroup(ABCEditTagMode):
 
         # Now check, if any folders, hosts or rules are affected
         message = _rename_tags_after_confirmation(
+            tree,
             self.breadcrumb(),
             operation,
             pprint_value=config.wato_pprint_config,
@@ -942,7 +972,7 @@ class ModeEditTagGroup(ABCEditTagMode):
         if message is False:
             return FinalizeRequest(code=200)
 
-        update_tag_config(changed_hosttags_config, pprint_value=config.wato_pprint_config)
+        update_tag_config(tree, changed_hosttags_config, pprint_value=config.wato_pprint_config)
         pending_changes.add(
             Change(
                 action_name="edit-hosttags",
@@ -1044,6 +1074,7 @@ class ModeEditTagGroup(ABCEditTagMode):
 
 
 def _rename_tags_after_confirmation(
+    tree: FolderTree,
     breadcrumb: Breadcrumb,
     operation: ABCTagGroupOperation | OperationReplaceGroupedTags,
     *,
@@ -1072,6 +1103,7 @@ def _rename_tags_after_confirmation(
             raise MKUserError("id_0", _("Aborting change."))
 
         affected_folders, affected_hosts, affected_rulesets = change_host_tags(
+            tree,
             operation,
             mode,
             pprint_value=pprint_value,
@@ -1089,6 +1121,7 @@ def _rename_tags_after_confirmation(
 
     message = HTML.empty()
     affected_folders, affected_hosts, affected_rulesets = change_host_tags(
+        tree,
         operation,
         TagCleanupMode.CHECK,
         pprint_value=pprint_value,

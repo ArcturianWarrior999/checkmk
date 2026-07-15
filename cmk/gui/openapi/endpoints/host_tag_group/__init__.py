@@ -41,6 +41,7 @@ from cmk.gui.openapi.utils import problem, ProblemException, serve_json
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.utils import permission_verification as permissions
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
     PendingChanges,
@@ -115,6 +116,7 @@ def create_host_tag_group(params: Mapping[str, Any]) -> Response:
     user.need_permission("wato.edit")
     host_tag_group_details = params["body"]
     save_tag_group(
+        make_folder_tree(active_config),
         TagGroup.from_config(host_tag_group_details),
         pprint_value=active_config.wato_pprint_config,
     )
@@ -194,6 +196,7 @@ def update_host_tag_group(params: Mapping[str, Any]) -> Response:
     group_details.update(updated_details)  # type: ignore[typeddict-item]
     try:
         edit_tag_group(
+            make_folder_tree(active_config),
             ident,
             TagGroup.from_config(group_details),
             allow_repair=body["repair"],
@@ -246,7 +249,9 @@ def delete_host_tag_group(params: Mapping[str, Any]) -> Response:
     pending_changes = _pending_changes(
         config=active_config, local_site=omd_site(), acting_user=user.id
     )
+    tree = make_folder_tree(active_config)
     affected = change_host_tags(
+        tree,
         OperationRemoveTagGroup(ident),
         TagCleanupMode.CHECK,
         pprint_value=active_config.wato_pprint_config,
@@ -281,6 +286,7 @@ def delete_host_tag_group(params: Mapping[str, Any]) -> Response:
                 ),
             )
         _ = change_host_tags(
+            tree,
             OperationRemoveTagGroup(ident),
             mode,
             pprint_value=active_config.wato_pprint_config,
@@ -290,7 +296,7 @@ def delete_host_tag_group(params: Mapping[str, Any]) -> Response:
 
     tag_config = load_tag_config()
     tag_config.remove_tag_group(ident)
-    update_tag_config(tag_config, pprint_value=active_config.wato_pprint_config)
+    update_tag_config(tree, tag_config, pprint_value=active_config.wato_pprint_config)
     return Response(status=204)
 
 

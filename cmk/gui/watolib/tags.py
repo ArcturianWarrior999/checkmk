@@ -6,6 +6,7 @@
 
 import abc
 import contextlib
+import dataclasses
 from collections.abc import Mapping, Sequence
 from enum import Enum
 from typing import Any
@@ -17,7 +18,7 @@ from cmk.gui.config import active_config
 from cmk.gui.exceptions import MKAuthException
 from cmk.gui.hooks import request_memoize
 from cmk.gui.logged_in import user
-from cmk.gui.watolib.hosts_and_folders import Folder, folder_tree, Host
+from cmk.gui.watolib.hosts_and_folders import Folder, FolderTree, Host
 from cmk.gui.watolib.pending_changes import PendingChanges
 from cmk.gui.watolib.rulesets import AllRulesets, Rule, RuleConditions, Ruleset
 from cmk.gui.watolib.tag_config_file import (
@@ -41,18 +42,21 @@ def load_tag_config() -> TagConfig:
     return TagConfig.from_config(TagConfigFile().load_for_modification())
 
 
-def update_tag_config(tag_config: TagConfig, pprint_value: bool) -> None:
+def update_tag_config(tree: FolderTree, tag_config: TagConfig, pprint_value: bool) -> None:
     """Persist the tag config saving the information to the mk file
     and update the current environment
 
     Args:
+        tree:
+            The folder tree whose hosts are rewritten with the new tag config
+
         tag_config:
             The tag config object to persist
 
     """
     user.need_permission("wato.hosttags")
     TagConfigFile().save(tag_config.get_dict_format(), pprint_value)
-    _update_tag_dependencies(tag_config, pprint_value=pprint_value)
+    _update_tag_dependencies(tree, tag_config, pprint_value=pprint_value)
 
 
 def load_tag_group(ident: TagGroupID) -> TagGroup | None:
@@ -68,10 +72,13 @@ def load_tag_group(ident: TagGroupID) -> TagGroup | None:
     return tag_config.get_tag_group(ident)
 
 
-def save_tag_group(tag_group: TagGroup, pprint_value: bool) -> None:
+def save_tag_group(tree: FolderTree, tag_group: TagGroup, pprint_value: bool) -> None:
     """Save a new tag group
 
     Args:
+        tree:
+            The folder tree whose hosts are rewritten with the new tag config
+
         tag_group:
             the tag group object
 
@@ -79,7 +86,7 @@ def save_tag_group(tag_group: TagGroup, pprint_value: bool) -> None:
     tag_config = load_tag_config()
     tag_config.insert_tag_group(tag_group)
     tag_config.validate_config()
-    update_tag_config(tag_config, pprint_value)
+    update_tag_config(tree, tag_config, pprint_value)
 
 
 def is_builtin(ident: TagGroupID) -> bool:
@@ -96,14 +103,18 @@ def tag_group_exists(ident: TagGroupID, builtin_included: bool = False) -> bool:
     return tag_config.tag_group_exists(ident)
 
 
-def _update_tag_dependencies(tag_config: TagConfig, *, pprint_value: bool) -> None:
-    # Patch the current requests config with the changed config
-    active_config.wato_tags = tag_config.get_dict_format()
-    active_config.tags = cmk.ruleset_matcher.tags.get_effective_tag_config(
-        tag_config.get_dict_format()
-    )
+def _update_tag_dependencies(
+    tree: FolderTree, tag_config: TagConfig, *, pprint_value: bool
+) -> None:
+    effective_tags = cmk.ruleset_matcher.tags.get_effective_tag_config(tag_config.get_dict_format())
 
-    tree = folder_tree()
+    # Patch the current request's config with the changed tags. The tree holds a
+    # config snapshot from its construction time, so it needs the update explicitly
+    # for the save below to serialize the hosts with the new tag definitions.
+    active_config.wato_tags = tag_config.get_dict_format()
+    active_config.tags = effective_tags
+    tree.config = dataclasses.replace(tree.config, tags=effective_tags)
+
     tree.invalidate_caches()
     tree.root_folder().recursively_save_hosts(pprint_value=pprint_value, acting_user=user)
 
@@ -113,6 +124,7 @@ class RepairError(MKGeneralException):
 
 
 def edit_tag_group(
+    tree: FolderTree,
     ident: TagGroupID,
     edited_group: TagGroup,
     *,
@@ -124,6 +136,9 @@ def edit_tag_group(
     """Update attributes of a tag group & update the relevant positions which used the relevant tag group
 
     Args:
+        tree:
+            the folder tree whose hosts, folders and rulesets are updated
+
         ident:
             the identifier of the tag group to be updated
 
@@ -143,6 +158,7 @@ def edit_tag_group(
     tag_config.validate_config()
     operation = OperationReplaceGroupedTags(ident, tag_ids_to_remove, tag_ids_to_replace)
     affected = change_host_tags(
+        tree,
         operation,
         TagCleanupMode.CHECK,
         pprint_value=pprint_value,
@@ -153,13 +169,14 @@ def edit_tag_group(
         if not allow_repair:
             raise RepairError("Permission missing")
         _ = change_host_tags(
+            tree,
             operation,
             TagCleanupMode("repair"),
             pprint_value=pprint_value,
             debug=debug,
             pending_changes=pending_changes,
         )
-    update_tag_config(tag_config, pprint_value)
+    update_tag_config(tree, tag_config, pprint_value)
 
 
 def identify_modified_tags(
@@ -263,6 +280,7 @@ class OperationReplaceGroupedTags(ABCOperation):
 
 
 def change_host_tags(
+    tree: FolderTree,
     operation: ABCTagGroupOperation | OperationReplaceGroupedTags,
     mode: TagCleanupMode,
     *,
@@ -271,10 +289,11 @@ def change_host_tags(
     pending_changes: PendingChanges,
 ) -> tuple[list[Folder], list[Host], list[Ruleset]]:
     affected_folder, affected_hosts = _change_host_tags_in_folders(
-        operation, mode, folder_tree().root_folder(), pprint_value=pprint_value
+        operation, mode, tree.root_folder(), pprint_value=pprint_value
     )
 
     affected_rulesets = _change_host_tags_in_rulesets(
+        tree,
         operation,
         mode,
         pprint_value=pprint_value,
@@ -285,11 +304,12 @@ def change_host_tags(
 
 
 @request_memoize()
-def _get_all_rulesets() -> AllRulesets:
-    return cmk.gui.watolib.rulesets.AllRulesets.load_all_rulesets(folder_tree())
+def _get_all_rulesets(tree: FolderTree) -> AllRulesets:
+    return AllRulesets.load_all_rulesets(tree)
 
 
 def _change_host_tags_in_rulesets(
+    tree: FolderTree,
     operation: ABCTagGroupOperation | OperationReplaceGroupedTags,
     mode: TagCleanupMode,
     *,
@@ -298,7 +318,7 @@ def _change_host_tags_in_rulesets(
     pending_changes: PendingChanges,
 ) -> list[Ruleset]:
     affected_rulesets = set()
-    all_rulesets = _get_all_rulesets()
+    all_rulesets = _get_all_rulesets(tree)
     for ruleset in all_rulesets.get_rulesets().values():
         for _folder, _rulenr, rule in ruleset.get_rules():
             affected_rulesets.update(

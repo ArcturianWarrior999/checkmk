@@ -37,6 +37,7 @@ from cmk.gui.openapi.restful_objects.registry import EndpointRegistry
 from cmk.gui.openapi.restful_objects.type_defs import DomainObject
 from cmk.gui.openapi.utils import problem, serve_json
 from cmk.gui.utils import permission_verification as permissions
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.tags import load_all_tag_config_read_only, load_tag_config, update_tag_config
 from cmk.ruleset_matcher.tags import AuxTag, AuxTagInUseError, TagID
 
@@ -123,7 +124,9 @@ def create_aux_tag(params: Mapping[str, Any]) -> Response:
             detail=str(e),
         )
 
-    update_tag_config(tag_config, pprint_value=active_config.wato_pprint_config)
+    update_tag_config(
+        make_folder_tree(active_config), tag_config, pprint_value=active_config.wato_pprint_config
+    )
     return serve_json(data=_serialize_aux_tag(aux_tag))
 
 
@@ -151,7 +154,9 @@ def put_aux_tag(params: Mapping[str, Any]) -> Response:
         help=params["body"].get("help", existing_tag.help),
     )
     tag_config.update_aux_tag(TagID(params["aux_tag_id"]), aux_tag)
-    update_tag_config(tag_config, pprint_value=active_config.wato_pprint_config)
+    update_tag_config(
+        make_folder_tree(active_config), tag_config, pprint_value=active_config.wato_pprint_config
+    )
     return serve_json(data=_serialize_aux_tag(aux_tag))
 
 
@@ -179,7 +184,9 @@ def delete_aux_tag(params: Mapping[str, Any]) -> Response:
             detail=str(exc),
         )
 
-    update_tag_config(tag_config, pprint_value=active_config.wato_pprint_config)
+    update_tag_config(
+        make_folder_tree(active_config), tag_config, pprint_value=active_config.wato_pprint_config
+    )
     return Response(status=204)
 
 
