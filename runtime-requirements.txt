@@ -193,6 +193,7 @@ attrs==26.1.0 \
     #   -c requirements.txt
     #   aiohttp
     #   jsonschema
+    #   jsonschema-path
     #   referencing
 azure-core==1.38.1 \
     --hash=sha256:69f08ee3d55136071b7100de5b198994fc1c5f89d2b91f2f43156d20fcf200a4 \
@@ -1239,9 +1240,9 @@ jsonschema==4.26.0 \
     #   mcp
     #   openapi-schema-validator
     #   openapi-spec-validator
-jsonschema-path==0.3.4 \
-    --hash=sha256:8365356039f16cc65fddffafda5f58766e34bebab7d6d105616ab52bc4297001 \
-    --hash=sha256:f502191fdc2b22050f9a81c9237be9d27145b9001c55842bece5e94e382e52f8
+jsonschema-path==0.5.0 \
+    --hash=sha256:2790a070bc7abb08ea3dbe4d340ece4efadf639223001f020c7503229ba068e2 \
+    --hash=sha256:493b156ba895c97602655b620a8456caa2ce08c1aa389f5a7addec065e6e855c
     # via
     #   -c requirements.txt
     #   openapi-spec-validator
@@ -1974,15 +1975,15 @@ oauthlib==3.3.1 \
     #   -r cmk/requirements.in
     #   exchangelib
     #   requests-oauthlib
-openapi-schema-validator==0.6.3 \
-    --hash=sha256:f37bace4fc2a5d96692f4f8b31dc0f8d7400fd04f3a937798eaf880d425de6ee \
-    --hash=sha256:f3b9870f4e556b5a62a1c39da72a6b4b16f3ad9c73dc80084b1b11e74ba148a3
+openapi-schema-validator==0.9.0 \
+    --hash=sha256:b72db64315b89d21834cd3ffef37e3e6893bc876327be2d366e8424b1029afd3 \
+    --hash=sha256:faa3bbe7c3aa8ca2087ad83f709dc3b7d920283153a570c03e24ea182558aa25
     # via
     #   -c requirements.txt
     #   openapi-spec-validator
-openapi-spec-validator==0.7.2 \
-    --hash=sha256:4bbdc0894ec85f1d1bea1d6d9c8b2c3c8d7ccaa13577ef40da9c006c9fd0eb60 \
-    --hash=sha256:cc029309b5c5dbc7859df0372d55e9d1ff43e96d678b9ba087f7c56fc586f734
+openapi-spec-validator==0.9.0 \
+    --hash=sha256:222fecffc7714f6d0a6ad62c0e4b66cc2b7dbfafb7b93acfc6c308abbdb51af8 \
+    --hash=sha256:6d648cff6490ebb799dcfe273792f2941c050158854c721f086599d845da78b8
     # via
     #   -c requirements.txt
     #   -r cmk/requirements.in
@@ -2195,9 +2196,9 @@ paramiko==5.0.0 \
     # via
     #   -c requirements.txt
     #   -r cmk/requirements.in
-pathable==0.4.4 \
-    --hash=sha256:5ae9e94793b6ef5a4cbe0a7ce9dbbefc1eec38df253763fd0aeeacf2762dbbc2 \
-    --hash=sha256:6905a3cd17804edfac7875b5f6c9142a218c7caef78693c2dbbbfbac186d88b2
+pathable==0.6.0 \
+    --hash=sha256:6404b8b82aef5ff0fd478934137128b99b12212ba35afdde5525ca4f8388ea58 \
+    --hash=sha256:82c4ca6c98c502ad12e0d4e9779b6210afee93c38990988c8c5d1b49bdcdf566
     # via
     #   -c requirements.txt
     #   jsonschema-path
@@ -2627,6 +2628,8 @@ pydantic==2.13.4 \
     #   fastapi
     #   mcp
     #   mcp-types
+    #   openapi-schema-validator
+    #   openapi-spec-validator
     #   pydantic-settings
 pydantic-core==2.46.4 \
     --hash=sha256:00c603d540afdd6b80eb39f078f33ebd46211f02f33e34a32d9f053bba711de0 \
@@ -2761,6 +2764,8 @@ pydantic-settings==2.14.2 \
     # via
     #   -c requirements.txt
     #   mcp
+    #   openapi-schema-validator
+    #   openapi-spec-validator
 pyghmi==1.6.13 \
     --hash=sha256:a998a25a8a5e8222d207dd38dad1f2a46675cc254ed54010a79ff46c0dc368ad \
     --hash=sha256:dd02dca001c5f7681ee770bfde1d3cb2f57f0f94a2559ac95c943902213936c5
@@ -3265,14 +3270,15 @@ redis==8.0.1 \
     # via
     #   -c requirements.txt
     #   -r cmk/requirements.in
-referencing==0.36.2 \
-    --hash=sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa \
-    --hash=sha256:e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0
+referencing==0.37.0 \
+    --hash=sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231 \
+    --hash=sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8
     # via
     #   -c requirements.txt
     #   jsonschema
     #   jsonschema-path
     #   jsonschema-specifications
+    #   openapi-schema-validator
 reportlab==4.4.10 \
     --hash=sha256:5abc815746ae2bc44e7ff25db96814f921349ca814c992c7eac3c26029bf7c24 \
     --hash=sha256:5cbbb34ac3546039d0086deb2938cdec06b12da3cdb836e813258eb33cd28487
@@ -3298,7 +3304,6 @@ requests==2.34.2 \
     #   exchangelib
     #   google-api-core
     #   jira
-    #   jsonschema-path
     #   kubernetes
     #   msal
     #   netapp-ontap

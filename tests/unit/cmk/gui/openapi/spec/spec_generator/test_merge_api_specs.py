@@ -3,7 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Hashable, Mapping
+from collections.abc import Mapping
 from typing import cast
 
 import pytest
@@ -265,4 +265,4 @@ def test_merged_spec_is_valid_openapi() -> None:
         }
     )
 
-    validate(cast(Mapping[Hashable, object], merged))
+    validate(cast(Mapping[str, object], merged))

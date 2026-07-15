@@ -248,6 +248,7 @@ attrs==26.1.0 \
     #   aiohttp
     #   jschema-to-python
     #   jsonschema
+    #   jsonschema-path
     #   referencing
     #   sarif-om
 azure-core==1.38.1 \
@@ -1949,9 +1950,9 @@ jsonschema==4.26.0 \
     #   -r tests/dev-requirements.in
     #   openapi-schema-validator
     #   openapi-spec-validator
-jsonschema-path==0.3.4 \
-    --hash=sha256:8365356039f16cc65fddffafda5f58766e34bebab7d6d105616ab52bc4297001 \
-    --hash=sha256:f502191fdc2b22050f9a81c9237be9d27145b9001c55842bece5e94e382e52f8
+jsonschema-path==0.5.0 \
+    --hash=sha256:2790a070bc7abb08ea3dbe4d340ece4efadf639223001f020c7503229ba068e2 \
+    --hash=sha256:493b156ba895c97602655b620a8456caa2ce08c1aa389f5a7addec065e6e855c
     # via
     #   -c requirements.txt
     #   openapi-spec-validator
@@ -3085,15 +3086,15 @@ oauthlib==3.3.1 \
     #   -r cmk/requirements.in
     #   exchangelib
     #   requests-oauthlib
-openapi-schema-validator==0.6.3 \
-    --hash=sha256:f37bace4fc2a5d96692f4f8b31dc0f8d7400fd04f3a937798eaf880d425de6ee \
-    --hash=sha256:f3b9870f4e556b5a62a1c39da72a6b4b16f3ad9c73dc80084b1b11e74ba148a3
+openapi-schema-validator==0.9.0 \
+    --hash=sha256:b72db64315b89d21834cd3ffef37e3e6893bc876327be2d366e8424b1029afd3 \
+    --hash=sha256:faa3bbe7c3aa8ca2087ad83f709dc3b7d920283153a570c03e24ea182558aa25
     # via
     #   -c requirements.txt
     #   openapi-spec-validator
-openapi-spec-validator==0.7.2 \
-    --hash=sha256:4bbdc0894ec85f1d1bea1d6d9c8b2c3c8d7ccaa13577ef40da9c006c9fd0eb60 \
-    --hash=sha256:cc029309b5c5dbc7859df0372d55e9d1ff43e96d678b9ba087f7c56fc586f734
+openapi-spec-validator==0.9.0 \
+    --hash=sha256:222fecffc7714f6d0a6ad62c0e4b66cc2b7dbfafb7b93acfc6c308abbdb51af8 \
+    --hash=sha256:6d648cff6490ebb799dcfe273792f2941c050158854c721f086599d845da78b8
     # via
     #   -c requirements.txt
     #   -r cmk/requirements.in
@@ -3340,9 +3341,9 @@ parso==0.8.7 \
     # via
     #   -c requirements.txt
     #   jedi
-pathable==0.4.4 \
-    --hash=sha256:5ae9e94793b6ef5a4cbe0a7ce9dbbefc1eec38df253763fd0aeeacf2762dbbc2 \
-    --hash=sha256:6905a3cd17804edfac7875b5f6c9142a218c7caef78693c2dbbbfbac186d88b2
+pathable==0.6.0 \
+    --hash=sha256:6404b8b82aef5ff0fd478934137128b99b12212ba35afdde5525ca4f8388ea58 \
+    --hash=sha256:82c4ca6c98c502ad12e0d4e9779b6210afee93c38990988c8c5d1b49bdcdf566
     # via
     #   -c requirements.txt
     #   jsonschema-path
@@ -3848,6 +3849,9 @@ pydantic==2.13.4 \
     #   cmk-werk-zeug
     #   datamodel-code-generator
     #   fastapi
+    #   openapi-schema-validator
+    #   openapi-spec-validator
+    #   pydantic-settings
 pydantic-core==2.46.4 \
     --hash=sha256:00c603d540afdd6b80eb39f078f33ebd46211f02f33e34a32d9f053bba711de0 \
     --hash=sha256:0186750b482eefa11d7f435892b09c5c606193ef3375bcf94aa00ae6bfb66262 \
@@ -3975,6 +3979,13 @@ pydantic-core==2.46.4 \
     #   -r packages/cmk-agent-receiver/requirements.in
     #   -r packages/cmk-mkp-tool/requirements.in
     #   pydantic
+pydantic-settings==2.14.2 \
+    --hash=sha256:a20c97b37910b6550d5ea50fbcc2d4187defe58cd57070b73863d069419c9440 \
+    --hash=sha256:c19dd64b19097f1de80184f0cc7b0272a13ae6e170cbf240a3e27e381ed14a5f
+    # via
+    #   -c requirements.txt
+    #   openapi-schema-validator
+    #   openapi-spec-validator
 pyee==13.0.1 \
     --hash=sha256:0b931f7c14535667ed4c7e0d531716368715e860b988770fc7eb8578d1f67fc8 \
     --hash=sha256:af2f8fede4171ef667dfded53f96e2ed0d6e6bd7ee3bb46437f77e3b57689228
@@ -4411,6 +4422,12 @@ python-docx==1.2.0 \
     # via
     #   -c requirements.txt
     #   sarif-tools
+python-dotenv==1.2.2 \
+    --hash=sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a \
+    --hash=sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3
+    # via
+    #   -c requirements.txt
+    #   pydantic-settings
 python-jenkins==1.8.3 \
     --hash=sha256:2e1766b253e3b2f28f52abfd0de45ffeaa1191f98520cc8d74d2c317786e59d0 \
     --hash=sha256:8f4761c391ac11e8c1f23f771010920c10440497705ab7175d52358f5a12dc98
@@ -4648,14 +4665,15 @@ redis==8.0.1 \
     #   -c requirements.txt
     #   -r cmk/requirements.in
     #   fakeredis
-referencing==0.36.2 \
-    --hash=sha256:df2e89862cd09deabbdba16944cc3f10feb6b3e6f18e902f7cc25609a34775aa \
-    --hash=sha256:e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0
+referencing==0.37.0 \
+    --hash=sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231 \
+    --hash=sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8
     # via
     #   -c requirements.txt
     #   jsonschema
     #   jsonschema-path
     #   jsonschema-specifications
+    #   openapi-schema-validator
     #   types-jsonschema
 regex==2026.7.10 \
     --hash=sha256:0639b2488b775a0109f55a5a2172deebdedb4b6c5ab0d48c90b43cbf5de58d17 \
@@ -4800,7 +4818,6 @@ requests==2.34.2 \
     #   google-api-core
     #   grequests
     #   jira
-    #   jsonschema-path
     #   kubernetes
     #   msal
     #   netapp-ontap
@@ -5728,6 +5745,7 @@ typing-inspection==0.4.2 \
     #   -c requirements.txt
     #   fastapi
     #   pydantic
+    #   pydantic-settings
 tzdata==2026.3 \
     --hash=sha256:4a1518b8993086a7982523e071643f3c0e5f213e75b21318e78bcabfff9d1415 \
     --hash=sha256:dc096730c87af6cab1b171c9d532be840741ff5d459015e7f6947bd7d7e54931
