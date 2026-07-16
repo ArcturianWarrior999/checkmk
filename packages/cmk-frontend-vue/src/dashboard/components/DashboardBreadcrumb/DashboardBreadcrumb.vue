@@ -6,9 +6,10 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import CmkBreadcrumb, { type BreadcrumbItem } from '@/components/CmkBreadcrumb'
+
 import type { SelectedDashboard } from '@/dashboard/components/DashboardMenuHeader/types'
 import type { DashboardKey } from '@/dashboard/types/dashboard'
-import type { BreadcrumbItem } from '@/dashboard/types/page'
 import type { FilterHTTPVars } from '@/dashboard/types/widget'
 import { urlHandler } from '@/dashboard/utils'
 
@@ -40,58 +41,13 @@ const activeBreadcrumb = computed<BreadcrumbItem[]>(() => {
 </script>
 
 <template>
-  <div class="db-breadcrumb--container">
-    <div
-      v-for="(item, index) in activeBreadcrumb"
-      :key="item.link || index"
-      :class="`db-breadcrumb--item${index === activeBreadcrumb.length - 1 ? '-final' : ''}`"
-    >
-      <a v-if="item.link" :href="item.link" class="db-breadcrumb--interactive-item">
-        {{ item.title }}
-      </a>
-      <span v-else class="db-breadcrumb--static-item">
-        {{ item.title }}
-      </span>
-    </div>
+  <div class="db-breadcrumb">
+    <CmkBreadcrumb :items="activeBreadcrumb" />
   </div>
 </template>
 
 <style scoped>
-.db-breadcrumb--container {
-  white-space: nowrap;
-  font-size: var(--font-size-normal);
+.db-breadcrumb {
   padding: var(--dimension-4) var(--dimension-4) 0;
-}
-
-.db-breadcrumb--static-item {
-  color: var(--font-color-breadcrumb-inactive);
-  text-decoration: none;
-}
-
-.db-breadcrumb--interactive-item {
-  color: var(--font-color-breadcrumb-interactive);
-  text-decoration: underline;
-}
-
-.db-breadcrumb--interactive-item:hover {
-  color: var(--font-color-breadcrumb-hover);
-}
-
-.db-breadcrumb--item,
-.db-breadcrumb--item-final {
-  display: inline-block;
-}
-
-.db-breadcrumb--item::after {
-  color: var(--font-color-breadcrumb-inactive);
-  content: '>';
-  cursor: default;
-  display: inline-block;
-  padding: 0 var(--spacing-half);
-  text-decoration: none;
-}
-
-.db-breadcrumb--item-final::after {
-  content: '';
 }
 </style>

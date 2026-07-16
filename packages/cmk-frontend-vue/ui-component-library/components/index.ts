@@ -75,6 +75,7 @@ import UclCmkZebra from './foundation-elements/CmkZebra/UclCmkZebra.vue'
 import UclCmkHeading from './foundation-elements/typography/UclCmkHeading.vue'
 import UclCmkParagraph from './foundation-elements/typography/UclCmkParagraph.vue'
 import UclArrowDown from './graphics/ArrowDown/UclArrowDown.vue'
+import UclCmkBreadcrumb from './navigation/CmkBreadcrumb/UclCmkBreadcrumb.vue'
 import UclCmkLinkCard from './navigation/CmkLinkCard/UclCmkLinkCard.vue'
 import UclCmkAlertBox from './system-feedback/CmkAlertBox/UclCmkAlertBox.vue'
 import UclCmkCopy from './system-feedback/CmkCopy/UclCmkCopy.vue'
@@ -174,7 +175,10 @@ const foundationElementsPages = [
 
 const graphicsPages = [new Page('ArrowDown', UclArrowDown)]
 
-const navigationPages = [new Page('CmkLinkCard', UclCmkLinkCard)]
+const navigationPages = [
+  new Page('CmkBreadcrumb', UclCmkBreadcrumb),
+  new Page('CmkLinkCard', UclCmkLinkCard)
+]
 
 const systemFeedbackPages = [
   new Page('CmkAlertBox', UclCmkAlertBox),

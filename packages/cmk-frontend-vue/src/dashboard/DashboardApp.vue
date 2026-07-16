@@ -18,6 +18,7 @@ import {
 
 import { randomId } from '@/lib/randomId'
 
+import type { BreadcrumbItem } from '@/components/CmkBreadcrumb'
 import { useCmkErrorBoundary } from '@/components/CmkErrorBoundary'
 import CmkErrorAlert from '@/components/CmkErrorBoundary/CmkErrorAlert.vue'
 import CmkIcon from '@/components/CmkIcon'
@@ -55,7 +56,6 @@ import {
 } from '@/dashboard/types/dashboard.ts'
 import { RuntimeFilterMode } from '@/dashboard/types/filter.ts'
 import { urlParamsKey } from '@/dashboard/types/injectionKeys.ts'
-import type { BreadcrumbItem } from '@/dashboard/types/page'
 import type { DashboardPageProperties } from '@/dashboard/types/page.ts'
 import type {
   WidgetContent,
