@@ -5,8 +5,8 @@
 
 import pytest
 
-from cmk.werks.error import WerkError
-from cmk.werks.parse import markdown_table_to_dict
+from cmk.werks.tool.error import WerkError
+from cmk.werks.tool.parse import markdown_table_to_dict
 
 
 def test_parse_simple() -> None:

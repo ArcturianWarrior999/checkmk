@@ -7,11 +7,11 @@ from collections.abc import Iterator, Mapping
 
 import pytest
 
-from cmk.werks import load_werk
-from cmk.werks.error import WerkError
-from cmk.werks.load import _format_title, load_werk_v2, load_werk_v3
-from cmk.werks.models import WerkV2
-from cmk.werks.parse import parse_werk_v2, parse_werk_v3
+from cmk.werks.tool import load_werk
+from cmk.werks.tool.error import WerkError
+from cmk.werks.tool.load import _format_title, load_werk_v2, load_werk_v3
+from cmk.werks.tool.models import WerkV2
+from cmk.werks.tool.parse import parse_werk_v2, parse_werk_v3
 
 WERK_V1 = {
     "class": "fix",

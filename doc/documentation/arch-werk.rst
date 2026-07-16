@@ -35,7 +35,8 @@ Announcing
 
 A Mail and a Forum post is generated from the Werk files added in this version.
 
-See ``announce`` sub-command of ``python -m cmk.utils.werks``
+See ``announce`` sub-command of ``bazel run //cmk/utils:werks_bin`` (used by the
+``announcement`` make-target).
 
 Rewrite Versions of Werks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,7 +67,8 @@ not true. It only contains:
 Version 2.3 and higher ship only Werks from the current major version.
 
 Precompiled Werks consist of multiple files: one for each edition. It is created
-while building Checkmk. A make-target is executing ``python -m cmk.werks.utils precompile``
+while building Checkmk: Bazel rules in ``omd/packages/changelog/BUILD`` execute
+``bazel run //packages/cmk-werks:utils-bin -- precompile`` for each edition.
 
 
 Website
@@ -75,10 +77,11 @@ Website
 You can search and filter Werks on the official Checkmk website: https://Checkmk.com/werks
 
 To compile a list of all Werks, you have to look for Werks in all branches of
-Checkmk. This is done via ``python -m cmk.werks.utils collect``. There is a
-jenkins job that executes this command in a 10 minutes interval. The command
-creates a json dump, which will then be copied to the server hosting the
-homepage and read by a cron job.
+Checkmk. This is done via ``bazel run //packages/cmk-werks:utils-bin -- collect``.
+There is a jenkins job (``buildscripts/scripts/compile-all-werks.groovy``) that
+executes this command in a 10 minutes interval. The command creates a json dump,
+which will then be copied to the server hosting the homepage and read by a cron
+job.
 
 Beside the Checkmk git repository, also the repository for the Checkmk appliance and
 the kubernetes repository contain Werks (robotmk will join this club eventually).
@@ -98,7 +101,7 @@ are three levels (1=trivial change, 3=big impact), for each of those levels a
 mailing-list exists. An additional security mailing-list is also available (each
 Werk is either a fix, a feature or security related).
 
-The mails are sent via ``python -m cmk.utils.werks mail``. The command is
+The mails are sent via the ``mail`` sub-command of ``bazel run //cmk/utils:werks_bin``. The command is
 executed daily on jenkins for each currently supported branch. It sends mails
 directly to the mailing-list addresses.
 

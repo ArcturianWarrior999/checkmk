@@ -29,8 +29,8 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Final, TextIO
 
-from cmk.werks.models import Class, WerkV3
-from cmk.werks.utils import load_raw_files
+from cmk.werks.tool.models import Class, WerkV3
+from cmk.werks.tool.utils import load_raw_files
 from tests.qa_metrics.change_quality import components, detect_test, detect_test_rust, walk
 from tests.qa_metrics.change_quality.repo import read_branch_version
 from tests.qa_metrics.change_quality.rows import CHANGE_TESTED, ChangeTestedRow

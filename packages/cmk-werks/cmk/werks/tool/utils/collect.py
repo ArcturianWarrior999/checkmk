@@ -9,8 +9,8 @@ from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Literal, override
 
-from cmk.werks.collect import Config
-from cmk.werks.collect import main as collect_main
+from cmk.werks.tool.collect import Config
+from cmk.werks.tool.collect import main as collect_main
 
 logger = logging.getLogger(__name__)
 

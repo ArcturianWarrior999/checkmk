@@ -83,7 +83,7 @@ def run_cli_with_vcr(
     test_dir = Path(__file__).parent
     injector = test_dir / "vcr_injector"
 
-    # Add the necessary paths for cmk.werks module to be found
+    # Add the necessary paths for cmk.werks.tool module to be found
     # Go up from tests dir to get to the package root
     package_root = test_dir.parent  # cmk-werks package
     repo_root = package_root.parent.parent  # check_mk repo root
@@ -109,13 +109,13 @@ def run_cli_with_vcr(
 
     # Debug info
     print("Running CLI with VCR:")
-    print(f"  Command: {[sys.executable, '-m', 'cmk.werks'] + args}")
+    print(f"  Command: {[sys.executable, '-m', 'cmk.werks.tool'] + args}")
     print(f"  Cassette: {cassette_path}")
     print(f"  VCR Config: {vcr_config}")
     print(f"  PYTHONPATH: {env['PYTHONPATH']}")
 
     p = subprocess.Popen(
-        [sys.executable, "-m", "cmk.werks"] + args,
+        [sys.executable, "-m", "cmk.werks.tool"] + args,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -135,7 +135,7 @@ def run_cli_with_vcr(
 def call(*args: str) -> None:
     # we can not call main directly, because the script was not created with that in mind
     # for example we have very sticky caches
-    subprocess.check_call(["python", "-m", "cmk.werks", *args])
+    subprocess.check_call(["python", "-m", "cmk.werks.tool", *args])
 
 
 def create_werk(*, title: str, vcr_cassette_dir: str, vcr_config: dict[str, Any]) -> None:

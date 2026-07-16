@@ -27,7 +27,7 @@ py_binary(
     imports = ["../../.."],
     deps = [
         ":change_quality",
-        "//packages/cmk-werks",
+        "//packages/cmk-werks:tool",
         "//tests/qa_metrics/db",
     ],
 )

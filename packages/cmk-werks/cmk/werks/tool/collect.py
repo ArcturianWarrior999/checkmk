@@ -14,7 +14,7 @@ from typing import Literal, NamedTuple
 from git.objects.commit import Commit
 from git.repo import Repo
 
-from cmk.werks import load_werk, parse_werk
+from cmk.werks.tool import load_werk, parse_werk
 
 from .constants import NON_WERK_FILES_IN_WERK_FOLDER
 from .models import AllWerks, WebsiteWerkV2, WebsiteWerkV3

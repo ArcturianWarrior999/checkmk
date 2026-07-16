@@ -181,7 +181,7 @@ py_library(
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
-        "//packages/cmk-werks",
+        "//packages/cmk-werks:tool",
         requirement("cryptography"),
         requirement("fido2"),
         requirement("icalendar"),

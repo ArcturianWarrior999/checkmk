@@ -17,8 +17,8 @@ import pytest
 
 import cmk.ccc.version as cmk_version
 import cmk.utils.werks
-import cmk.werks.utils
-from cmk.werks.models import WerkV3
+import cmk.werks.tool.utils
+from cmk.werks.tool.models import WerkV3
 from tests.code_quality.bazel_utils import bazel_repo_root
 
 
@@ -100,8 +100,8 @@ def fixture_werks_loader(tmp_path: Path) -> dict[int, WerkV3]:
     """
     base_dir = tmp_path / "werks_base_dir_precompiled"
     base_dir.mkdir()
-    all_werks = cmk.werks.utils.load_raw_files(bazel_repo_root() / ".werks")
-    cmk.werks.utils.write_precompiled_werks(base_dir / "werks", {w.id: w for w in all_werks})
+    all_werks = cmk.werks.tool.utils.load_raw_files(bazel_repo_root() / ".werks")
+    cmk.werks.tool.utils.write_precompiled_werks(base_dir / "werks", {w.id: w for w in all_werks})
 
     unacknowledged_werks_json = tmp_path / "ut_unacknowledged_werks_json"
     acknowledged_werks_mk = tmp_path / "ut_acknowledged_werks_mk"
@@ -113,7 +113,7 @@ def fixture_werks_loader(tmp_path: Path) -> dict[int, WerkV3]:
 
 
 def test_write_precompiled_werks(werks_loader_empty: WerksLoader) -> None:
-    all_werks = cmk.werks.utils.load_raw_files(bazel_repo_root() / ".werks")
+    all_werks = cmk.werks.tool.utils.load_raw_files(bazel_repo_root() / ".werks")
     # Handle both v2 editions (cre, cee, cme, cce, cse) and v3 editions (community, pro, ultimatemt, ultimate, cloud)
     cre_werks = {w.id: w for w in all_werks if w.edition.value in ("cre", "community")}
     cee_werks = {w.id: w for w in all_werks if w.edition.value in ("cee", "pro")}
@@ -126,22 +126,26 @@ def test_write_precompiled_werks(werks_loader_empty: WerksLoader) -> None:
 
     assert len(cre_werks) > 9847
     assert [w for w in cre_werks if 9000 <= w < 10000] == []
-    cmk.werks.utils.write_precompiled_werks(werks_loader_empty.base_dir / "werks", cre_werks)
+    cmk.werks.tool.utils.write_precompiled_werks(werks_loader_empty.base_dir / "werks", cre_werks)
 
     assert len(cee_werks) > 1358
-    cmk.werks.utils.write_precompiled_werks(
+    cmk.werks.tool.utils.write_precompiled_werks(
         werks_loader_empty.base_dir / "werks-enterprise", cee_werks
     )
 
     assert len(cme_werks) > 50
-    cmk.werks.utils.write_precompiled_werks(
+    cmk.werks.tool.utils.write_precompiled_werks(
         werks_loader_empty.base_dir / "werks-managed", cme_werks
     )
 
     assert len(cce_werks) > 10
-    cmk.werks.utils.write_precompiled_werks(werks_loader_empty.base_dir / "werks-cloud", cce_werks)
+    cmk.werks.tool.utils.write_precompiled_werks(
+        werks_loader_empty.base_dir / "werks-cloud", cce_werks
+    )
 
-    cmk.werks.utils.write_precompiled_werks(werks_loader_empty.base_dir / "werks-saas", cse_werks)
+    cmk.werks.tool.utils.write_precompiled_werks(
+        werks_loader_empty.base_dir / "werks-saas", cse_werks
+    )
 
     werks_loaded = werks_loader_empty.load()
 

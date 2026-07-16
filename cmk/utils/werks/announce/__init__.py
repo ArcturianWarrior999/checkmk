@@ -11,8 +11,8 @@ from typing import NamedTuple
 from jinja2 import Environment, PackageLoader, select_autoescape, StrictUndefined
 
 from cmk.ccc.version import ReleaseType, Version
-from cmk.werks.models import Class, Compatibility, EditionV3, WerkV3
-from cmk.werks.utils import (
+from cmk.werks.tool.models import Class, Compatibility, EditionV3, WerkV3
+from cmk.werks.tool.utils import (
     has_content,
     load_raw_files,
     sort_by_version_and_component,
