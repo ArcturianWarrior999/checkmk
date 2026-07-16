@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "speaklater",
@@ -528,5 +529,15 @@ py_library(
         "//packages/cmk-ccc:site",
         "//packages/cmk-livestatus-client",
         "//packages/cmk-ruleset-matcher",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":labels",
+        ":permission_verification",
+        ":urls",
     ],
 )

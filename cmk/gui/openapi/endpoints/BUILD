@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 # Narrow target with the shared helpers used by both the legacy ``endpoints``
 # package and the new-framework ``api_endpoints`` package. Extracting this
@@ -93,5 +94,14 @@ py_library(
         requirement("python-dateutil"),
         requirement("urllib3"),
         requirement("werkzeug"),
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":endpoints",
+        ":utils",
     ],
 )

@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "inventory",
@@ -38,4 +39,10 @@ py_library(
         "//packages/cmk-plugin-apis:inventory_ui",
         "//packages/cmk-ruleset-matcher",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":inventory"],
 )

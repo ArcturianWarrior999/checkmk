@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "core_toolkit",
@@ -852,5 +853,15 @@ sh_library(
     name = "f12",
     srcs = [
         ".f12",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":auth",
+        ":config",
+        ":core_toolkit",
     ],
 )
