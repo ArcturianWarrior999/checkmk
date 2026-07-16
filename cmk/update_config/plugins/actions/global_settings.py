@@ -25,6 +25,7 @@ from cmk.gui.watolib.global_settings import (
     save_global_settings,
     save_site_global_settings,
 )
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sites import site_globals_editable, site_management_registry
 from cmk.update_config.lib import ExpiryVersion
 from cmk.update_config.registry import update_action_registry, UpdateAction
@@ -101,6 +102,7 @@ def _update_remote_site_specific_global_settings(
                 )
             )
     site_mgmt.save_sites(
+        make_folder_tree(ui_config),
         configured_sites,
         activate=False,
         pprint_value=ui_config.wato_pprint_config,

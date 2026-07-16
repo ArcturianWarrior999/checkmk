@@ -15,6 +15,7 @@ from cmk.gui.watolib.activate_changes import clear_site_replication_status
 from cmk.gui.watolib.automations import do_site_login, remote_automation_config_from_site_config
 from cmk.gui.watolib.broker_certificates import trigger_remote_certs_creation
 from cmk.gui.watolib.config_domain_name import ABCConfigDomain, GUI
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.licensing.license_distribution_registry import distribute_license_to_remotes
@@ -50,6 +51,7 @@ class SitesApiMgr:
 
     def delete_a_site(
         self,
+        tree: FolderTree,
         site_id: SiteId,
         *,
         pprint_value: bool,
@@ -57,12 +59,19 @@ class SitesApiMgr:
     ) -> None:
         if self.all_sites.get(site_id):
             self.site_mgmt.delete_site(
-                site_id, pprint_value=pprint_value, pending_changes=pending_changes
+                tree, site_id, pprint_value=pprint_value, pending_changes=pending_changes
             )
         raise SiteDoesNotExistException
 
     def login_to_site(
-        self, site_id: SiteId, username: str, password: str, *, pprint_value: bool, debug: bool
+        self,
+        tree: FolderTree,
+        site_id: SiteId,
+        username: str,
+        password: str,
+        *,
+        pprint_value: bool,
+        debug: bool,
     ) -> None:
         site = self.get_a_site(site_id)
         if "secret" not in site:  # when login is not already done
@@ -71,25 +80,34 @@ class SitesApiMgr:
             except Exception as exc:
                 raise LoginException(str(exc))
 
-            self.site_mgmt.save_sites(self.all_sites, activate=True, pprint_value=pprint_value)
+            self.site_mgmt.save_sites(
+                tree, self.all_sites, activate=True, pprint_value=pprint_value
+            )
             trigger_remote_certs_creation(site_id, site, force=False, debug=debug)
             distribute_license_to_remotes(
                 logger,
                 remote_automation_configs=[remote_automation_config_from_site_config(site)],
             )
 
-    def logout_of_site(self, site_id: SiteId, *, pprint_value: bool) -> None:
+    def logout_of_site(self, tree: FolderTree, site_id: SiteId, *, pprint_value: bool) -> None:
         site = self.get_a_site(site_id)
         if "secret" in site:
             del site["secret"]
-            self.site_mgmt.save_sites(self.all_sites, activate=True, pprint_value=pprint_value)
+            self.site_mgmt.save_sites(
+                tree, self.all_sites, activate=True, pprint_value=pprint_value
+            )
 
     def validate_and_save_site(
-        self, site_id: SiteId, site_config: SiteConfiguration, *, pprint_value: bool
+        self,
+        tree: FolderTree,
+        site_id: SiteId,
+        site_config: SiteConfiguration,
+        *,
+        pprint_value: bool,
     ) -> None:
         self.site_mgmt.validate_configuration(site_id, site_config, self.all_sites)
         self.all_sites[site_id] = site_config
-        self.site_mgmt.save_sites(self.all_sites, activate=True, pprint_value=pprint_value)
+        self.site_mgmt.save_sites(tree, self.all_sites, activate=True, pprint_value=pprint_value)
 
     def get_connected_sites_to_update(
         self,

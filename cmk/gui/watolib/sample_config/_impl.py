@@ -248,6 +248,7 @@ class ConfigGeneratorLocalSiteConnection(SampleConfigGenerator):
     def generate(self, tree: FolderTree) -> None:
         site_mgmt = site_management_registry["site_management"]
         site_mgmt.save_sites(
+            tree,
             self._default_single_site_configuration(),
             activate=True,
             pprint_value=True,

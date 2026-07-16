@@ -81,7 +81,11 @@ from cmk.gui.watolib.global_settings import (
     save_global_settings,
     STATIC_PERMISSIONS_GLOBAL_SETTINGS,
 )
-from cmk.gui.watolib.hosts_and_folders import folder_preserving_link
+from cmk.gui.watolib.hosts_and_folders import (
+    folder_preserving_link,
+    FolderTree,
+    make_folder_tree,
+)
 from cmk.gui.watolib.mode import mode_url, ModeRegistry, redirect, WatoMode
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
@@ -433,7 +437,11 @@ class ABCEditGlobalSettingMode(WatoMode):
                 }
             )
 
-        self._save(pprint_value=config.wato_pprint_config, use_git=config.wato_use_git)
+        self._save(
+            make_folder_tree(config),
+            pprint_value=config.wato_pprint_config,
+            use_git=config.wato_use_git,
+        )
         if new_value and self._varname == "trusted_certificate_authorities":
             ConfigDomainCACertificates.log_changes(current, new_value)
 
@@ -483,7 +491,7 @@ class ABCEditGlobalSettingMode(WatoMode):
     def _back_url(self) -> str:
         raise NotImplementedError
 
-    def _save(self, *, pprint_value: bool, use_git: bool) -> None:
+    def _save(self, tree: FolderTree, *, pprint_value: bool, use_git: bool) -> None:
         save_global_settings(self._current_settings)
 
     @abc.abstractmethod

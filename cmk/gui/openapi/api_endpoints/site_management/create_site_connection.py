@@ -20,6 +20,7 @@ from cmk.gui.openapi.utils import RestAPIRequestGeneralException
 from cmk.gui.site_config import site_is_local
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
     PendingChanges,
@@ -56,6 +57,7 @@ def create_site_connection_v1(
             site_configs=sites_api_mgr.get_all_sites(),
         )
         sites_api_mgr.validate_and_save_site(
+            make_folder_tree(api_context.config),
             site_id,
             new_site_config_spec,
             pprint_value=api_context.config.wato_pprint_config,

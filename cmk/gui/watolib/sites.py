@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import queue
 import re
 import time
@@ -86,6 +87,7 @@ from cmk.gui.watolib.config_sync import (
     create_distributed_wato_files,
 )
 from cmk.gui.watolib.global_settings import load_configuration_settings
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 from cmk.gui.watolib.mode import mode_registry
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoSingleConfigFile
@@ -945,18 +947,20 @@ class SiteManagement:
     def load_sites(cls) -> SiteConfigurations:
         return SitesConfigFile().load_for_reading()
 
-    def save_sites(self, sites: SiteConfigurations, *, activate: bool, pprint_value: bool) -> None:
-        # TODO: Clean this up
-        from cmk.gui.watolib.hosts_and_folders import folder_tree
-
+    def save_sites(
+        self, tree: FolderTree, sites: SiteConfigurations, *, activate: bool, pprint_value: bool
+    ) -> None:
         SitesConfigFile().save(sites, pprint_value)
 
         # Do not activate when just the site's global settings have
         # been edited
         if activate:
-            # Patch the current requests config with the changed config
+            # Patch the current request's config with the changed sites. The tree
+            # holds a config snapshot from its construction time, so it needs the
+            # update explicitly for later reads through the invalidated caches.
             active_config.sites = sites
-            folder_tree().invalidate_caches()
+            tree.config = dataclasses.replace(tree.config, sites=sites)
+            tree.invalidate_caches()
 
             _update_distributed_wato_file(sites)
             cmk.gui.watolib.sidebar_reload.need_sidebar_reload()
@@ -971,14 +975,12 @@ class SiteManagement:
 
     def delete_site(
         self,
+        tree: FolderTree,
         site_id: SiteId,
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
     ) -> None:
-        # TODO: Clean this up
-        from cmk.gui.watolib.hosts_and_folders import folder_tree
-
         sites_config_file = SitesConfigFile()
         all_sites = sites_config_file.load_for_modification()
         if site_id not in all_sites:
@@ -987,7 +989,7 @@ class SiteManagement:
             )
 
         # Make sure that site is not being used by hosts and folders
-        if site_id in folder_tree().root_folder().all_site_ids():
+        if site_id in tree.root_folder().all_site_ids():
             search_url = makeactionuri(
                 request,
                 transactions,
@@ -1029,7 +1031,7 @@ class SiteManagement:
         )
 
         del all_sites[site_id]
-        self.save_sites(all_sites, activate=True, pprint_value=pprint_value)
+        self.save_sites(tree, all_sites, activate=True, pprint_value=pprint_value)
 
         pending_changes.add(
             Change(
