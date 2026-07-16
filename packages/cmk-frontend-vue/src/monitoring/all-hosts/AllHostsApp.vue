@@ -200,8 +200,8 @@ const columns: ColumnDef<HostEntry>[] = [
     accessorKey: 'state',
     header: _t('State'),
     sortDescFirst: true,
-    minSize: 60,
-    maxSize: 130,
+    minSize: 74,
+    maxSize: 100,
     meta: { filter: stateFilter }
   },
   {
@@ -209,7 +209,7 @@ const columns: ColumnDef<HostEntry>[] = [
     header: _t('Mode'),
     enableSorting: false,
     minSize: 80,
-    maxSize: 120,
+    maxSize: 80,
     meta: { justify: 'left', filter: modesFilter }
   },
   {
@@ -224,6 +224,7 @@ const columns: ColumnDef<HostEntry>[] = [
     header: _t('IP address'),
     sortDescFirst: false,
     minSize: 100,
+    maxSize: 300,
     meta: { filter: addressFilter }
   },
   {
@@ -235,8 +236,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: totalServicesFilter,
       headerTitle: _t('Total number of services')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 130
   },
   {
     accessorKey: 'num_services_ok',
@@ -247,8 +248,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: okServicesFilter,
       headerTitle: _t('Number of services in OK state')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 70
   },
   {
     accessorKey: 'num_services_warn',
@@ -259,8 +260,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: warnServicesFilter,
       headerTitle: _t('Number of services in warning state')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 70
   },
   {
     accessorKey: 'num_services_crit',
@@ -271,8 +272,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: critServicesFilter,
       headerTitle: _t('Number of services in critical state')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 70
   },
   {
     accessorKey: 'num_services_unknown',
@@ -283,8 +284,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: unknownServicesFilter,
       headerTitle: _t('Number of services in unknown state')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 70
   },
   {
     accessorKey: 'num_services_pending',
@@ -295,8 +296,8 @@ const columns: ColumnDef<HostEntry>[] = [
       filter: pendingServicesFilter,
       headerTitle: _t('Number of services in pending state')
     },
-    minSize: 64,
-    maxSize: 90
+    minSize: 70,
+    maxSize: 70
   },
   ...(hasRowActions
     ? [
@@ -304,8 +305,8 @@ const columns: ColumnDef<HostEntry>[] = [
           id: 'actions',
           header: _t('Actions'),
           enableSorting: false,
-          minSize: 96,
-          maxSize: 120,
+          minSize: 75,
+          maxSize: 75,
           meta: { justify: 'right' }
         } satisfies ColumnDef<HostEntry>
       ]
