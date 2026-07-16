@@ -527,6 +527,9 @@ class EngineRRDFetchData:
     site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
+    # An optional RRDtool cap on the number of data points a time-series query returns, appended to
+    # the rrddata range (as the legacy forecast fetch does). None leaves the point count uncapped.
+    max_data_points: int | None = None
     # Accumulated while fetching; read by the dispatcher into the evaluated result.
     diagnostics: FetchDiagnostics = field(default_factory=FetchDiagnostics, compare=False)
 
@@ -754,6 +757,8 @@ class EngineRRDFetchData:
         for metric_names, refs in services_by_metric_names.items():
             column_of = {name: index for index, name in enumerate(metric_names)}
             data_range = f"{time_range.start}:{time_range.end}:{max(1, time_range.step)}"
+            if self.max_data_points is not None:
+                data_range += f":{self.max_data_points}"
             columns = [
                 f"rrddata:{name}:{name}.{consolidation_function}:{data_range}"
                 for name in metric_names
