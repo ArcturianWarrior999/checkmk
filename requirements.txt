@@ -3924,7 +3924,9 @@ pyjwt[crypto]==2.13.0 \
 pyleak==0.2.0 \
     --hash=sha256:87534b46abf95eefcf539a31a5a31cb378484ebdfd32600965a9be2aeac3eb95 \
     --hash=sha256:a0e8b94d66963358fdb370bade4caac0ce922f173dd89c853e26870b1f7ef520
-    # via -r non-free/packages/cmk-relay-engine/dev-requirements.in
+    # via
+    #   -r non-free/packages/cmk-mcp/dev-requirements.in
+    #   -r non-free/packages/cmk-relay-engine/dev-requirements.in
 pylsp-mypy==0.7.3 \
     --hash=sha256:7a7d3117ea0361cae2ed00614195d36f4c157a06116c8792449e19f57319ddbf \
     --hash=sha256:9f0e52fa8cf4c1ab8cccf8425f192fa50a9874c20919a93ab61cc42069824785
@@ -4255,6 +4257,7 @@ pytest-random-order==1.2.0 \
     --hash=sha256:12b2d4ee977ec9922b5e3575afe13c22cbdb06e3d03e550abc43df137b90439a \
     --hash=sha256:78d1d6f346222cdf26a7302c502d2f1cab19454529af960b8b9e1427a99ab277
     # via
+    #   -r non-free/packages/cmk-mcp/dev-requirements.in
     #   -r non-free/packages/cmk-relay-engine/dev-requirements.in
     #   -r packages/cmk-agent-receiver/dev-requirements.in
     #   -r tests/dev-requirements.in
@@ -4270,6 +4273,7 @@ pytest-socket==0.8.0 \
     --hash=sha256:81821ba59f07d7600fe2b551d8714f40b068bd46e8b6704c48664e9d60cdacb8 \
     --hash=sha256:af9bb5f487da72be63573a6194cfac033b6c7a1c1561e150521105970f9e99f2
     # via
+    #   -r non-free/packages/cmk-mcp/dev-requirements.in
     #   -r non-free/packages/cmk-relay-engine/dev-requirements.in
     #   -r packages/cmk-agent-receiver/dev-requirements.in
 python-active-directory==2.0.1 \
