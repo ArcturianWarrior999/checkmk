@@ -4,6 +4,7 @@ load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
@@ -40,6 +41,15 @@ py_library(
         "//packages/cmk-livestatus-client",
         "//packages/cmk-plugin-apis:discover_plugins",
         requirement("python-dateutil"),
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":cmk-licensing",
+        "//packages/cmk-licensing/cmk/licensing/basics",
     ],
 )
 
