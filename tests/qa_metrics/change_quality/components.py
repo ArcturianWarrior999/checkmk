@@ -28,6 +28,7 @@ from __future__ import annotations
 import codecs
 import json
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -142,7 +143,9 @@ def _parse_invalid_paths(stderr: str) -> set[str]:
     return {m.group(1).lstrip("/") for m in _INVALID_PATH_RE.finditer(stderr)}
 
 
-def _query_components(paths: list[str]) -> tuple[dict[str, str | None], list[str]]:
+def _query_components(
+    paths: list[str], cred_args: list[str]
+) -> tuple[dict[str, str | None], list[str]]:
     """Resolve one batch, dropping paths gerrit's master no longer knows.
 
     Returns ``(results, dropped)``: ``results`` maps each *surviving* path to
@@ -162,7 +165,16 @@ def _query_components(paths: list[str]) -> tuple[dict[str, str | None], list[str
     retries = 0
     while remaining:
         proc = subprocess.run(
-            [sys.executable, "-m", "cwz.cmk_components", "component", "--mode", "json", *remaining],
+            [
+                sys.executable,
+                "-m",
+                "cwz.cmk_components",
+                *cred_args,
+                "component",
+                "--mode",
+                "json",
+                *remaining,
+            ],
             capture_output=True,
             text=True,
             check=False,
@@ -291,10 +303,19 @@ def lookup_components(
     )
     head_results: dict[str, str | None] = dict.fromkeys(queryable)
     answered: set[str] = set()
+    # cmk-components authenticates to Gerrit's code-owners REST API. In CI
+    # (headless, no keyring/DBus) we hand it credentials via env vars; when
+    # these are unset (local dev) we omit the flags and let the tool fall back
+    # to ~/.netrc or the keyring as before.
+    cred_args = (
+        ["--gerrit-username-var", "QA_GERRIT_USER", "--gerrit-api-token-var", "QA_GERRIT_PASSWORD"]
+        if os.getenv("QA_GERRIT_USER") and os.getenv("QA_GERRIT_PASSWORD")
+        else []
+    )
     dropped_total: list[str] = []
     for batch_start in range(0, len(queryable), batch_size):
         batch = queryable[batch_start : batch_start + batch_size]
-        batch_results, dropped = _query_components(batch)
+        batch_results, dropped = _query_components(batch, cred_args)
         # Dropped paths are stale locally / gone on gerrit master: unclassifiable,
         # same as a deleted path. They stay ``None`` (the dict default) but count
         # as answered so the completeness check below doesn't flag them.
