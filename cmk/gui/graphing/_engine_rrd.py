@@ -540,27 +540,30 @@ class EngineRRDFetchData:
     def _translated_performance_data(
         self,
         rrd_metrics: Sequence[RRDMetric],
-        raw_performance_data: Mapping[Service, RawPerformanceData],
+        raw_performance_data: Mapping[tuple[SiteID | None, Service], RawPerformanceData],
     ) -> Mapping[RRDMetric, PerformanceData]:
         translated = {
-            service: translate_performance_data(
+            location: translate_performance_data(
                 raw.check_command, raw.values, self.registered_translations
             )
-            for service, raw in raw_performance_data.items()
+            for location, raw in raw_performance_data.items()
         }
         performance_data: dict[RRDMetric, PerformanceData] = {}
         for metric in rrd_metrics:
-            service = Service(host_name=metric.host_name, service_name=metric.service_name)
-            if service not in translated:
+            location = (
+                metric.site_id,
+                Service(host_name=metric.host_name, service_name=metric.service_name),
+            )
+            if location not in translated:
                 continue
-            if (data := translated[service].get(metric.metric_name)) is not None:
+            if (data := translated[location].get(metric.metric_name)) is not None:
                 performance_data[metric] = data
         return performance_data
 
     def _time_series(
         self,
         rrd_metrics: Sequence[RRDMetric],
-        raw_performance_data: Mapping[Service, RawPerformanceData],
+        raw_performance_data: Mapping[tuple[SiteID | None, Service], RawPerformanceData],
         site_of_service: Mapping[Service, SiteID],
         *,
         consolidation_function: ConsolidationFunction,
@@ -571,7 +574,7 @@ class EngineRRDFetchData:
         ] = {}
         for metric in rrd_metrics:
             service = Service(host_name=metric.host_name, service_name=metric.service_name)
-            if (raw := raw_performance_data.get(service)) is None:
+            if (raw := raw_performance_data.get((metric.site_id, service))) is None:
                 continue
             # A metric that already carries its site keeps it; otherwise use the site resolved while
             # fetching the performance data, so the RRD fetch is scoped to it.
@@ -639,28 +642,27 @@ class EngineRRDFetchData:
 
     def _group_by_site(
         self, rrd_metrics: Sequence[RRDMetric]
-    ) -> Mapping[SiteId | None, Sequence[RRDMetric]]:
-        # A metric carrying a site is fetched only from that site; one without falls back to the
-        # source's site filter (None = all sites). Grouping keeps a same host/service on two sites
-        # apart, and scopes each livestatus query to the site the data actually lives on.
-        groups: dict[SiteId | None, list[RRDMetric]] = {}
+    ) -> Mapping[SiteID | None, Sequence[RRDMetric]]:
+        # Group by the metric's own site (None when unknown). A same host/service on two sites is
+        # thereby kept apart - both as distinct fetch groups and as distinct performance-data keys.
+        groups: dict[SiteID | None, list[RRDMetric]] = {}
         for metric in rrd_metrics:
-            site = SiteId(metric.site_id) if metric.site_id is not None else self.site_id
-            groups.setdefault(site, []).append(metric)
+            groups.setdefault(metric.site_id, []).append(metric)
         return groups
+
+    def _only_sites(self, site: SiteID | None) -> SiteId | None:
+        # Scope a livestatus query to the metric's site when known, else to the source's own filter
+        # (None = all sites).
+        return SiteId(site) if site is not None else self.site_id
 
     def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]
-    ) -> tuple[Mapping[Service, RawPerformanceData], Mapping[Service, SiteID]]:
-        services = tuple(
-            dict.fromkeys(
-                Service(host_name=metric.host_name, service_name=metric.service_name)
-                for metric in rrd_metrics
-            )
-        )
-        result: dict[Service, RawPerformanceData] = {}
+    ) -> tuple[
+        Mapping[tuple[SiteID | None, Service], RawPerformanceData], Mapping[Service, SiteID]
+    ]:
+        result: dict[tuple[SiteID | None, Service], RawPerformanceData] = {}
         site_of_service: dict[Service, SiteID] = {}
-        for site, site_metrics in self._group_by_site(rrd_metrics).items():
+        for group_site, site_metrics in self._group_by_site(rrd_metrics).items():
             site_services = tuple(
                 dict.fromkeys(
                     Service(host_name=metric.host_name, service_name=metric.service_name)
@@ -675,8 +677,9 @@ class EngineRRDFetchData:
             )
             # prepend_site reveals which site each row came from (as in the legacy fetch_graph_row):
             # a metric whose site is unknown up front is thereby scoped to the site its data lives on
-            # for the time-series fetch, and the same host/service on two sites is told apart.
-            with sites.only_sites(site), sites.prepend_site():
+            # for the time-series fetch. The performance data is keyed by the metric's own site, so a
+            # same host/service matched on two sites keeps a distinct entry per site.
+            with sites.only_sites(self._only_sites(group_site)), sites.prepend_site():
                 for (
                     row_site,
                     host_name,
@@ -685,18 +688,11 @@ class EngineRRDFetchData:
                     check_command,
                 ) in sites.live().query(query):
                     service = Service(host_name=host_name, service_name=description)
-                    result[service] = parse_performance_data(
+                    result[(group_site, service)] = parse_performance_data(
                         perf_data_string, check_command, debug=self.debug
                     )
                     site_of_service[service] = SiteID(str(row_site))
-        return (
-            {service: result[service] for service in services if service in result},
-            {
-                service: site_of_service[service]
-                for service in services
-                if service in site_of_service
-            },
-        )
+        return result, site_of_service
 
     def _fetch_time_series(
         self,
@@ -706,11 +702,11 @@ class EngineRRDFetchData:
         consolidation_function: ConsolidationFunction,
     ) -> Mapping[RRDMetric, EngineTimeSeries]:
         result: dict[RRDMetric, EngineTimeSeries] = {}
-        for site, site_metrics in self._group_by_site(rrd_metrics).items():
+        for group_site, site_metrics in self._group_by_site(rrd_metrics).items():
             result.update(
                 self._fetch_time_series_of_site(
                     site_metrics,
-                    site,
+                    self._only_sites(group_site),
                     time_range=time_range,
                     consolidation_function=consolidation_function,
                 )
