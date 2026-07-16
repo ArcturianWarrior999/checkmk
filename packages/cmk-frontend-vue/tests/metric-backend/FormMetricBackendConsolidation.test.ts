@@ -81,7 +81,7 @@ test('a gauge metric shows the last-value function by default', () => {
   expect(chip()).toHaveTextContent('last')
 })
 
-test('a gauge metric offers the last, max and avg functions', async () => {
+test('a gauge metric offers the last, max, avg and min functions', async () => {
   renderConsolidation({ metricTypes: ['gauge'] })
 
   await userEvent.click(chip())
@@ -91,6 +91,7 @@ test('a gauge metric offers the last, max and avg functions', async () => {
     expect(screen.getByRole('option', { name: 'Last recorded value' })).toBeVisible()
     expect(screen.getByRole('option', { name: 'Max' })).toBeVisible()
     expect(screen.getByRole('option', { name: 'Avg' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Min' })).toBeVisible()
   })
 })
 
