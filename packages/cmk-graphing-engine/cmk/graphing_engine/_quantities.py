@@ -15,7 +15,15 @@ from cmk.graphing.v1 import metrics as metrics_v1
 
 from ._display import metric_display_attributes
 from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import FetchedData, HostName, MetricName, PerformanceData, ServiceName, TimeSeries
+from ._perfdata import (
+    FetchedData,
+    HostName,
+    MetricName,
+    PerformanceData,
+    ServiceName,
+    SiteID,
+    TimeSeries,
+)
 from ._units import CurveAttributes
 
 
@@ -206,12 +214,16 @@ class RRDMetric:
     service_name: ServiceName
     metric_name: MetricName
     consolidation_function: ConsolidationFunction | None = None
+    # The monitoring site the service lives on. None until resolved during the fetch; once known it
+    # is part of the metric's identity, so the same host/service on two sites are distinct curves.
+    site_id: SiteID | None = None
 
     def kind(self) -> str:
         return "rrd_metric"
 
     def ident(self) -> str:
-        return f"{self.kind()}({self.host_name}/{self.service_name}/{self.metric_name})"
+        location = "" if self.site_id is None else f"{self.site_id}/"
+        return f"{self.kind()}({location}{self.host_name}/{self.service_name}/{self.metric_name})"
 
     def metrics(self) -> Iterable[Metric]:
         yield self

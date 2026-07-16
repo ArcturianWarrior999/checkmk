@@ -11,6 +11,7 @@ from ._options import TimeRange
 
 HostName = NewType("HostName", str)
 ServiceName = NewType("ServiceName", str)
+SiteID = NewType("SiteID", str)
 
 
 class MetricName(str):

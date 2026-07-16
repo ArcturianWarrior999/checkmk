@@ -39,6 +39,7 @@ from ._perfdata import (
     PerformanceData,
     Service,
     ServiceName,
+    SiteID,
     TimeSeries,
 )
 from ._quantities import (
@@ -116,6 +117,7 @@ __all__ = [
     "ScalarKind",
     "ScalarOf",
     "ServiceName",
+    "SiteID",
     "Service",
     "Stack",
     "StandardScientificNotation",
