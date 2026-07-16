@@ -19,7 +19,6 @@ from cmk.gui.display_options import display_options
 from cmk.gui.htmllib.html import html
 from cmk.gui.http import request
 from cmk.gui.log import logger
-from cmk.gui.logged_in import user
 from cmk.gui.openapi.framework import (
     APIVersion,
     EndpointBehavior,
@@ -111,8 +110,6 @@ def get_host_action_menu(
     ],
 ) -> HostActionMenuResponse:
     """List the action menu entries for a single host."""
-    user.need_permission("general.see_all")
-
     display_options.load_from_html(request, html)
     try:
         row = query_icon_row("host", hostname, site_id)
@@ -157,12 +154,13 @@ ENDPOINT_GET_HOST_ACTION_MENU = VersionedEndpoint(
         method="get",
     ),
     permissions=EndpointPermissions(
+        # Declared for the permission tracker: the livestatus row query and get_icons already scope
+        # visibility and gate each action per user, so no permission is required up front. This
+        # mirrors the legacy action menu popup, which is accessible to normal users too.
         required=permissions.Undocumented(
             permissions.AnyPerm(
                 [
-                    permissions.Perm("general.see_all"),
-                    # NOTE: these two need to be included in order to make the REST API framework
-                    # happy. The "see_all" permission is the only one that is required to check.
+                    permissions.OkayToIgnorePerm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),
                     permissions.OkayToIgnorePerm("mkeventd.seeall"),
                 ]

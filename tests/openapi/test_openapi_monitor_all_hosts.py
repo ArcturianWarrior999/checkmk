@@ -345,16 +345,32 @@ class TestMonitorHostActionMenuAuth:
         assert resp.status_code == 401
         assert "credentials" in resp.json["detail"]
 
-    def test_insufficient_permissions(
-        self, clients: ClientRegistry, with_user: tuple[UserId, str]
+    def test_normal_user_is_permitted(
+        self,
+        clients: ClientRegistry,
+        with_user: tuple[UserId, str],
+        mock_livestatus: MockLiveStatusConnection,
     ) -> None:
         client = clients.MonitorHosts
         client.set_credentials(*with_user)
 
-        resp = client.action_menu(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+        mock_livestatus.add_table("hosts", [])
+        # see_all-less user → sites.live() adds an AuthUser line; match loosely to tolerate it
+        # (and the dynamic icon-painter column list).
+        mock_livestatus.expect_query(
+            [
+                "GET hosts",
+                "Filter: host_name = heute",
+                "ColumnHeaders: off",
+            ],
+            match_type="loose",
+            sites=[_SITE_ID],
+        )
 
-        assert resp.status_code == 403
-        assert "permission" in resp.json["detail"]
+        with mock_livestatus(expect_status_query=True):
+            resp = client.action_menu(hostname="heute", site_id=_SITE_ID, expect_ok=False)
+
+        assert resp.status_code == 404
 
 
 class TestMonitorHostActionMenuQueryParamValidation:
