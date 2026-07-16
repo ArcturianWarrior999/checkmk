@@ -112,7 +112,12 @@ py_library(
 py_doc_test(
     name = "doctest",
     size = "small",
-    srcs = ["cmk-ec"],
+    srcs = [
+        "cmk-ec",
+        "event",
+        "forwarder",
+        "syslog",
+    ],
 )
 
 py_cmk_test(
