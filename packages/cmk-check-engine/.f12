@@ -13,7 +13,7 @@ SITE=${SITE:-$(omd sites --bare | head -n 1)}
 ROOT=/omd/sites/$SITE
 test -d "${ROOT}" || exit 1
 
-bazel build ":wheel"
+bazel build ":wheel_fetchers" ":wheel_plugins" ":wheel_checkers"
 
 # pip installs the package in the user directory in case of missing permissions
 # this might be surprising and hard to spot, so we force the global installation
@@ -26,7 +26,9 @@ export PYTHONNOUSERSITE=1
     --force-reinstall \
     --isolated \
     --disable-pip-version-check \
-    "$(bazel info workspace)/$(bazel cquery :wheel --output=starlark --starlark:expr="target.files.to_list()[0].path")"
+    "$(bazel info workspace)/$(bazel cquery :wheel_fetchers --output=starlark --starlark:expr="target.files.to_list()[0].path")" \
+    "$(bazel info workspace)/$(bazel cquery :wheel_plugins --output=starlark --starlark:expr="target.files.to_list()[0].path")" \
+    "$(bazel info workspace)/$(bazel cquery :wheel_checkers --output=starlark --starlark:expr="target.files.to_list()[0].path")"
 
 if [ -z "${ONLY_COPY}" ]; then
     sudo --login -u "${SITE}" -- bash -c "omd reload apache"
