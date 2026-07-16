@@ -79,8 +79,8 @@ msgstr " (obbligatorio)"
 msgid " (upper levels)"
 msgstr " (livelli superiori)"
 
-#, python-format
-msgid " (worst state: %s)"
+#, fuzzy, python-format
+msgid " (worst state: %(state)s)"
 msgstr " (stato peggiore: %s)"
 
 msgid " - Checkmk security notice"
@@ -500,6 +500,10 @@ msgid ""
 "configuration."
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%(error)s"
+msgstr "Errori"
+
 #, python-format
 msgid "%(error_marker)s: %(reason)s"
 msgstr "%(error_marker)s: %(reason)s"
@@ -734,6 +738,10 @@ msgid "%(title)s"
 msgstr "%(title)s"
 
 #, fuzzy, python-format
+msgid "%(title)s by host"
+msgstr "%s da host"
+
+#, fuzzy, python-format
 msgid "%(title)s has been deleted."
 msgstr "%s è stato eliminato."
 
@@ -892,10 +900,6 @@ msgstr "%m-%d"
 #, python-format
 msgid "%s"
 msgstr "%s"
-
-#, python-format
-msgid "%s by host"
-msgstr "%s da host"
 
 #, python-format
 msgid "%s rate"
@@ -6397,8 +6401,8 @@ msgstr "Durata consentita dall'ultimo messaggio NTP"
 msgid "Allowed duration since last synchronization"
 msgstr "Durata consentita dall'ultima sincronizzazione"
 
-#, python-format
-msgid "Allowed lengths range from %s to %s."
+#, fuzzy, python-format
+msgid "Allowed lengths range from %(min_length)s to %(max_length)s."
 msgstr "I valori ammessi vanno da %s a %s."
 
 msgid "Allowed license states"
@@ -6408,8 +6412,9 @@ msgstr "Stati di licenza consentiti"
 msgid "Allowed network states on Bosch IP cameras"
 msgstr "Stati di rete consentiti sulle telecamere IP Bosch"
 
-#, python-format
-msgid "Allowed number of regex groups ranges from %s to %s."
+#, fuzzy, python-format
+msgid ""
+"Allowed number of regex groups ranges from %(min_groups)s to %(max_groups)s."
 msgstr "Il numero consentito di gruppi di regex va da %s a %s."
 
 msgid "Allowed operational states:"
@@ -6433,10 +6438,6 @@ msgstr "Permesso di vedere tutto l'albero"
 
 #, fuzzy, python-format
 msgid "Allowed values range from %(min_value)s to %(max_value)s."
-msgstr "I valori ammessi vanno da %s a %s."
-
-#, python-format
-msgid "Allowed values range from %s to %s."
 msgstr "I valori ammessi vanno da %s a %s."
 
 msgid "Allows a user to create or modify entries in the report scheduler."
@@ -25105,7 +25106,7 @@ msgid "Expired"
 msgstr "Scade"
 
 #, fuzzy, python-format
-msgid "Expired %s"
+msgid "Expired %(date)s"
 msgstr "Scade"
 
 msgid "Expired objects"
@@ -25115,7 +25116,7 @@ msgid "Expires"
 msgstr "Scade"
 
 #, fuzzy, python-format
-msgid "Expires %s"
+msgid "Expires %(date)s"
 msgstr "Scade"
 
 #, fuzzy
@@ -28188,8 +28189,8 @@ msgstr "Opzioni del grafico"
 msgid "Graph rendering options"
 msgstr "Opzioni di rendering dei grafici"
 
-#, python-format
-msgid "Graph specification '%s' is insufficient for dashboard."
+#, fuzzy, python-format
+msgid "Graph specification '%(graph_type)s' is insufficient for dashboard."
 msgstr "La specifica del grafico '%s' non è sufficiente per la dashboard."
 
 msgid "Graph template"
@@ -32965,12 +32966,23 @@ msgstr ""
 "per iniziare ad elaborare il file dall'inizio e vedere tutti i messaggi che "
 "potrebbero essere già presenti."
 
+#, fuzzy
 msgid ""
 "If a node has any of these roles, then it is considered a control plane node "
-"by Checkmk. Otherwise, it is considered a worker node."
+"by Checkmk. A control plane might in some cases also be a worker node."
 msgstr ""
 "Se un nodo ha uno di questi ruoli, è considerato da Checkmk un nodo del "
 "piano di controllo. Altrimenti, è considerato un nodo lavoratore."
+
+msgid ""
+"If a node has any of these roles, then it is considered a worker node by "
+"Checkmk. A worker node might in some cases also be a control plane node. "
+"Some Kubernetes distributions automatically assign a role such as 'worker' "
+"to worker nodes. If yours does not and you have nodes that are both control "
+"plane and worker nodes, you can assign them a role and ensure it is in this "
+"list to make Checkmk count the node as both roles. Nodes without a control "
+"plane role (specified above) are automatically counted as worker nodes."
+msgstr ""
 
 msgid ""
 "If a reboot is required, the selected status will be displayed. Default is "
@@ -42226,9 +42238,9 @@ msgstr "Impostazioni temporali di McAfee Anti-Virus"
 msgid "McAfee email gateway bridge"
 msgstr "McAfee email gateway bridge"
 
-#, python-format
-msgid "Mean %s"
-msgstr "Media %s"
+#, fuzzy, python-format
+msgid "Mean %(title)s"
+msgstr "%(title)s"
 
 #, fuzzy
 msgid "Measure the CPU and Memory efficiency of your Linux servers\n"
@@ -42280,9 +42292,9 @@ msgstr "Errori di integrità dei media e dei dati"
 msgid "Media connectivity check failure"
 msgstr "Controllo della connettività dei media fallito"
 
-#, python-format
-msgid "Median %s"
-msgstr "Mediano %s"
+#, fuzzy, python-format
+msgid "Median %(title)s"
+msgstr "Modifica %(title)s"
 
 #, fuzzy
 msgid ""
@@ -45768,10 +45780,6 @@ msgstr "Nessuna limitazione di versione"
 #, python-format
 msgid "No view defined with the name '%(view_name)s'."
 msgstr "Nessuna vista definita con il nome '%(view_name)s'."
-
-#, python-format
-msgid "No view defined with the name '%s'."
-msgstr "Nessuna vista definita con il nome '%s'."
 
 #, fuzzy
 msgid "No view name provided."
@@ -54439,6 +54447,7 @@ msgstr "Leggere la lunghezza della coda"
 msgid "Read recovery latency"
 msgstr "Latenza di recupero della lettura"
 
+#. weblate-flags: read-only, domain-specific
 msgid "Read replica per master"
 msgstr "Replica di lettura per master"
 
@@ -62861,6 +62870,10 @@ msgstr "Specificare i nomi delle code a cui applicare la regola"
 msgid "Specify roles of a control plane node"
 msgstr "Specificare i ruoli di un nodo del piano di controllo"
 
+#, fuzzy
+msgid "Specify roles of a worker node"
+msgstr "Specificare i ruoli di un nodo del piano di controllo"
+
 msgid "Specify storage account names that the rule should apply to"
 msgstr ""
 "Specificare i nomi degli account di archiviazione a cui la regola deve "
@@ -68030,27 +68043,24 @@ msgid ""
 "same."
 msgstr ""
 
+#, python-format
+msgid ""
+"The dashboard '%(dashboard_name)s' already contains an embedded view with "
+"the ID '%(embedded_id)s'. Please choose another ID."
+msgstr ""
+
 #, fuzzy, python-format
 msgid ""
-"The dashboard '%(dashboard_name)s' does not exist or you do not have "
-"permission to view it."
+"The dashboard '%(dashboard_name)s' does not contain an embedded view with "
+"the ID '%(embedded_id)s'."
 msgstr ""
 "L'elemento %s è visibile solo a voi perché non avete il permesso di "
 "condividerlo."
 
-#, python-format
-msgid ""
-"The dashboard '%s' already contains an embedded view with the ID '%s'. "
-"Please choose another ID."
-msgstr ""
-
-#, python-format
-msgid "The dashboard '%s' does not contain an embedded view with the ID '%s'."
-msgstr ""
-
 #, fuzzy, python-format
 msgid ""
-"The dashboard '%s' does not exist or you do not have permission to view it."
+"The dashboard '%(dashboard_name)s' does not exist or you do not have "
+"permission to view it."
 msgstr ""
 "L'elemento %s è visibile solo a voi perché non avete il permesso di "
 "condividerlo."
@@ -69203,11 +69213,11 @@ msgid "The maximum age of the last backup."
 msgstr "L'età massima dell'ultimo backup."
 
 #, fuzzy, python-format
-msgid "The maximum allowed length is %s."
+msgid "The maximum allowed length is %(max_length)s."
 msgstr "Il valore massimo consentito è %s."
 
 #, fuzzy, python-format
-msgid "The maximum allowed number of regex groups is %s."
+msgid "The maximum allowed number of regex groups is %(max_groups)s."
 msgstr "Il numero massimo consentito di gruppi di regex è %s."
 
 #, fuzzy
@@ -69220,10 +69230,6 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid "The maximum allowed value is %(max_value)s."
-msgstr "Il valore massimo consentito è %s."
-
-#, fuzzy, python-format
-msgid "The maximum allowed value is %s."
 msgstr "Il valore massimo consentito è %s."
 
 #, fuzzy
@@ -69332,19 +69338,15 @@ msgstr ""
 "sarà preso come etichetta se non è stato specificato nulla."
 
 #, fuzzy, python-format
-msgid "The minimum allowed length is %s."
+msgid "The minimum allowed length is %(min_length)s."
 msgstr "Il valore minimo consentito è %s."
 
 #, fuzzy, python-format
-msgid "The minimum allowed number of regex groups is %s."
+msgid "The minimum allowed number of regex groups is %(min_groups)s."
 msgstr "Il numero minimo consentito di gruppi di regex è %s."
 
 #, fuzzy, python-format
 msgid "The minimum allowed value is %(min_value)s."
-msgstr "Il valore minimo consentito è %s."
-
-#, fuzzy, python-format
-msgid "The minimum allowed value is %s."
 msgstr "Il valore minimo consentito è %s."
 
 msgid "The minimum duration may not be less than 15 minutes"
@@ -70027,16 +70029,8 @@ msgstr ""
 "vostro sito principale"
 
 #, fuzzy
-msgid ""
-"The placeholder <tt></tt> will be replaced by the original text of this "
-"field to match. Note that as an alternative, you may also use the rule "
-"<tt>Host name translation</tt> for incoming messages in the global settings "
-"of the EC to accomplish your task."
-msgstr ""
-"Il segnaposto <tt>\\0</tt> sarà sostituito dal testo originale da abbinare. "
-"Nota che, in alternativa, puoi anche usare la regola Traduzione del nome "
-"dell'host per i messaggi in entrata nelle impostazioni globali del CE per "
-"realizzare il tuo compito."
+msgid "The placeholder <tt>"
+msgstr "VM segnaposto"
 
 #, fuzzy
 msgid ""
@@ -88296,13 +88290,13 @@ msgstr "Non sei autorizzato a modificare %(plural_title)s."
 msgid "You are not allowed to edit dashboards."
 msgstr "Non ti è permesso di modificare i dashboard."
 
+#, fuzzy, python-format
+msgid "You are not allowed to edit foreign %(objects)s."
+msgstr "Non sei autorizzato a modificare questo %s."
+
 #, python-format
 msgid "You are not allowed to edit foreign %(plural_title)s."
 msgstr "Non sei autorizzato a modificare questo %(plural_title)s."
-
-#, python-format
-msgid "You are not allowed to edit foreign %s."
-msgstr "Non sei autorizzato a modificare questo %s."
 
 #, python-format
 msgid "You are not allowed to edit this %(name)s."
@@ -89182,10 +89176,10 @@ msgstr ""
 "della pianificazione</li><li><tt>$PERIODNAME$</tt>: Il nome del periodo di "
 "pianificazione</li></ul>"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "You can use the following macros to fill in the corresponding information:"
-"%s%s"
+"%(macros_list)s%(combine_hint)s"
 msgstr ""
 "Puoi usare le seguenti macro per riempire le informazioni corrispondenti:%s%s"
 
@@ -90236,7 +90230,7 @@ msgstr ""
 "un altro nome per l'icona."
 
 #, fuzzy, python-format
-msgid "Your input does not match the required format '%s'."
+msgid "Your input does not match the required format '%(pattern)s'."
 msgstr "L'input non corrisponde al formato richiesto '%s'."
 
 msgid "Your input does not match the required format."
@@ -90249,9 +90243,10 @@ msgstr "L'input non corrisponde all'intervallo di porte richiesto 0-65535."
 msgid "Your input is not a valid IP address."
 msgstr "L'indirizzo immesso non è un indirizzo e-mail valido."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Your input is not a valid URL conforming to any allowed protocols ('%s')."
+"Your input is not a valid URL conforming to any allowed protocols "
+"('%(protocols)s')."
 msgstr ""
 "Il tuo input non è un URL valido conforme a nessuno dei protocolli "
 "consentiti ('%s')."
@@ -92305,8 +92300,8 @@ msgid_plural "services"
 msgstr[0] "servizio"
 msgstr[1] "servizi"
 
-#, python-format
-msgid "service in %s state"
+#, fuzzy, python-format
+msgid "service in %(state)s state"
 msgstr "servizio in stato %s"
 
 #, fuzzy
@@ -92908,6 +92903,14 @@ msgstr "Ricerca delle regole"
 #, fuzzy
 msgid "Could not load this content."
 msgstr "Non è possibile eliminare questa connessione."
+
+#, fuzzy
+msgid "No services"
+msgstr "servizi"
+
+#, fuzzy
+msgid "%{count} %{label}"
+msgstr "%d nuova etichetta"
 
 #, fuzzy
 msgid "filter"
@@ -95013,6 +95016,34 @@ msgid "Graph metrics"
 msgstr "Dettagli dell'ospite"
 
 #, fuzzy
+msgid "%{seconds} sec"
+msgstr "secondi al secondo"
+
+#, fuzzy
+msgid "Turn off"
+msgstr "Restringimento automatico spento"
+
+#, fuzzy
+msgid "Last refresh: %{time}"
+msgstr "Tempo dell'ultimo risciacquo"
+
+#, fuzzy
+msgid "Live refresh"
+msgstr "Aggiornare"
+
+#, fuzzy
+msgid "every"
+msgstr "Mai"
+
+#, fuzzy
+msgid "Refresh off"
+msgstr "Aggiornare"
+
+#, fuzzy
+msgid "Resume"
+msgstr "Resumables"
+
+#, fuzzy
 msgid "Custom time range"
 msgstr "Personalizzare l'intervallo di tempo"
 
@@ -95227,6 +95258,10 @@ msgstr "Modifica connessione"
 #, fuzzy
 msgid "Remove condition"
 msgstr "Rimuovere la condizione di tag"
+
+#, fuzzy
+msgid "Attribute kind"
+msgstr "Attributo"
 
 #, fuzzy
 msgid "Attribute key"
@@ -96786,28 +96821,53 @@ msgstr "Errore generale"
 msgid "Select host %{name}"
 msgstr "Cancellare gli host"
 
-msgid ""
-"An at-a-glance summary of %{host} will appear here, bringing the key host "
-"information together in one place."
-msgstr ""
-
-msgid "Host details (name, alias, primary IP address, site, folder)"
-msgstr ""
+#, fuzzy
+msgid "PENDING"
+msgstr "PEND"
 
 #, fuzzy
-msgid "Service summary with a state visualization"
-msgstr "Menu hover di servizio mostrato nella visualizzazione BI"
+msgid "%{count} sec"
+msgstr "Non selezionato"
 
 #, fuzzy
-msgid "Contact groups and tags"
-msgstr "Gruppi di contatto"
-
-msgid "Labels (discovered and explicit)"
-msgstr ""
+msgid "%{count} min"
+msgstr "contando"
 
 #, fuzzy
-msgid "Relations placeholder"
-msgstr "VM segnaposto"
+msgid "%{count} h"
+msgstr "contare"
+
+#, fuzzy
+msgid "%{count} d"
+msgstr "contare"
+
+#, fuzzy
+msgid "Show full host status"
+msgstr "Mostra lo stato dell'host"
+
+#, fuzzy
+msgid "Service summary"
+msgstr "Riepilogo in servizio"
+
+#, fuzzy
+msgid "Last check"
+msgstr "Ultimo controllo dell'host"
+
+#, fuzzy
+msgid "Relations"
+msgstr "Replica"
+
+#, fuzzy
+msgid "No relations set"
+msgstr "Registro degli eventi di replica"
+
+#, fuzzy
+msgid "Acknowledge problem"
+msgstr "Riconoscere i problemi"
+
+#, fuzzy
+msgid "Schedule downtime"
+msgstr "Programmare i tempi di inattività"
 
 msgid "This action runs immediately and has no further options."
 msgstr ""
@@ -96956,6 +97016,18 @@ msgid "More actions"
 msgstr "Altre opzioni"
 
 #, fuzzy
+msgid "Could not load actions."
+msgstr "Non è possibile eliminare questa connessione."
+
+#, fuzzy
+msgid "Could not load more actions."
+msgstr "Non è possibile eliminare questa connessione."
+
+#, fuzzy
+msgid "No actions available"
+msgstr "Nessuna informazione disponibile"
+
+#, fuzzy
 msgid "Toggle details"
 msgstr "Allinea i dettagli del risultato"
 
@@ -97026,6 +97098,10 @@ msgid "Remove one or more filters to widen the result."
 msgstr ""
 
 #, fuzzy
+msgid "Show:"
+msgstr "Mostra"
+
+#, fuzzy
 msgid "Rows matching your criteria: %{count} | Total rows: %{total}"
 msgstr "Nessuna metrica corrispondente trovata"
 
@@ -97036,6 +97112,31 @@ msgstr "Dimensione totale"
 #, fuzzy
 msgid "Select all rows"
 msgstr "Rimuovere tutti"
+
+msgid ""
+"Showing %{limit} of %{matched} matching hosts. Narrow your search, or raise "
+"the row limit above."
+msgstr ""
+
+msgid ""
+"Showing %{limit} of %{matched} matching hosts. Narrow your search to see the "
+"rest."
+msgstr ""
+
+msgid ""
+"Showing %{limit} of %{matched} hosts. Narrow your search, or raise the row "
+"limit above."
+msgstr ""
+
+msgid ""
+"Showing %{limit} of %{matched} hosts. Narrow your search to see the rest."
+msgstr ""
+
+msgid ""
+"The row limit is applied before sorting, so the hidden rows aren't "
+"necessarily the lowest-ranked. Narrow your search for a complete, sorted "
+"list."
+msgstr ""
 
 msgid "Help us improve Checkmk with product usage analytics"
 msgstr ""
@@ -97959,6 +98060,62 @@ msgstr ""
 msgid ""
 "You can still access it later via Help > Learning Checkmk > Welcome page"
 msgstr ""
+
+#, python-format
+#~ msgid "Allowed lengths range from %s to %s."
+#~ msgstr "I valori ammessi vanno da %s a %s."
+
+#, python-format
+#~ msgid "Allowed values range from %s to %s."
+#~ msgstr "I valori ammessi vanno da %s a %s."
+
+#, python-format
+#~ msgid "Mean %s"
+#~ msgstr "Media %s"
+
+#, python-format
+#~ msgid "Median %s"
+#~ msgstr "Mediano %s"
+
+#, python-format
+#~ msgid "No view defined with the name '%s'."
+#~ msgstr "Nessuna vista definita con il nome '%s'."
+
+#, fuzzy, python-format
+#~ msgid ""
+#~ "The dashboard '%s' does not exist or you do not have permission to view "
+#~ "it."
+#~ msgstr ""
+#~ "L'elemento %s è visibile solo a voi perché non avete il permesso di "
+#~ "condividerlo."
+
+#, fuzzy, python-format
+#~ msgid "The maximum allowed value is %s."
+#~ msgstr "Il valore massimo consentito è %s."
+
+#, fuzzy, python-format
+#~ msgid "The minimum allowed value is %s."
+#~ msgstr "Il valore minimo consentito è %s."
+
+#, fuzzy
+#~ msgid ""
+#~ "The placeholder <tt></tt> will be replaced by the original text of this "
+#~ "field to match. Note that as an alternative, you may also use the rule "
+#~ "<tt>Host name translation</tt> for incoming messages in the global "
+#~ "settings of the EC to accomplish your task."
+#~ msgstr ""
+#~ "Il segnaposto <tt>\\0</tt> sarà sostituito dal testo originale da "
+#~ "abbinare. Nota che, in alternativa, puoi anche usare la regola Traduzione "
+#~ "del nome dell'host per i messaggi in entrata nelle impostazioni globali "
+#~ "del CE per realizzare il tuo compito."
+
+#, fuzzy
+#~ msgid "Service summary with a state visualization"
+#~ msgstr "Menu hover di servizio mostrato nella visualizzazione BI"
+
+#, fuzzy
+#~ msgid "Contact groups and tags"
+#~ msgstr "Gruppi di contatto"
 
 #~ msgid "Aggregation Name"
 #~ msgstr "Nome dell'aggregazione"
@@ -105635,10 +105792,6 @@ msgstr ""
 #~ "Mostrare un'etichetta di stato colorata e colorare lo sfondo della metrica"
 
 #, fuzzy
-#~ msgid "Show host state"
-#~ msgstr "Mostra lo stato dell'host"
-
-#, fuzzy
 #~ msgid "Show service state"
 #~ msgstr "Mostra lo stato del servizio"
 
@@ -107966,9 +108119,6 @@ msgstr ""
 
 #~ msgid "s/s"
 #~ msgstr "s/s"
-
-#~ msgid "seconds per second"
-#~ msgstr "secondi al secondo"
 
 #, fuzzy
 #~ msgid ""
