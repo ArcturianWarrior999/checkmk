@@ -265,7 +265,6 @@ py_doc_test(
         ":server_side_calls",
         ":server_side_programs",
     ],
-    tags = ["no-mypy"],
 )
 
 py_cmk_test(

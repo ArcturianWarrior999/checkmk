@@ -240,7 +240,6 @@ py_doc_test(
     name = "doctest",
     size = "small",
     srcs = _ALL,
-    tags = ["no-mypy"],
 )
 
 py_cmk_test(

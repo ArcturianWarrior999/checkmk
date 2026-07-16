@@ -86,7 +86,7 @@ _runner = rule(
 
 # Deliberately using the required _test convention
 # so that this is easy to search for.
-def py_doc_test(name, srcs, deps = [], **kwargs):
+def py_doc_test(name, srcs, deps = [], tags = [], **kwargs):
     runner_py = name + "-doctest-runner.py"
     _runner(
         name = runner_py,
@@ -99,5 +99,7 @@ def py_doc_test(name, srcs, deps = [], **kwargs):
         deps = srcs + deps,
         main = runner_py,
         legacy_create_init = False,
+        # The generated runner is not worth type checking.
+        tags = tags + ["no-mypy"],
         **kwargs
     )

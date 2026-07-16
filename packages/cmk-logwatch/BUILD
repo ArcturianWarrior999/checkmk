@@ -62,7 +62,6 @@ py_doc_test(
         ":config",
         ":plugins",
     ],
-    tags = ["no-mypy"],
 )
 
 filegroup(

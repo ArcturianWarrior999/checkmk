@@ -111,8 +111,5 @@ py_doc_test(
     env = {
         "PYTHONWARNINGS": "ignore",
     },
-    tags = [
-        "doctest",
-        "no-mypy",
-    ],
+    tags = ["doctest"],
 )

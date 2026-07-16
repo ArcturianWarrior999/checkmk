@@ -37,7 +37,6 @@ py_doc_test(
     name = "doctest",
     size = "small",
     srcs = ["cmk-messaging"],
-    tags = ["no-mypy"],
 )
 
 py_cmk_test(

@@ -127,7 +127,6 @@ py_doc_test(
     name = "doctest",
     size = "small",
     srcs = ["//packages/cmk-plugins/cmk/plugins/%s:%s" % (family, family) for family in FAMILIES],
-    tags = ["no-mypy"],
 )
 
 py_requirements_test(

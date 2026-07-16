@@ -43,7 +43,6 @@ py_doc_test(
         "//packages/cmk-web/cmk/web/htmllib",
         "//packages/cmk-web/cmk/web/utils",
     ],
-    tags = ["no-mypy"],
 )
 
 py_requirements_test(
