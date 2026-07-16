@@ -211,7 +211,7 @@ def _user_attribute_sync_from_disk(value: object) -> tuple[str, object]:
     ``"list"``. The disk shape is ``Literal["all", "disabled"] | list[str]``
     with absence meaning "inherit from the central site".
     """
-    # Absent key → form shows "Use same connections as the central site".
+    # Absent key → form shows "Use same as the central site".
     if value is None:
         return "central_site", True
     if value == "disabled":
@@ -404,7 +404,7 @@ class SiteManagement:
             elements.append(
                 CascadingSingleChoiceElement(
                     name="central_site",
-                    title=Title("Use same connections as the central site"),
+                    title=Title("Use same as the central site"),
                     parameter_form=FixedValue(
                         value=True,
                         label=Label(  # astrein: disable=localization-checker
@@ -416,7 +416,7 @@ class SiteManagement:
         elements.append(
             CascadingSingleChoiceElement(
                 name="all",
-                title=Title("Use all connections"),
+                title=Title("Use all"),
                 parameter_form=FixedValue(
                     value=True,
                     label=Label(""),
@@ -426,7 +426,7 @@ class SiteManagement:
         elements.append(
             CascadingSingleChoiceElement(
                 name="list",
-                title=Title("Use the following connections"),
+                title=Title("Use the following"),
                 parameter_form=cls._editable_connections_form_spec(),
             ),
         )
@@ -434,11 +434,11 @@ class SiteManagement:
         if distributed_saml_supported():
             help_text = Help(
                 "Select the connections that are available for login on this site. "
-                "Choose <i>Use same connections as the central site</i> to inherit "
+                "Choose <i>Use same as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "after the next configuration sync), <i>Use all</i> to enable "
                 "every configured LDAP and SAML connection — including ones added later — "
-                "or <i>Use the following connections</i> to pick specific LDAP and SAML "
+                "or <i>Use the following</i> to pick specific LDAP and SAML "
                 "connections. <br>Authentication connections are responsible "
                 "of creating the user and the initial user setup.<br>SAML connection are only authorized "
                 "to overwrite user attributes if no other Attribute Sync Connection is configured for that user."
@@ -446,11 +446,11 @@ class SiteManagement:
         else:
             help_text = Help(
                 "Select the connections that are available for login on this site. "
-                "Choose <i>Use same connections as the central site</i> to inherit "
+                "Choose <i>Use same as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "after the next configuration sync), <i>Use all</i> to enable "
                 "every configured LDAP connection — including ones added later — or "
-                "<i>Use the following connections</i> to pick specific LDAP connections."
+                "<i>Use the following</i> to pick specific LDAP connections."
                 "<br>Authentication connections are responsible "
                 "of creating the user and the initial user setup."
             )
@@ -592,7 +592,7 @@ class SiteManagement:
             elements.append(
                 CascadingSingleChoiceElement(
                     name="central_site",
-                    title=Title("Use same connections as the central site"),
+                    title=Title("Use same as the central site"),
                     parameter_form=FixedValue(
                         value=True,
                         label=Label(  # astrein: disable=localization-checker
