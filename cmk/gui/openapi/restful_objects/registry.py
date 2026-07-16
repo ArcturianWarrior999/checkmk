@@ -8,11 +8,12 @@ This registry does interlinking between endpoints without having to know the spe
 
 """
 
+from __future__ import annotations
+
 from collections.abc import Iterator
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from cmk.gui.http import HTTPMethod
-from cmk.gui.openapi.restful_objects.decorators import Endpoint, WrappedEndpoint
 from cmk.gui.openapi.restful_objects.params import fill_out_path_template, path_parameters
 from cmk.gui.openapi.restful_objects.type_defs import (
     EndpointKey,
@@ -20,6 +21,10 @@ from cmk.gui.openapi.restful_objects.type_defs import (
     OpenAPIParameter,
     ParameterKey,
 )
+
+if TYPE_CHECKING:
+    # Importing at runtime would be circular: decorators -> framework -> constructors -> registry.
+    from cmk.gui.openapi.restful_objects.decorators import Endpoint, WrappedEndpoint
 
 
 class EndpointEntry(TypedDict, total=True):
