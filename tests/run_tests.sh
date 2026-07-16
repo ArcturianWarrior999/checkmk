@@ -565,7 +565,7 @@ test-github-actions() {
 
 test-doctest() {
     mkdir -p "$REPO_PATH/results"
-    bazel test //cmk/editions/... --test_tag_filters=doctest |
+    bazel test --build_tests_only --test_tag_filters=doctest //... |
         tee "$REPO_PATH/results/test-doctest.txt"
     exit "${PIPESTATUS[0]}"
 }
