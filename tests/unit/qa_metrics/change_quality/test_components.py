@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,14 @@ def _touch(repo: Path, *paths: str) -> None:
     for p in paths:
         (repo / p).parent.mkdir(parents=True, exist_ok=True)
         (repo / p).write_text("")
+
+
+def _cmk_component_paths(args: Sequence[str]) -> list[str]:
+    """PATH positionals handed to ``cmk-components``, independent of the
+    invocation prefix (``python -m cwz.cmk_components`` and any ``--gerrit-*``
+    credential flags that precede the ``component`` subcommand)."""
+    # After "component" come "--mode" and "json", then the positional paths.
+    return list(args[args.index("component") + 3 :])
 
 
 def test_lookup_components_parses_json_output(
@@ -60,7 +69,10 @@ def test_lookup_components_parses_json_output(
         "cmk/base/config.py": None,
         "cmk/plugins/aws/agent_based/check.py": "plugins_aws",
     }
-    assert captured["args"][:4] == ["cmk-components", "component", "--mode", "json"]
+    # Invoked as a module of the hermetic interpreter (no $PATH console script),
+    # with no credential flags when the QA_GERRIT_* env vars are unset.
+    assert captured["args"][0] == sys.executable
+    assert captured["args"][1:6] == ["-m", "cwz.cmk_components", "component", "--mode", "json"]
 
 
 def test_lookup_components_skips_paths_not_on_disk(
@@ -213,7 +225,7 @@ def test_lookup_components_batches_to_avoid_arg_max(
 
     def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append(list(args))
-        positional = list(args[4:])  # drop ["cmk-components", "component", "--mode", "json"]
+        positional = _cmk_component_paths(args)
         stdout = json.dumps(dict.fromkeys(positional, "stub"))
         return subprocess.CompletedProcess(args=list(args), returncode=0, stdout=stdout, stderr="")
 
@@ -222,7 +234,7 @@ def test_lookup_components_batches_to_avoid_arg_max(
     result = lookup_components(paths, tmp_path, batch_size=2)
 
     assert len(calls) == 3, calls  # 5 paths / batch=2 -> 2 + 2 + 1
-    assert {len(c) - 4 for c in calls} == {1, 2}
+    assert {len(_cmk_component_paths(c)) for c in calls} == {1, 2}
     assert result == dict.fromkeys(paths, "stub")
 
 
@@ -247,7 +259,7 @@ def test_lookup_components_follows_renames(monkeypatch: pytest.MonkeyPatch, tmp_
                 stderr="",
             )
         captured["cmk_args"] = list(args)
-        positional = list(args[4:])
+        positional = _cmk_component_paths(args)
         return subprocess.CompletedProcess(
             args=list(args),
             returncode=0,
@@ -279,7 +291,7 @@ def test_lookup_components_collapses_rename_chains(
                 stdout=("R100\tcmk/a.py\tcmk/b.py\nR100\tcmk/b.py\tcmk/final.py\n"),
                 stderr="",
             )
-        positional = list(args[4:])
+        positional = _cmk_component_paths(args)
         return subprocess.CompletedProcess(
             args=list(args),
             returncode=0,
@@ -323,7 +335,7 @@ def test_lookup_components_skips_rename_lookup_when_all_paths_on_head(
     def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         if args[0] == "git":
             raise AssertionError(f"git invoked but all paths are on HEAD: {args}")
-        positional = list(args[4:])
+        positional = _cmk_component_paths(args)
         return subprocess.CompletedProcess(
             args=list(args),
             returncode=0,
@@ -364,7 +376,7 @@ def test_lookup_components_classifies_utf8_once_per_path(
     monkeypatch.setattr(comp_module, "_is_utf8_decodable", tracking)
 
     def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
-        positional = list(args[4:])
+        positional = _cmk_component_paths(args)
         stdout = json.dumps(dict.fromkeys(positional, "stub"))
         return subprocess.CompletedProcess(args=list(args), returncode=0, stdout=stdout, stderr="")
 

@@ -29,6 +29,7 @@ import codecs
 import json
 import logging
 import subprocess
+import sys
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 
@@ -198,7 +199,7 @@ def lookup_components(
     for batch_start in range(0, len(queryable), batch_size):
         batch = queryable[batch_start : batch_start + batch_size]
         proc = subprocess.run(
-            ["cmk-components", "component", "--mode", "json", *batch],
+            [sys.executable, "-m", "cwz.cmk_components", "component", "--mode", "json", *batch],
             capture_output=True,
             text=True,
             check=False,

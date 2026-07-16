@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
+load("@cmk_requirements//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//tests:__subpackages__"])
 
@@ -18,6 +19,7 @@ py_library(
     imports = ["../../.."],
     deps = [
         "//tests/qa_metrics/db",
+        requirement("cmk-werk-zeug"),
     ],
 )
 
