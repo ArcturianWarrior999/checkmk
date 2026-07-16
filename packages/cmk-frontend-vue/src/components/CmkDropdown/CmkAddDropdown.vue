@@ -11,10 +11,12 @@ import CmkIcon from '@/components/CmkIcon'
 import type { Suggestions } from '@/components/CmkSuggestions'
 
 import CmkDropdown from './CmkDropdown.vue'
+import type { ButtonVariants } from './CmkDropdownButton.vue'
 
 defineProps<{
   options: Suggestions
   label: TranslatedString
+  width?: ButtonVariants['width']
 }>()
 
 const emit = defineEmits<{
@@ -34,6 +36,7 @@ function onSelect(value: string | null): void {
     :options="options"
     :label="label"
     :input-hint="label"
+    :width="width"
     @update:model-value="onSelect"
   >
     <template #button-prefix>

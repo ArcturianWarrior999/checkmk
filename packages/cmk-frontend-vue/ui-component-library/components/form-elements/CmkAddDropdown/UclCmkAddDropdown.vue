@@ -4,7 +4,9 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script lang="ts">
-import { type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
+import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
+
+import type { ButtonVariants } from '@/components/CmkDropdown/CmkDropdownButton.vue'
 
 import codeExample from './UclCmkAddDropdownCodeExample.vue?raw'
 
@@ -38,6 +40,16 @@ export const panelConfig = {
     type: 'string' as const,
     title: 'Label',
     initialState: 'Add metric'
+  },
+  width: {
+    type: 'list' as const,
+    title: 'Width',
+    options: [
+      { title: 'Default', name: 'default' },
+      { title: 'Wide', name: 'wide' },
+      { title: 'Fill', name: 'fill' }
+    ] satisfies Options<ButtonVariants['width']>[],
+    initialState: 'default' as const
   }
 } satisfies PanelConfigFor<typeof CmkAddDropdown, 'options'>
 </script>
@@ -81,6 +93,7 @@ const added = ref<string[]>([])
       <CmkAddDropdown
         :options="options"
         :label="propState.label"
+        :width="propState.width"
         @select="(value) => added.push(value)"
       />
       <p v-if="added.length > 0">Added: {{ added.join(', ') }}</p>
