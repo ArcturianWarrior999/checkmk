@@ -807,6 +807,7 @@ function consolidationEquals(a: WireConsolidationFunction, b: WireConsolidationF
   switch (a.function) {
     case 'gauge_last':
     case 'gauge_max':
+    case 'gauge_avg':
     case 'sum_rate':
       return b.function === a.function && a.lookback_seconds === b.lookback_seconds
     case 'histogram_quantile':

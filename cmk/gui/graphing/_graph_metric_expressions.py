@@ -114,6 +114,12 @@ class GaugeMax:
 
 
 @dataclass(frozen=True, kw_only=True)
+class GaugeAvg:
+    lookback_seconds: float
+    type_: Literal["gauge_avg"] = "gauge_avg"
+
+
+@dataclass(frozen=True, kw_only=True)
 class SumRate:
     lookback_seconds: float
     type_: Literal["sum_rate"] = "sum_rate"
@@ -126,7 +132,7 @@ class HistogramQuantile:
     type_: Literal["histogram_quantile"] = "histogram_quantile"
 
 
-type ConsolidationFunction = GaugeLast | GaugeMax | SumRate | HistogramQuantile
+type ConsolidationFunction = GaugeLast | GaugeMax | GaugeAvg | SumRate | HistogramQuantile
 
 
 @dataclass(frozen=True)

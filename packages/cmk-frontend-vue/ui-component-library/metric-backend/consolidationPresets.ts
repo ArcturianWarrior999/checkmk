@@ -55,7 +55,7 @@ export const scopeOptions: Array<{ title: string; name: ScopeName }> = [
 export const allowedFunctionsScopes: Record<ScopeName, AllowedFunctions> = {
   fullCatalog: {},
   backendSupported: {
-    gauge: ['gauge_last', 'gauge_max'],
+    gauge: ['gauge_last', 'gauge_max', 'gauge_avg'],
     sum: ['sum_rate'],
     histogram: ['histogram_quantile']
   }
