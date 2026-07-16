@@ -45,6 +45,7 @@ edition_deps = select({
         "//non-free/packages/cmk-notification-plugins-nonfree:pkg_tar",
         "//non-free/packages/cmk-otel-collector:pkg_tar",
         "//non-free/packages/cmk-otel-collector:pkg_tar-auth-only",
+        "//non-free/packages/cmk-plugins-nonfree:pkg_tar-aws_extended",
         "//non-free/packages/cmk-plugins-nonfree:pkg_tar-azure_deprecated_extended",
         "//non-free/packages/cmk-plugins-nonfree:pkg_tar-azure_v2_extended",
         "//non-free/packages/cmk-plugins-nonfree:pkg_tar-gcp_extended",
