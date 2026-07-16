@@ -434,6 +434,10 @@ class ABCHostMode(WatoMode, abc.ABC):
                             "network issues, or firewall restrictions."
                         ),
                         success_ip_pingable=_("Successfully pinged IP address"),
+                        # Must match the "no relay" label rendered by the relay host
+                        # attribute (cmk/gui/nonfree/ultimate/relay/watolib/attributes.py);
+                        # PingHost.vue matches the inherited-default text against it.
+                        no_relay_label=_("No Relay"),
                     ),
                     form_keys=ModeHostFormKeys(
                         form=form_name,

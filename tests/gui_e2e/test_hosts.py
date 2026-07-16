@@ -324,6 +324,36 @@ def test_ping_host(bypass_nslookup: None, dashboard_page: MainDashboard) -> None
     _expect_validation_status_to_be_visble(add_host.ipaddress_status_valid, "Valid IP address")
 
 
+@pytest.mark.skip_if_not_edition("ultimate", "ultimatemt", "cloud")
+def test_ping_host_with_relay_attribute(
+    bypass_nslookup: None, dashboard_page: MainDashboard
+) -> None:
+    """Validate the ping pre-test still runs when the relay host attribute is present.
+
+    Regression test for the relay-capable editions: the ping/DNS indicator is only
+    shown when no relay is in effect. `PingHost.vue` decides this by matching the
+    relay attribute's inherited-default text against the "No Relay" label. When that
+    label and the frontend string drift apart (e.g. a Weblate case fix), every host
+    silently looks "monitored on a relay" and the indicator disappears with no error.
+    The plain `test_ping_host` cannot catch this because the relay attribute only
+    exists in these editions.
+    """
+    add_host = AddHost(dashboard_page.page)
+
+    add_host.host_name_text_field.fill("localhost")
+    expect(
+        add_host.host_name_status_valid,
+        message="Ping/DNS indicator missing while relay attribute defaults to 'No Relay'",
+    ).to_be_visible()
+
+    add_host.ipv4_address_checkbox.click()
+    add_host.ipv4_address_text_field.fill("127.0.0.1")
+    expect(
+        add_host.ipaddress_status_valid,
+        message="Ping indicator missing for IP while relay attribute defaults to 'No Relay'",
+    ).to_be_visible()
+
+
 def test_bulk_csv_upload_form(dashboard_page: MainDashboard) -> None:
     """Test adding a number of hosts via the bulk CSV upload form."""
     csv_upload_page = ImportHostsViaCSVFileUpload(dashboard_page.page)

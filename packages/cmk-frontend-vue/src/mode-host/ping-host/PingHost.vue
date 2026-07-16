@@ -114,7 +114,7 @@ function checkRelay(): boolean {
     (props.relayInputButtonElement.checked === true &&
       props.relaySelectElement.value !== props.defaultRelayIdHash) ||
     (props.relayInputButtonElement.checked === false &&
-      !props.relayDefaultElement.textContent?.includes('No relay'))
+      !props.relayDefaultElement.textContent?.includes(props.i18n.no_relay_label))
   )
 }
 const showPingHost = computed(() => {
