@@ -250,6 +250,83 @@ class TestCapabilityLinks:
 
 
 # ---------------------------------------------------------------------------
+# Unreadable binaries (root:omd 0750 capability/setuid helpers)
+# ---------------------------------------------------------------------------
+
+
+class TestUnreadableBinaries:
+    @pytest.mark.skipif(os.geteuid() == 0, reason="root reads mode-0 files; cp would not fail")
+    def test_unreadable_binaries_symlink_to_pristine(self, omd: FakeOmd) -> None:
+        restricted = omd.pristine / "bin" / "mkeventd_open514"
+        restricted.write_text("root:omd only")
+        restricted.chmod(0)
+
+        ensure_clone(omd.site_root)
+
+        clone_path = omd.clone / "bin" / "mkeventd_open514"
+        assert clone_path.is_symlink()
+        assert os.readlink(clone_path) == str(restricted)
+        assert (omd.clone / "bin" / "cmc").read_text() == "binary"  # rest is copied
+        assert os.readlink(omd.version_link) == str(omd.clone)  # clone activated
+
+    def test_other_cp_errors_stay_fatal(self, omd: FakeOmd) -> None:
+        _write_shim(
+            omd.shim_bin,
+            "cp",
+            "#!/bin/sh\necho \"cp: error writing '/x': No space left on device\" >&2\nexit 1\n",
+        )
+
+        with pytest.raises(CloneError, match="Failed to clone"):
+            ensure_clone(omd.site_root)
+
+        assert os.readlink(omd.version_link) == f"../../versions/{_VERSION}"  # untouched
+
+
+class TestUnreadablePristineFiles:
+    @staticmethod
+    def _parse(pristine: Path, stderr: str) -> list[Path] | None:
+        return version_clone._unreadable_pristine_files(pristine, stderr)  # noqa: SLF001
+
+    @staticmethod
+    def _denied(path: Path) -> str:
+        return f"cp: cannot open '{path}' for reading: Permission denied"
+
+    def test_unreadable_regular_files_are_tolerated(self, tmp_path: Path) -> None:
+        icmp = tmp_path / "lib" / "check_icmp"
+        icmp.parent.mkdir()
+        icmp.write_text("x")
+        stderr = f"{self._denied(icmp)}\n{self._denied(icmp)}\n"
+
+        assert self._parse(tmp_path, stderr) == [icmp, icmp]
+
+    def test_any_other_error_line_is_fatal(self, tmp_path: Path) -> None:
+        icmp = tmp_path / "check_icmp"
+        icmp.write_text("x")
+        stderr = f"{self._denied(icmp)}\ncp: error writing '/x': No space left on device\n"
+
+        assert self._parse(tmp_path, stderr) is None
+
+    def test_unreadable_directory_is_fatal(self, tmp_path: Path) -> None:
+        private = tmp_path / "private"
+        private.mkdir()
+
+        assert self._parse(tmp_path, self._denied(private)) is None
+
+    def test_path_outside_pristine_is_fatal(self, tmp_path: Path) -> None:
+        outside = tmp_path / "elsewhere" / "file"
+        outside.parent.mkdir()
+        outside.write_text("x")
+
+        assert self._parse(tmp_path / "pristine", self._denied(outside)) is None
+
+    def test_missing_file_is_fatal(self, tmp_path: Path) -> None:
+        assert self._parse(tmp_path, self._denied(tmp_path / "ghost")) is None
+
+    def test_empty_stderr_is_fatal(self, tmp_path: Path) -> None:
+        assert self._parse(tmp_path, "") is None
+
+
+# ---------------------------------------------------------------------------
 # Read-only directories (pristine trees ship e.g. mode 0555 dirs)
 # ---------------------------------------------------------------------------
 

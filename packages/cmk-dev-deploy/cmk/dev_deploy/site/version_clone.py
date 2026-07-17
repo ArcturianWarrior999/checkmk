@@ -29,15 +29,19 @@ reboots, so the site always starts with the deployed code, and ``etc/``
 File capabilities (``security.capability`` xattrs, e.g. ``cap_net_raw``
 on the ICMP helpers) cannot be copied without root.  Capability-carrying
 binaries in the clone are therefore replaced with symlinks back to the
-pristine originals, which retain theirs.  If such a binary is itself
-deployed later, the deployer replaces the symlink and applies ``setcap``
-as today.
+pristine originals, which retain theirs.  The same helpers are installed
+``root:omd`` 0750 by the package postinstall, so a deploy user outside
+the ``omd`` group cannot even read them: ``cp`` failures limited to such
+files are tolerated and resolved with the same symlinks.  If such a
+binary is itself deployed later, the deployer replaces the symlink and
+applies ``setcap`` as today.
 """
 
 from __future__ import annotations
 
 import contextlib
 import os
+import re
 import shlex
 import shutil
 import stat
@@ -52,6 +56,9 @@ from cmk.dev_deploy.errors import CloneError
 from cmk.dev_deploy.site import sudoers
 
 PRISTINE_VERSIONS_DIR = Path("/omd/versions")
+
+# GNU cp under LC_ALL=C, failing to read a source file (EACCES).
+_CP_UNREADABLE_LINE = re.compile(r"^cp: cannot open '(?P<path>.+)' for reading: Permission denied$")
 
 
 def _clone_base(site_name: str) -> Path:
@@ -192,8 +199,9 @@ def _build_clone(pristine: Path, clone: Path) -> None:
     Copies into a temporary sibling first and renames on success, so an
     interrupted copy can never be mistaken for a complete clone.  Mode
     and timestamps are preserved; ownership deliberately is not (the
-    deploy user must own every file), and capabilities are handled by
-    :func:`_link_capability_binaries`.
+    deploy user must own every file), capabilities are handled by
+    :func:`_link_capability_binaries`, and files the deploy user cannot
+    read by :func:`_link_unreadable_binaries`.
     """
     if not pristine.is_dir():
         raise CloneError(f"Pristine version directory {pristine} does not exist")
@@ -219,18 +227,69 @@ def _build_clone(pristine: Path, clone: Path) -> None:
             text=True,
             check=False,
             timeout=CLONE_COPY,
+            env={**os.environ, "LC_ALL": "C"},  # _CP_UNREADABLE_LINE parses the messages
         )
     except subprocess.TimeoutExpired:
         _rmtree(partial, ignore_errors=True)
         raise CloneError(f"Cloning {pristine} timed out after {CLONE_COPY}s") from None
     if result.returncode != 0:
-        _rmtree(partial, ignore_errors=True)
-        raise CloneError(f"Failed to clone {pristine}: {result.stderr.strip()}")
+        unreadable = _unreadable_pristine_files(pristine, result.stderr)
+        if unreadable is None:
+            _rmtree(partial, ignore_errors=True)
+            raise CloneError(f"Failed to clone {pristine}: {result.stderr.strip()}")
+        _link_unreadable_binaries(pristine, partial, unreadable)
 
     _ensure_writable_dirs(partial)
     _link_capability_binaries(pristine, partial)
     partial.rename(clone)
     output.info(f"Clone created in {time.monotonic() - start:.1f}s: {clone}")
+
+
+def _unreadable_pristine_files(pristine: Path, cp_stderr: str) -> list[Path] | None:
+    """Map ``cp`` stderr onto unreadable pristine files, ``None`` on anything else.
+
+    A copy failure is only tolerable when every reported error is an
+    unreadable regular file inside the pristine tree (the ``root:omd``
+    0750 capability/setuid helpers).  Unreadable directories or any
+    other ``cp`` error keep the copy fatal: ``None``.
+    """
+    files = []
+    for line in filter(None, map(str.strip, cp_stderr.splitlines())):
+        match = _CP_UNREADABLE_LINE.match(line)
+        if match is None:
+            return None
+        path = Path(match["path"])
+        if not path.is_relative_to(pristine):
+            return None
+        try:
+            if not stat.S_ISREG(path.lstat().st_mode):
+                return None
+        except OSError:
+            return None
+        files.append(path)
+    return files or None
+
+
+def _link_unreadable_binaries(pristine: Path, clone: Path, files: list[Path]) -> None:
+    """Symlink files the deploy user cannot read back to the pristine tree.
+
+    The package postinstall restricts a few helper binaries (check_icmp,
+    icmpsender, mkeventd_open514, ...) to ``root:omd`` 0750, so ``cp``
+    skips them for a deploy user outside the ``omd`` group.  A copy
+    would lose their capabilities or setuid bit anyway, so they point
+    back at the pristine originals -- exactly like the readable
+    capability binaries in :func:`_link_capability_binaries`.
+    """
+    for path in files:
+        rel = path.relative_to(pristine)
+        clone_path = clone / rel
+        clone_path.unlink(missing_ok=True)
+        clone_path.symlink_to(path)
+        output.verbose(f"  Linked unreadable binary to pristine: {rel}")
+    output.info(
+        f"{len(files)} binaries are not readable (root:omd) and were "
+        "linked to the pristine originals instead"
+    )
 
 
 def _capability_files(pristine: Path) -> list[Path]:
