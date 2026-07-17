@@ -3,7 +3,49 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
+
 import type { Metric } from '../TimeSeriesGraph'
+
+export interface MetricStats {
+  min: string
+  avg: string
+  max: string
+  last: string
+}
+
+/** Formatted min/avg/max/last over the series' present data points; 'n/a' where absent. */
+export function metricStats(metric: Metric): MetricStats {
+  const { formatter } = userSpecificUnit(metric.metadata.unit, 'celsius')
+  const fmt = (value: number): string => formatter.render(value)
+  const points = metric.data_points
+  if (!points || points.length === 0) {
+    return { min: 'n/a', avg: 'n/a', max: 'n/a', last: 'n/a' }
+  }
+  let min = Infinity
+  let max = -Infinity
+  let sum = 0
+  let count = 0
+  for (const value of points) {
+    if (value !== null && isFinite(value)) {
+      if (value < min) {
+        min = value
+      }
+      if (value > max) {
+        max = value
+      }
+      sum += value
+      count++
+    }
+  }
+  const last = points[points.length - 1]!
+  return {
+    min: isFinite(min) ? fmt(min) : 'n/a',
+    avg: count > 0 ? fmt(sum / count) : 'n/a',
+    max: isFinite(max) ? fmt(max) : 'n/a',
+    last: last !== null && isFinite(last) ? fmt(last) : 'n/a'
+  }
+}
 
 export function metricsInGraphTopToBottomOrder(metrics: Metric[]): Metric[] {
   return consecutiveStackGroups(metrics).flatMap(topmostSeriesFirst)

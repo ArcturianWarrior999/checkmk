@@ -7,7 +7,6 @@ conditions defined in the file COPYING, which is part of this source code packag
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import usei18n from '@/lib/i18n'
-import { userSpecificUnit } from '@/lib/unit-format/unitFormatter'
 import { useResizeObserver } from '@/lib/useResizeObserver'
 
 import CmkScrollContainer from '@/components/CmkScrollContainer.vue'
@@ -19,7 +18,12 @@ import {
   useConsolidationFunctionLabels
 } from '../consolidation'
 import GraphLegendEyeButton from './GraphLegendEyeButton.vue'
-import { metricsInGraphTopToBottomOrder, withNameToggled } from './legendUtils'
+import {
+  type MetricStats,
+  metricStats as computeMetricStats,
+  metricsInGraphTopToBottomOrder,
+  withNameToggled
+} from './legendUtils'
 
 const { _t, _tn } = usei18n()
 
@@ -73,46 +77,10 @@ function toggleAll() {
   }
 }
 
-interface MetricStats {
-  min: string
-  avg: string
-  max: string
-  last: string
-}
-
 const metricStats = computed((): Map<string, MetricStats> => {
   const map = new Map<string, MetricStats>()
   for (const m of props.metrics) {
-    const { formatter } = userSpecificUnit(m.metadata.unit, 'celsius')
-    const fmt = (v: number) => formatter.render(v)
-    const pts = m.data_points
-    if (!pts || pts.length === 0) {
-      map.set(m.metadata.name, { min: 'n/a', avg: 'n/a', max: 'n/a', last: 'n/a' })
-      continue
-    }
-    let min = Infinity
-    let max = -Infinity
-    let sum = 0
-    let count = 0
-    for (const v of pts) {
-      if (v !== null && isFinite(v)) {
-        if (v < min) {
-          min = v
-        }
-        if (v > max) {
-          max = v
-        }
-        sum += v
-        count++
-      }
-    }
-    const last = pts[pts.length - 1]!
-    map.set(m.metadata.name, {
-      min: isFinite(min) ? fmt(min) : 'n/a',
-      avg: count > 0 ? fmt(sum / count) : 'n/a',
-      max: isFinite(max) ? fmt(max) : 'n/a',
-      last: last !== null && isFinite(last) ? fmt(last) : 'n/a'
-    })
+    map.set(m.metadata.name, computeMetricStats(m))
   }
   return map
 })
