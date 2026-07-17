@@ -43,7 +43,8 @@ const METRIC_PRESENTATION: Record<NetworkFlowKpiStatCardContent['metric'], Metri
   ingress_bytes: { formatter: BYTES, deltaSemantics: 'neutral' },
   egress_bytes: { formatter: BYTES, deltaSemantics: 'neutral' },
   active_hosts: { formatter: COUNT, deltaSemantics: 'neutral' },
-  total_flows: { formatter: COUNT, deltaSemantics: 'neutral' }
+  total_flows: { formatter: COUNT, deltaSemantics: 'neutral' },
+  active_asn: { formatter: COUNT, deltaSemantics: 'neutral' }
 }
 
 interface CardData {

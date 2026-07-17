@@ -162,7 +162,7 @@ class NetworkFlowDonutDashletConfig(DashletConfig):
 
 
 NetworkFlowKpiStatCardMetric = Literal[
-    "total_bytes", "ingress_bytes", "egress_bytes", "active_hosts", "total_flows"
+    "total_bytes", "ingress_bytes", "egress_bytes", "active_hosts", "total_flows", "active_asn"
 ]
 
 

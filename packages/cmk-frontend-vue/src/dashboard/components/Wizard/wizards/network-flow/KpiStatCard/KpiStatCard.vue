@@ -38,7 +38,8 @@ const metricOptions: Suggestions = {
     { name: 'ingress_bytes', title: _t('Ingress bytes') },
     { name: 'egress_bytes', title: _t('Egress bytes') },
     { name: 'active_hosts', title: _t('Active hosts') },
-    { name: 'total_flows', title: _t('Total flows') }
+    { name: 'total_flows', title: _t('Total flows') },
+    { name: 'active_asn', title: _t('Active ASN') }
   ]
 }
 
