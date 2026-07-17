@@ -1332,6 +1332,22 @@ class GraphClient(RestApiClient):
             expect_ok=expect_ok,
         )
 
+    def discover_combined_graphs(
+        self,
+        context: Mapping[str, Mapping[str, str]],
+        graph_id: str,
+        expect_ok: bool = True,
+    ) -> Response:
+        return self.request(
+            "post",
+            url=f"/domain-types/{self.domain}/actions/discover_combined_graphs/invoke",
+            body={
+                "context": context,
+                "graph_id": graph_id,
+            },
+            expect_ok=expect_ok,
+        )
+
     def get_pin(self, expect_ok: bool = True) -> Response:
         return self.request(
             "get",

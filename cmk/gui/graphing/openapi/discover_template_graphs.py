@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 from cmk.ccc.site import SiteId
-from cmk.graphing_engine import Graph, HostName, Service, ServiceName
+from cmk.graphing_engine import HostName, Service, ServiceName
 from cmk.gui.config import active_config
 from cmk.gui.openapi.framework import (
     APIVersion,
@@ -23,7 +23,7 @@ from cmk.livestatus_client import MKLivestatusException
 
 from .._engine_plugins import registered_graphs, registered_metrics, registered_translations
 from .._engine_rrd import EngineRRDFetchMetricNames
-from .._engine_template_graphs import build_template_graphs
+from .._engine_template_graphs import build_template_graphs, matches_graph_id
 from ._family import GRAPH_FAMILY
 from .models import ApiDiscoveredGraph
 
@@ -52,12 +52,6 @@ class TemplateGraphsDiscoverResponse:
     graphs: list[ApiDiscoveredGraph] = api_field(
         description="The data-less graph definitions of the service.",
     )
-
-
-def _matches_graph_id(graph: Graph, graph_id: str) -> bool:
-    # Legacy configs and autocompleters identify single-metric graphs as "METRIC_<name>", while the
-    # engine names the corresponding fallback graphs after the bare metric name.
-    return graph.name == graph_id or graph.name == graph_id.removeprefix("METRIC_")
 
 
 def discover_template_graphs_v1(
@@ -92,7 +86,7 @@ def discover_template_graphs_v1(
         ) from exc
 
     if body.graph_id is not None:
-        graphs = [graph for graph in graphs if _matches_graph_id(graph, body.graph_id)]
+        graphs = [graph for graph in graphs if matches_graph_id(graph, body.graph_id)]
     if not graphs:
         raise ProblemException(
             status=404,
