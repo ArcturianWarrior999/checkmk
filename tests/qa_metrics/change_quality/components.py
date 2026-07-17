@@ -28,14 +28,27 @@ from __future__ import annotations
 import codecs
 import json
 import logging
+import re
 import subprocess
 import sys
 from collections.abc import Iterable, Mapping
 from pathlib import Path
+from typing import Final
 
 from .detect_test import is_test_path
 
 logger = logging.getLogger(__name__)
+
+# cmk-components validates each path against gerrit's *live* master, while we
+# decide which paths to query from the *local* working tree. When the two drift
+# -- a file moved/removed on gerrit master since this checkout, or gerrit master
+# advancing mid-run -- it exits non-zero with one or more "Not a valid path"
+# lines. Such a path is unclassifiable (like a deleted one), so we drop it to
+# None and retry the shrunken batch rather than aborting the whole run. Bounded
+# so a badly stale checkout (many skewed paths) still fails loudly instead of
+# grinding through retries. The path is printed with a leading slash we strip.
+_MAX_INVALID_PATH_RETRIES: Final = 3
+_INVALID_PATH_RE: Final = re.compile(r"Not a valid path in check_mk @ [^:]+:\s*(\S+)")
 
 # Cap on how many paths we hand to a single ``cmk-components`` invocation. The
 # OS imposes a hard limit on argv length (``ARG_MAX``, typically ~128 KiB on
@@ -120,6 +133,84 @@ def _build_rename_map(repo: Path) -> dict[str, str]:
     return collapsed
 
 
+def _parse_invalid_paths(stderr: str) -> set[str]:
+    """Repo-relative paths cmk-components rejected as absent from gerrit master.
+
+    The error prints each path with a leading slash (``/cmk/...``); strip it so
+    the result matches the paths we passed in.
+    """
+    return {m.group(1).lstrip("/") for m in _INVALID_PATH_RE.finditer(stderr)}
+
+
+def _query_components(paths: list[str]) -> tuple[dict[str, str | None], list[str]]:
+    """Resolve one batch, dropping paths gerrit's master no longer knows.
+
+    Returns ``(results, dropped)``: ``results`` maps each *surviving* path to
+    its component (or ``None``) as reported by ``cmk-components --mode json``;
+    ``dropped`` lists paths it rejected as "Not a valid path" (stale local files
+    moved/removed on gerrit master since this checkout -- unclassifiable, so the
+    caller resolves them to ``None``).
+
+    Retries up to :data:`_MAX_INVALID_PATH_RETRIES` times, shrinking the batch
+    by the rejected paths each round. Raises ``RuntimeError`` on a genuine
+    failure (a non-zero exit with no recognisable invalid-path line, or non-JSON
+    output), or if it is *still* rejecting paths after the retries are spent --
+    we never silently return partial data, since that lands NULLs in postgres.
+    """
+    remaining = list(paths)
+    dropped: list[str] = []
+    retries = 0
+    while remaining:
+        proc = subprocess.run(
+            [sys.executable, "-m", "cwz.cmk_components", "component", "--mode", "json", *remaining],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode == 0:
+            # --mode json emits a single ``{path: component | null}`` object for
+            # the batch; ``null`` deserialises directly to Python ``None``.
+            try:
+                return json.loads(proc.stdout), dropped
+            except json.JSONDecodeError as e:
+                raise RuntimeError(
+                    f"cmk-components --mode json emitted non-JSON output: {e}. "
+                    f"stdout (first 500 chars):\n{proc.stdout[:500]}"
+                ) from e
+
+        invalid = _parse_invalid_paths(proc.stderr)
+        invalid_in_batch = [p for p in remaining if p in invalid]
+        if not invalid_in_batch:
+            # Non-zero exit we can't attribute to stale paths: a real failure.
+            raise RuntimeError(
+                f"cmk-components exited rc={proc.returncode}. "
+                f"Refusing to push partial data. stderr:\n{proc.stderr}"
+            )
+        if retries >= _MAX_INVALID_PATH_RETRIES:
+            raise RuntimeError(
+                f"cmk-components still rejecting paths after "
+                f"{_MAX_INVALID_PATH_RETRIES} retries (checkout too far behind "
+                f"gerrit master? sync it and re-run). Refusing to push partial "
+                f"data. Last stderr:\n{proc.stderr}"
+            )
+
+        retries += 1
+        logger.warning(
+            "cmk-components rejected %d path(s) not on gerrit master; dropping "
+            "and retrying (%d/%d): %s",
+            len(invalid_in_batch),
+            retries,
+            _MAX_INVALID_PATH_RETRIES,
+            invalid_in_batch[:5],
+        )
+        dropped.extend(invalid_in_batch)
+        drop_set = set(invalid_in_batch)
+        remaining = [p for p in remaining if p not in drop_set]
+
+    # Every path in the batch was rejected and dropped; all resolve to None.
+    return {}, dropped
+
+
 def lookup_components(
     paths: Iterable[str],
     repo: Path,
@@ -145,9 +236,13 @@ def lookup_components(
     content from gerrit and decodes as UTF-8; binary files would otherwise
     crash the whole batch).
 
-    Raises ``RuntimeError`` if cmk-components exits non-zero on the surviving
-    queryable paths -- we never silently return partial data, since that would
-    land NULLs in postgres.
+    Paths that are valid locally but that gerrit's live master no longer knows
+    (moved/removed upstream since this checkout -- common on a ``--full`` run
+    that enumerates every historical path) are dropped to ``None`` and the batch
+    is retried; see :func:`_query_components`. A genuine cmk-components failure,
+    or a checkout too far behind gerrit to reconcile within the retry budget,
+    still raises ``RuntimeError`` -- we never silently return partial data, since
+    that would land NULLs in postgres.
     """
     all_paths = sorted(set(paths))
     if not all_paths:
@@ -196,32 +291,28 @@ def lookup_components(
     )
     head_results: dict[str, str | None] = dict.fromkeys(queryable)
     answered: set[str] = set()
+    dropped_total: list[str] = []
     for batch_start in range(0, len(queryable), batch_size):
         batch = queryable[batch_start : batch_start + batch_size]
-        proc = subprocess.run(
-            [sys.executable, "-m", "cwz.cmk_components", "component", "--mode", "json", *batch],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(
-                f"cmk-components exited rc={proc.returncode}. "
-                f"Refusing to push partial data. stderr:\n{proc.stderr}"
-            )
-        # --mode json emits a single ``{path: component | null}`` object for
-        # the batch; ``null`` deserialises directly to Python ``None``.
-        try:
-            batch_results = json.loads(proc.stdout)
-        except json.JSONDecodeError as e:
-            raise RuntimeError(
-                f"cmk-components --mode json emitted non-JSON output: {e}. "
-                f"stdout (first 500 chars):\n{proc.stdout[:500]}"
-            ) from e
+        batch_results, dropped = _query_components(batch)
+        # Dropped paths are stale locally / gone on gerrit master: unclassifiable,
+        # same as a deleted path. They stay ``None`` (the dict default) but count
+        # as answered so the completeness check below doesn't flag them.
+        answered.update(dropped)
+        dropped_total.extend(dropped)
         for path, component in batch_results.items():
             if path in head_results:
                 answered.add(path)
                 head_results[path] = component
+
+    if dropped_total:
+        logger.warning(
+            "Dropped %d path(s) rejected by cmk-components as absent from gerrit "
+            "master (stale local files moved/removed upstream since this "
+            "checkout); classified as None. Examples: %s",
+            len(dropped_total),
+            dropped_total[:5],
+        )
 
     # rc=0 is not by itself a guarantee that every queried path was answered:
     # cmk-components has been observed to silently omit lines for some paths

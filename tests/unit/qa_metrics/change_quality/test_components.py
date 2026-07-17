@@ -206,6 +206,93 @@ def test_lookup_components_raises_on_partial_output(
         lookup_components(["cmk/a.py", "cmk/b.py"], tmp_path)
 
 
+def test_lookup_components_drops_path_absent_on_gerrit_master(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A path valid on the local disk but gone on gerrit's live master (moved
+    upstream since this checkout) is dropped to None and the batch retried,
+    instead of aborting the whole run. This is the ``--full`` failure mode where
+    the local queryability gate and cmk-components' gerrit-master validation
+    disagree."""
+    _touch(tmp_path, "cmk/ok.py", "cmk/moved.py")
+    calls: list[list[str]] = []
+
+    def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(list(args))
+        positional = list(args[4:])
+        if "cmk/moved.py" in positional:
+            # gerrit master no longer has this path; note the leading slash.
+            return subprocess.CompletedProcess(
+                args=list(args),
+                returncode=1,
+                stdout="",
+                stderr="ERROR: Not a valid path in check_mk @ master: /cmk/moved.py\n",
+            )
+        return subprocess.CompletedProcess(
+            args=list(args),
+            returncode=0,
+            stdout=json.dumps(dict.fromkeys(positional, "ui_framework")),
+            stderr="",
+        )
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    result = lookup_components(["cmk/ok.py", "cmk/moved.py"], tmp_path)
+    assert result == {"cmk/ok.py": "ui_framework", "cmk/moved.py": None}
+    assert len(calls) == 2  # initial call + one retry with the bad path dropped
+
+
+def test_lookup_components_raises_after_retry_budget(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A checkout so far behind gerrit that a new path is rejected every round
+    must fail loudly once the retry budget is spent -- never push partial data."""
+    _touch(tmp_path, "cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py", "cmk/e.py")
+    # One fresh rejection per call: initial + 3 retries = 4 calls, then give up.
+    reject_sequence = ["cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py"]
+    state = {"call": 0}
+
+    def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        bad = reject_sequence[state["call"]]
+        state["call"] += 1
+        return subprocess.CompletedProcess(
+            args=list(args),
+            returncode=1,
+            stdout="",
+            stderr=f"ERROR: Not a valid path in check_mk @ master: /{bad}\n",
+        )
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    with pytest.raises(RuntimeError, match=r"still rejecting paths after 3 retries"):
+        lookup_components(["cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py", "cmk/e.py"], tmp_path)
+    assert state["call"] == 4  # initial + 3 retries, then raise
+
+
+def test_lookup_components_nonzero_rc_without_invalid_path_is_not_retried(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """A non-zero exit that isn't a 'Not a valid path' rejection is a genuine
+    failure: raise immediately, do not burn retries."""
+    _touch(tmp_path, "cmk/ok.py")
+    calls: list[list[str]] = []
+
+    def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(list(args))
+        return subprocess.CompletedProcess(
+            args=list(args),
+            returncode=1,
+            stdout="",
+            stderr="Traceback: some internal cmk-components crash\n",
+        )
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    with pytest.raises(RuntimeError, match=r"cmk-components exited rc=1"):
+        lookup_components(["cmk/ok.py"], tmp_path)
+    assert len(calls) == 1  # failed fast, no retry
+
+
 def test_lookup_components_empty_input(tmp_path: Path) -> None:
     assert lookup_components([], tmp_path) == {}
 
