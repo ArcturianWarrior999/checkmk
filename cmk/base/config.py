@@ -880,9 +880,7 @@ class PackedConfigGenerator:
         self._hosts_config = hosts_config
         self._loaded_config = loaded_config
 
-    def generate(self) -> Mapping[str, Any]:
-        helper_config: dict[str, Any] = {}
-
+    def generate(self) -> Mapping[str, object]:
         # These functions purpose is to filter out hosts which are monitored on different sites
         active_hosts = frozenset(
             hn
@@ -949,18 +947,11 @@ class PackedConfigGenerator:
         #
         # Add modified Checkmk base settings
         #
-
-        helper_config_variables = set(self._loaded_config) - set(self.SKIPPED_CONFIG_VARIABLE_NAMES)
-
-        for varname in helper_config_variables:
-            val = self._loaded_config[varname]
-
-            if varname in filter_var_functions:
-                val = filter_var_functions[varname](val)
-
-            helper_config[varname] = val
-
-        return helper_config
+        return {
+            k: filter_var_functions.get(k, lambda x: x)(v)
+            for k, v in self._loaded_config.items()
+            if k not in self.SKIPPED_CONFIG_VARIABLE_NAMES
+        }
 
 
 class PackedConfigStore:
