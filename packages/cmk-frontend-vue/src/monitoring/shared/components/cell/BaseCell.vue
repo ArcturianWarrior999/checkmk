@@ -234,6 +234,7 @@ const highlightStyle = computed<CSSProperties>(() =>
       margin-left: auto;
       margin-top: calc(-1 * var(--dimension-2));
       margin-right: var(--dimension-3);
+      height: var(--dimension-6);
     }
   }
 

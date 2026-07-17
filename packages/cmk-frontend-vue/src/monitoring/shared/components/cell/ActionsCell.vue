@@ -30,6 +30,7 @@ const emit = defineEmits<{
   <BaseCell class="monitoring-actions-cell" :column-id="columnId" :vertical-align="verticalAlign">
     <template #default>
       <ActionButtons
+        class="monitoring-actions-cell__actions"
         :actions="actions"
         :max-visible="maxVisible"
         :load="load"
@@ -38,3 +39,9 @@ const emit = defineEmits<{
     </template>
   </BaseCell>
 </template>
+
+<style scoped>
+.monitoring-actions-cell__actions {
+  margin-top: var(--dimension-2);
+}
+</style>
