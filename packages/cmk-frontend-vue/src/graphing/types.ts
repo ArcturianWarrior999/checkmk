@@ -51,7 +51,7 @@ export interface GraphPanelProps {
   legendPosition?: 'bottom' | 'right'
   showBrush?: boolean
   // Coarse, wider, end-anchored dataset for the navigator brush (separate fetch / mock).
-  overview?: { metrics: Metric[]; timeRange: TimeRange }
+  overview?: { metrics: Metric[]; timeRange: TimeRange } | undefined
 }
 
 export type GraphPanelEmits = {

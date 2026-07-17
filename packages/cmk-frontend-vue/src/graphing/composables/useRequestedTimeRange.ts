@@ -28,23 +28,34 @@ function toDateTimeRange(range: RequestedTimeRange, timeZone: string): DateTimeR
   }
 }
 
+const DEFAULT_RANGE_SECONDS = 4 * 3600
+
 /**
  * The requested (user-chosen) time range for a graph data fetch owner.
  *
  * Seeded from the page's global time picker if one has already published a range,
- * otherwise from `initial`; follows every subsequent picker change. The returned ref
- * stays writable: local interactions (e.g. brush zoom) can update it directly, and
- * doing so publishes the new range to the global picker in turn, which every other
- * graph/graph-group on the page follows the same way.
+ * otherwise from `initial` (default: the last four hours); follows every subsequent
+ * picker change. The returned ref stays writable: local interactions (e.g. brush zoom)
+ * can update it directly, and doing so publishes the new range to the global picker in
+ * turn, which every other graph/graph-group on the page follows the same way.
  *
  * Call this from the component that owns the data fetch (e.g. a graph group or a
  * standalone panel host), not from presentational components like GraphPanel.
  */
-export function useRequestedTimeRange(initial: RequestedTimeRange): Ref<RequestedTimeRange> {
+export function useRequestedTimeRange(initial?: RequestedTimeRange): Ref<RequestedTimeRange> {
   const { activeTimeRange, setActiveTimeRange } = useGlobalTimeRange()
 
+  function fallbackRange(): RequestedTimeRange {
+    const now = Math.floor(Date.now() / 1000)
+    return { start: now - DEFAULT_RANGE_SECONDS, end: now }
+  }
+
   const requestedTimeRange = ref<RequestedTimeRange>(
-    activeTimeRange.value === null ? { ...initial } : toRequestedTimeRange(activeTimeRange.value)
+    activeTimeRange.value === null
+      ? initial === undefined
+        ? fallbackRange()
+        : { ...initial }
+      : toRequestedTimeRange(activeTimeRange.value)
   )
   // Mount order of the picker and the fetch owner is DOM-driven: if the picker mounts
   // later, its initial publish arrives through this watch and replaces the seed.
