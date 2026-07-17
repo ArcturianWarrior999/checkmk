@@ -41,7 +41,10 @@ DELL_IDRAC_FANS_STATE_MAP = {
 def discover_dell_idrac_fans(section: StringTable) -> DiscoveryResult:
     for index, state, _value, _name, _warn_upper, _crit_upper, _warn_lower, _crit_lower in section:
         # don't discover fans with a state of other or unknown
-        if DELL_IDRAC_FANS_STATE_MAP[state][1] not in ("OTHER", "UNKNOWN"):
+        if DELL_IDRAC_FANS_STATE_MAP.get(state, (State.UNKNOWN, "UNKNOWN"))[1] not in (
+            "OTHER",
+            "UNKNOWN",
+        ):
             yield Service(item=index)
 
 
@@ -57,9 +60,11 @@ def check_dell_idrac_fans(
 ) -> CheckResult:
     for index, status, value, name, warn_upper, crit_upper, warn_lower, crit_lower in section:
         if index == item:
-            state, state_readable = DELL_IDRAC_FANS_STATE_MAP[status]
+            state, state_readable = DELL_IDRAC_FANS_STATE_MAP.get(
+                status, (State.UNKNOWN, "NO DATA FROM DEVICE")
+            )
             yield Result(state=state, summary=f"Status: {state_readable}, Name: {name}")
-            if state_readable in ("OTHER", "UNKNOWN", "FAILED"):
+            if state_readable in ("OTHER", "UNKNOWN", "FAILED", "NO DATA FROM DEVICE"):
                 return
 
             rpm = int(value)
