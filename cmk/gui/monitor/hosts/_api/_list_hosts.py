@@ -35,6 +35,7 @@ from .._repositories import HostRepository
 from ._family import MONITOR_HOSTS_FAMILY
 from ._filters import FilterNode, parse_as_livestatus_filter
 from ._modes import build_host_modes, ModeInfo
+from ._urls import host_view_link
 from ._validators import parse_host_search_query, parse_host_sort_options
 
 # View-local limits, deliberately not coupled to the global soft/hard query limit settings so they
@@ -73,6 +74,10 @@ class HostEntry:
         example=[],
         default_factory=ApiOmitted,
     )
+    legacy_host_status_link: str = api_field(
+        description="URL to legacy host status view",
+        example="view.py?view_name=hoststatus&host=web-server-01&site=local",
+    )
 
     @classmethod
     def from_domain(cls, host: Host) -> Self:
@@ -89,6 +94,7 @@ class HostEntry:
             num_services_unknown=host.service_counts.unknown,
             num_services_pending=host.service_counts.pending,
             modes=build_host_modes(host),
+            legacy_host_status_link=host_view_link("hoststatus", host),
         )
 
 

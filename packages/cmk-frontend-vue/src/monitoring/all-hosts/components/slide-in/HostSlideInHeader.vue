@@ -4,12 +4,34 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 
-import type { HostEntry } from '@/monitoring/shared/api/types'
+import type { HostEntry, HostRef } from '@/monitoring/shared/api/types'
 import HostStateDisplay from '@/monitoring/shared/components/HostStateDisplay.vue'
+import ActionButtons, {
+  type CellAction
+} from '@/monitoring/shared/components/cell/ActionButtons.vue'
 
-defineProps<{ host: HostEntry }>()
+const props = withDefaults(
+  defineProps<{
+    host: HostEntry
+    actions?: CellAction[]
+    loadActionMenu?: (() => Promise<CellAction[]>) | undefined
+  }>(),
+  { actions: () => [], loadActionMenu: undefined }
+)
+
+const emit = defineEmits<{
+  (event: 'command', payload: { id: string; host: HostRef }): void
+}>()
+
+const hostRef = computed<HostRef>(() => ({ site_id: props.host.site_id, name: props.host.name }))
+
+function onSelect(action: CellAction): void {
+  emit('command', { id: action.id, host: hostRef.value })
+}
 </script>
 
 <template>
@@ -18,6 +40,14 @@ defineProps<{ host: HostEntry }>()
     <CmkHeading type="h2" class="monitoring-host-slide-in-header__name">
       {{ host.name }}
     </CmkHeading>
+    <ActionButtons
+      v-if="loadActionMenu || actions.length > 0"
+      class="monitoring-host-slide-in-header__actions"
+      :actions="actions"
+      :max-visible="actions.length"
+      :load="loadActionMenu"
+      @select="onSelect"
+    />
   </div>
 </template>
 
@@ -31,5 +61,9 @@ defineProps<{ host: HostEntry }>()
 
 .monitoring-host-slide-in-header__name {
   margin: 0;
+}
+
+.monitoring-host-slide-in-header__actions {
+  margin-left: auto;
 }
 </style>

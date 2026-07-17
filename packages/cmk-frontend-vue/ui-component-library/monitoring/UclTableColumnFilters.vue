@@ -190,7 +190,8 @@ const rows: HostEntry[] = [
     num_services_warn: 3,
     num_services_crit: 1,
     num_services_unknown: 0,
-    num_services_pending: 2
+    num_services_pending: 2,
+    legacy_host_status_link: 'view.py?view_name=hoststatus&site=local&host=web-server-01'
   },
   {
     name: 'db-primary-02',
@@ -203,7 +204,8 @@ const rows: HostEntry[] = [
     num_services_warn: 4,
     num_services_crit: 7,
     num_services_unknown: 1,
-    num_services_pending: 1
+    num_services_pending: 1,
+    legacy_host_status_link: 'view.py?view_name=hoststatus&site=local&host=db-primary-02'
   },
   {
     name: 'cache-node-03',
@@ -216,7 +218,8 @@ const rows: HostEntry[] = [
     num_services_warn: 0,
     num_services_crit: 0,
     num_services_unknown: 0,
-    num_services_pending: 0
+    num_services_pending: 0,
+    legacy_host_status_link: 'view.py?view_name=hoststatus&site=local&host=cache-node-03'
   }
 ]
 </script>

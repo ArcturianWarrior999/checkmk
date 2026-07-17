@@ -392,6 +392,35 @@ const slideInTargets = computed<HostRef[]>(() =>
   slideInHost.value ? [{ site_id: slideInHost.value.site_id, name: slideInHost.value.name }] : []
 )
 
+const slideInInlineActions = computed<CellAction[]>(() => {
+  const host = slideInHost.value
+  if (!host) {
+    return []
+  }
+  const name = host.name
+  const statusAction: CellAction = {
+    id: 'show_status',
+    label: _t('Show status of host %{name}', { name }),
+    icon: 'folder',
+    url: host.legacy_host_status_link
+  }
+  const resolved = rowActionButtons.map((action) => ({
+    ...action,
+    label: action.id === 'edit' ? _t('Edit host %{name}', { name }) : action.label,
+    url: action.url?.replace('{host}', encodeURIComponent(name))
+  }))
+  return [statusAction, ...resolved]
+})
+
+const slideInLoadActionMenu = computed<(() => Promise<CellAction[]>) | undefined>(() => {
+  const host = slideInHost.value
+  if (!host) {
+    return undefined
+  }
+  const hostRef: HostRef = { site_id: host.site_id, name: host.name }
+  return () => loadActionMenu(hostRef)
+})
+
 const slideInTabs = computed<SlideInTab[]>(() => {
   const host = slideInHost.value
   if (!host) {
@@ -610,7 +639,13 @@ function navigateToLegacy() {
       @close="closeSlideIn"
     >
       <template #above-tabs>
-        <HostSlideInHeader v-if="slideInHost" :host="slideInHost" />
+        <HostSlideInHeader
+          v-if="slideInHost"
+          :host="slideInHost"
+          :actions="slideInInlineActions"
+          :load-action-menu="slideInLoadActionMenu"
+          @command="onRowCommand"
+        />
       </template>
       <template #actions>
         <HostSlideInActions @select="openSlideInAction" />

@@ -288,6 +288,7 @@ class TestMonitorHostsFilters:
                 "site_id": "NO_SITE",
                 "state": "UP",
                 "modes": [],
+                "legacy_host_status_link": "view.py?view_name=hoststatus&site=NO_SITE&host=heute",
             },
         ]
 
