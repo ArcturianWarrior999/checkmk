@@ -42,8 +42,8 @@ from cmk.livestatus_client.expressions import LqSafe
 from cmk.ruleset_matcher.tags import TagGroupID, TagID
 from cmk.shared_typing.unified_search import ProviderName, UnifiedSearchResultItem
 
-from ..legacy_helpers import transform_legacy_results_to_unified
 from ..matchers import ABCMatchPlugin, match_plugin_registry, MatchPluginRegistry
+from ._helpers import transform_legacy_results_to_unified
 
 #   .--Quicksearch---------------------------------------------------------.
 #   |         ___        _      _                            _             |

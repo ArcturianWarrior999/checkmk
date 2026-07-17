@@ -54,7 +54,6 @@ from cmk.utils.setup_search_index import (
     updates_requested,
 )
 
-from ..legacy_helpers import transform_legacy_results_to_unified
 from ..matchers import (
     ABCMatchItemGenerator,
     match_item_generator_registry,
@@ -62,6 +61,7 @@ from ..matchers import (
 )
 from ..permissions import SearchPermissionsHandler, VisibilityCheck
 from ..routing import CompositePermissionsHandler
+from ._helpers import transform_legacy_results_to_unified
 
 
 class IndexNotFoundException(MKGeneralException):
