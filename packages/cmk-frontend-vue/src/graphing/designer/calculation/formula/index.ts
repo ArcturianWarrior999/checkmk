@@ -14,6 +14,6 @@ export {
   isOperatorSymbol
 } from './grammar'
 export { FormulaParseError, type ParseErrorDetail, type ParseResult, parseFormula } from './parser'
-export { collectDirectRefs, referencesTransitively } from './refs'
+export { collectDirectRefs, collectTransitiveDependents, referencesTransitively } from './refs'
 export { serializeFormula } from './serialize'
 export { type ValidationIssue, validateFormula } from './validate'

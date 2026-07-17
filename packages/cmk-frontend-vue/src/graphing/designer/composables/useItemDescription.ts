@@ -7,8 +7,8 @@ import usei18n, { untranslated } from '@/lib/i18n'
 import { selectOrdinalForm } from '@/lib/i18n/pluralForm'
 import type { TranslatedString } from '@/lib/i18nString'
 
-import type { GraphItem, ScalarItem } from '../../types'
-import { type Formula, isArithmetic, serializeFormula } from '../formula'
+import { type Formula, isArithmetic, serializeFormula } from '../calculation/formula'
+import type { GraphItem, ScalarItem } from '../types'
 
 export function useItemDescription() {
   const { _t, _tp, currentLanguage } = usei18n()

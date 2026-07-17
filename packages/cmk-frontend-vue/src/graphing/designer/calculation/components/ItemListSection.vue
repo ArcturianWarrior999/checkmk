@@ -13,9 +13,9 @@ import CmkButton from '@/components/CmkButton'
 import CmkIcon from '@/components/CmkIcon'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 
+import { useItemDescription } from '../../composables/useItemDescription'
 import { type GraphItem, type ItemId, isSingleLine } from '../../types'
-import { useItemDescription } from '../composables/useItemDescription'
-import MetricIdButton from './MetricIdButton.vue'
+import ItemIdButton from './ItemIdButton.vue'
 
 export interface SectionAlert {
   id: ItemId
@@ -65,27 +65,27 @@ function onAlertOpenChange(open: boolean): void {
 </script>
 
 <template>
-  <section class="graphing-metric-formula-section" :aria-labelledby="headingId">
+  <section class="graphing-item-list-section" :aria-labelledby="headingId">
     <CmkHeading :id="headingId" type="h4">{{ heading }}</CmkHeading>
-    <p v-if="items.length === 0" class="graphing-metric-formula-section__empty">
+    <p v-if="items.length === 0" class="graphing-item-list-section__empty">
       {{ emptyText }}
     </p>
-    <ul v-else class="graphing-metric-formula-section__rows">
-      <li v-for="item in items" :key="item.id" class="graphing-metric-formula-section__row">
-        <MetricIdButton
+    <ul v-else class="graphing-item-list-section__rows">
+      <li v-for="item in items" :key="item.id" class="graphing-item-list-section__row">
+        <ItemIdButton
           :id="item.id"
           :color="isSingleLine(item) ? item.color : undefined"
           :label="actionLabel(item.id)"
           :disabled="isItemDisabled?.(item)"
           @click="emit('insertId', item.id)"
         />
-        <span class="graphing-metric-formula-section__title">
+        <span class="graphing-item-list-section__title">
           {{ describeItem(item) }}
         </span>
         <CmkAlertBox
           v-if="alert !== null && alert.id === item.id"
           :key="alert.nonce"
-          class="graphing-metric-formula-section__alert"
+          class="graphing-item-list-section__alert"
           variant="success"
           size="small"
           auto-dismiss
@@ -93,7 +93,7 @@ function onAlertOpenChange(open: boolean): void {
         >
           {{ alert.text }}
         </CmkAlertBox>
-        <span v-if="showActions" class="graphing-metric-formula-section__actions">
+        <span v-if="showActions" class="graphing-item-list-section__actions">
           <CmkButton
             size="iconOnly"
             :title="_t('Edit')"
@@ -117,13 +117,13 @@ function onAlertOpenChange(open: boolean): void {
 </template>
 
 <style scoped>
-.graphing-metric-formula-section {
+.graphing-item-list-section {
   display: flex;
   flex-direction: column;
   gap: var(--dimension-4);
 }
 
-.graphing-metric-formula-section__rows {
+.graphing-item-list-section__rows {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -133,14 +133,14 @@ function onAlertOpenChange(open: boolean): void {
 }
 
 /* min-height matches the inline alert so it can appear and dismiss without layout shift. */
-.graphing-metric-formula-section__row {
+.graphing-item-list-section__row {
   display: flex;
   align-items: center;
   gap: var(--dimension-4);
   min-height: var(--dimension-10);
 }
 
-.graphing-metric-formula-section__title {
+.graphing-item-list-section__title {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -149,7 +149,7 @@ function onAlertOpenChange(open: boolean): void {
 }
 
 /* Narrow the alert box to row size. */
-.graphing-metric-formula-section__alert {
+.graphing-item-list-section__alert {
   flex-shrink: 0;
   white-space: nowrap;
   margin: 0;
@@ -157,14 +157,14 @@ function onAlertOpenChange(open: boolean): void {
   align-items: center;
 }
 
-.graphing-metric-formula-section__actions {
+.graphing-item-list-section__actions {
   display: inline-flex;
   flex-shrink: 0;
   gap: var(--dimension-3);
   margin-left: auto;
 }
 
-.graphing-metric-formula-section__empty {
+.graphing-item-list-section__empty {
   margin: 0;
   opacity: 0.6;
   font-style: italic;

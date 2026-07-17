@@ -5,14 +5,14 @@
  */
 import { render } from '@testing-library/vue'
 
-import MetricIdLabel from '@/graphing/designer/calculation/components/MetricIdLabel.vue'
+import ItemIdLabel from '@/graphing/designer/calculation/components/ItemIdLabel.vue'
 
 // The label contains hidden ghost text nodes (W/M repetitions) besides the visible id, so
 // tests should query the id span instead of using getByText on bare glyphs.
 function renderLabel(id: string) {
-  const { container } = render(MetricIdLabel, { props: { id } })
+  const { container } = render(ItemIdLabel, { props: { id } })
   return {
-    id: container.querySelector('.graphing-metric-id-label__id') as HTMLElement,
+    id: container.querySelector('.graphing-item-id-label__id') as HTMLElement,
     ghosts: Array.from(container.querySelectorAll<HTMLElement>('.cmk-ghost-width__ghost')).map(
       (ghost) => ghost.textContent
     )

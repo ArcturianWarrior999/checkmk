@@ -5,12 +5,11 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import usei18n from '@/lib/i18n'
-import useId from '@/lib/useId'
 
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkHelpText from '@/components/CmkHelpText.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 import type { Suggestions } from '@/components/CmkSuggestions'
+import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkInlineValidation from '@/components/user-input/CmkInlineValidation.vue'
 
 import type { ItemId } from '../../types'
@@ -23,9 +22,6 @@ const { metricOptions, percentileOptions, errors } = defineProps<{
   errors?: string[]
 }>()
 
-const metricId = useId()
-const transformationId = useId()
-
 const selectedId = defineModel<ItemId | null>('selectedId', { required: true })
 const percentile = defineModel<string | null>('percentile', { required: true })
 </script>
@@ -35,12 +31,12 @@ const percentile = defineModel<string | null>('percentile', { required: true })
     <div
       class="graphing-transformation-editor__label graphing-transformation-editor__label--metric"
     >
-      <CmkLabel :for="metricId">{{ _t('Metric') }}</CmkLabel>
+      <CmkHeading type="h4">{{ _t('Metric') }}</CmkHeading>
     </div>
     <div
       class="graphing-transformation-editor__label graphing-transformation-editor__label--transformation"
     >
-      <CmkLabel :for="transformationId">{{ _t('Transformation') }}</CmkLabel>
+      <CmkHeading type="h4">{{ _t('Transformation') }}</CmkHeading>
       <CmkHelpText
         :help="_t('Applies a percentile transformation to the selected metric.')"
         :aria-label="_t('Help: Transformation')"
@@ -48,7 +44,6 @@ const percentile = defineModel<string | null>('percentile', { required: true })
     </div>
     <CmkDropdown
       v-model="selectedId"
-      :component-id="metricId"
       class="graphing-transformation-editor__control--metric"
       width="fill"
       :options="metricOptions"
@@ -57,7 +52,6 @@ const percentile = defineModel<string | null>('percentile', { required: true })
     />
     <CmkDropdown
       v-model="percentile"
-      :component-id="transformationId"
       class="graphing-transformation-editor__control--percentile"
       width="fill"
       :options="percentileOptions"
@@ -76,6 +70,10 @@ const percentile = defineModel<string | null>('percentile', { required: true })
 .graphing-transformation-editor {
   display: grid;
   grid-template-columns: 1fr minmax(10em, 12em);
+  grid-template-areas:
+    'metric-label transformation-label'
+    'metric percentile'
+    'errors errors';
   gap: var(--dimension-3) var(--dimension-4);
   flex: 1;
   align-items: end;
@@ -86,32 +84,26 @@ const percentile = defineModel<string | null>('percentile', { required: true })
   display: inline-flex;
   align-items: center;
   gap: var(--dimension-3);
-  font-weight: var(--font-weight-bold);
 }
 
 .graphing-transformation-editor__label--metric {
-  grid-column: 1;
-  grid-row: 1;
+  grid-area: metric-label;
 }
 
 .graphing-transformation-editor__label--transformation {
-  grid-column: 2;
-  grid-row: 1;
+  grid-area: transformation-label;
 }
 
 .graphing-transformation-editor__control--metric {
-  grid-column: 1;
-  grid-row: 2;
+  grid-area: metric;
 }
 
 .graphing-transformation-editor__control--percentile {
-  grid-column: 2;
-  grid-row: 2;
+  grid-area: percentile;
 }
 
 .graphing-transformation-editor__errors {
-  grid-column: 1 / -1;
-  grid-row: 3;
+  grid-area: errors;
 }
 
 /* CmkDropdown has no height prop; match the adjacent action-button height and re-center its label. */

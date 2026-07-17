@@ -10,7 +10,7 @@ import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 
 import { type Domain, type GraphItem, type ItemId, domainOf, isFormula } from '../../types'
-import MetricFormulaSection, { type SectionAlert } from './MetricFormulaSection.vue'
+import ItemListSection, { type SectionAlert } from './ItemListSection.vue'
 
 const { _t } = usei18n()
 
@@ -41,8 +41,8 @@ const sourceMetrics = computed(() => inDomain.value.filter((item) => !isFormula(
 </script>
 
 <template>
-  <div class="graphing-metric-formula-list">
-    <MetricFormulaSection
+  <div class="graphing-item-list-panel">
+    <ItemListSection
       :heading="_t('Calculations')"
       :empty-text="_t('No calculations yet.')"
       :items="calculations"
@@ -55,7 +55,7 @@ const sourceMetrics = computed(() => inDomain.value.filter((item) => !isFormula(
       @delete="emit('delete', $event)"
       @dismiss-alert="emit('dismissAlert')"
     />
-    <MetricFormulaSection
+    <ItemListSection
       :heading="_t('Source metrics')"
       :empty-text="_t('No metrics available.')"
       :items="sourceMetrics"
@@ -67,7 +67,7 @@ const sourceMetrics = computed(() => inDomain.value.filter((item) => !isFormula(
 </template>
 
 <style scoped>
-.graphing-metric-formula-list {
+.graphing-item-list-panel {
   display: flex;
   flex-direction: column;
   gap: var(--dimension-7);

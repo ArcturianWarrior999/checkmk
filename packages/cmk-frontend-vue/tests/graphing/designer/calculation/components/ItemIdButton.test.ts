@@ -7,18 +7,18 @@ import { fireEvent, render, screen } from '@testing-library/vue'
 
 import { untranslated } from '@/lib/i18n'
 
-import MetricIdButton from '@/graphing/designer/calculation/components/MetricIdButton.vue'
+import ItemIdButton from '@/graphing/designer/calculation/components/ItemIdButton.vue'
 
 const DARK_TEXT = 'rgb(30, 38, 46)'
 const LIGHT_TEXT = 'rgb(255, 255, 255)'
 
 function renderButton(props: Record<string, unknown> = {}) {
-  const rendered = render(MetricIdButton, {
+  const rendered = render(ItemIdButton, {
     props: { id: 'A', label: untranslated('Insert A'), ...props }
   })
   return {
     ...rendered,
-    chip: rendered.container.querySelector('.graphing-metric-id-button__chip') as HTMLElement
+    chip: rendered.container.querySelector('.graphing-item-id-button__chip') as HTMLElement
   }
 }
 

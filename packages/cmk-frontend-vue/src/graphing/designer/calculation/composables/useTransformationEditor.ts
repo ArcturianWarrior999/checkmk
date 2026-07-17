@@ -9,16 +9,17 @@ import usei18n, { untranslated } from '@/lib/i18n'
 
 import { Response, type Suggestions } from '@/components/CmkSuggestions'
 
+import { useItemDescription } from '../../composables/useItemDescription'
 import {
-  type CommitResult,
   type Domain,
   type GraphItem,
   type ItemId,
   domainOf,
-  isDynamic
+  isDynamic,
+  isFormula
 } from '../../types'
-import { referencesTransitively } from '../formula'
-import { useItemDescription } from './useItemDescription'
+import { collectTransitiveDependents } from '../formula'
+import type { CommitResult } from '../types'
 
 /** Common percentiles offered as a starting point; any value the user types in [0, 100] is added. */
 const COMMON_PERCENTILES = [50, 75, 90, 95, 99]
@@ -30,6 +31,8 @@ export interface TransformationEditor {
   percentile: Ref<string | null>
   /** Messages of the last failed commit, cleared on the next successful commit or reset. */
   errors: Ref<string[]>
+  /** True while no metric is selected. */
+  isEmpty: ComputedRef<boolean>
   metricOptions: ComputedRef<Suggestions>
   percentileOptions: Suggestions
   selectItem: (id: ItemId) => void
@@ -59,17 +62,21 @@ export function useTransformationEditor(
   const selectedId = ref<ItemId | null>(null)
   const percentile = ref<string | null>(DEFAULT_PERCENTILE)
   const errors = ref<string[]>([])
+  const isEmpty = computed(() => selectedId.value === null)
 
   const eligibleItems = computed(() => {
     const edited = toValue(editedItemId)
     const all = toValue(items)
-    const byId = new Map(all.map((item) => [item.id, item]))
+    const cyclic =
+      edited === null
+        ? new Set<ItemId>()
+        : collectTransitiveDependents(all.filter(isFormula), edited)
     return all.filter(
       (item) =>
         domainOf(item.type) === domain &&
         !isDynamic(item.type) &&
         item.id !== edited &&
-        (edited === null || !referencesTransitively(byId, item.id, edited))
+        !cyclic.has(item.id)
     )
   })
 
@@ -134,6 +141,7 @@ export function useTransformationEditor(
     selectedId,
     percentile,
     errors,
+    isEmpty,
     metricOptions,
     percentileOptions,
     selectItem,

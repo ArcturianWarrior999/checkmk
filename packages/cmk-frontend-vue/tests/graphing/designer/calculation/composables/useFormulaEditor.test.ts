@@ -87,6 +87,30 @@ test('commit returns the AST for a valid formula and errors otherwise', () => {
   }
 })
 
+test('isEmpty tracks whether the formula has committable input', () => {
+  const editor = mountEditor()
+  expect(editor.isEmpty.value).toBe(true)
+  editor.text.value = 'A'
+  expect(editor.isEmpty.value).toBe(false)
+  editor.text.value = '   '
+  expect(editor.isEmpty.value).toBe(true)
+})
+
+test('commit reports an error for an empty formula', () => {
+  const editor = mountEditor()
+  const result = editor.commit()
+  expect('errors' in result && result.errors).toEqual([
+    'The formula is empty; add a metric id (e.g. A) or a number.'
+  ])
+  expect(editor.errors.value).toEqual([
+    'The formula is empty; add a metric id (e.g. A) or a number.'
+  ])
+
+  editor.text.value = '   '
+  const blank = editor.commit()
+  expect('errors' in blank && blank.errors.length).toBeGreaterThan(0)
+})
+
 test('commit rejects a formula referencing the edited item itself', () => {
   const editor = mountEditor(() => [...items, formulaItem('F')], 'F')
   editor.text.value = 'F + 1'

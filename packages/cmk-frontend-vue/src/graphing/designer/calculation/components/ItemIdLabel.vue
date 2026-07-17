@@ -20,19 +20,19 @@ const ghostVariants = computed(() => WIDE_GLYPHS.map((glyph) => glyph.repeat(id.
 </script>
 
 <template>
-  <CmkGhostWidth class="graphing-metric-id-label" :variants="ghostVariants">
-    <span class="graphing-metric-id-label__id">{{ id }}</span>
+  <CmkGhostWidth class="graphing-item-id-label" :variants="ghostVariants">
+    <span class="graphing-item-id-label__id">{{ id }}</span>
   </CmkGhostWidth>
 </template>
 
 <style scoped>
-.graphing-metric-id-label {
+.graphing-item-id-label {
   font-size: var(--font-size-normal);
   font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
-.graphing-metric-id-label__id {
+.graphing-item-id-label__id {
   text-align: center;
 }
 </style>

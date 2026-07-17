@@ -75,6 +75,20 @@ test('an invalid formula shows its error and emits nothing', async () => {
   expect(screen.getByText(/ends unexpectedly/)).toBeInTheDocument()
 })
 
+test('an empty formula disables the calculate button', async () => {
+  renderTab()
+  expect(screen.getByRole('button', { name: 'Calculate & add' })).toBeDisabled()
+  await fireEvent.update(formulaInput(), 'A')
+  expect(screen.getByRole('button', { name: 'Calculate & add' })).not.toBeDisabled()
+})
+
+test('submitting an empty formula with Enter shows the empty error', async () => {
+  const { emitted } = renderTab()
+  await fireEvent.keyUp(formulaInput(), { key: 'Enter' })
+  expect(emitted('add')).toBeUndefined()
+  expect(screen.getByText(/formula is empty/)).toBeInTheDocument()
+})
+
 test('clicking an item badge inserts its id into the formula', async () => {
   renderTab()
   await fireEvent.click(screen.getByRole('button', { name: 'Insert A into the formula' }))
@@ -89,12 +103,12 @@ test('switching modes discards the formula input', async () => {
   expect(formulaInput().value).toBe('')
 })
 
-test('transformation add without a selected metric shows an error', async () => {
-  const { emitted } = renderTab()
+test('transformation without a selected metric disables the calculate button', async () => {
+  renderTab()
   await fireEvent.click(screen.getByRole('button', { name: 'Toggle Transformation' }))
-  await fireEvent.click(screen.getByRole('button', { name: 'Calculate & add' }))
-  expect(emitted('add')).toBeUndefined()
-  expect(screen.getByText('Select the metric to transform.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Calculate & add' })).toBeDisabled()
+  await fireEvent.click(screen.getByRole('button', { name: 'Select A for the transformation' }))
+  expect(screen.getByRole('button', { name: 'Calculate & add' })).not.toBeDisabled()
 })
 
 test('in transformation mode a badge click selects the metric', async () => {

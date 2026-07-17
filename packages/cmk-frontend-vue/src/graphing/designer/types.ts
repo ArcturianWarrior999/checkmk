@@ -55,9 +55,6 @@ export type SingleLineItem = Exclude<GraphItem, { type: MultiLineType }>
 
 export type FormulaDraft = { type: 'rrd_formula'; ast: Formula; title: string; color: string }
 
-/** What an editor's commit produces: the AST, or the messages explaining why it cannot. */
-export type CommitResult = { ast: Formula } | { errors: string[] }
-
 export function domainOf(type: ItemType): Domain {
   return type === 'metric_backend' ? 'metric_backend' : 'rrd'
 }

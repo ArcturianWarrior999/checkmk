@@ -3,7 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { type GraphItem, type ItemId, isFormula } from '../../types'
+import { type FormulaItem, type GraphItem, type ItemId, isFormula } from '../../types'
 import type { Formula } from './grammar'
 
 /** The ids directly referenced by the AST, unique, in first-appearance order. */
@@ -30,6 +30,29 @@ export function collectDirectRefs(ast: Formula): ItemId[] {
   }
   visit(ast)
   return ids
+}
+
+/** Ids of the formulas whose refs (transitively) reach `id` — they break if `id` disappears. */
+export function collectTransitiveDependents(
+  formulas: readonly FormulaItem[],
+  id: ItemId
+): Set<ItemId> {
+  const reached = new Set<ItemId>([id])
+  let grew = true
+  while (grew) {
+    grew = false
+    for (const formula of formulas) {
+      if (reached.has(formula.id)) {
+        continue
+      }
+      if (collectDirectRefs(formula.ast).some((ref) => reached.has(ref))) {
+        reached.add(formula.id)
+        grew = true
+      }
+    }
+  }
+  reached.delete(id)
+  return reached
 }
 
 /** Whether following formula refs from `startId` reaches `targetId` (cycle detection). */

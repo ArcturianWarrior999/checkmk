@@ -15,8 +15,7 @@ import { ref } from 'vue'
 import CmkButton from '@/components/CmkButton'
 
 import DeleteCalculationPopup from '@/graphing/designer/DeleteCalculationPopup.vue'
-import MetricsCalculationSlideout from '@/graphing/designer/calculation/MetricsCalculationSlideout.vue'
-import type { RefVisibility } from '@/graphing/designer/calculation/composables/useCalculationEditor'
+import { MetricsCalculationSlideout, type RefVisibility } from '@/graphing/designer/calculation'
 import {
   DEFAULT_TITLE_MACRO,
   type FormulaDraft,

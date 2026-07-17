@@ -3,15 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import {
-  type ComputedRef,
-  type MaybeRefOrGetter,
-  type Ref,
-  computed,
-  ref,
-  toValue,
-  watch
-} from 'vue'
+import { type ComputedRef, type MaybeRefOrGetter, type Ref, computed, ref, toValue } from 'vue'
 
 import {
   DEFAULT_TITLE_MACRO,
@@ -20,12 +12,13 @@ import {
   type FormulaItem,
   type GraphItem,
   type ItemId,
-  isDynamic
+  isDynamic,
+  isFormula
 } from '../../types'
 import {
   collectDirectRefs,
+  collectTransitiveDependents,
   isArithmetic,
-  referencesTransitively,
   serializeFormula
 } from '../formula'
 import { type FormulaEditor, useFormulaEditor } from './useFormulaEditor'
@@ -58,6 +51,8 @@ export interface CalculationEditor {
   hideSourceMetrics: Ref<boolean | 'indeterminate'>
   formula: FormulaEditor
   transformation: TransformationEditor
+  /** Whether the active editor has committable input; gates the Calculate action. */
+  canCommit: ComputedRef<boolean>
   successAlert: ComputedRef<SuccessAlert | null>
   /** Rows the building-blocks list must disable in the current mode/edit context. */
   isItemDisabled: (item: GraphItem) => boolean
@@ -74,6 +69,7 @@ export interface CalculationEditor {
 export function useCalculationEditor(
   items: MaybeRefOrGetter<readonly GraphItem[]>,
   domain: Domain,
+  nextId: MaybeRefOrGetter<ItemId>,
   nextColor: MaybeRefOrGetter<string>
 ): CalculationEditor {
   const mode = ref<EditorMode>('operations')
@@ -107,19 +103,9 @@ export function useCalculationEditor(
 
   const alert = ref<SuccessAlert | null>(null)
   let alertNonce = 0
-  let addSnapshot: Set<ItemId> | null = null
-  watch(
-    () => toValue(items),
-    (newItems) => {
-      if (addSnapshot === null) {
-        return
-      }
-      const added = newItems.find((item) => !addSnapshot!.has(item.id))
-      if (added !== undefined) {
-        addSnapshot = null
-        alert.value = { id: added.id, kind: 'added', nonce: ++alertNonce }
-      }
-    }
+
+  const canCommit = computed(() =>
+    mode.value === 'operations' ? !formula.isEmpty.value : !transformation.isEmpty.value
   )
 
   function clearForm(): void {
@@ -171,15 +157,29 @@ export function useCalculationEditor(
     }
   }
 
-  function isItemDisabled(item: GraphItem): boolean {
-    if (mode.value === 'transformation' && isDynamic(item.type)) {
-      return true
+  const disabledIds = computed<Set<ItemId>>(() => {
+    const all = toValue(items)
+    const disabled = new Set<ItemId>()
+    if (mode.value === 'transformation') {
+      for (const item of all) {
+        if (isDynamic(item.type)) {
+          disabled.add(item.id)
+        }
+      }
     }
     const edited = editingId.value
-    if (edited === null) {
-      return false
+    if (edited !== null) {
+      // The edited item itself and everything that (transitively) references it are off limits.
+      disabled.add(edited)
+      for (const dependent of collectTransitiveDependents(all.filter(isFormula), edited)) {
+        disabled.add(dependent)
+      }
     }
-    return item.id === edited || referencesTransitively(itemsById.value, item.id, edited)
+    return disabled
+  })
+
+  function isItemDisabled(item: GraphItem): boolean {
+    return disabledIds.value.has(item.id)
   }
 
   function commit(): CalculationCommit {
@@ -212,8 +212,10 @@ export function useCalculationEditor(
       alert.value = { id: edited, kind: 'updated', nonce: ++alertNonce }
       return { kind: 'update', id: edited, draft, refVisibility }
     }
-    addSnapshot = new Set(toValue(items).map((item) => item.id))
+    // The store assigns ids deterministically, so the commit already knows the added row's id.
+    const addedId = toValue(nextId)
     clearForm()
+    alert.value = { id: addedId, kind: 'added', nonce: ++alertNonce }
     return { kind: 'add', draft, refVisibility }
   }
 
@@ -229,6 +231,7 @@ export function useCalculationEditor(
     hideSourceMetrics,
     formula,
     transformation,
+    canCommit,
     successAlert: computed(() => alert.value),
     isItemDisabled,
     switchMode,

@@ -4,13 +4,14 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import { render } from '@testing-library/vue'
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 import { useCalculationEditor } from '@/graphing/designer/calculation/composables/useCalculationEditor'
 import { DEFAULT_TITLE_MACRO, type GraphItem } from '@/graphing/designer/types'
 
 import { formulaItem, rrdMetricItem, rrdQueryItem } from '../../fixtures'
 
+const NEXT_ID = 'X'
 const NEXT_COLOR = '#ffd703'
 
 function mountEditor(
@@ -22,7 +23,12 @@ function mountEditor(
   render(
     defineComponent({
       setup() {
-        api = useCalculationEditor(() => items.value, 'rrd', nextColor)
+        api = useCalculationEditor(
+          () => items.value,
+          'rrd',
+          () => NEXT_ID,
+          nextColor
+        )
         return () => null
       }
     })
@@ -76,6 +82,12 @@ test('falls back to the title macro when the title is cleared', () => {
   editor.title.value = '   '
   const result = editor.commit()
   expect('kind' in result && result.draft.title).toBe(DEFAULT_TITLE_MACRO)
+})
+
+test('committing an empty formula fails with a message', () => {
+  const { editor } = mountEditor()
+  const result = editor.commit()
+  expect('errors' in result && result.errors.length).toBeGreaterThan(0)
 })
 
 test('returns the active editor errors and leaves the form intact on failure', () => {
@@ -250,23 +262,32 @@ test('disables dynamic rows in transformation mode and cycle rows while editing'
   expect(editor.isItemDisabled(metric)).toBe(false)
 })
 
-test('shows an added alert once the new item appears, an updated alert immediately', async () => {
+test('shows an added alert with the id the store will assign, an updated alert on edit', () => {
   const { editor, items } = mountEditor()
   editor.formula.text.value = 'A'
   const result = editor.commit()
   expect('kind' in result && result.kind).toBe('add')
-  expect(editor.successAlert.value).toBeNull()
-
-  const added = formulaItem('D', { ast: { op: 'ref', id: 'A' } })
-  items.value = [...items.value, added]
-  await nextTick()
-  expect(editor.successAlert.value).toMatchObject({ id: 'D', kind: 'added' })
+  expect(editor.successAlert.value).toMatchObject({ id: NEXT_ID, kind: 'added' })
 
   editor.dismissAlert()
   expect(editor.successAlert.value).toBeNull()
 
+  const added = formulaItem(NEXT_ID, { ast: { op: 'ref', id: 'A' } })
+  items.value = [...items.value, added]
   editor.startEdit(added)
   const update = editor.commit()
   expect('kind' in update && update.kind).toBe('update')
-  expect(editor.successAlert.value).toMatchObject({ id: 'D', kind: 'updated' })
+  expect(editor.successAlert.value).toMatchObject({ id: NEXT_ID, kind: 'updated' })
+})
+
+test('canCommit requires input in the active editor', () => {
+  const { editor } = mountEditor()
+  expect(editor.canCommit.value).toBe(false)
+  editor.formula.text.value = 'A'
+  expect(editor.canCommit.value).toBe(true)
+
+  editor.switchMode('transformation')
+  expect(editor.canCommit.value).toBe(false)
+  editor.transformation.selectedId.value = 'A'
+  expect(editor.canCommit.value).toBe(true)
 })

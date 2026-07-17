@@ -6,8 +6,8 @@
 import { render } from '@testing-library/vue'
 import { defineComponent } from 'vue'
 
-import { useItemDescription } from '@/graphing/designer/calculation/composables/useItemDescription'
 import type { Formula } from '@/graphing/designer/calculation/formula'
+import { useItemDescription } from '@/graphing/designer/composables/useItemDescription'
 
 import {
   constantItem,
@@ -16,7 +16,7 @@ import {
   rrdMetricItem,
   rrdQueryItem,
   scalarItem
-} from '../../fixtures'
+} from '../fixtures'
 
 function mountDescriptions(): ReturnType<typeof useItemDescription> {
   let api!: ReturnType<typeof useItemDescription>

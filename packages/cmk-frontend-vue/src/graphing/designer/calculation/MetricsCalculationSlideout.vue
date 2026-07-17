@@ -37,6 +37,8 @@ const emit = defineEmits<{
 type Tab = 'rrd' | 'metric_backend'
 const activeTab = ref<Tab>('rrd')
 
+const rrdTabRef = ref<InstanceType<typeof RrdTab> | null>(null)
+
 function onTabChange(value: string | number): void {
   if (value === 'rrd' || value === 'metric_backend') {
     activeTab.value = value
@@ -49,6 +51,7 @@ function onTabChange(value: string | number): void {
     :open="open"
     size="small"
     :header="{ title: _t('Calculate metrics'), closeButton: true }"
+    :initial-focus-target="rrdTabRef ?? undefined"
     @close="emit('close')"
   >
     <div class="graphing-metrics-calculation-slideout">
@@ -66,6 +69,7 @@ function onTabChange(value: string | number): void {
           <CmkTabContent id="rrd" spacing="none">
             <div class="graphing-metrics-calculation-slideout__tab">
               <RrdTab
+                ref="rrdTabRef"
                 :items="items"
                 :next-id="nextId"
                 :next-color="nextColor"

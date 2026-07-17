@@ -3,13 +3,21 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
-import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
+import {
+  type ComputedRef,
+  type MaybeRefOrGetter,
+  type Ref,
+  computed,
+  ref,
+  toValue,
+  watch
+} from 'vue'
 
 import usei18n from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 import { useDebounceFn } from '@/lib/useDebounce'
 
-import type { CommitResult, Domain, GraphItem, ItemId } from '../../types'
+import type { Domain, GraphItem, ItemId } from '../../types'
 import {
   type ArithmeticNode,
   type FunctionName,
@@ -20,6 +28,7 @@ import {
   parseFormula,
   validateFormula
 } from '../formula'
+import type { CommitResult } from '../types'
 
 const DEBOUNCE_MS = 300
 
@@ -27,6 +36,8 @@ export interface FormulaEditor {
   text: Ref<string>
   /** Debounced validation messages, suitable for display. */
   errors: Ref<string[]>
+  /** True while the text has no committable content. */
+  isEmpty: ComputedRef<boolean>
   appendOperator: (symbol: OperatorSymbol) => void
   wrapFunction: (name: FunctionName) => void
   appendRef: (id: ItemId) => void
@@ -146,8 +157,15 @@ export function useFormulaEditor(
     }
   }
 
+  const isEmpty = computed(() => evaluation.value.status === 'empty')
+
   function commit(): CommitResult {
     const result = evaluation.value
+    if (result.status === 'empty') {
+      const messages = [parseMessage({ code: 'empty-formula' })]
+      errors.value = messages
+      return { errors: messages }
+    }
     errors.value = result.errors
     return result.status === 'valid' ? { ast: result.ast } : { errors: result.errors }
   }
@@ -157,7 +175,7 @@ export function useFormulaEditor(
     errors.value = []
   }
 
-  return { text, errors, appendOperator, wrapFunction, appendRef, commit, reset }
+  return { text, errors, isEmpty, appendOperator, wrapFunction, appendRef, commit, reset }
 }
 
 /** The most recent binary operator symbol in the text, or null if there is none. */

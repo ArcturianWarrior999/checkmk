@@ -9,15 +9,15 @@ import { nextTick } from 'vue'
 
 import { untranslated } from '@/lib/i18n'
 
-import MetricFormulaSection from '@/graphing/designer/calculation/components/MetricFormulaSection.vue'
+import ItemListSection from '@/graphing/designer/calculation/components/ItemListSection.vue'
 import type { GraphItem, ItemId } from '@/graphing/designer/types'
 
 import { formulaItem, rrdMetricItem } from '../../fixtures'
 
-type SectionProps = InstanceType<typeof MetricFormulaSection>['$props']
+type SectionProps = InstanceType<typeof ItemListSection>['$props']
 
 function renderSection(props: Partial<SectionProps> = {}) {
-  return render(MetricFormulaSection, {
+  return render(ItemListSection, {
     props: {
       heading: untranslated('Calculations'),
       emptyText: untranslated('No calculations yet.'),

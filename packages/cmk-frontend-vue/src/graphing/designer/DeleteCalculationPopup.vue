@@ -13,7 +13,7 @@ import CmkPopup from '@/components/CmkPopup.vue'
 import CmkHeading from '@/components/typography/CmkHeading.vue'
 import CmkParagraph from '@/components/typography/CmkParagraph.vue'
 
-import { useItemDescription } from './calculation/composables/useItemDescription'
+import { useItemDescription } from './composables/useItemDescription'
 import type { GraphItem, ItemId } from './types'
 
 const { _t } = usei18n()

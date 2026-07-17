@@ -13,7 +13,6 @@ import useId from '@/lib/useId'
 import CmkButton from '@/components/CmkButton'
 import CmkColorPicker from '@/components/CmkColorPicker.vue'
 import CmkGhostWidth from '@/components/CmkGhostWidth.vue'
-import CmkLabel from '@/components/CmkLabel.vue'
 import CmkToggleButtonGroup, {
   type ToggleButtonOption
 } from '@/components/CmkToggleButtonGroup.vue'
@@ -25,9 +24,9 @@ import { type Domain, type FormulaDraft, type GraphItem, type ItemId, isFormula 
 import { type RefVisibility, useCalculationEditor } from '../composables/useCalculationEditor'
 import type { FunctionName, OperatorSymbol } from '../formula'
 import FormulaEditor from './FormulaEditor.vue'
-import MetricFormulaList from './MetricFormulaList.vue'
-import type { SectionAlert } from './MetricFormulaSection.vue'
-import MetricIdLabel from './MetricIdLabel.vue'
+import ItemIdLabel from './ItemIdLabel.vue'
+import ItemListPanel from './ItemListPanel.vue'
+import type { SectionAlert } from './ItemListSection.vue'
 import OperatorBar from './OperatorBar.vue'
 import TransformationEditor from './TransformationEditor.vue'
 
@@ -60,6 +59,7 @@ const {
   hideSourceMetrics,
   formula,
   transformation,
+  canCommit,
   successAlert,
   isItemDisabled,
   switchMode,
@@ -70,6 +70,7 @@ const {
 } = useCalculationEditor(
   () => items,
   DOMAIN,
+  () => nextId,
   () => nextColor
 )
 
@@ -114,6 +115,11 @@ const alert = computed<SectionAlert | null>(() => {
 
 const formulaEditorRef = ref<InstanceType<typeof FormulaEditor> | null>(null)
 
+function focus(): void {
+  formulaEditorRef.value?.focus()
+}
+defineExpose({ focus })
+
 function onCalculate(): void {
   const result = commit()
   if ('errors' in result) {
@@ -128,18 +134,18 @@ function onCalculate(): void {
 
 function onInsertOperator(symbol: OperatorSymbol): void {
   appendOperator(symbol)
-  formulaEditorRef.value?.focus()
+  focus()
 }
 
 function onWrapFunction(name: FunctionName): void {
   wrapFunction(name)
-  formulaEditorRef.value?.focus()
+  focus()
 }
 
 function onInsertId(id: ItemId): void {
   insertRef(id)
   if (mode.value === 'operations') {
-    formulaEditorRef.value?.focus()
+    focus()
   }
 }
 
@@ -150,7 +156,7 @@ function onEdit(id: ItemId): void {
   }
   startEdit(item)
   if (mode.value === 'operations') {
-    void nextTick(() => formulaEditorRef.value?.focus())
+    void nextTick(focus)
   }
 }
 
@@ -174,16 +180,16 @@ function itemActionLabel(id: ItemId): TranslatedString {
 
     <div class="graphing-rrd-tab__form">
       <div class="graphing-rrd-tab__title-field">
-        <CmkLabel :for="titleId" class="graphing-rrd-tab__label">
+        <CmkHeading :id="titleId" type="h4">
           {{ _t('Formula color and title') }}
-        </CmkLabel>
+        </CmkHeading>
         <div class="graphing-rrd-tab__color-title-row">
           <CmkColorPicker v-model="color" :aria-label="_t('Formula color')">
-            <MetricIdLabel :id="displayId" />
+            <ItemIdLabel :id="displayId" />
           </CmkColorPicker>
           <CmkInput
-            :id="titleId"
             v-model="title"
+            :aria-labelledby="titleId"
             field-size="fill"
             :placeholder="_t('<Default title>')"
           />
@@ -206,7 +212,12 @@ function itemActionLabel(id: ItemId): TranslatedString {
         :percentile-options="percentileOptions"
         :errors="transformationErrors"
       />
-      <CmkButton variant="optional" class="graphing-rrd-tab__calculate" @click="onCalculate">
+      <CmkButton
+        variant="optional"
+        class="graphing-rrd-tab__calculate"
+        :disabled="!canCommit"
+        @click="onCalculate"
+      >
         <CmkGhostWidth :variants="calculateLabelVariants">
           <span class="graphing-rrd-tab__calculate-label">{{ calculateLabel }}</span>
         </CmkGhostWidth>
@@ -229,13 +240,13 @@ function itemActionLabel(id: ItemId): TranslatedString {
         role="group"
         :aria-labelledby="operatorsLabelId"
       >
-        <CmkLabel :id="operatorsLabelId" class="graphing-rrd-tab__label">
+        <CmkHeading :id="operatorsLabelId" type="h4">
           {{ _t('Operators') }}
-        </CmkLabel>
+        </CmkHeading>
         <OperatorBar @insert="onInsertOperator" @wrap="onWrapFunction" />
       </div>
       <div class="graphing-rrd-tab__list">
-        <MetricFormulaList
+        <ItemListPanel
           :items="items"
           :domain="DOMAIN"
           :action-label="itemActionLabel"
@@ -270,14 +281,17 @@ body[data-theme='modern-dark'] .graphing-rrd-tab {
 .graphing-rrd-tab__form {
   display: grid;
   grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'title .'
+    'editor calculate'
+    'hide hide';
   gap: var(--dimension-4);
   align-items: end;
   margin-bottom: var(--dimension-10);
 }
 
 .graphing-rrd-tab__title-field {
-  grid-column: 1;
-  grid-row: 1;
+  grid-area: title;
   display: flex;
   flex-direction: column;
   gap: var(--dimension-3);
@@ -301,13 +315,11 @@ body[data-theme='modern-dark'] .graphing-rrd-tab {
 }
 
 .graphing-rrd-tab__editor {
-  grid-column: 1;
-  grid-row: 2;
+  grid-area: editor;
 }
 
 .graphing-rrd-tab__calculate {
-  grid-column: 2;
-  grid-row: 2;
+  grid-area: calculate;
 }
 
 .graphing-rrd-tab__calculate-label {
@@ -315,8 +327,7 @@ body[data-theme='modern-dark'] .graphing-rrd-tab {
 }
 
 .graphing-rrd-tab__hide-checkbox {
-  grid-column: 1 / -1;
-  grid-row: 3;
+  grid-area: hide;
 }
 
 .graphing-rrd-tab__blocks-heading {
@@ -341,9 +352,5 @@ body[data-theme='modern-dark'] .graphing-rrd-tab {
 
 .graphing-rrd-tab__list {
   padding: var(--dimension-5);
-}
-
-.graphing-rrd-tab__label {
-  font-weight: var(--font-weight-bold);
 }
 </style>

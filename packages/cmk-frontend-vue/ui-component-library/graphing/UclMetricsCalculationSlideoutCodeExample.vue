@@ -6,8 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import MetricsCalculationSlideout from '@/graphing/designer/calculation/MetricsCalculationSlideout.vue'
-import type { RefVisibility } from '@/graphing/designer/calculation/composables/useCalculationEditor'
+import { MetricsCalculationSlideout, type RefVisibility } from '@/graphing/designer/calculation'
 import type { FormulaDraft, GraphItem, ItemId } from '@/graphing/designer/types'
 import { useGraphItems } from '@/graphing/designer/useGraphItems'
 

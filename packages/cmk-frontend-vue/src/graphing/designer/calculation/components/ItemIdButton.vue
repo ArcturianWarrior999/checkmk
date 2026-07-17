@@ -12,7 +12,7 @@ import type { TranslatedString } from '@/lib/i18nString'
 import CmkButton from '@/components/CmkButton'
 
 import type { ItemId } from '../../types'
-import MetricIdLabel from './MetricIdLabel.vue'
+import ItemIdLabel from './ItemIdLabel.vue'
 
 const { id, color, label, disabled } = defineProps<{
   id: ItemId
@@ -34,23 +34,23 @@ const chipStyle = computed(() =>
 <template>
   <CmkButton
     variant="optional"
-    class="graphing-metric-id-button"
+    class="graphing-item-id-button"
     :aria-label="label"
     :disabled="disabled"
     @click="emit('click')"
   >
-    <span class="graphing-metric-id-button__chip" :style="chipStyle">
-      <MetricIdLabel :id="id" />
+    <span class="graphing-item-id-button__chip" :style="chipStyle">
+      <ItemIdLabel :id="id" />
     </span>
   </CmkButton>
 </template>
 
 <style scoped>
-.graphing-metric-id-button {
+.graphing-item-id-button {
   padding: 0 calc((var(--dimension-10) - var(--dimension-6)) / 2 - var(--dimension-1));
 }
 
-.graphing-metric-id-button__chip {
+.graphing-item-id-button__chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
