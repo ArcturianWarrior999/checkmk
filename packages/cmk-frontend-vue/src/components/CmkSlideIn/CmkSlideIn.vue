@@ -31,13 +31,15 @@ const slideInVariants = cva('', {
 
 export type SlideInVariants = VariantProps<typeof slideInVariants>
 
+export type Focusable = { focus: () => void }
+
 export interface CmkSlideInProps {
   open: boolean
   size?: SlideInVariants['size']
   ariaLabel?: string | undefined
   stackPriority?: number | undefined
   borderColor?: SlideInVariants['borderColor']
-  initialFocusTarget?: HTMLElement | undefined
+  initialFocusTarget?: Focusable | undefined
 }
 
 const props = defineProps<CmkSlideInProps>()
@@ -65,10 +67,9 @@ watch(
     if (isOpen) {
       await nextTick(() => {
         const target = props.initialFocusTarget ?? dialogContentRef.value?.$el
-        if (!(target instanceof HTMLElement)) {
-          return
+        if (target && typeof (target as Partial<Focusable>).focus === 'function') {
+          ;(target as Focusable).focus()
         }
-        target.focus()
       })
     }
   }

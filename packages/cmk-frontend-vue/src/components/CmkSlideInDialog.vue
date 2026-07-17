@@ -10,7 +10,7 @@ import { computed, ref } from 'vue'
 import usei18n from '@/lib/i18n'
 
 import CmkIcon, { type CmkIconProps } from '@/components/CmkIcon'
-import CmkSlideIn, { type SlideInVariants } from '@/components/CmkSlideIn'
+import CmkSlideIn, { type Focusable, type SlideInVariants } from '@/components/CmkSlideIn'
 
 import CmkScrollContainer from './CmkScrollContainer.vue'
 import CmkHeading from './typography/CmkHeading.vue'
@@ -36,6 +36,7 @@ export interface CmkSlideInDialogProps {
   // Controls the title margin and content padding.
   // "wide" gives a roomier layout (e.g. for the Explain-with-AI panel).
   spacing?: 'default' | 'wide'
+  initialFocusTarget?: Focusable | undefined
 }
 defineProps<CmkSlideInDialogProps>()
 const emit = defineEmits(['close'])
@@ -48,7 +49,7 @@ const emit = defineEmits(['close'])
     :size="size"
     :stack-priority="stackPriority"
     :border-color="borderColor"
-    :initial-focus-target="scrollContainerEl"
+    :initial-focus-target="initialFocusTarget ?? scrollContainerEl"
     @close="emit('close')"
   >
     <DialogTitle
