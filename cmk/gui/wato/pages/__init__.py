@@ -93,7 +93,7 @@ def register(
     gui_timings.register(page_registry)
     host_diagnose.register(page_registry, mode_registry)
     host_rename.register(mode_registry)
-    hosts.register(mode_registry, page_registry)
+    hosts.register(mode_registry, page_registry, match_item_generator_registry)
     not_implemented.register(mode_registry)
     notifications.register(
         edition,

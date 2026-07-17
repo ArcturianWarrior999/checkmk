@@ -162,6 +162,7 @@ from cmk.gui.watolib.pending_changes import (
     PendingChangesStore,
 )
 from cmk.gui.watolib.predefined_conditions import PredefinedConditionStore
+from cmk.gui.watolib.rule_match_item_generator import MatchItemGeneratorRules
 from cmk.gui.watolib.rulesets import (
     AllRulesets,
     create_rule_catalog,
@@ -247,6 +248,9 @@ def register(
     mode_registry.register(ModeUnknownRulesets)
     match_item_generator_registry.register(
         MatchItemGeneratorUnknownRuleSets("unknown_rulesets", provider="setup")
+    )
+    match_item_generator_registry.register(
+        MatchItemGeneratorRules("rules", rulespec_group_registry, rulespec_registry)
     )
 
 

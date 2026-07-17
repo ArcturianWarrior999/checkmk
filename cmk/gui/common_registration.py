@@ -383,9 +383,7 @@ def register(
         edition,
         page_registry,
         job_registry,
-        match_item_generator_registry,
         match_plugin_registry,
-        rulespec_group_registry,
     )
     register_oauth2_connections(
         mode_registry, page_registry, main_module_registry, permission_registry

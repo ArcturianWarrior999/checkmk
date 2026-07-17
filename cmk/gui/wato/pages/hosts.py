@@ -56,6 +56,7 @@ from cmk.gui.page_menu import (
 from cmk.gui.pages import AjaxPage, PageContext, PageEndpoint, PageRegistry, PageResult
 from cmk.gui.permissions import permission_registry
 from cmk.gui.quick_setup.html import quick_setup_duplication_warning, quick_setup_locked_warning
+from cmk.gui.search.matchers import MatchItemGeneratorRegistry
 from cmk.gui.site_config import is_distributed_setup_remote_site, site_is_local
 from cmk.gui.type_defs import ActionResult, IconNames, PermissionName, StaticIcon
 from cmk.gui.user_sites import activation_sites
@@ -106,7 +107,9 @@ from cmk.gui.watolib.host_attributes import (
     collect_attributes,
     HostAttributes,
 )
+from cmk.gui.watolib.host_match_item_generator import MatchItemGeneratorHosts
 from cmk.gui.watolib.hosts_and_folders import (
+    collect_all_hosts,
     folder_from_request,
     folder_preserving_link,
     folder_tree,
@@ -143,7 +146,11 @@ from ._host_attributes import configure_attributes
 from ._status_links import make_host_status_link
 
 
-def register(mode_registry: ModeRegistry, page_registry: PageRegistry) -> None:
+def register(
+    mode_registry: ModeRegistry,
+    page_registry: PageRegistry,
+    match_item_generator_registry: MatchItemGeneratorRegistry,
+) -> None:
     mode_registry.register(ModeEditHost)
     mode_registry.register(ModeCreateHost)
     mode_registry.register(ModeCreateCluster)
@@ -152,6 +159,9 @@ def register(mode_registry: ModeRegistry, page_registry: PageRegistry) -> None:
     page_registry.register(PageEndpoint("wato_ajax_diag_snmp", PageAjaxDiagSnmp()))
     page_registry.register(
         PageEndpoint("wato_ajax_agent_receiver_port", PageAjaxAgentReceiverPort())
+    )
+    match_item_generator_registry.register(
+        MatchItemGeneratorHosts("hosts", lambda: collect_all_hosts(folder_tree()))
     )
 
 
