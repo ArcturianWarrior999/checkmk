@@ -15,10 +15,10 @@ import CmkIcon from '@/components/CmkIcon'
 import { type GraphCombinationMode, useGraphData } from '../../composables/useGraphData'
 import { useGraphInteraction } from '../../composables/useGraphInteraction'
 import { useGraphVisibility } from '../../composables/useGraphVisibility'
-import type { BurgerMenuGroup, RequestedTimeRange } from '../../types.ts'
+import type { BurgerMenuGroup, RequestedTimeRange, TimeRange } from '../../types.ts'
 import GraphBurgerMenu from '../GraphBurgerMenu.vue'
 import GraphTimestamp from '../GraphTimestamp.vue'
-import TimeSeriesGraph, { type GraphOptions, type Size, type ZoomPayload } from '../TimeSeriesGraph'
+import TimeSeriesGraph, { type GraphOptions, type Size } from '../TimeSeriesGraph'
 import { deriveYAxis } from '../TimeSeriesGraph/yAxis'
 import type { ConsolidationFn } from '../consolidation'
 import { CANVAS_MARGIN_HORIZONTAL } from '../constants'
@@ -73,9 +73,9 @@ const plotWidth = computed(() =>
 )
 
 // The committed fetch window: the configured range resolved to epochs, or the fixed
-// window a time-zoom requested.
+// window a time-zoom or pan requested.
 const requestedTimeRange = ref<RequestedTimeRange>(computeEpochTimeRange(props.timerange))
-const timeZoomActive = ref(false)
+const zoomSessionActive = ref(false)
 
 const graphDefinitions = computed(() => [{ graph_type: props.graphType, internal: props.internal }])
 
@@ -94,7 +94,7 @@ const refresh = () => {
 const timer = useTimer(refresh, REFRESH_INTERVAL_MS)
 
 watch(isLoading, (loading) => {
-  if (loading || timeZoomActive.value) {
+  if (loading || zoomSessionActive.value) {
     return
   }
   if (error.value === null) {
@@ -107,14 +107,27 @@ watch(isLoading, (loading) => {
 watch(
   () => [props.graphType, props.internal, props.combinationMode, JSON.stringify(props.timerange)],
   () => {
-    timeZoomActive.value = false
+    zoomSessionActive.value = false
     refresh()
     timer.start()
   }
 )
 
+// Both committed time-zoom and pan windows land here: fetch the window and suspend the
+// refresh timer so a tick cannot yank the inspected window away; reset resumes it.
+const onCommittedTimeRange = (timeRange: TimeRange) => {
+  zoomSessionActive.value = true
+  requestedTimeRange.value = { start: timeRange.start, end: timeRange.end }
+  timer.stop()
+}
+
 const { viewTimeRange, viewValueRange, inspectionActive, onZoom, onPan, onReset } =
-  useGraphInteraction(() => graph.value?.timeRange)
+  useGraphInteraction(
+    () => graph.value?.timeRange,
+    () => false,
+    () => requestedTimeRange.value,
+    onCommittedTimeRange
+  )
 
 const {
   hiddenMetricNames,
@@ -127,24 +140,12 @@ const {
   () => graph.value?.horizontalLines ?? []
 )
 
-const onZoomIntent = (payload: ZoomPayload) => {
-  onZoom(payload)
-  if (!payload.valueRange) {
-    timeZoomActive.value = true
-    requestedTimeRange.value = {
-      start: Math.round(payload.timeRange.start),
-      end: Math.round(payload.timeRange.end)
-    }
-    timer.stop()
-  }
-}
-
 const onResetIntent = () => {
   onReset()
-  if (!timeZoomActive.value) {
+  if (!zoomSessionActive.value) {
     return
   }
-  timeZoomActive.value = false
+  zoomSessionActive.value = false
   refresh()
   timer.start()
 }
@@ -208,7 +209,7 @@ onBeforeUnmount(() => {
           :consolidation-function="CONSOLIDATION_FUNCTION"
           :options="graphOptions"
           :highlighted-metric-name="highlightedMetricName"
-          @zoom="onZoomIntent"
+          @zoom="onZoom"
           @pan="onPan"
           @reset="onResetIntent"
         />

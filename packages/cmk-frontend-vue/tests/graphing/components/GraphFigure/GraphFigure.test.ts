@@ -4,17 +4,26 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import type * as intl from '@internationalized/date'
-import { render, screen, waitFor } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 
 import client from '@/lib/rest-api-client/client'
 
 import GraphFigure from '@/graphing/components/GraphFigure/GraphFigure.vue'
 
+// The mock stands in for the view-only renderer: the buttons replay its zoom/pan/reset
+// intent emits so the tests can drive the figure's interaction wiring.
 vi.mock('@/graphing/components/TimeSeriesGraph', () => ({
   default: {
     inheritAttrs: false,
-    template: '<div data-testid="time-series-graph" />'
+    emits: ['zoom', 'pan', 'reset'],
+    template: `<div data-testid="time-series-graph">
+      <button
+        data-testid="emit-pan"
+        @click="$emit('pan', { timeRange: { start: 500, end: 900, step: 60 } })"
+      />
+      <button data-testid="emit-reset" @click="$emit('reset')" />
+    </div>`
   }
 }))
 
@@ -103,6 +112,31 @@ test('forwards the combination mode to fetch_data', async () => {
 
   await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))
   expect(postSpy.mock.calls[0][1].body.combination_mode).toBe('stacked')
+})
+
+test('a pan fetches the panned window', async () => {
+  renderFigure()
+  await screen.findByTestId('time-series-graph')
+
+  await fireEvent.click(screen.getByTestId('emit-pan'))
+
+  await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(2))
+  const requestedRange = postSpy.mock.calls[1][1].body.requested_time_range
+  expect(requestedRange).toMatchObject({ start: 500, end: 900 })
+})
+
+test('a reset after a pan re-resolves the configured range', async () => {
+  renderFigure()
+  await screen.findByTestId('time-series-graph')
+  await fireEvent.click(screen.getByTestId('emit-pan'))
+  await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(2))
+
+  await fireEvent.click(screen.getByTestId('emit-reset'))
+
+  await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(3))
+  // The configured range ("last 4 hours") resolves relative to now, far past the panned window.
+  const requestedRange = postSpy.mock.calls[2][1].body.requested_time_range
+  expect(requestedRange.end).toBeGreaterThan(900)
 })
 
 test('shows the timestamp only when requested', async () => {
