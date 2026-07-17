@@ -17,6 +17,7 @@ defineProps<{
   options: Suggestions
   label: TranslatedString
   width?: ButtonVariants['width']
+  floating?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -37,6 +38,7 @@ function onSelect(value: string | null): void {
     :label="label"
     :input-hint="label"
     :width="width"
+    :floating="floating"
     @update:model-value="onSelect"
   >
     <template #button-prefix>

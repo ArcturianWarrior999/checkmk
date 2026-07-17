@@ -19,14 +19,18 @@ const OPTIONS: Suggestions = {
   ]
 }
 
-function mountAddDropdown(onSelect: (value: string) => void = () => {}) {
+function mountAddDropdown(
+  onSelect: (value: string) => void = () => {},
+  props: { floating?: boolean } = {}
+) {
   return render(
     defineComponent({
       render() {
         return h(CmkAddDropdown, {
           options: OPTIONS,
           label: untranslated('Add scope'),
-          onSelect
+          onSelect,
+          ...props
         })
       }
     })
@@ -52,6 +56,21 @@ test('selecting an option emits select and keeps the button unselected', async (
   await waitFor(() => {
     expect(screen.getByRole('combobox', { name: 'Add scope' })).toHaveTextContent('Add scope')
   })
+})
+
+test('with floating, the menu teleports out of the dropdown and selection still emits', async () => {
+  const onSelect = vi.fn()
+  mountAddDropdown(onSelect, { floating: true })
+
+  const button = screen.getByRole('combobox', { name: 'Add scope' })
+  await fireEvent.click(button)
+
+  const option = await screen.findByText('CMK RRD')
+  // The floating menu is portalled out of the `.cmk-dropdown` control, not an inline child.
+  expect(button.closest('.cmk-dropdown')?.contains(option)).toBe(false)
+
+  await fireEvent.click(option)
+  expect(onSelect).toHaveBeenCalledWith('cmk_rrd')
 })
 
 test('a second pick of the same option emits again', async () => {

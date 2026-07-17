@@ -4,6 +4,7 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
+import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot } from 'reka-ui'
 import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 
 import { untranslated } from '@/lib/i18n'
@@ -44,7 +45,8 @@ const {
   width,
   options,
   label,
-  formValidation = false
+  formValidation = false,
+  floating = false
 } = defineProps<{
   options: Suggestions
   inputHint?: TranslatedString
@@ -56,6 +58,7 @@ const {
   label: TranslatedString
   width?: ButtonVariants['width']
   formValidation?: boolean
+  floating?: boolean
 }>()
 
 const selectedOptionPublic = defineModel<string | null>({ default: null })
@@ -167,6 +170,7 @@ const suggestionsShown = ref(false)
 const suggestionsRef = ref<InstanceType<typeof CmkSuggestions> | null>(null)
 const comboboxButtonRef =
   useTemplateRef<InstanceType<typeof CmkDropdownButton>>('comboboxButtonRef')
+const rootRef = ref<HTMLElement | null>(null)
 
 // Swallow the click-outside fired by the in-flight bubble when open() is
 // called from a sibling's click handler.
@@ -200,11 +204,13 @@ function showSuggestions(): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     nextTick(async () => {
       if (suggestionsRef.value) {
-        const suggestionsRect = suggestionsRef.value.$el.getBoundingClientRect()
-        if (window.innerHeight - suggestionsRect.bottom < suggestionsRect.height) {
-          suggestionsRef.value.$el.style.bottom = `calc(2 * var(--spacing))`
-        } else {
-          suggestionsRef.value.$el.style.removeProperty('bottom')
+        if (!floating) {
+          const suggestionsRect = suggestionsRef.value.$el.getBoundingClientRect()
+          if (window.innerHeight - suggestionsRect.bottom < suggestionsRect.height) {
+            suggestionsRef.value.$el.style.bottom = `calc(2 * var(--spacing))`
+          } else {
+            suggestionsRef.value.$el.style.removeProperty('bottom')
+          }
         }
         await suggestionsRef.value.focus()
       }
@@ -218,11 +224,27 @@ function hideSuggestions(): void {
 }
 
 function onClickOutside(): void {
+  if (floating) {
+    return
+  }
   if (suppressNextClickOutside.value) {
     return
   }
   if (suggestionsShown.value) {
     suggestionsShown.value = false
+  }
+}
+
+function onFloatingOpenChange(open: boolean): void {
+  if (!open) {
+    suggestionsShown.value = false
+  }
+}
+
+function onFloatingInteractOutside(event: Event): void {
+  const originalEvent = (event as CustomEvent<{ originalEvent: Event }>).detail?.originalEvent
+  if (originalEvent?.target instanceof Node && rootRef.value?.contains(originalEvent.target)) {
+    event.preventDefault()
   }
 }
 
@@ -253,6 +275,7 @@ const group = computed<ButtonVariants['group']>(() => {
 
 <template>
   <div
+    ref="rootRef"
     v-click-outside="onClickOutside"
     class="cmk-dropdown"
     :class="{ 'cmk-dropdown__fill': width === 'fill' }"
@@ -294,7 +317,7 @@ const group = computed<ButtonVariants['group']>(() => {
     /></CmkDropdownButton>
     <slot name="buttons-end"></slot>
     <CmkSuggestions
-      v-if="!!suggestionsShown"
+      v-if="!!suggestionsShown && !floating"
       ref="suggestionsRef"
       role="option"
       :suggestions="options"
@@ -303,6 +326,35 @@ const group = computed<ButtonVariants['group']>(() => {
       @request-close-suggestions="hideSuggestions"
       @select-suggestion="handleUpdate"
     />
+    <PopoverRoot
+      v-if="floating"
+      :open="!!suggestionsShown"
+      :modal="false"
+      @update:open="onFloatingOpenChange"
+    >
+      <PopoverAnchor v-bind="rootRef ? { reference: rootRef } : {}" class="cmk-dropdown__anchor" />
+      <PopoverPortal>
+        <PopoverContent
+          side="bottom"
+          align="start"
+          class="cmk-dropdown__floating"
+          :style="{ position: 'relative', zIndex: 'var(--z-index-dropdown-offset)' }"
+          @open-auto-focus.prevent
+          @close-auto-focus.prevent
+          @interact-outside="onFloatingInteractOutside"
+        >
+          <CmkSuggestions
+            ref="suggestionsRef"
+            role="option"
+            :suggestions="options"
+            :selected-suggestion="selectedOption"
+            :no-results-hint="noResultsHint"
+            @request-close-suggestions="hideSuggestions"
+            @select-suggestion="handleUpdate"
+          />
+        </PopoverContent>
+      </PopoverPortal>
+    </PopoverRoot>
   </div>
 </template>
 
@@ -345,5 +397,15 @@ const group = computed<ButtonVariants['group']>(() => {
 
 .cmk-dropdown__validation-error {
   border: 1px solid var(--inline-error-border-color);
+}
+
+.cmk-dropdown__anchor {
+  display: contents;
+}
+
+/* stylelint-disable-next-line checkmk/vue-bem-naming-convention */
+.cmk-dropdown__floating .cmk-suggestions {
+  position: static;
+  min-width: var(--reka-popper-anchor-width);
 }
 </style>

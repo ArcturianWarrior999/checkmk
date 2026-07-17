@@ -72,6 +72,11 @@ export const panelConfig = {
     title: 'Form Validation Error',
     initialState: false
   },
+  floating: {
+    type: 'boolean' as const,
+    title: 'Floating',
+    initialState: false
+  },
   inputHint: {
     type: 'string' as const,
     title: 'Input Hint',
@@ -219,6 +224,7 @@ const dynamicOptions = computed<Suggestions>(() => {
         :required="propState.required"
         label="demo dropdown"
         :form-validation="propState.formValidation"
+        :floating="propState.floating"
       />
 
       <template #properties>

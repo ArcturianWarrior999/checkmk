@@ -50,6 +50,11 @@ export const panelConfig = {
       { title: 'Fill', name: 'fill' }
     ] satisfies Options<ButtonVariants['width']>[],
     initialState: 'default' as const
+  },
+  floating: {
+    type: 'boolean' as const,
+    title: 'Floating',
+    initialState: false
   }
 } satisfies PanelConfigFor<typeof CmkAddDropdown, 'options'>
 </script>
@@ -94,6 +99,7 @@ const added = ref<string[]>([])
         :options="options"
         :label="propState.label"
         :width="propState.width"
+        :floating="propState.floating"
         @select="(value) => added.push(value)"
       />
       <p v-if="added.length > 0">Added: {{ added.join(', ') }}</p>
