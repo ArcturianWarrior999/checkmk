@@ -2605,6 +2605,10 @@ class CustomizePermissionsHandler:
     def __init__(self, user_permissions: UserPermissions) -> None:
         self._user_permissions = user_permissions
 
+    @classmethod
+    def build(cls, ctx: PageContext) -> Self:
+        return cls(UserPermissions.from_config(ctx.config, permission_registry))
+
     def may_see_category(self, category: str) -> bool:
         return not hide_customize_menu()
 

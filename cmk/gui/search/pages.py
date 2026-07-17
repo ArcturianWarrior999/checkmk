@@ -7,13 +7,9 @@ from collections.abc import Sequence
 from dataclasses import asdict
 from typing import Final, override
 
-from cmk.ccc.version import Edition
 from cmk.gui.http import Request
 from cmk.gui.i18n import _
 from cmk.gui.pages import AjaxPage, PageContext, PageResult
-from cmk.gui.pagetypes import CustomizePermissionsHandler
-from cmk.gui.permissions import permission_registry
-from cmk.gui.utils.roles import UserPermissions
 from cmk.shared_typing.unified_search import (
     MessageVariant,
     ProviderName,
@@ -25,7 +21,8 @@ from cmk.shared_typing.unified_search import (
 
 from .collapsing import get_collapser
 from .engines.livestatus import LivestatusSearchEngine
-from .engines.redis import RedisSearchEngine, SetupPermissionsHandler
+from .engines.redis import RedisSearchEngine
+from .permissions import search_permissions_handler_registry
 from .unified import UnifiedSearch
 
 # Before making this something configurable, we want to first hardcode this setting to a reasonable
@@ -34,9 +31,6 @@ _LIVESTATUS_ENGINE_ROW_LIMIT: Final = 500
 
 
 class PageUnifiedSearch(AjaxPage):
-    def __init__(self, edition: Edition) -> None:
-        self._edition = edition
-
     @override
     def page(self, ctx: PageContext) -> PageResult:
         query = ctx.request.get_str_input_mandatory("q")
@@ -48,12 +42,8 @@ class PageUnifiedSearch(AjaxPage):
             redis_engine=RedisSearchEngine(
                 ctx.config,
                 {
-                    ProviderName.setup: SetupPermissionsHandler(
-                        self._edition, ctx.config, ctx.request
-                    ),
-                    ProviderName.customize: CustomizePermissionsHandler(
-                        UserPermissions.from_config(ctx.config, permission_registry)
-                    ),
+                    entry.provider: entry.build(ctx)
+                    for entry in search_permissions_handler_registry.values()
                 },
             ),
             livestatus_engine=LivestatusSearchEngine(

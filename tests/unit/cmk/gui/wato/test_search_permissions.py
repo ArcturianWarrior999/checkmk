@@ -14,7 +14,8 @@ from cmk.ccc.version import Edition
 from cmk.gui.config import Config
 from cmk.gui.http import Request
 from cmk.gui.logged_in import user
-from cmk.gui.search.engines.redis import SetupPermissionsHandler
+from cmk.gui.pages import PageContext
+from cmk.gui.wato._search_permissions import SetupPermissionsHandler
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
 
@@ -55,7 +56,9 @@ class TestPermissionHandler:
     def test_may_see_category(
         self, config: Config, http_request: Request, test_edition: Edition
     ) -> None:
-        permissions_handler = SetupPermissionsHandler(test_edition, config, http_request)
+        permissions_handler = SetupPermissionsHandler(
+            test_edition, PageContext(config=config, request=http_request)
+        )
         for category in permissions_handler._category_permissions:
             assert permissions_handler.may_see_category(category)
 
@@ -63,7 +66,9 @@ class TestPermissionHandler:
     def test_may_see_url_false(
         self, config: Config, http_request: Request, test_edition: Edition
     ) -> None:
-        permissions_handler = SetupPermissionsHandler(test_edition, config, http_request)
+        permissions_handler = SetupPermissionsHandler(
+            test_edition, PageContext(config=config, request=http_request)
+        )
         visibility_check = permissions_handler.get_visibility_check("setup")
         assert not visibility_check("wato.py?folder=&mode=service_groups")
 
@@ -71,7 +76,9 @@ class TestPermissionHandler:
     def test_may_see_url_true(
         self, config: Config, http_request: Request, test_edition: Edition
     ) -> None:
-        permissions_handler = SetupPermissionsHandler(test_edition, config, http_request)
+        permissions_handler = SetupPermissionsHandler(
+            test_edition, PageContext(config=config, request=http_request)
+        )
         visibility_check = permissions_handler.get_visibility_check("setup")
         assert visibility_check("wato.py?folder=&mode=service_groups")
 
@@ -85,7 +92,9 @@ class TestPermissionHandler:
         # `created_host_url` fixture.
         from cmk.gui.http import request
 
-        permissions_handler = SetupPermissionsHandler(test_edition, config, request)
+        permissions_handler = SetupPermissionsHandler(
+            test_edition, PageContext(config=config, request=request)
+        )
         visibility_check = permissions_handler.get_visibility_check("setup")
         assert visibility_check(created_host_url)
 
@@ -100,6 +109,8 @@ class TestPermissionHandler:
         # NOTE: the created host is not visible because it was not created with the passed request
         # context. This is because the host and folders code relies heavily on adapting the global
         # request proxy.
-        permissions_handler = SetupPermissionsHandler(test_edition, config, http_request)
+        permissions_handler = SetupPermissionsHandler(
+            test_edition, PageContext(config=config, request=http_request)
+        )
         visibility_check = permissions_handler.get_visibility_check("setup")
         assert not visibility_check(created_host_url)
