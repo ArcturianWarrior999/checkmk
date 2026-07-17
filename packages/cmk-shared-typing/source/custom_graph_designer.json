@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CustomGraphDesigner",
+  "type": "object",
+  "properties": {
+    "graph_name": { "type": "string" },
+    "graph_owner": { "type": "string" },
+    "mode": {
+      "title": "CustomGraphDesignerMode",
+      "type": "string",
+      "enum": ["view", "edit"]
+    },
+    "palette": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "warning_color": { "type": "string" },
+    "critical_color": { "type": "string" },
+    "logged_in_user": { "type": "string" },
+    "initial_breadcrumb": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/breadcrumb_item" }
+    },
+    "time_picker": { "$ref": "global_time_picker.json#" }
+  },
+  "required": [
+    "graph_name",
+    "graph_owner",
+    "mode",
+    "palette",
+    "warning_color",
+    "critical_color",
+    "logged_in_user",
+    "initial_breadcrumb",
+    "time_picker"
+  ],
+  "$defs": {
+    "breadcrumb_item": {
+      "title": "BreadcrumbItem",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "link": { "type": ["string", "null"] }
+      },
+      "required": ["title", "link"]
+    }
+  }
+}

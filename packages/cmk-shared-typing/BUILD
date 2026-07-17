@@ -30,6 +30,7 @@ SOURCES_COMMON = [
     "changes.json",
     "configuration_entity.json",
     "create_relay.json",
+    "custom_graph_designer.json",
     "dialog.json",
     "global_time_picker.json",
     "loading_transition.json",
