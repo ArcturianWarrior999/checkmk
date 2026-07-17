@@ -5,7 +5,7 @@
  */
 import type { components } from 'cmk-shared-typing/typescript/openapi_internal'
 
-import { fromApiAst } from './calculation/formula/convert'
+import type { ApiFormulaNodeInput } from './calculation/formula/convert'
 import type { Formula } from './calculation/formula/grammar'
 
 /** Default `title` for every new item. */
@@ -43,6 +43,13 @@ export type ItemType = GraphItem['type']
 /** How a line is drawn (API spelling: `stack`, not the former `stacked`). */
 export type LineType = RRDMetricItem['line_type']
 
+export const LINE_TYPES: readonly LineType[] = ['line', 'area', 'stack']
+
+/** Narrows a dropdown value to a line type. */
+export function parseLineType(value: string | null): LineType | undefined {
+  return LINE_TYPES.find((candidate) => candidate === value)
+}
+
 /** The tab a type belongs to. Drives list filtering and the "cannot mix" rule. */
 export type Domain = 'rrd' | 'metric_backend'
 
@@ -65,19 +72,25 @@ export function isDynamic(type: ItemType): boolean {
 }
 
 /** Narrows to formula items. */
-export function isFormula(item: GraphItem): item is FormulaItem {
+export function isFormula<T extends { type: ItemType }>(
+  item: T
+): item is Extract<T, { type: 'rrd_formula' }> {
   return item.type === 'rrd_formula'
 }
 
 /** Narrows to items that produce exactly one line. */
-export function isSingleLine(item: GraphItem): item is SingleLineItem {
+export function isSingleLine<T extends { type: ItemType }>(
+  item: T
+): item is Exclude<T, { type: MultiLineType }> {
   return !MULTI_LINE_TYPES.some((type) => type === item.type)
 }
 
 /** A data source as the REST API types it. */
 export type ApiDataSource = components['schemas']['CustomGraphDefinition']['data_sources'][number]
 
-/** Converts a wire-format data source to a designer item; throws on an invalid formula ast. */
-export function fromApiDataSource(source: ApiDataSource): GraphItem {
-  return source.type === 'rrd_formula' ? { ...source, ast: fromApiAst(source.ast) } : source
-}
+/** A data source as API responses type it (formula asts arrive with loosened operand arrays). */
+export type ApiDataSourceInput =
+  | Exclude<ApiDataSource, { type: 'rrd_formula' }>
+  | (Omit<components['schemas']['CustomGraphRRDFormulaDataSource'], 'ast'> & {
+      ast: ApiFormulaNodeInput
+    })
