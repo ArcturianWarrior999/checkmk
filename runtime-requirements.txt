@@ -1091,9 +1091,9 @@ grpcio-status==1.78.0 \
     # via
     #   -c requirements.txt
     #   google-api-core
-gunicorn==25.1.0 \
-    --hash=sha256:1426611d959fa77e7de89f8c0f32eed6aa03ee735f98c01efba3e281b1c47616 \
-    --hash=sha256:d0b1236ccf27f72cfe14bce7caadf467186f19e865094ca84221424e839b8b8b
+gunicorn==26.0.0 \
+    --hash=sha256:40233d26a5f0d1872916188c276e21641155111c2853f0c2cd55260aec0d24fc \
+    --hash=sha256:ca9346f85e3a4aeeb64d491045c16b9a35647abd37ea15efe53080eb8b090baf
     # via
     #   -c requirements.txt
     #   -r packages/cmk-agent-receiver/requirements.in
