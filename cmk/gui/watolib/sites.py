@@ -641,7 +641,7 @@ class SiteManagement:
                     "Periodic user attribute synchronization keeps existing user attributes "
                     "(alias, email, roles, contact groups) up to date on this site."
                 ),
-                layout=CascadingSingleChoiceLayout.horizontal,
+                layout=CascadingSingleChoiceLayout.vertical,
             ),
             from_disk=_user_attribute_sync_from_disk,
             to_disk=_user_attribute_sync_to_disk,
