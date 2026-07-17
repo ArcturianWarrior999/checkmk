@@ -62,6 +62,7 @@ export type ComputedNetworkFlowDonutResponse =
 export type SidebarElementContent = components['schemas']['SidebarElementContent']
 export type PerformanceGraphContent = components['schemas']['PerformanceGraphContent']
 export type SingleTimeseriesContent = components['schemas']['SingleTimeseriesContent']
+export type CombinedGraphContent = components['schemas']['CombinedGraphContent']
 // Only picks graph_render_options, used to check legend visibility in the scrollable preview
 // as this is used by multiple widget types we extract it only once here
 export type GraphWidgetContent = Pick<
