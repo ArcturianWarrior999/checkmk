@@ -33,3 +33,29 @@ py_binary(
         "//tests/qa_metrics/db",
     ],
 )
+
+# check_gaps as a library so its logic (exit-code contract, gap computation) is
+# unit-testable; the binary is a thin entry point over it.
+py_library(
+    name = "check_gaps_lib",
+    srcs = ["check_gaps.py"],
+    imports = ["../../.."],
+    deps = [
+        ":change_quality",
+        "//packages/cmk-werks:tool",
+        "//tests/qa_metrics/db",
+        requirement("psycopg"),
+    ],
+)
+
+py_binary(
+    name = "check_gaps",
+    srcs = ["check_gaps.py"],
+    imports = ["../../.."],
+    deps = [
+        ":change_quality",
+        "//packages/cmk-werks:tool",
+        "//tests/qa_metrics/db",
+        requirement("psycopg"),
+    ],
+)

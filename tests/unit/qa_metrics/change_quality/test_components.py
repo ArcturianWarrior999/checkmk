@@ -14,7 +14,11 @@ from typing import Any
 
 import pytest
 
-from tests.qa_metrics.change_quality.components import lookup_components, pick_component
+from tests.qa_metrics.change_quality.components import (
+    _MAX_INVALID_PATH_RETRIES,
+    lookup_components,
+    pick_component,
+)
 
 
 def _touch(repo: Path, *paths: str) -> None:
@@ -245,11 +249,16 @@ def test_lookup_components_drops_path_absent_on_gerrit_master(
 def test_lookup_components_raises_after_retry_budget(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    """A checkout so far behind gerrit that a new path is rejected every round
-    must fail loudly once the retry budget is spent -- never push partial data."""
-    _touch(tmp_path, "cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py", "cmk/e.py")
-    # One fresh rejection per call: initial + 3 retries = 4 calls, then give up.
-    reject_sequence = ["cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py"]
+    """A checkout so far behind gerrit that a *new* path is rejected every round
+    must fail loudly once the retry budget is spent -- never push partial data.
+
+    Derives its expectations from ``_MAX_INVALID_PATH_RETRIES`` so it survives a
+    change to that constant."""
+    budget = _MAX_INVALID_PATH_RETRIES
+    # One fresh rejection per call: initial call + `budget` retries = budget + 1
+    # calls, on the last of which the budget is exhausted and we raise.
+    reject_sequence = [f"cmk/p{i}.py" for i in range(budget + 1)]
+    _touch(tmp_path, *reject_sequence)
     state = {"call": 0}
 
     def fake_run(args: Sequence[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -264,9 +273,9 @@ def test_lookup_components_raises_after_retry_budget(
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
-    with pytest.raises(RuntimeError, match=r"still rejecting paths after 3 retries"):
-        lookup_components(["cmk/a.py", "cmk/b.py", "cmk/c.py", "cmk/d.py", "cmk/e.py"], tmp_path)
-    assert state["call"] == 4  # initial + 3 retries, then raise
+    with pytest.raises(RuntimeError, match=rf"after {budget} retries"):
+        lookup_components(list(reject_sequence), tmp_path)
+    assert state["call"] == budget + 1  # initial + `budget` retries, then raise
 
 
 def test_lookup_components_nonzero_rc_without_invalid_path_is_not_retried(
