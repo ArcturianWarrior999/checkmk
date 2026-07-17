@@ -26,6 +26,13 @@ def call_init_scripts(
     command: Literal["start", "stop", "restart", "reload", "status"],
     daemon: str | None = None,
 ) -> Literal[0, 2]:
+    if daemon:
+        executables = [s.executable for s in _daemon_init_scripts(daemon, site_dir)]
+        if not executables:
+            sys.stderr.write("ERROR: This daemon does not exist.\n")
+            return 2
+    else:
+        executables = [s.executable for s in _init_scripts(site_dir)]
     # Restart: Do not restart each service after another,
     # but first do stop all, then start all again! This
     # preserves the order.
@@ -43,25 +50,15 @@ def call_init_scripts(
         elif command == "stop":
             log_security_event(SiteStartStoppedEvent(event="stop", daemon=daemon))
 
-        if daemon:
-            daemon_scripts = [s.executable for s in _daemon_init_scripts(daemon, site_dir)]
-            if not daemon_scripts:
-                sys.stderr.write("ERROR: This daemon does not exist.\n")
-                return 2
-            # Materialize the results to call every script even if one fails.
-            results = [_call_init_script(script, command) for script in daemon_scripts]
-            success = all(results)
-        else:
-            # Call stop scripts in reverse order. If daemon is set,
-            # then only that start script will be affected
-            scripts = _init_scripts(site_dir)
-            if command == "stop":
-                scripts.reverse()
-            success = True
+        # Call stop scripts in reverse order. If daemon is set,
+        # then only that start script will be affected
+        if command == "stop":
+            executables.reverse()
 
-            for script in scripts:
-                if not _call_init_script(script.executable, command):
-                    success = False
+        success = True
+        for script in executables:
+            if not _call_init_script(script, command):
+                success = False
 
     return 0 if success else 2
 
