@@ -5,20 +5,12 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 <script setup lang="ts">
 import { type VariantProps, cva } from 'class-variance-authority'
-import { DialogContent, DialogOverlay, DialogPortal, DialogRoot } from 'reka-ui'
+import { DialogContent, DialogPortal, DialogRoot } from 'reka-ui'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { useSlideInStack } from './useSlideInStack'
 
-// *************************************************************************************************
-// Two different variants of SlideIn overlay are required
-// * div for index page [CMK-27892 / CMK-26086]
-// * DialogOverlay for inner iframe [CMK-28534]
-// div: inner iframe html-body will keep `pointer-events: none` forever after closing
-// DialogOverlay: the SlideIn blocks the whole page including sidebar and menubar
-//
 // As DialogContent exists outside our vue app hierarchy, we manually apply our global vue CSS class
-// *************************************************************************************************
 
 const slideInVariants = cva('', {
   variants: {
@@ -42,7 +34,6 @@ export type SlideInVariants = VariantProps<typeof slideInVariants>
 export interface CmkSlideInProps {
   open: boolean
   size?: SlideInVariants['size']
-  isIndexPage?: boolean | undefined // will be removed after the removal of the iframe
   ariaLabel?: string | undefined
   stackPriority?: number | undefined
   borderColor?: SlideInVariants['borderColor']
@@ -89,13 +80,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <DialogRoot v-if="open" :open="effectiveOpen" :modal="!isIndexPage">
-    <DialogPortal :to="isIndexPage ? '#content_area' : 'body'">
-      <DialogOverlay
-        v-if="!isIndexPage && effectiveOpen"
-        class="cmk-slide-in__overlay"
-        @click="emit('close')"
-      />
+  <DialogRoot v-if="open" :open="effectiveOpen" :modal="false">
+    <DialogPortal to="#content_area">
       <div v-if="effectiveOpen" class="cmk-slide-in__overlay" @click="emit('close')" />
       <DialogContent
         ref="dialogContentRef"
@@ -113,12 +99,6 @@ onBeforeUnmount(() => {
     </DialogPortal>
   </DialogRoot>
 </template>
-
-<style v-if="!isIndexPage">
-body:has(.cmk-slide-in__container) {
-  overflow: hidden;
-}
-</style>
 
 <style scoped>
 .cmk-slide-in__container {

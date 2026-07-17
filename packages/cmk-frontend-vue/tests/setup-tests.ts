@@ -4,7 +4,7 @@
  * conditions defined in the file COPYING, which is part of this source code package.
  */
 import '@testing-library/jest-dom/vitest'
-import { vi } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 import failOnConsole from 'vitest-fail-on-console'
 import { ref } from 'vue'
 
@@ -25,6 +25,18 @@ vi.mock('@/lib/i18n', () => ({
 
 // Mock the scrollIntoView method to prevent errors. jsdom has no concept of scrolling anyway
 window.HTMLElement.prototype.scrollIntoView = function () {}
+
+// Slide-ins portal into the index page's #content_area, which always exists in the
+// real app but must be provided for tests that render a slide-in.
+beforeEach(() => {
+  const contentArea = document.createElement('div')
+  contentArea.id = 'content_area'
+  document.body.appendChild(contentArea)
+})
+
+afterEach(() => {
+  document.getElementById('content_area')?.remove()
+})
 
 failOnConsole({
   shouldFailOnAssert: true,

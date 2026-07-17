@@ -13,7 +13,7 @@ import type { CmkSlideInDialogProps } from '@/components/CmkSlideInDialog.vue'
 
 import codeExample from './UclCmkSlideInDialogCodeExample.vue?raw'
 
-type OmittedProps = 'isIndexPage' | 'stackPriority' | 'header'
+type OmittedProps = 'stackPriority' | 'header'
 type CmkSlideInDialogDemoProps = PanelConfigFor<typeof CmkSlideInDialog, OmittedProps> & {
   title: StringPropDef
   showCloseButton: BoolPropDef

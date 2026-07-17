@@ -6,7 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 
 <script setup lang="ts">
 import type { StageInformation, WelcomeCards } from 'cmk-shared-typing/typescript/welcome'
-import { computed, provide, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
@@ -27,8 +27,6 @@ const stageInformation = defineModel<StageInformation>('stageInformation', { req
 const props = defineProps<{
   cards: WelcomeCards
 }>()
-
-provide('firstHostSlideoutIsIndexPage', true)
 
 const cards = ref<WelcomeCards>(props.cards)
 const nextStepsTitle = _t('Next steps with Checkmk')
@@ -64,7 +62,6 @@ function closeSlideIn() {
   <CmkSlideInDialog
     :open="slideInOpen"
     :header="{ title: slideInTitle, closeButton: true }"
-    :is-index-page="true"
     @close="closeSlideIn"
   >
     <CmkButton variant="secondary" class="full-view-button" @click="() => openFullView()">

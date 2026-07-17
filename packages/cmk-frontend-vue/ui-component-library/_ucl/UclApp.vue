@@ -37,7 +37,7 @@ watch(
         <UclNavigation />
       </aside>
 
-      <main class="ucl-app__main">
+      <main id="content_area" class="ucl-app__main">
         <div class="ucl-app__area">
           <RouterView />
         </div>

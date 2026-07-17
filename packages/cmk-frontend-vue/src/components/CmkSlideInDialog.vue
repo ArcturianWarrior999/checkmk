@@ -26,7 +26,6 @@ const scrollContainerEl = computed(() => {
 export interface CmkSlideInDialogProps {
   open: boolean
   size?: SlideInVariants['size']
-  isIndexPage?: boolean | undefined // will be removed after the removal of the iframe
   stackPriority?: number | undefined
   header?: {
     title: string
@@ -46,7 +45,6 @@ const emit = defineEmits(['close'])
   <CmkSlideIn
     :aria-label="header?.title"
     :open="open"
-    :is-index-page="isIndexPage"
     :size="size"
     :stack-priority="stackPriority"
     :border-color="borderColor"

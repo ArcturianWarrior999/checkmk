@@ -64,10 +64,7 @@ export const panelConfig = {
     ] satisfies Options<SlideInVariants['borderColor']>[],
     initialState: 'default' as const
   }
-} satisfies PanelConfigFor<
-  typeof CmkSlideIn,
-  'isIndexPage' | 'stackPriority' | 'initialFocusTarget'
->
+} satisfies PanelConfigFor<typeof CmkSlideIn, 'stackPriority' | 'initialFocusTarget'>
 </script>
 
 <script setup lang="ts">
@@ -93,7 +90,7 @@ defineProps<{ screenshotMode: boolean }>()
 
 const propState = new PanelStateCreator<
   typeof CmkSlideIn,
-  'isIndexPage' | 'stackPriority' | 'initialFocusTarget'
+  'stackPriority' | 'initialFocusTarget'
 >().createRef(panelConfig)
 </script>
 

@@ -97,7 +97,7 @@ test('Slidein focuses scroll container on open for keyboard scroll support', asy
   expect(document.activeElement).toBe(scrollContainer)
 })
 
-test('Multiple slide-ins opened sequentially: body styles are managed correctly [CMK-28534]', async () => {
+test('Multiple slide-ins opened sequentially: stacking is managed correctly', async () => {
   render(
     defineComponent({
       components: { CmkSlideInDialog },
@@ -129,15 +129,10 @@ test('Multiple slide-ins opened sequentially: body styles are managed correctly 
     })
   )
 
-  expect(document.body.style.pointerEvents).toBe('')
-  expect(document.body.style.overflow).toBe('')
-
   const firstButton = screen.getByRole('button', { name: 'Open First' })
   await fireEvent.click(firstButton)
   await screen.findByTestId('first-content')
   expect(screen.getByTestId('first-content')).toBeInTheDocument()
-
-  expect(document.body.style.pointerEvents).toBe('none')
 
   const secondButton = screen.getByRole('button', { name: 'Open Second' })
   await fireEvent.click(secondButton)
@@ -151,12 +146,7 @@ test('Multiple slide-ins opened sequentially: body styles are managed correctly 
   await screen.findByTestId('first-content')
   expect(screen.getByTestId('first-content')).toBeInTheDocument()
 
-  expect(document.body.style.pointerEvents).toBe('none')
-
   const remainingCloseButton = screen.getByRole('button', { name: 'Close' })
   await fireEvent.click(remainingCloseButton)
   await waitFor(() => expect(screen.queryByTestId('first-content')).not.toBeInTheDocument())
-
-  expect(document.body.style.pointerEvents).toBe('')
-  expect(document.body.style.overflow).toBe('')
 })

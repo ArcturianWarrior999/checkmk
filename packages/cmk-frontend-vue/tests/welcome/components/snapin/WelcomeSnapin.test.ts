@@ -15,8 +15,7 @@ vi.mock('@/components/CmkSlideInDialog.vue', () => ({
     name: 'CmkSlideInDialog',
     props: {
       open: Boolean,
-      header: Object,
-      isIndexPage: Boolean
+      header: Object
     },
     emits: ['close'],
     setup(props, { slots }) {
