@@ -94,7 +94,6 @@
     "ask": ["Bash(find *--exec*)", "Bash(git remote *)", "Bash(git config *)"],
     "deny": [
       "Edit(.werks/first_free)",
-      "Write(.werks/first_free)",
       "Bash(* > .werks/first_free*)",
       "Bash(* >> .werks/first_free*)",
       "Bash(sed -i * .werks/first_free*)",
