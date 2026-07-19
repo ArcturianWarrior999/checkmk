@@ -15,7 +15,13 @@ from cmk.gui.pages import PageContext
 @pytest.mark.usefixtures("request_context")
 class TestOAuthClientRegistrationPage:
     def test_returns_client_id_when_enabled(self, flask_app: Flask) -> None:
-        with flask_app.test_request_context(method="POST"):
+        with flask_app.test_request_context(
+            method="POST",
+            json={
+                "redirect_uris": ["https://client.example/callback"],
+                "client_name": "Example MCP Client",
+            },
+        ):
             flask_app.preprocess_request()
             OAuthClientRegistrationPage(lambda: True).handle_page(
                 PageContext(config=Config(), request=request)
@@ -28,7 +34,9 @@ class TestOAuthClientRegistrationPage:
             assert client_id
 
     def test_returns_different_client_id_on_each_call(self, flask_app: Flask) -> None:
-        with flask_app.test_request_context(method="POST"):
+        with flask_app.test_request_context(
+            method="POST", json={"redirect_uris": ["https://client.example/callback"]}
+        ):
             flask_app.preprocess_request()
             OAuthClientRegistrationPage(lambda: True).handle_page(
                 PageContext(config=Config(), request=request)
@@ -61,3 +69,81 @@ class TestOAuthClientRegistrationPage:
             )
 
             assert response.status_code == 405
+
+    def test_returns_400_when_no_body_is_sent(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(method="POST"):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+            assert response.json["error_description"]
+
+    def test_returns_400_when_redirect_uris_missing(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(method="POST", json={}):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+
+    def test_returns_400_when_redirect_uris_empty(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(method="POST", json={"redirect_uris": []}):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+
+    def test_returns_400_when_redirect_uri_scheme_is_not_http_or_https(
+        self, flask_app: Flask
+    ) -> None:
+        with flask_app.test_request_context(
+            method="POST", json={"redirect_uris": ["javascript:alert(1)"]}
+        ):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+            assert "javascript:alert(1)" in response.json["error_description"]
+
+    def test_returns_400_when_too_many_redirect_uris_are_submitted(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(
+            method="POST",
+            json={"redirect_uris": [f"https://client.example/{i}" for i in range(11)]},
+        ):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+
+    def test_returns_400_when_client_name_is_not_a_string(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(
+            method="POST",
+            json={"redirect_uris": ["https://client.example/callback"], "client_name": 123},
+        ):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_client_metadata"

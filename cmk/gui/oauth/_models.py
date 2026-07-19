@@ -3,7 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from pydantic import BaseModel
+import urllib.parse
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class OAuthAuthorizationServerMetadata(BaseModel):
@@ -31,7 +33,16 @@ class OAuthAuthorizationServerMetadata(BaseModel):
 class OAuthClientRegistrationRequest(BaseModel):
     """RFC 7591 dynamic client registration request body."""
 
-    redirect_uris: list[str] = []
+    redirect_uris: list[str] = Field(min_length=1, max_length=10)
+    client_name: str | None = None
+
+    @field_validator("redirect_uris")
+    @classmethod
+    def _reject_disallowed_schemes(cls, redirect_uris: list[str]) -> list[str]:
+        for uri in redirect_uris:
+            if urllib.parse.urlsplit(uri).scheme not in ("http", "https"):
+                raise ValueError(f"redirect_uri must use http or https scheme: {uri}")
+        return redirect_uris
 
 
 class OAuthClientRegistrationResponse(BaseModel):
@@ -46,6 +57,13 @@ class OAuthClientRegistrationResponse(BaseModel):
 
     client_id: str
     redirect_uris: list[str] = []
+
+
+class OAuthClientRegistrationErrorResponse(BaseModel):
+    """RFC 7591 section 3.2.2 client registration error response."""
+
+    error: str
+    error_description: str
 
 
 class OAuthTokenResponse(BaseModel):
