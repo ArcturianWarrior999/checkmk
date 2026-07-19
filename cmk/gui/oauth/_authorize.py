@@ -16,7 +16,9 @@ from cmk.gui.http import request, response
 from cmk.gui.i18n import _
 from cmk.gui.logged_in import user
 from cmk.gui.pages import Page, PageContext, PageResult
+from cmk.gui.utils.security_log_events import OAuthAuthorizationFailureEvent
 from cmk.gui.utils.transaction_manager import transactions
+from cmk.utils.security_event import log_security_event
 
 
 class OAuthAuthorizePage(Page):
@@ -31,7 +33,8 @@ class OAuthAuthorizePage(Page):
 
     This is a stub: it does not validate the client_id, it hands out a
     random authorization code as soon as the user confirms the consent
-    screen.
+    screen. Rejected requests are logged as security events (see
+    OAuthAuthorizationFailureEvent).
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -51,6 +54,7 @@ class OAuthAuthorizePage(Page):
             # Rejects javascript:/data: etc. here, once, rather than at each
             # place redirect_uri ends up in a href/content attribute below --
             # HTML-escaping alone doesn't neutralize a dangerous URL scheme.
+            self._log_authorization_failure("invalid or missing redirect_uri")
             response.status_code = http_client.BAD_REQUEST
             return None
 
@@ -98,6 +102,15 @@ class OAuthAuthorizePage(Page):
         html.close_div()
         html.close_div()
         html.footer()
+
+    def _log_authorization_failure(self, reason: str) -> None:
+        log_security_event(
+            OAuthAuthorizationFailureEvent(
+                reason=reason,
+                client_id=request.var("client_id"),
+                remote_ip=request.remote_ip,
+            )
+        )
 
     def _show_redirect_page(
         self, ctx: PageContext, redirect_uri: str, params: dict[str, str]

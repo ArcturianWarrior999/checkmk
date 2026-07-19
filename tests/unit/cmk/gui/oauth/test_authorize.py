@@ -12,6 +12,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 from flask import Flask
+from pytest_mock import MockerFixture
 
 from cmk.gui.config import Config
 from cmk.gui.http import request, response
@@ -216,3 +217,16 @@ class TestOAuthAuthorizePage:
             )
 
             assert response.status_code == 404
+
+    def test_logs_security_event_when_redirect_uri_is_invalid(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with flask_app.test_request_context(query_string={"redirect_uri": "javascript:alert(1)"}):
+            flask_app.preprocess_request()
+            OAuthAuthorizePage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "invalid or missing redirect_uri"

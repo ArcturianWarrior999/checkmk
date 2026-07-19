@@ -17,6 +17,7 @@ py_cmk_test(
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
         requirement("flask"),
+        requirement("pytest-mock"),
         requirement("werkzeug"),
     ],
 )
