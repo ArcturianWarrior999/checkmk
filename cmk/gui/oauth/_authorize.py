@@ -80,6 +80,11 @@ class OAuthAuthorizePage(Page):
             self._error_redirect(ctx, redirect_uri, "invalid_request")
             return None
 
+        if request.var("code_challenge_method") != "S256":
+            self._log_authorization_failure("unsupported code_challenge_method")
+            self._error_redirect(ctx, redirect_uri, "invalid_request")
+            return None
+
         # received authorization form OK
         if request.request_method == "POST" and transactions.check_transaction():
             params = (
