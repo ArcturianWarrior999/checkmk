@@ -70,7 +70,9 @@ class OAuthClientRegistrationPage(Page):
         response.set_content_type("application/json")
         response.set_data(
             OAuthClientRegistrationResponse(
-                client_id=secrets.token_urlsafe(32), redirect_uris=body.redirect_uris
+                client_id=secrets.token_urlsafe(32),
+                redirect_uris=body.redirect_uris,
+                client_name=body.client_name,
             ).model_dump_json()
         )
         return None

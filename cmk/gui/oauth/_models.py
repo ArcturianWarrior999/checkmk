@@ -48,15 +48,17 @@ class OAuthClientRegistrationRequest(BaseModel):
 class OAuthClientRegistrationResponse(BaseModel):
     """RFC 7591 dynamic client registration response.
 
-    redirect_uris echoes back the client's own submitted metadata: RFC 7591
-    section 3.2.1 requires the response to include it, and MCP clients
-    (observed with Claude Code) parse the response into a client-info model
-    that requires it -- without it, the client silently drops the connection
-    attempt right after registering, with no further requests to explain why.
+    Echoes back the client's own submitted metadata: RFC 7591 section 3.2.1
+    requires the response to include all registered metadata, and MCP
+    clients (observed with Claude Code) parse the response into a
+    client-info model that requires redirect_uris specifically -- without
+    it, the client silently drops the connection attempt right after
+    registering, with no further requests to explain why.
     """
 
     client_id: str
     redirect_uris: list[str] = []
+    client_name: str | None = None
 
 
 class OAuthClientRegistrationErrorResponse(BaseModel):

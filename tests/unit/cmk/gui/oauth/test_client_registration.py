@@ -33,6 +33,25 @@ class TestOAuthClientRegistrationPage:
             assert isinstance(client_id, str)
             assert client_id
 
+    def test_response_echoes_all_submitted_client_metadata(self, flask_app: Flask) -> None:
+        # Extend this payload as more RFC 7591 client metadata fields get modeled --
+        # section 3.2.1 requires the response to include all registered (accepted)
+        # metadata, not just redirect_uris.
+        submitted = {
+            "redirect_uris": ["https://client.example/callback"],
+            "client_name": "Example MCP Client",
+        }
+        with flask_app.test_request_context(method="POST", json=submitted):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 201
+            assert isinstance(response.json, dict)
+            for field, value in submitted.items():
+                assert response.json[field] == value
+
     def test_returns_different_client_id_on_each_call(self, flask_app: Flask) -> None:
         with flask_app.test_request_context(
             method="POST", json={"redirect_uris": ["https://client.example/callback"]}
