@@ -56,7 +56,7 @@ from cmk.gui.userdb import (
     saml_connection_choices,
 )
 from cmk.gui.utils.transaction_manager import transactions
-from cmk.gui.utils.urls import makeactionuri
+from cmk.gui.utils.urls import makeactionuri, makeuri_contextless
 from cmk.gui.valuespec import (
     Dictionary as _LegacyDictionary,
 )
@@ -556,17 +556,41 @@ class SiteManagement:
 
     @staticmethod
     def _central_site_connections_summary(site_configuration: SiteConfiguration | None) -> str:
-        """One-line summary of the connections the central site currently hands down when known."""
+        """One-line summary of the connections the central site currently hands down when known.
+
+        The result is rendered as HTML so connection names are escaped edit-page links."""
         entries = inherited_authentication_connections(
             central_site_config(active_config.sites), site_configuration
         )
         if not entries:
             return ""
-        return _("Currently inherited: %(connections)s") % {
-            "connections": ", ".join(
-                entry[1] if entry[0] == "ldap" else entry[1]["connection_id"] for entry in entries
+        links = []
+        for entry in entries:
+            match entry:
+                case ("ldap", connection_id):
+                    edit_mode = "edit_ldap_connection"
+                case ("saml", saml_entry):
+                    connection_id = saml_entry["connection_id"]
+                    edit_mode = "edit_saml_config"
+                case _:
+                    assert_never(entry)
+            links.append(
+                str(
+                    html.render_a(
+                        connection_id,
+                        makeuri_contextless(
+                            request,
+                            [
+                                ("mode", edit_mode),
+                                ("id", connection_id),
+                                ("edit", connection_id),
+                            ],
+                            filename="wato.py",
+                        ),
+                    )
+                )
             )
-        }
+        return _("Currently inherited: %(connections)s") % {"connections": ", ".join(links)}
 
     @staticmethod
     def _central_site_user_attribute_sync_summary() -> str:

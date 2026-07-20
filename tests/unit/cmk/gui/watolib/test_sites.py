@@ -301,7 +301,7 @@ def test_central_site_connections_summary_empty(
     assert SiteManagement._central_site_connections_summary(None) == ""
 
 
-def test_central_site_connections_summary_lists_connection_ids(
+def test_central_site_connections_summary_links_connection_ids(
     request_context: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(
@@ -311,7 +311,8 @@ def test_central_site_connections_summary_lists_connection_ids(
             ("saml", {"connection_id": "saml_b"}),
         ],
     )
-    assert (
-        SiteManagement._central_site_connections_summary(None)
-        == "Currently inherited: ldap_a, saml_b"
+    assert SiteManagement._central_site_connections_summary(None) == (
+        "Currently inherited: "
+        '<a href="wato.py?edit=ldap_a&id=ldap_a&mode=edit_ldap_connection">ldap_a</a>, '
+        '<a href="wato.py?edit=saml_b&id=saml_b&mode=edit_saml_config">saml_b</a>'
     )
