@@ -18,10 +18,6 @@ import type { RequestedTimeRange } from '../types'
 export type GraphDataDefinition = Pick<CmkTimeSeriesGraph, 'graph_type' | 'internal'> &
   Partial<Pick<CmkTimeSeriesGraph, 'options'>>
 
-// How a combined graph folds the same metric across its matched services: aggregate
-// (sum/average/min/max) or show each service separately (lines/stacked).
-export type GraphCombinationMode = 'average' | 'lines' | 'max' | 'min' | 'stacked' | 'sum'
-
 export interface ResolvedGraph {
   title: string
   metrics: Metric[]
@@ -42,7 +38,8 @@ export function useGraphData(
   getRequestedTimeRange: () => RequestedTimeRange,
   getCanvasWidth: () => number,
   getConsolidationFn: () => ConsolidationFn,
-  getCombinationMode: () => GraphCombinationMode | null = () => null
+  getCombinationMode: () => 'average' | 'lines' | 'max' | 'min' | 'stacked' | 'sum' | null = () =>
+    null
 ): {
   graphs: Readonly<Ref<ResolvedGraph[]>>
   isLoading: Readonly<Ref<boolean>>

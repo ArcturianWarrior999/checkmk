@@ -12,7 +12,7 @@ import useTimer from '@/lib/useTimer.ts'
 
 import CmkIcon from '@/components/CmkIcon'
 
-import { type GraphCombinationMode, useGraphData } from '../../composables/useGraphData'
+import { useGraphData } from '../../composables/useGraphData'
 import { useGraphInteraction } from '../../composables/useGraphInteraction'
 import { useGraphVisibility } from '../../composables/useGraphVisibility'
 import type { BurgerMenuGroup, RequestedTimeRange } from '../../types.ts'
@@ -35,14 +35,12 @@ const props = withDefaults(
     graphType: string
     internal: string
     timerange: TimerangeModel
-    combinationMode?: GraphCombinationMode | null
     showLegend?: boolean
     showTimestamp?: boolean
     showBurgerMenu?: boolean
     burgerMenuGroups?: BurgerMenuGroup[]
   }>(),
   {
-    combinationMode: null,
     showLegend: false,
     showTimestamp: false,
     showBurgerMenu: false,
@@ -83,8 +81,7 @@ const { graphs, isLoading, error } = useGraphData(
   () => graphDefinitions.value,
   () => requestedTimeRange.value,
   () => plotWidth.value,
-  () => CONSOLIDATION_FUNCTION,
-  () => props.combinationMode
+  () => CONSOLIDATION_FUNCTION
 )
 const graph = computed(() => graphs.value[0] ?? null)
 
@@ -105,7 +102,7 @@ watch(isLoading, (loading) => {
 })
 
 watch(
-  () => [props.graphType, props.internal, props.combinationMode, JSON.stringify(props.timerange)],
+  () => [props.graphType, props.internal, JSON.stringify(props.timerange)],
   () => {
     timeZoomActive.value = false
     refresh()

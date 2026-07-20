@@ -54,10 +54,9 @@ function contentTypeToComponent(contentType: string): Component {
       return DashboardContentUserMessages
     case contentType === 'sidebar_element':
       return DashboardContentSidebarElement
-    // Performance, single-timeseries and combined graphs render client-side on the new graphing
-    // engine; the remaining GRAPH_TYPES still go through the legacy server-rendered graph
-    // component.
-    case ['performance_graph', 'single_timeseries', 'combined_graph'].includes(contentType) &&
+    // Performance graphs and single timeseries render client-side on the new graphing engine;
+    // the remaining GRAPH_TYPES still go through the legacy server-rendered graph component.
+    case (contentType === 'performance_graph' || contentType === 'single_timeseries') &&
       cmkToken === undefined:
       return DashboardContentTimeSeriesGraph
     case CONTENT_FIGURE_TYPES.includes(contentType):
