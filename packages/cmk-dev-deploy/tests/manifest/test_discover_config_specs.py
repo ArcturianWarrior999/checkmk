@@ -9,6 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from cmk.dev_deploy.manifest.update import (
     _discover_config_specs,
     PackagingTargetIndex,
@@ -210,6 +212,66 @@ class TestSingleFileNormalization:
         }
         # Repo-root group is filtered before commonpath even runs.
         assert _discover(pkg_data) == []
+
+
+class TestSiteDestValidation:
+    """Derived site_dest must start with a version-tree root directory.
+
+    A dest like ``agents/windows/`` means the packaging target composes its
+    full path from an enclosing pkg_tar package_dir, which PackageFilesInfo
+    never carries -- deploying it would write to a location nothing reads.
+    """
+
+    def test_dest_outside_version_roots_raises_naming_the_target(self) -> None:
+        pkg_data: PackagingTargetIndex = {
+            "//omd:agents_windows_ext_built": [
+                (
+                    "agents/windows/check_mk_agent.msi",
+                    "",
+                    "agents/windows/check_mk_agent.msi",
+                    True,
+                ),
+                ("agents/windows/unsign-msi.patch", "", "agents/windows/unsign-msi.patch", True),
+            ]
+        }
+        with pytest.raises(RuntimeError, match="outside the version tree") as excinfo:
+            _discover(pkg_data)
+        assert "//omd:agents_windows_ext_built" in str(excinfo.value)
+        assert "'agents/windows/'" in str(excinfo.value)
+
+    def test_all_violations_are_reported_at_once(self) -> None:
+        pkg_data: PackagingTargetIndex = {
+            "//omd:bad_agents": [
+                ("agents/foo", "0644", "agents/foo", True),
+            ],
+            "//omd:bad_doc": [
+                ("doc/bar.md", "0644", "doc/bar.md", True),
+            ],
+        }
+        with pytest.raises(RuntimeError) as excinfo:
+            _discover(pkg_data)
+        assert "//omd:bad_agents" in str(excinfo.value)
+        assert "//omd:bad_doc" in str(excinfo.value)
+
+    def test_version_root_dests_pass(self) -> None:
+        pkg_data: PackagingTargetIndex = {
+            "//omd:ok": [
+                ("bin/tool", "0755", "bin/tool.py", True),
+                ("include/api.h", "0644", "include/api.h", True),
+                ("lib/omd/hooks/FOO", "0755", "lib/omd/hooks/FOO", True),
+                ("share/check_mk/agents/plugin", "0755", "share/agents/plugin", True),
+                ("skel/etc/conf", "0644", "skel/etc/conf", True),
+            ]
+        }
+        specs = _discover(pkg_data)
+        # One spec per source root; none rejected.
+        assert {s["site_dest"] for s in specs} == {
+            "bin/",
+            "include/",
+            "lib/omd/hooks/",
+            "share/check_mk/agents/",
+            "skel/etc/",
+        }
 
 
 class TestDeterminism:
