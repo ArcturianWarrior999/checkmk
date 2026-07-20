@@ -48,6 +48,9 @@ KNOWN_DEVIATIONS: dict[str, set[str]] = {
         # and the aggregate FREE row count differs (71 vs 1) — a counting-scope
         # difference. Per-container rows otherwise match.
         "oracle_sessions:sep(124)",
+        # oracle_locks and oracle_undostat sections might have different values
+        "oracle_locks:sep(124)",
+        "oracle_undostat:sep(124)",
     },
 }
 
