@@ -95,6 +95,14 @@ test('fetches the definition via fetch_data with the max consolidation', async (
   expect(body.graph_type).toBe('template')
   expect(body.internal).toBe('{"graphs": []}')
   expect(body.consolidation_function).toBe('max')
+  expect(body.combination_mode).toBeNull()
+})
+
+test('forwards the combination mode to fetch_data', async () => {
+  renderFigure({ combinationMode: 'stacked' })
+
+  await waitFor(() => expect(postSpy).toHaveBeenCalledTimes(1))
+  expect(postSpy.mock.calls[0][1].body.combination_mode).toBe('stacked')
 })
 
 test('shows the timestamp only when requested', async () => {
