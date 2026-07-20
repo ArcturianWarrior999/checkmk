@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
-from contextlib import suppress
+from contextlib import redirect_stdout, suppress
 from pathlib import Path
 from typing import Final, Literal, NamedTuple, TypedDict
 
@@ -2062,7 +2062,15 @@ def _mode_automation(app: CheckmkBaseApp, args: list[str]) -> int:
         },
     ):
         try:
-            result = automations.execute(app, name, automation_args)
+            # The automation result is transmitted to the caller exclusively via
+            # stdout (see the serialize() call below) and parsed back with
+            # ast.literal_eval(). Any output an automation handler writes to stdout
+            # while running - e.g. the agent bakery's verbose progress when the
+            # subprocess is invoked with "-vv" - would therefore corrupt the
+            # serialized result. Redirect it to stderr, the channel the caller treats
+            # as diagnostics, so stdout only ever carries the parseable result.
+            with redirect_stdout(sys.stderr):
+                result = automations.execute(app, name, automation_args)
         finally:
             profiling.output_profile()
         if isinstance(result, AutomationError):
