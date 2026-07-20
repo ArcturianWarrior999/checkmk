@@ -16,7 +16,9 @@ py_library(
         requirement("redis"),
         "//cmk/gui:core_toolkit",
         "//cmk/gui:page_toolkit",
+        "//cmk/utils:paths",
         "//cmk/utils:redis",
         "//packages/cmk-ccc:site",
+        "//packages/cmk-ccc:store",
     ],
 )
