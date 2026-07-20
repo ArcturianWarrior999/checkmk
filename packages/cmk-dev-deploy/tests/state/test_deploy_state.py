@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cmk.dev_deploy.state.deploy_state import (
+    build_and_save_state,
     compute_dirty_hashes,
     compute_file_hash,
     delete_state,
@@ -406,6 +407,98 @@ class TestComputeDirtyHashes:
 
         assert "cmk/a.py" in result
         assert "packages/b.py" not in result
+
+
+# ---------------------------------------------------------------------------
+# build_and_save_state tests (diff base handling)
+# ---------------------------------------------------------------------------
+
+_HEAD = "d" * 40
+_RUN_BASE = "b" * 40
+_OLD_BASE = "c" * 40
+
+
+class TestBuildAndSaveStateDiffBase:
+    """diff_base_commit handling, especially on partial failure."""
+
+    def _build_and_load(
+        self,
+        tmp_path: Path,
+        *,
+        previous_state: DeployState | None,
+        all_succeeded: bool,
+        run_diff_base: str | None = None,
+    ) -> DeployState:
+        no_dirty: dict[str, dict[str, str]] = {
+            n: {} for n in ("install_spec", "config_spec", "wheel_spec")
+        }
+        with (
+            patch(
+                "cmk.dev_deploy.state.deploy_state.get_head_commit",
+                return_value=_HEAD,
+            ),
+            patch(
+                "cmk.dev_deploy.state.deploy_state.get_dirty_files",
+                return_value=[],
+            ),
+        ):
+            build_and_save_state(
+                tmp_path,
+                tmp_path,
+                "master",
+                successful_deployers={"install_spec", "wheel_spec"},
+                previous_state=previous_state,
+                run_diff_base=run_diff_base,
+                deployer_dirty_hashes=no_dirty,
+                all_succeeded=all_succeeded,
+                base_dir=tmp_path,
+            )
+        loaded = load_state(tmp_path, base_dir=tmp_path)
+        assert loaded is not None
+        return loaded
+
+    def test_success_advances_diff_base_to_head(self, tmp_path: Path) -> None:
+        loaded = self._build_and_load(
+            tmp_path, previous_state=None, all_succeeded=True, run_diff_base=_RUN_BASE
+        )
+        assert loaded.diff_base_commit == _HEAD
+
+    def test_partial_failure_without_previous_state_keeps_run_diff_base(
+        self, tmp_path: Path
+    ) -> None:
+        """First deploy after a fresh clone: a failed step must stay re-detectable.
+
+        Advancing to HEAD here silently dropped the failed deployer's
+        changes -- the next run reported "All deployers up to date".
+        """
+        loaded = self._build_and_load(
+            tmp_path, previous_state=None, all_succeeded=False, run_diff_base=_RUN_BASE
+        )
+        assert loaded.diff_base_commit == _RUN_BASE
+        # Only the successful deployers get fresh state entries.
+        assert set(loaded.deployers) == {"install_spec", "wheel_spec"}
+        assert loaded.deployers["install_spec"].git_commit == _HEAD
+
+    def test_partial_failure_prefers_run_diff_base_over_previous_state(
+        self, tmp_path: Path
+    ) -> None:
+        """The base actually used for detection wins over a stale state value."""
+        previous = _make_state(diff_base_commit=_OLD_BASE)
+        loaded = self._build_and_load(
+            tmp_path, previous_state=previous, all_succeeded=False, run_diff_base=_RUN_BASE
+        )
+        assert loaded.diff_base_commit == _RUN_BASE
+
+    def test_partial_failure_falls_back_to_previous_state(self, tmp_path: Path) -> None:
+        """Callers without a run diff base keep the previous state's base."""
+        previous = _make_state(diff_base_commit=_OLD_BASE)
+        loaded = self._build_and_load(tmp_path, previous_state=previous, all_succeeded=False)
+        assert loaded.diff_base_commit == _OLD_BASE
+
+    def test_partial_failure_without_any_base_falls_back_to_head(self, tmp_path: Path) -> None:
+        """No run base and no previous state (site without COMMIT file)."""
+        loaded = self._build_and_load(tmp_path, previous_state=None, all_succeeded=False)
+        assert loaded.diff_base_commit == _HEAD
 
 
 # ---------------------------------------------------------------------------

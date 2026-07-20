@@ -247,6 +247,7 @@ def build_and_save_state(
     branch: str,
     successful_deployers: set[str],
     previous_state: DeployState | None,
+    run_diff_base: str | None = None,
     deployer_dirty_hashes: dict[str, dict[str, str]] | None = None,
     all_succeeded: bool = True,
     backend: str = "",
@@ -260,8 +261,11 @@ def build_and_save_state(
     pruned) states for skipped/failed deployers.
 
     When *all_succeeded* is False (partial failure), the ``diff_base_commit``
-    is preserved from the previous state so that the next run re-detects the
-    changes that the failed deployer(s) missed.
+    is kept at *run_diff_base* -- the base this run detected changes against
+    -- so that the next run re-detects the changes that the failed
+    deployer(s) missed.  This matters most on a first deploy (no previous
+    state, diff base = site build commit): advancing to HEAD there would
+    silently drop the failed deployer's changes forever.
     """
     import time as _time
 
@@ -275,10 +279,13 @@ def build_and_save_state(
     current_dirty = set(get_dirty_files(repo_root))
     now = _time.time()
 
-    # On partial failure, preserve the previous diff base so failed deployers
-    # re-detect their changes on the next run.
+    # On partial failure, keep the diff base this run detected changes
+    # against so failed deployers re-detect their changes on the next run.
+    # Advancing to HEAD here would silently drop those changes.
     if all_succeeded:
         diff_base = head
+    elif run_diff_base:
+        diff_base = run_diff_base
     elif previous_state and previous_state.diff_base_commit:
         diff_base = previous_state.diff_base_commit
     else:

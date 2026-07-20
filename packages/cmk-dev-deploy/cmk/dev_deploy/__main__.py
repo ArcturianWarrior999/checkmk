@@ -522,14 +522,15 @@ def _run_deploy_cycle(
         _total_elapsed = _time.monotonic() - _cycle_start
         output.print_deploy_total(_total_elapsed, success=False)
         # Still save state for successful deployers (partial failure recovery).
-        # Preserve the previous diff_base_commit so the next run re-detects
-        # the changes that the failed deployer(s) missed.
+        # Keep the diff base this run detected changes against so the next
+        # run re-detects the changes that the failed deployer(s) missed.
         build_and_save_state(
             repo_root,
             site.root,
             current_branch,
             successful_deployers,
             state,
+            run_diff_base=diff_base,
             deployer_dirty_hashes=_deployer_dirty,
             all_succeeded=False,
             backend=DEFAULT_BACKEND,
