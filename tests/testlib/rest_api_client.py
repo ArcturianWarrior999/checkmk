@@ -1333,7 +1333,7 @@ class GraphClient(RestApiClient):
     def discover_combined_graphs(
         self,
         context: Mapping[str, Mapping[str, str]],
-        graph_id: str | None = None,
+        graph_id: str,
         expect_ok: bool = True,
     ) -> Response:
         return self.request(
