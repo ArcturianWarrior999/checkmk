@@ -50,6 +50,12 @@ def _assert_uniform_unit(graph: Graph) -> None:
         )
 
 
+def matches_graph_id(graph: Graph, graph_id: str) -> bool:
+    # Legacy configs and autocompleters identify single-metric graphs as "METRIC_<name>", while the
+    # engine names the corresponding fallback graphs after the bare metric name.
+    return graph.name == graph_id or graph.name == graph_id.removeprefix("METRIC_")
+
+
 def build_template_graphs(
     *,
     service: Service,

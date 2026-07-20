@@ -147,6 +147,7 @@ CmkEndpointName = Literal[
     "cmk/create_dashboard_relative_grid",
     "cmk/create_dashboard_responsive_grid",
     "cmk/create_dashboard_token",
+    "cmk/discover_combined_graphs",
     "cmk/discover_single_timeseries_graphs",
     "cmk/discover_template_graphs",
     "cmk/download",
