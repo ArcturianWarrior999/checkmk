@@ -72,12 +72,12 @@ class HostAddress(str):
         >>> HostAddress("Â")
         Traceback (most recent call last):
             ...
-        packages.cmk-ccc.cmk.ccc.hostaddress.HostNameValidationError: invalid host address: 'Â'
+        cmk.ccc.hostaddress.HostNameValidationError: invalid host address: 'Â'
 
         >>> HostAddress(".")
         Traceback (most recent call last):
             ...
-        packages.cmk-ccc.cmk.ccc.hostaddress.HostNameValidationError: invalid host address: '.'
+        cmk.ccc.hostaddress.HostNameValidationError: invalid host address: '.'
         """
         if len(text) > 240:
             # Ext4 and others allow filenames of up to 255 bytes.
