@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import urllib.parse
+from typing import Annotated
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -33,8 +34,8 @@ class OAuthAuthorizationServerMetadata(BaseModel):
 class OAuthClientRegistrationRequest(BaseModel):
     """RFC 7591 dynamic client registration request body."""
 
-    redirect_uris: list[str] = Field(min_length=1, max_length=10)
-    client_name: str | None = None
+    redirect_uris: list[Annotated[str, Field(max_length=2048)]] = Field(min_length=1, max_length=10)
+    client_name: str | None = Field(default=None, max_length=200)
 
     @field_validator("redirect_uris")
     @classmethod

@@ -166,3 +166,34 @@ class TestOAuthClientRegistrationPage:
             assert response.status_code == 400
             assert isinstance(response.json, dict)
             assert response.json["error"] == "invalid_client_metadata"
+
+    def test_returns_400_when_a_redirect_uri_is_too_long(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(
+            method="POST",
+            json={"redirect_uris": ["https://client.example/" + "a" * 2048]},
+        ):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_redirect_uri"
+
+    def test_returns_400_when_client_name_is_too_long(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(
+            method="POST",
+            json={
+                "redirect_uris": ["https://client.example/callback"],
+                "client_name": "a" * 201,
+            },
+        ):
+            flask_app.preprocess_request()
+            OAuthClientRegistrationPage(lambda: True).handle_page(
+                PageContext(config=Config(), request=request)
+            )
+
+            assert response.status_code == 400
+            assert isinstance(response.json, dict)
+            assert response.json["error"] == "invalid_client_metadata"
