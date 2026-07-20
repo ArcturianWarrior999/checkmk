@@ -14,11 +14,16 @@ import pytest
 from flask import Flask
 from pytest_mock import MockerFixture
 
+from cmk.ccc.user import UserId
 from cmk.gui.config import Config
 from cmk.gui.http import request, response
+from cmk.gui.oauth._auth_code_store import AuthCodeRecord, AuthCodeStore
 from cmk.gui.oauth._authorize import OAuthAuthorizePage
 from cmk.gui.pages import PageContext
+from cmk.gui.session_context import UserContext
+from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.utils.transaction_manager import TransactionManager
+from cmk.utils.redis import disable_redis, get_redis_client
 
 
 def _extract_redirect_target(body: str) -> str:
@@ -41,6 +46,16 @@ def fixture_mock_vue_manifest() -> Iterator[None]:
     )
     with patch("cmk.gui.htmllib.html._load_vue_manifest", return_value=fake_manifest):
         yield
+
+
+@pytest.fixture(name="clean_redis")
+def fixture_clean_redis(flask_app: Flask, allow_redis: None) -> None:
+    # The fakeredis instance behind get_redis_client() is shared across the
+    # test module; start each test from an empty store.
+    get_redis_client().flushall()
+
+
+_SESSION_USER = UserId("alice")
 
 
 @pytest.mark.usefixtures("request_context", "mock_vue_manifest")
@@ -89,6 +104,7 @@ class TestOAuthAuthorizePage:
 
             assert 'action="/oauth-heute/authorize"' in response.get_data(as_text=True)
 
+    @pytest.mark.usefixtures("clean_redis")
     def test_redirects_with_code_once_confirmed(self, flask_app: Flask) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
@@ -105,9 +121,10 @@ class TestOAuthAuthorizePage:
             ),
         ):
             flask_app.preprocess_request()
-            OAuthAuthorizePage(lambda: True).handle_page(
-                PageContext(config=Config(), request=request)
-            )
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
 
             assert response.status_code == 200
             target_url = _extract_redirect_target(response.get_data(as_text=True))
@@ -149,6 +166,7 @@ class TestOAuthAuthorizePage:
         assert query["state"] == ["xyz"]
         assert "code" not in query
 
+    @pytest.mark.usefixtures("clean_redis")
     def test_preserves_existing_query_params_on_redirect_uri(self, flask_app: Flask) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
@@ -164,9 +182,10 @@ class TestOAuthAuthorizePage:
             ),
         ):
             flask_app.preprocess_request()
-            OAuthAuthorizePage(lambda: True).handle_page(
-                PageContext(config=Config(), request=request)
-            )
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
 
             target_url = _extract_redirect_target(response.get_data(as_text=True))
 
@@ -174,6 +193,7 @@ class TestOAuthAuthorizePage:
         assert query["foo"] == ["bar"]
         assert query["code"][0]
 
+    @pytest.mark.usefixtures("clean_redis")
     def test_redirect_page_is_not_an_http_redirect(self, flask_app: Flask) -> None:
         # Regression test: an HTTP 3xx here would carry the site's
         # form-action CSP over onto this cross-origin hop, and Chrome (unlike
@@ -194,9 +214,10 @@ class TestOAuthAuthorizePage:
             ),
         ):
             flask_app.preprocess_request()
-            OAuthAuthorizePage(lambda: True).handle_page(
-                PageContext(config=Config(), request=request)
-            )
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
 
             assert response.status_code == 200
             body = response.get_data(as_text=True)
@@ -474,6 +495,189 @@ class TestOAuthAuthorizePage:
 
         mock_log.assert_called_once()
         assert mock_log.call_args.args[0].details["reason"] == "missing code_challenge"
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_approve_persists_the_issued_code_bound_to_the_request(self, flask_app: Flask) -> None:
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                    "scope": "mcp",
+                    "resource": "https://host/mysite/check_mk/mcp",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        code = parse_qs(urlsplit(target_url).query)["code"][0]
+        assert AuthCodeStore().consume(code) == AuthCodeRecord(
+            user_id=_SESSION_USER,
+            client_id="test-client",
+            redirect_uri="https://client.example/callback",
+            scope="mcp",
+            resource="https://host/mysite/check_mk/mcp",
+            code_challenge="test-challenge",
+        )
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_approve_without_scope_and_resource_binds_none(self, flask_app: Flask) -> None:
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        code = parse_qs(urlsplit(target_url).query)["code"][0]
+        record = AuthCodeStore().consume(code)
+        assert record is not None
+        assert record.scope is None
+        assert record.resource is None
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_deny_persists_nothing(self, flask_app: Flask) -> None:
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                    "_deny": "Deny",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        assert get_redis_client().keys() == []
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_no_code_is_issued_when_the_store_is_unavailable(self, flask_app: Flask) -> None:
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                    "state": "xyz",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with (
+                UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])),
+                disable_redis(),
+            ):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        query = parse_qs(urlsplit(target_url).query)
+        assert query["error"] == ["server_error"]
+        assert query["state"] == ["xyz"]
+        assert "code" not in query
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_logs_security_event_when_the_store_is_unavailable(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with (
+                UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])),
+                disable_redis(),
+            ):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        mock_log.assert_called_once()
+        assert (
+            mock_log.call_args.args[0].details["reason"] == "failed to persist authorization code"
+        )
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_logs_the_exception_when_the_store_is_unavailable(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        # The security event carries only a static reason; the log entry with
+        # the traceback is the only place the actual cause ends up.
+        mock_logger = mocker.patch("cmk.gui.oauth._authorize.logger")
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with (
+                UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])),
+                disable_redis(),
+            ):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        mock_logger.exception.assert_called_once()
 
     def test_logs_security_event_when_code_challenge_method_is_unsupported(
         self, flask_app: Flask, mocker: MockerFixture
