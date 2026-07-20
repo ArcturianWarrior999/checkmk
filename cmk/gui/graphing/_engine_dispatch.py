@@ -48,14 +48,14 @@ class EvaluatedGraphs:
 
 @dataclass(frozen=True)
 class EngineGraphDispatcher:
-    graph_type: str
+    kind: str
     serialize: Callable[[Sequence[Graph]], Json]
     evaluate: Callable[[GraphDataRequest], EvaluatedGraphs]
 
 
 class EngineGraphDispatcherRegistry(Registry[EngineGraphDispatcher]):
     def plugin_name(self, instance: EngineGraphDispatcher) -> str:
-        return instance.graph_type
+        return instance.kind
 
 
 engine_graph_dispatcher_registry = EngineGraphDispatcherRegistry()

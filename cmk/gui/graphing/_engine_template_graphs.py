@@ -100,7 +100,7 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Evaluated
 
 
 TEMPLATE_GRAPH_DISPATCHER = EngineGraphDispatcher(
-    graph_type="template",
+    kind="template",
     serialize=graph_codec().serialize_graphs,
     evaluate=_dispatched_evaluate_template_graphs,
 )
