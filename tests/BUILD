@@ -222,6 +222,7 @@ py_library(
         requirement("psycopg"),
         requirement("protobuf"),
         requirement("pyopenssl"),
+        requirement("beautifulsoup4"),
         ":scripts",
         "//cmk/post_rename_site",
         "//cmk/utils:msi_patch",

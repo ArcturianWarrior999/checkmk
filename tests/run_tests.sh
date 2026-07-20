@@ -56,6 +56,7 @@ SYSTEM TESTS (local / -docker variant available for each)
   test-integration-redfish                Run integration tests for redfish
   test-integration-otel                   Run integration tests for otel (ultimate edition)
   test-integration-mcp                    Run integration tests for the mcp-server (pro edition)
+  test-integration-oauth                  Run integration tests for the oauth authorization server (pro edition)
   test-composition                        Run composition tests
   test-update-community                   Run update tests for community edition
   test-update-pro                         Run update tests for pro edition
@@ -338,6 +339,12 @@ test-integration-otel() {
 test-integration-mcp() {
     EDITION=pro _pytest "${PYTEST_SYSTEM_TEST_ARGS[@]}" \
         "$(realpath "$SCRIPT_DIR/integration")/nonfree/pro/mcp/" \
+        --session-timeout 1800
+}
+
+test-integration-oauth() {
+    EDITION=pro _pytest "${PYTEST_SYSTEM_TEST_ARGS[@]}" \
+        "$(realpath "$SCRIPT_DIR/integration")/cmk/gui/oauth/" \
         --session-timeout 1800
 }
 
