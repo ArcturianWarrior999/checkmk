@@ -70,6 +70,10 @@ class EvaluatedQuantity:
     label: str = ""
 
 
+def first_value(results: Sequence[EvaluatedQuantity]) -> float | None:
+    return results[0].value if results else None
+
+
 class Quantity(Protocol):
     def kind(self) -> str: ...
 

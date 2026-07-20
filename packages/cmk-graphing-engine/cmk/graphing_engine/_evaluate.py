@@ -13,7 +13,7 @@ from typing import assert_never
 from ._graph import Bound, Curve, FixedRange, Graph, MinimalRange, Rule, VerticalRange
 from ._options import ConsolidationFunction, TimeRange
 from ._perfdata import TimeSeries
-from ._quantities import EvaluationContext, Quantity
+from ._quantities import EvaluationContext, first_value, Quantity
 from ._source import fetch_evaluation_context, RRDFetchData
 from ._title import evaluate_title
 from ._units import CurveAttributes
@@ -76,8 +76,7 @@ def _evaluate_bound(bound: Bound | None, context: EvaluationContext) -> float | 
         return None
     if isinstance(bound, int | float):
         return float(bound)
-    evaluated = bound.evaluate(context)
-    return evaluated[0].value if evaluated else None
+    return first_value(bound.evaluate(context))
 
 
 def _evaluate_vertical_range(
@@ -149,13 +148,13 @@ def _evaluate_curve(
 
 
 def _evaluate_rule(rule: Rule, rule_id: str, context: EvaluationContext) -> EvaluatedRule | None:
-    evaluated = rule.curve.quantity.evaluate(context)
-    if not evaluated or evaluated[0].value is None:
+    value = first_value(rule.curve.quantity.evaluate(context))
+    if value is None:
         return None
     return EvaluatedRule(
         id=rule_id,
         attributes=rule.curve.attributes,
-        value=evaluated[0].value,
+        value=value,
         inverse=rule.inverse,
     )
 
