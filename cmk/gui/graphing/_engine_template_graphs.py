@@ -35,8 +35,6 @@ from ._engine_serialization import (
 )
 from ._from_api import GraphFromAPI
 
-_CODEC = graph_codec()
-
 
 def _assert_uniform_unit(graph: Graph) -> None:
     drawn = [
@@ -93,7 +91,7 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Evaluated
     )
     return EvaluatedGraphs(
         graphs=evaluate_template_graphs(
-            graphs=_CODEC.deserialize_graphs(request.graphs),
+            graphs=graph_codec().deserialize_graphs(request.graphs),
             options=CommonGraphOptions.from_request_options(request.options),
             fetch_data=fetch_data,
         ),
@@ -103,6 +101,6 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Evaluated
 
 TEMPLATE_GRAPH_DISPATCHER = EngineGraphDispatcher(
     graph_type="template",
-    serialize=_CODEC.serialize_graphs,
+    serialize=graph_codec().serialize_graphs,
     evaluate=_dispatched_evaluate_template_graphs,
 )
