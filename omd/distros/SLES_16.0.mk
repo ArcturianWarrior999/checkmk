@@ -45,6 +45,7 @@ OS_PACKAGES    += libgthread-2_0-0 # Needed by cmc (rrd library)
 OS_PACKAGES    += libpq5
 OS_PACKAGES    += libxslt1 # Needed for lxml etree processing
 OS_PACKAGES    += which # no longer delivered with apache2
+OS_PACKAGES    += procps # needed for having pgrep available
 OS_PACKAGES    += bc # Needed by some third-party check plugins
 OS_PACKAGES    += file # Needed by some third-party check plugins
 USERADD_OPTIONS   = -M
