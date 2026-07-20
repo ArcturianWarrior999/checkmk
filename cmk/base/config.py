@@ -618,7 +618,7 @@ def load(
     return loading_result
 
 
-def load_packed_config(config_path: Path) -> dict[str, Any]:
+def load_packed_config(config_path: Path) -> Mapping[str, Any]:
     """Load the configuration for the CMK helpers of CMC
 
     These files are written by PackedConfig().
@@ -639,7 +639,7 @@ def load_packed_config(config_path: Path) -> dict[str, Any]:
 
 
 def perform_post_config_loading_actions(
-    loaded_context: dict[str, Any],
+    loaded_context: Mapping[str, Any],
     *,
     edition: cmk_version.Edition,
 ) -> LoadingResult:
