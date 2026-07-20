@@ -20,11 +20,11 @@ extern crate common;
 mod common;
 
 use crate::common::tools::{
-    default_role, make_endpoint_tns_admin_dir, make_mini_config, make_mini_config_cdb_root,
+    make_endpoint_tns_admin_dir, make_mini_config, make_mini_config_cdb_root,
     make_mini_config_custom_instance, make_mini_config_custom_instance_with_tns_admin,
     make_mini_config_pdb, make_mini_config_pdb_builtin_then_custom,
     make_mini_config_pdb_custom_then_builtin, make_mini_config_with_sid,
-    platform::add_runtime_to_path, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
+    platform::add_runtime_to_path, role_spec, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
 };
 use mk_oracle::config::authentication::{AuthType, Authentication, Role, SqlDbEndpoint};
 use mk_oracle::config::defines::defaults::SECTION_SEPARATOR;
@@ -196,10 +196,11 @@ static WORKING_ENDPOINTS: LazyLock<Vec<SqlDbEndpoint>> = LazyLock::new(load_endp
 fn test_endpoints_file() {
     let s = &WORKING_ENDPOINTS;
     let r = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_EXT).unwrap();
+    let local = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_LOCAL).ok();
     assert!(!s.is_empty());
     assert_eq!(s[0], r);
     for e in &s[..] {
-        if e.host == "localhost" {
+        if e.host == "localhost" || Some(e) == local.as_ref() {
             continue; // skip local endpoint, it may have strange credentials
         }
         assert_eq!(e.user, r.user);
@@ -348,7 +349,7 @@ oracle:
 "#,
         endpoint.user,
         endpoint.pwd,
-        default_role(&endpoint.host),
+        role_spec(&endpoint.role, &endpoint.host),
         endpoint.host,
         endpoint.port,
         endpoint.service_name

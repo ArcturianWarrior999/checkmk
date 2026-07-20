@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-use mk_oracle::config::authentication::{AuthType, SqlDbEndpoint};
+use mk_oracle::config::authentication::{AuthType, Role, SqlDbEndpoint};
 use mk_oracle::config::ora_sql::Config;
 use mk_oracle::types::{Credentials, InstanceAlias};
 
@@ -81,14 +81,18 @@ pub mod platform {
     }
 }
 
-/// The authentication role for connecting to `host`: the localhost (Docker)
-/// database is accessed as sys, which Oracle refuses without SYSDBA
-/// (ORA-28009, https://docs.oracle.com/en/error-help/db/ora-28009).
-pub fn default_role(host: &str) -> &'static str {
-    if host == "localhost" {
-        "sysdba"
+/// The role to put into a generated config: an explicit endpoint role wins
+/// (e.g. the local endpoint authenticates as sys/sysdba even when addressed
+/// by hostname). Otherwise the localhost (Docker) database is accessed as
+/// sys, which Oracle refuses without SYSDBA (ORA-28009,
+/// https://docs.oracle.com/en/error-help/db/ora-28009).
+pub fn role_spec(role: &Option<Role>, address: &str) -> String {
+    if let Some(r) = role {
+        r.to_string()
+    } else if address == "localhost" {
+        "sysdba".to_string()
     } else {
-        ""
+        String::new()
     }
 }
 
@@ -99,6 +103,7 @@ fn _make_mini_config(
     port: u16,
     service_name: &String,
     instance_name: &Option<String>,
+    role: &Option<Role>,
 ) -> Config {
     let config_str = format!(
         r#"
@@ -122,7 +127,7 @@ oracle:
         credentials.user,
         credentials.password,
         auth_type,
-        default_role(address),
+        role_spec(role, address),
         address,
         port,
         service_name,
@@ -135,6 +140,7 @@ oracle:
     Config::from_string(config_str).unwrap().unwrap()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn _make_mini_config_custom_instance(
     credentials: &Credentials,
     auth_type: AuthType,
@@ -143,6 +149,7 @@ fn _make_mini_config_custom_instance(
     include: &str,
     alias: Option<InstanceAlias>,
     tns_admin: &str,
+    role: &Option<Role>,
 ) -> Config {
     fn alias_raw(alias: &Option<InstanceAlias>) -> String {
         if let Some(a) = alias {
@@ -186,7 +193,7 @@ oracle:
         credentials.user,
         credentials.password,
         auth_type,
-        default_role(address),
+        role_spec(role, address),
         address,
         include,
         alias_raw(&alias),
@@ -212,6 +219,7 @@ pub fn make_mini_config_custom_instance(
         include,
         alias,
         "./tests/files/tns",
+        &endpoint.role,
     )
 }
 
@@ -263,6 +271,7 @@ pub fn make_mini_config_custom_instance_with_tns_admin(
         include,
         alias,
         tns_admin.to_str().expect("tns_admin path must be UTF-8"),
+        &endpoint.role,
     )
 }
 
@@ -277,6 +286,7 @@ pub fn make_mini_config(endpoint: &SqlDbEndpoint) -> Config {
         endpoint.port,
         &endpoint.service_name,
         &endpoint.instance_name,
+        &endpoint.role,
     )
 }
 
@@ -286,6 +296,7 @@ fn _make_mini_config_with_sid(
     address: &str,
     port: &u16,
     sid: &str,
+    role: &Option<Role>,
 ) -> Config {
     let config_str = format!(
         r#"
@@ -311,7 +322,7 @@ oracle:
         credentials.user,
         credentials.password,
         auth_type,
-        default_role(address),
+        role_spec(role, address),
         address,
         port,
         sid,
@@ -329,6 +340,7 @@ pub fn make_mini_config_with_sid(endpoint: &SqlDbEndpoint, sid: &str) -> Config 
         &endpoint.host,
         &endpoint.port,
         sid,
+        &endpoint.role,
     )
 }
 
@@ -362,7 +374,7 @@ oracle:
 "#,
         user = endpoint.user,
         pwd = endpoint.pwd,
-        role = default_role(&endpoint.host),
+        role = role_spec(&endpoint.role, &endpoint.host),
         host = endpoint.host,
         port = endpoint.port,
         service = endpoint.service_name,
@@ -395,7 +407,7 @@ oracle:
 "#,
         user = endpoint.user,
         pwd = endpoint.pwd,
-        role = default_role(&endpoint.host),
+        role = role_spec(&endpoint.role, &endpoint.host),
         host = endpoint.host,
         port = endpoint.port,
         service = endpoint.service_name,
@@ -433,7 +445,7 @@ oracle:
 "#,
         user = endpoint.user,
         pwd = endpoint.pwd,
-        role = default_role(&endpoint.host),
+        role = role_spec(&endpoint.role, &endpoint.host),
         host = endpoint.host,
         port = endpoint.port,
         service = endpoint.service_name,
@@ -470,7 +482,7 @@ oracle:
 "#,
         user = endpoint.user,
         pwd = endpoint.pwd,
-        role = default_role(&endpoint.host),
+        role = role_spec(&endpoint.role, &endpoint.host),
         host = endpoint.host,
         port = endpoint.port,
         service = endpoint.service_name,
