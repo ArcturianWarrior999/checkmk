@@ -11,7 +11,12 @@ cannot exercise: real Apache routing, the real login-session cookie, and real
 CSRF (_transid) wiring all have to work together here.
 
 Rejection-path coverage (missing/invalid params) is intentionally left to that
-unit suite; this file only covers the happy path and the user-denies path.
+unit suite; this file mostly only covers the happy path and the user-denies
+path. The one deliberate exception is client_id/redirect_uri validation
+against the registered-client store: that's a security boundary (rejecting
+requests for unregistered clients or mismatched redirect_uris) worth proving
+holds over real HTTP, not just through the Flask test client, so it gets its
+own narrow coverage here too.
 
 Enabling the MCP server -- the only current oauth.register() caller -- is
 handled by the ``mcp_enabled_site`` fixture in conftest.py.
@@ -62,18 +67,25 @@ def _make_pkce_pair() -> tuple[str, str]:
 
 
 def _get_consent_page(
-    web: CMKWebSession, *, client_id: str, code_challenge: str, state: str
+    web: CMKWebSession,
+    *,
+    client_id: str,
+    code_challenge: str,
+    state: str,
+    redirect_uri: str = _REDIRECT_URI,
+    expected_code: int = 200,
 ) -> requests.Response:
     return web.get(
         _AUTHORIZE_ENDPOINT_PATH,
         params={
             "client_id": client_id,
-            "redirect_uri": _REDIRECT_URI,
+            "redirect_uri": redirect_uri,
             "response_type": "code",
             "code_challenge": code_challenge,
             "code_challenge_method": "S256",
             "state": state,
         },
+        expected_code=expected_code,
     )
 
 
@@ -169,3 +181,39 @@ def test_authorize_deny_redirects_with_access_denied(
     assert query["error"] == ["access_denied"]
     assert query["state"] == [state]
     assert "code" not in query
+
+
+@pytest.mark.skip_if_edition("community")
+def test_authorize_returns_400_for_unknown_client_id(
+    mcp_enabled_site: Site, web: CMKWebSession
+) -> None:
+    """A client_id that was never dynamically registered must not reach the consent screen."""
+    _, code_challenge = _make_pkce_pair()
+    state = secrets.token_urlsafe(8)
+
+    _get_consent_page(
+        web,
+        client_id="never-registered-client",
+        code_challenge=code_challenge,
+        state=state,
+        expected_code=400,
+    )
+
+
+@pytest.mark.skip_if_edition("community")
+def test_authorize_returns_400_for_redirect_uri_not_registered_to_client(
+    mcp_enabled_site: Site, web: CMKWebSession
+) -> None:
+    """redirect_uri must be one of the client's own registered URIs, not just well-formed."""
+    client_id = _register_client(mcp_enabled_site)
+    _, code_challenge = _make_pkce_pair()
+    state = secrets.token_urlsafe(8)
+
+    _get_consent_page(
+        web,
+        client_id=client_id,
+        code_challenge=code_challenge,
+        state=state,
+        redirect_uri="https://attacker.example/callback",
+        expected_code=400,
+    )

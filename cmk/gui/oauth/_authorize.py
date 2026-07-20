@@ -17,6 +17,7 @@ from cmk.gui.i18n import _
 from cmk.gui.log import logger
 from cmk.gui.logged_in import user
 from cmk.gui.oauth._auth_code_store import AuthCodeRecord, AuthCodeStore
+from cmk.gui.oauth._store import get_registered_client
 from cmk.gui.pages import Page, PageContext, PageResult
 from cmk.gui.utils.security_log_events import OAuthAuthorizationFailureEvent
 from cmk.gui.utils.transaction_manager import transactions
@@ -34,8 +35,11 @@ class OAuthAuthorizePage(Page):
     site (the enabled predicate is injected at registration).
 
     Codes minted on approval are persisted PKCE-bound via AuthCodeStore; the
-    token endpoint later redeems them single-use. The client_id is still
-    taken as sent, without checking it against registered clients. Rejected
+    token endpoint later redeems them single-use. Validates client_id against
+    the registered-client store (see cmk.gui.oauth._store) and requires
+    redirect_uri to exactly match one of that client's registered
+    redirect_uris. _token.py does not yet validate that a code was issued to
+    the client redeeming it -- that's separate follow-up work. Rejected
     requests are logged as security events (see
     OAuthAuthorizationFailureEvent).
     """
@@ -66,6 +70,17 @@ class OAuthAuthorizePage(Page):
             # Same MUST-NOT-redirect treatment as redirect_uri (RFC 6749
             # section 4.1.2.1): an unknown client's redirect_uri isn't trustworthy.
             self._log_authorization_failure("missing client_id")
+            response.status_code = http_client.BAD_REQUEST
+            return None
+
+        registration = get_registered_client(client_id)
+        if registration is None:
+            self._log_authorization_failure("unknown client_id")
+            response.status_code = http_client.BAD_REQUEST
+            return None
+
+        if redirect_uri not in registration.redirect_uris:
+            self._log_authorization_failure("redirect_uri not registered for client_id")
             response.status_code = http_client.BAD_REQUEST
             return None
 
