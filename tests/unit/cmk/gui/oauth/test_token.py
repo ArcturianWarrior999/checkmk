@@ -7,14 +7,19 @@ import urllib.parse
 
 import pytest
 from flask import Flask
+from pytest_mock import MockerFixture
 
+from cmk.ccc.exceptions import MKTimeout
 from cmk.gui.config import Config
 from cmk.gui.http import request, response
+from cmk.gui.oauth._auth_code_store import AuthCodeRecord, AuthCodeStore
 from cmk.gui.oauth._token import OAuthTokenPage
 from cmk.gui.pages import PageContext
+from cmk.utils.redis import disable_redis
 
 _FORM_CONTENT_TYPE = "application/x-www-form-urlencoded"
-# The code_verifier is the RFC 7636 appendix B example value (43 characters).
+# code_verifier is the RFC 7636 appendix B example value (43 characters);
+# _stored_record() carries the matching S256 code_challenge.
 _VALID_FORM = {
     "grant_type": "authorization_code",
     "code": "SplxlOBeZQQYbYS6WxSbIA",
@@ -23,9 +28,22 @@ _VALID_FORM = {
 }
 
 
+def _stored_record() -> AuthCodeRecord:
+    return AuthCodeRecord(
+        user_id="alice",
+        client_id="test-client",
+        redirect_uri="https://client.example/callback",
+        scope="mcp",
+        resource="https://host/mysite/check_mk/mcp",
+        code_challenge="E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+    )
+
+
 @pytest.mark.usefixtures("request_context")
 class TestOAuthTokenPage:
-    def test_returns_access_token_when_enabled(self, flask_app: Flask) -> None:
+    @pytest.mark.usefixtures("clean_redis")
+    def test_redeems_a_stored_code_for_an_access_token(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
         with flask_app.test_request_context(method="POST", data=_VALID_FORM):
             flask_app.preprocess_request()
             OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
@@ -37,13 +55,22 @@ class TestOAuthTokenPage:
             assert isinstance(access_token, str)
             assert access_token
 
-    def test_returns_different_access_token_on_each_call(self, flask_app: Flask) -> None:
-        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+    @pytest.mark.usefixtures("clean_redis")
+    def test_returns_a_different_access_token_for_each_code(self, flask_app: Flask) -> None:
+        AuthCodeStore().store("first-code", _stored_record())
+        AuthCodeStore().store("second-code", _stored_record())
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code": "first-code"}
+        ):
             flask_app.preprocess_request()
             OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
             assert isinstance(response.json, dict)
             first_access_token = response.json["access_token"]
 
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code": "second-code"}
+        ):
+            flask_app.preprocess_request()
             OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
             assert isinstance(response.json, dict)
             second_access_token = response.json["access_token"]
@@ -76,7 +103,9 @@ class TestOAuthTokenPage:
             assert response.status_code == 400
             assert response.json == {"error": "invalid_request"}
 
+    @pytest.mark.usefixtures("clean_redis")
     def test_accepts_a_form_content_type_with_charset_parameter(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
         with flask_app.test_request_context(
             method="POST",
             data=urllib.parse.urlencode(_VALID_FORM),
@@ -180,10 +209,12 @@ class TestOAuthTokenPage:
             assert response.status_code == 400
             assert response.json == {"error": "invalid_request"}
 
+    @pytest.mark.usefixtures("clean_redis")
     @pytest.mark.parametrize("code_verifier", ["a" * 43, "a" * 128])
     def test_accepts_code_verifier_length_boundaries(
         self, flask_app: Flask, code_verifier: str
     ) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
         with flask_app.test_request_context(
             method="POST", data={**_VALID_FORM, "code_verifier": code_verifier}
         ):
@@ -192,7 +223,91 @@ class TestOAuthTokenPage:
 
             assert response.status_code == 200
 
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_an_unknown_code(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_a_code_can_be_redeemed_only_once(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+            assert response.status_code == 200
+
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_grant"}
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_no_token_is_issued_when_the_store_is_unavailable(self, flask_app: Flask) -> None:
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            with disable_redis():
+                OAuthTokenPage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+            assert response.status_code == 500
+            assert b"access_token" not in response.get_data()
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_logs_security_event_when_the_store_is_unavailable(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        mock_log = mocker.patch("cmk.gui.oauth._token.log_security_event")
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            with disable_redis():
+                OAuthTokenPage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        mock_log.assert_called_once()
+        assert mock_log.call_args.args[0].details["reason"] == "failed to redeem authorization code"
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_treats_a_request_timeout_as_a_store_failure(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        # A timeout inside consume() takes the store-outage path, not the framework's handling.
+        mocker.patch.object(AuthCodeStore, "consume", side_effect=MKTimeout)
+        mock_log = mocker.patch("cmk.gui.oauth._token.log_security_event")
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 500
+
+        mock_log.assert_called_once()
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_logs_the_exception_when_the_store_is_unavailable(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        # The security event carries only a static reason; the log entry with
+        # the traceback is the only place the actual cause ends up.
+        mock_logger = mocker.patch("cmk.gui.oauth._token.logger")
+        with flask_app.test_request_context(method="POST", data=_VALID_FORM):
+            flask_app.preprocess_request()
+            with disable_redis():
+                OAuthTokenPage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        mock_logger.exception.assert_called_once()
+
+    @pytest.mark.usefixtures("clean_redis")
     def test_token_response_is_not_cacheable(self, flask_app: Flask) -> None:
+        AuthCodeStore().store(_VALID_FORM["code"], _stored_record())
         with flask_app.test_request_context(method="POST", data=_VALID_FORM):
             flask_app.preprocess_request()
             OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))

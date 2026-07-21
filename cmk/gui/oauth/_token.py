@@ -10,8 +10,12 @@ from collections.abc import Callable
 from typing import Literal, override
 
 from cmk.gui.http import request, response
+from cmk.gui.log import logger
+from cmk.gui.oauth._auth_code_store import AuthCodeStore
 from cmk.gui.oauth._models import OAuthTokenErrorResponse, OAuthTokenResponse
 from cmk.gui.pages import Page, PageContext, PageResult
+from cmk.gui.utils.security_log_events import OAuthTokenFailureEvent
+from cmk.utils.security_event import log_security_event
 
 _FORM_CONTENT_TYPE = "application/x-www-form-urlencoded"
 
@@ -24,7 +28,7 @@ _KNOWN_PARAMS = ("grant_type", "code", "client_id", "code_verifier")
 # RFC 7636 section 4.1: 43 to 128 characters from the unreserved set.
 _CODE_VERIFIER_RE = re.compile(r"[A-Za-z0-9\-._~]{43,128}")
 
-_TokenError = Literal["invalid_request", "unsupported_grant_type"]
+_TokenError = Literal["invalid_request", "unsupported_grant_type", "invalid_grant"]
 
 
 def _error(error: _TokenError) -> None:
@@ -42,11 +46,12 @@ class OAuthTokenPage(Page):
     OAuth-consuming feature is enabled for the site (the enabled predicate is
     injected at registration).
 
-    This is a stub: the request shape is validated (POST, form encoding,
-    grant_type, required parameters, code_verifier syntax) and rejections
-    follow the RFC 6749 section 5.2 error format, but the authorization code
-    grant itself is not verified yet -- no code redemption, no PKCE, no
-    client binding; any well-formed request gets a random access token.
+    The request shape is validated (POST, form encoding, grant_type, required
+    parameters, code_verifier syntax) and authorization codes are redeemed
+    single-use against the store the authorize endpoint fills; rejections
+    follow the RFC 6749 section 5.2 error format. Still missing: the PKCE
+    code_verifier and the client/resource bindings of the stored record are
+    not verified yet, and the access token remains a random stub value.
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -92,15 +97,41 @@ class OAuthTokenPage(Page):
         # redirect_uri is deliberately not required here: OAuth 2.1
         # (section 10.2) removed it from the token request; it is only
         # enforced against the stored record if the client sends one.
-        if not form.get("code") or not form.get("client_id"):
+        code = form.get("code")
+        if not code or not form.get("client_id"):
             _error("invalid_request")
             return None
 
         # Absent and malformed count the same: the syntax check runs before
-        # any code would be consumed, so a bad request never burns a code.
+        # the code is consumed, so a bad request never burns a code.
         code_verifier = form.get("code_verifier")
         if code_verifier is None or _CODE_VERIFIER_RE.fullmatch(code_verifier) is None:
             _error("invalid_request")
+            return None
+
+        # The GETDEL behind consume() burns the code on this first touch, so
+        # even concurrent redemption attempts yield at most one success.
+        try:
+            record = AuthCodeStore().consume(code)
+        except Exception:
+            # Deliberately also catches the GUI request timeout (MKTimeout):
+            # the client should get the OAuth-level error response.
+            # RFC 6749 section 5.2 defines no server_error code for the token
+            # endpoint (unlike the authorize side), so a plain 500. The
+            # security event only carries a static reason; the cause goes to
+            # the log.
+            logger.exception("failed to redeem OAuth authorization code")
+            log_security_event(
+                OAuthTokenFailureEvent(
+                    reason="failed to redeem authorization code",
+                    client_id=form.get("client_id"),
+                    remote_ip=request.remote_ip,
+                )
+            )
+            response.status_code = http_client.INTERNAL_SERVER_ERROR
+            return None
+        if record is None:
+            _error("invalid_grant")
             return None
 
         response.set_content_type("application/json")

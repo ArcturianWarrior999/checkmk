@@ -14,6 +14,7 @@ import pytest
 from flask import Flask
 from pytest_mock import MockerFixture
 
+from cmk.ccc.exceptions import MKTimeout
 from cmk.ccc.user import UserId
 from cmk.gui.config import Config
 from cmk.gui.http import request, response
@@ -47,13 +48,6 @@ def fixture_mock_vue_manifest() -> Iterator[None]:
     )
     with patch("cmk.gui.htmllib.html._load_vue_manifest", return_value=fake_manifest):
         yield
-
-
-@pytest.fixture(name="clean_redis")
-def fixture_clean_redis(flask_app: Flask, allow_redis: None) -> None:
-    # The fakeredis instance behind get_redis_client() is shared across the
-    # test module; start each test from an empty store.
-    get_redis_client().flushall()
 
 
 _SESSION_USER = UserId("alice")
@@ -776,6 +770,35 @@ class TestOAuthAuthorizePage:
                 )
 
         mock_logger.exception.assert_called_once()
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_treats_a_request_timeout_as_a_store_failure(
+        self, flask_app: Flask, mocker: MockerFixture
+    ) -> None:
+        # A timeout inside store() takes the store-outage path, not the framework's handling.
+        mocker.patch.object(AuthCodeStore, "store", side_effect=MKTimeout)
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": "test-client",
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+            target_url = _extract_redirect_target(response.get_data(as_text=True))
+
+        assert parse_qs(urlsplit(target_url).query)["error"] == ["server_error"]
 
     def test_logs_security_event_when_code_challenge_method_is_unsupported(
         self, flask_app: Flask, mocker: MockerFixture, registered_client_id: str

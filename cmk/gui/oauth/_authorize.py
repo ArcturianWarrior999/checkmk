@@ -166,8 +166,11 @@ class OAuthAuthorizePage(Page):
         except Exception:
             # A code without a stored record can never be redeemed; handing it
             # to the client would only feign success. RFC 6749 section 4.1.2.1
-            # calls this condition server_error. The security event only
-            # carries a static reason, so the cause goes to the log.
+            # calls this condition server_error.
+            # Deliberately also catches the GUI request timeout (MKTimeout):
+            # the client should get the OAuth error redirect.
+            # The security event only carries a static reason, so the cause
+            # goes to the log.
             logger.exception("failed to persist OAuth authorization code")
             self._log_authorization_failure("failed to persist authorization code")
             self._error_redirect(ctx, redirect_uri, "server_error")

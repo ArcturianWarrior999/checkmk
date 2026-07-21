@@ -140,6 +140,28 @@ class OAuthAuthorizationFailureEvent(SecurityEvent):
 
 
 @dataclass
+class OAuthTokenFailureEvent(SecurityEvent):
+    """Indicates a rejected OAuth token request"""
+
+    def __init__(
+        self,
+        *,
+        reason: str,
+        client_id: str | None,
+        remote_ip: str | None,
+    ) -> None:
+        super().__init__(
+            "oauth token request rejected",
+            {
+                "reason": reason,
+                "client_id": client_id or "Unknown client",
+                "remote_ip": remote_ip,
+            },
+            SecurityEvent.Domain.auth,
+        )
+
+
+@dataclass
 class UserManagementEvent(SecurityEvent):
     """Indicates a user creation, modification or deletion"""
 
