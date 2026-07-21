@@ -61,7 +61,6 @@ _LOGGING_METHODS = frozenset({"log", "debug", "info", "warning", "error", "excep
 #: Transitional: shrink until empty, then remove this exclusion.
 _EXCLUDED_PREFIXES = (
     "cmk",
-    "non-free",
     "tests",
 )
 
@@ -73,15 +72,10 @@ _INCLUDED_PATHS = (
     "cmk/update_config",
     "cmk/base",
     "cmk/utils",
-    "non-free/packages/cmk-update-agent",
-    "non-free/packages/cmk-dcd/cmk/dcd",
-    "non-free/packages/cmk-relay-engine",
-    "non-free/packages/cmk-liveproxyd",
     "cmk/gui/nonfree",
     "cmk/gui/watolib",
     "cmk/gui/background_job",
     "cmk/gui/userdb",
-    "non-free/packages/cmk-mknotifyd",
     "cmk/special_agents",
     "cmk/gui/ldap_integration",
 )
