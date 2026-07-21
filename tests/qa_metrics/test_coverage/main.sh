@@ -130,8 +130,8 @@ fi
 # runfiles tree, not in this directory.
 COVERAGE_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report.dat"
 COVERAGE_FILTERED_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report_filtered.dat"
-COVERAGE_HTML_DIR="$REPO_PATH/results/coverage"
-RESULT_CSV="$COVERAGE_HTML_DIR/coverage.csv"
+COVERAGE_HTML_DIR="$REPO_PATH/results/test_coverage_html"
+RESULT_CSV="$REPO_PATH/results/test_coverage.csv"
 PY_TEST_TARGETS="/tmp/py_test_targets.txt"
 
 if [[ "$RUN" == true ]]; then
@@ -281,7 +281,7 @@ if [[ "$DO_UPLOAD" == true ]]; then
         exit 1
     fi
 
-    mkdir -p "$COVERAGE_HTML_DIR"
+    mkdir -p "$(dirname "$RESULT_CSV")"
     bazel run "$PKG:summary" "$EDITION_FLAG" -- \
         -i "$COVERAGE_FILTERED_DAT" -o "$RESULT_CSV"
     if [ ! -f "$RESULT_CSV" ]; then
