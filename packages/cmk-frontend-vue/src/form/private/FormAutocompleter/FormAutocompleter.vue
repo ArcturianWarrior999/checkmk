@@ -35,7 +35,6 @@ const props = defineProps<{
   width?: ButtonVariants['width']
   hasError?: boolean
   disabled?: boolean
-  floating?: boolean
 }>()
 
 const model = defineModel<string | null>({ default: null })
@@ -77,7 +76,6 @@ const slots = useSlots()
     :no-results-hint="_t('No results found')"
     :form-validation="hasError || false"
     :disabled="disabled || false"
-    :floating="floating || false"
   >
     <template v-if="slots['buttons-start']" #buttons-start>
       <slot name="buttons-start"></slot>

@@ -79,7 +79,6 @@ const autocompleter: Autocompleter = {
       :size="0"
       :width="'fill'"
       :placeholder="_t('Type to search...')"
-      floating
     />
 
     <!-- eslint-disable vue/no-v-html -->

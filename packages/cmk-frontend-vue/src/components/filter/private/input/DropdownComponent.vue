@@ -67,7 +67,6 @@ const handleValueUpdate = (value: string | null): void => {
     :input-hint="_t('Select an option...')"
     :no-results-hint="_t('No options available')"
     :width="`fill`"
-    floating
     @update:model-value="handleValueUpdate"
   />
 </template>
