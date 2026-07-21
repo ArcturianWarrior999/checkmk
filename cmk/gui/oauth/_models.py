@@ -74,3 +74,14 @@ class OAuthTokenResponse(BaseModel):
 
     access_token: str
     token_type: str = "Bearer"
+
+
+class OAuthTokenErrorResponse(BaseModel):
+    """RFC 6749 section 5.2 token endpoint error response.
+
+    Serialized with exclude_none so the optional error_description is absent
+    from the body rather than null: clients parse {"error": ...} strictly.
+    """
+
+    error: str
+    error_description: str | None = None
