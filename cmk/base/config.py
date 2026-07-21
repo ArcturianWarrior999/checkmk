@@ -3456,37 +3456,7 @@ class EnforcedServicesTable:
             {
                 (sid := ServiceID(check_plugin_name, item)): (
                     RulesetName(checkgroup_name),
-                    ConfiguredService(
-                        check_plugin_name=check_plugin_name,
-                        item=item,
-                        description=(
-                            description := self._service_name_config(
-                                hostname,
-                                sid,
-                                (
-                                    None
-                                    if (
-                                        p := agent_based_register.get_check_plugin(
-                                            check_plugin_name, self._plugins
-                                        )
-                                    )
-                                    is None
-                                    else p.service_name
-                                ),
-                            )
-                        ),
-                        parameters=compute_enforced_service_parameters(
-                            self._plugins, check_plugin_name, params
-                        ),
-                        discovered_parameters={},
-                        discovered_labels={},
-                        # Enforced services have no discovered labels, but the "Service
-                        # labels" ruleset still applies. Compute the effective labels
-                        # (as the discovered and clustered-enforced paths do) so they
-                        # reach the monitoring core config.
-                        labels=self._labels_of_service(hostname, description, {}),
-                        is_enforced=True,
-                    ),
+                    self._make_configured_service(hostname, sid, params),
                 )
                 for checkgroup_name, matched_rule_values in self._enforced_services_config(
                     hostname
@@ -3495,6 +3465,30 @@ class EnforcedServicesTable:
                     self._sanitize_enforced_entry(*entry) for entry in reversed(matched_rule_values)
                 )
             },
+        )
+
+    def _make_configured_service(
+        self,
+        hostname: HostName,
+        sid: ServiceID,
+        params: TimespecificParameterSet,
+    ) -> ConfiguredService:
+        p = agent_based_register.get_check_plugin(sid.name, self._plugins)
+        description = self._service_name_config(
+            hostname, sid, None if p is None else p.service_name
+        )
+        return ConfiguredService(
+            check_plugin_name=sid.name,
+            item=sid.item,
+            description=description,
+            parameters=compute_enforced_service_parameters(self._plugins, sid.name, params),
+            discovered_parameters={},
+            discovered_labels={},
+            # Enforced services have no discovered labels, but the "Service labels" ruleset
+            # still applies. Compute the effective labels (mirroring the discovered-service and
+            # clustered-enforced-service paths) so they reach the monitoring core config.
+            labels=self._labels_of_service(hostname, description, {}),
+            is_enforced=True,
         )
 
     @staticmethod
