@@ -328,6 +328,9 @@ const hostService = new HostService(hostApi, getKeyShortcutServiceInstance(), {
   quickFilters: [
     {
       label: _t('Unhandled host problems'),
+      tooltip: _t(
+        'Show only hosts in a problem state (DOWN or UNREACH) that are neither acknowledged nor in a scheduled downtime'
+      ),
       filter: {
         type: 'and',
         children: [
@@ -544,6 +547,7 @@ function navigateToLegacy() {
             v-for="chip in hostService.filters.quickFilters"
             :key="chip.label"
             :label="chip.label"
+            :tooltip="chip.tooltip"
             :active="chip.isActive.value"
             @activate="hostService.activateQuickFilter(chip)"
             @deactivate="hostService.deactivateQuickFilter(chip)"

@@ -11,6 +11,7 @@ import { filterNodesEqual, getTopLevelConditions, setCondition } from './filterN
 
 export interface QuickFilterConfig {
   label: string
+  tooltip?: string
   /** Preset conditions applied when the quick filter is activated. Omit for an empty filter. */
   filter?: FilterNode
   /**
@@ -22,6 +23,7 @@ export interface QuickFilterConfig {
 
 export interface QuickFilter {
   readonly label: string
+  readonly tooltip: string | undefined
   /** Derived: true when both the filter and search query match this quick filter's preset. */
   readonly isActive: ComputedRef<boolean>
   readonly filter: FilterNode | undefined
@@ -38,6 +40,7 @@ export class FilterStore {
     const filterNode = this.filterNode
     this.quickFilters = quickFilterConfigs.map((c) => ({
       label: c.label,
+      tooltip: c.tooltip,
       isActive: computed(
         () =>
           filterNodesEqual(filterNode.value, c.filter) &&
