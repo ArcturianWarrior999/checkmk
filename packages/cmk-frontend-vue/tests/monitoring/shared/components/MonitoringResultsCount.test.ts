@@ -8,22 +8,13 @@ import { ref } from 'vue'
 
 import MonitoringResultsCount from '@/monitoring/shared/components/MonitoringResultsCount.vue'
 import { MONITORING_SERVICE } from '@/monitoring/shared/components/MonitoringTableContext'
-import type { FetchState, MonitoringService } from '@/monitoring/shared/services/MonitoringService'
+import type { MonitoringService } from '@/monitoring/shared/services/MonitoringService'
 
-function makeServiceStub(
-  matched = 0,
-  total = 0,
-  committedSearchQuery = '',
-  activeFilterCount = 0,
-  { resultsTruncated = false, fetchState = 'idle' as FetchState } = {}
-) {
+function makeServiceStub(matched = 0, committedSearchQuery = '', activeFilterCount = 0) {
   return {
     matched: ref(matched),
-    total: ref(total),
     committedSearchQuery: ref(committedSearchQuery),
-    filters: { activeFilterCount },
-    resultsTruncated: ref(resultsTruncated),
-    fetchState: ref(fetchState)
+    filters: { activeFilterCount }
   }
 }
 
@@ -35,38 +26,32 @@ function renderCount(stub: ReturnType<typeof makeServiceStub>) {
   })
 }
 
-test('shows the total row count when nothing narrows the results', () => {
-  renderCount(makeServiceStub(42, 42))
+test('shows the matched row count when a search is active', () => {
+  renderCount(makeServiceStub(3, 'web'))
 
-  expect(screen.getByText('Total rows: 42')).toBeInTheDocument()
+  expect(screen.getByText('Rows matching your criteria: 3')).toBeInTheDocument()
 })
 
-test('shows no count text when there are no matches', () => {
-  renderCount(makeServiceStub(0, 0))
+test('shows the matched row count when a filter is active', () => {
+  renderCount(makeServiceStub(3, '', 1))
 
-  expect(screen.queryByText('Total rows: 0')).not.toBeInTheDocument()
+  expect(screen.getByText('Rows matching your criteria: 3')).toBeInTheDocument()
 })
 
-test('shows the criteria wording when only a search is active', () => {
-  renderCount(makeServiceStub(3, 10, 'web'))
+test('shows no criteria text when neither a search nor a filter narrows the results', () => {
+  renderCount(makeServiceStub(42))
 
-  expect(screen.getByText('Rows matching your criteria: 3 | Total rows: 10')).toBeInTheDocument()
-})
-
-test('shows the criteria wording when a filter is active', () => {
-  renderCount(makeServiceStub(3, 10, '', 1))
-
-  expect(screen.getByText('Rows matching your criteria: 3 | Total rows: 10')).toBeInTheDocument()
+  expect(screen.queryByText(/Rows matching your criteria/)).not.toBeInTheDocument()
 })
 
 test('keeps the line in the layout so the table does not jump', () => {
-  const { container } = renderCount(makeServiceStub(0, 0))
+  const { container } = renderCount(makeServiceStub(42))
 
   expect(container.querySelector('.monitoring-results-count')).toBeInTheDocument()
 })
 
-test('steps aside for the truncation notice when the result set is capped', () => {
-  const { container } = renderCount(makeServiceStub(4851, 4851, '', 0, { resultsTruncated: true }))
+test('shows no count when the criteria match no rows', () => {
+  renderCount(makeServiceStub(0, 'nope'))
 
-  expect(container.querySelector('.monitoring-results-count')).not.toBeInTheDocument()
+  expect(screen.queryByText(/Rows matching your criteria/)).not.toBeInTheDocument()
 })

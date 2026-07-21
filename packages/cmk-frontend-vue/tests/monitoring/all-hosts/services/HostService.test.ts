@@ -104,7 +104,6 @@ describe('HostService', () => {
 
     expect(service.offeredLimits).toEqual([1000, 5000])
     expect(service.requestedLimit.value).toBe(1000)
-    expect(service.canRaiseLimit.value).toBe(true)
     expect(fetchHosts).toHaveBeenLastCalledWith(
       expect.objectContaining({ limit: 1000 }),
       expect.any(AbortSignal)
@@ -149,7 +148,6 @@ describe('HostService', () => {
       expect.objectContaining({ limit: 5000 }),
       expect.any(AbortSignal)
     )
-    expect(service.canRaiseLimit.value).toBe(false)
 
     service.setRequestedLimit(1000)
     await vi.advanceTimersByTimeAsync(0)

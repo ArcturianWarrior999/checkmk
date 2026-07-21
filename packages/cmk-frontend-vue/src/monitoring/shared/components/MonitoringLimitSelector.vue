@@ -58,7 +58,5 @@ const selected = computed<string | null>({
   align-items: center;
   gap: var(--dimension-3);
   white-space: nowrap;
-  color: var(--font-color-dimmed);
-  font-size: var(--font-size-small);
 }
 </style>

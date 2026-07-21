@@ -40,7 +40,7 @@ import MonitoringEmptyState from '../shared/components/MonitoringEmptyState.vue'
 import MonitoringLimitSelector from '../shared/components/MonitoringLimitSelector.vue'
 import MonitoringResultsCount from '../shared/components/MonitoringResultsCount.vue'
 import MonitoringTable from '../shared/components/MonitoringTable.vue'
-import MonitoringTruncationNotice from '../shared/components/MonitoringTruncationNotice.vue'
+import MonitoringTotalCount from '../shared/components/MonitoringTotalCount.vue'
 import RefreshCountdown from '../shared/components/RefreshCountdown.vue'
 import ActionFeedback, {
   type ActionFeedback as ActionFeedbackResult
@@ -557,7 +557,6 @@ function navigateToLegacy() {
         </button>
       </div>
       <div class="monitoring-all-hosts-app__header-end">
-        <MonitoringLimitSelector />
         <RefreshCountdown
           :remaining="hostService.secondsRemaining.value"
           :interval="hostService.pollIntervalSeconds"
@@ -579,20 +578,25 @@ function navigateToLegacy() {
       <template #left>
         <div class="monitoring-all-hosts-app__left-pane">
           <MonitoringResultsCount class="monitoring-all-hosts-app__results-count" />
-          <MonitoringTruncationNotice class="monitoring-all-hosts-app__truncation-notice" />
           <ActionFeedback
             v-if="feedback"
             v-model:open="feedbackOpen"
             class="monitoring-all-hosts-app__feedback"
             :feedback="feedback"
           />
-          <MonitoringActionBar
-            v-if="hostActions.length > 0"
-            class="monitoring-all-hosts-app__action-bar"
-            :selected-count="selectedCount"
-            :actions="hostActions"
-            @action="onBulkAction"
-          />
+          <div class="monitoring-all-hosts-app__table-toolbar">
+            <MonitoringActionBar
+              v-if="hostActions.length > 0"
+              class="monitoring-all-hosts-app__action-bar"
+              :selected-count="selectedCount"
+              :actions="hostActions"
+              @action="onBulkAction"
+            />
+            <div class="monitoring-all-hosts-app__table-toolbar-end">
+              <MonitoringTotalCount />
+              <MonitoringLimitSelector />
+            </div>
+          </div>
           <MonitoringTable
             v-model:row-selection="rowSelection"
             :rows="hostService.items.value"
@@ -766,19 +770,34 @@ function navigateToLegacy() {
   margin: var(--spacing-half) 0 var(--spacing);
 }
 
-.monitoring-all-hosts-app__truncation-notice {
-  flex: 0 0 auto;
-  margin: var(--spacing-half) 0 var(--spacing);
-}
-
 .monitoring-all-hosts-app__feedback {
   flex: 0 0 auto;
   margin: 0 0 var(--spacing);
 }
 
-.monitoring-all-hosts-app__action-bar {
+.monitoring-all-hosts-app__table-toolbar {
+  display: flex;
   flex: 0 0 auto;
+  align-items: center;
+  gap: var(--spacing);
   margin-bottom: var(--spacing);
+}
+
+.monitoring-all-hosts-app__action-bar {
+  flex: 0 1 auto;
+}
+
+.monitoring-all-hosts-app__table-toolbar-end {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--spacing);
+  margin-left: auto;
+}
+
+.monitoring-all-hosts-app__table-toolbar-end > :not(:first-child) {
+  border-left: 1px solid var(--font-color-dimmed);
+  padding-left: var(--spacing);
 }
 
 .monitoring-all-hosts-app__slide-in-back {

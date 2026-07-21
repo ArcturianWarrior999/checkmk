@@ -14,26 +14,18 @@ const { _t } = usei18n()
 
 const monitoringService = inject(MONITORING_SERVICE)
 
-const narrowed = computed(
-  () =>
-    (monitoringService?.filters.activeFilterCount ?? 0) > 0 ||
-    (monitoringService?.committedSearchQuery.value ?? '') !== ''
-)
+const total = computed(() => monitoringService?.total.value ?? 0)
 
-const matched = computed(() => monitoringService?.matched.value ?? 0)
-
-const visible = computed(() => narrowed.value && matched.value > 0)
-
-const label = computed(() => _t('Rows matching your criteria: %{count}', { count: matched.value }))
+const label = computed(() => _t('Total rows: %{total}', { total: total.value }))
 </script>
 
 <template>
-  <p class="monitoring-results-count" aria-live="polite">{{ visible ? label : '' }}</p>
+  <p v-if="total > 0" class="monitoring-total-count">{{ label }}</p>
 </template>
 
 <style scoped>
-.monitoring-results-count {
-  min-height: 1lh;
+.monitoring-total-count {
   margin: 0;
+  white-space: nowrap;
 }
 </style>
