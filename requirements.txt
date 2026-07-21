@@ -712,7 +712,9 @@ clickhouse-connect==1.5.0 \
     --hash=sha256:fd6cc1ca76d5b856902596fd54d30c2b6a92d459317fd94d04813baf2653bb59 \
     --hash=sha256:fd7d8241411cc0e674fa0558cc1171b7765adabc0bf1f5f193ca08cd5715f6ac \
     --hash=sha256:fea0fcd885be5507a59d6bc9864fb97f1e44fead1be9f351f4902e3ec4cacbf3
-    # via -r non-free/packages/cmk-metric-backend/requirements.in
+    # via
+    #   -r non-free/packages/cmk-metric-backend/requirements.in
+    #   -r non-free/packages/cmk-network-flow/requirements.in
 cmk-werk-zeug==0.3.6 \
     --hash=sha256:637d466fdfb9f10c8328c6ef2d36b17fe1bcfb3ebf7a901bc9f33c0b1dd66210 \
     --hash=sha256:daac14cb2fc33dca0c746890d7ba65c56359fd01d624a35500a8147002c6954b
