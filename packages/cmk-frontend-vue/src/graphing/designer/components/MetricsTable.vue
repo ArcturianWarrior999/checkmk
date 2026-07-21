@@ -245,33 +245,35 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
         </template>
 
         <template #expansion="{ row }">
-          <td v-if="titleColumnIndex > 0" :colspan="titleColumnIndex" />
-          <td
-            :colspan="columns.length - titleColumnIndex"
-            class="graphing-metrics-table__expansion"
-          >
-            <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
-            <p
-              v-else-if="row.type === 'metric_backend'"
-              class="graphing-metrics-table__placeholder"
+          <tr>
+            <td v-if="titleColumnIndex > 0" :colspan="titleColumnIndex" />
+            <td
+              :colspan="columns.length - titleColumnIndex"
+              class="graphing-metrics-table__expansion"
             >
-              {{ _t('This source type cannot be edited here yet.') }}
-            </p>
-            <div v-else class="graphing-metrics-table__editor-panel">
-              <RrdForm
-                v-if="row.type === 'rrd_metric' || row.type === 'rrd_query'"
-                :item="row"
-                :store="store"
-              />
-              <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
-              <ServiceReferenceLineForm
-                v-else-if="row.type === 'scalar'"
-                :item="row"
-                :store="store"
-                :thresholds="thresholds"
-              />
-            </div>
-          </td>
+              <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
+              <p
+                v-else-if="row.type === 'metric_backend'"
+                class="graphing-metrics-table__placeholder"
+              >
+                {{ _t('This source type cannot be edited here yet.') }}
+              </p>
+              <div v-else class="graphing-metrics-table__editor-panel">
+                <RrdForm
+                  v-if="row.type === 'rrd_metric' || row.type === 'rrd_query'"
+                  :item="row"
+                  :store="store"
+                />
+                <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
+                <ServiceReferenceLineForm
+                  v-else-if="row.type === 'scalar'"
+                  :item="row"
+                  :store="store"
+                  :thresholds="thresholds"
+                />
+              </div>
+            </td>
+          </tr>
         </template>
 
         <template #footer>

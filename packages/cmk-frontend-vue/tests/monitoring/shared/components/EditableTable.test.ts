@@ -56,7 +56,14 @@ function mountEditableTable(options: {
               h('td', { 'data-testid': `row-${row.id}` }, `${index}:${row.name}`)
             ],
             expansion: ({ row }: { row: Row }) =>
-              h('td', { colspan: 2, 'data-testid': `expansion-${row.id}` }, `expanded:${row.name}`),
+              h(
+                'tr',
+                h(
+                  'td',
+                  { colspan: 2, 'data-testid': `expansion-${row.id}` },
+                  `expanded:${row.name}`
+                )
+              ),
             ...(options.withFooter
               ? { footer: () => h('td', { colspan: 2, 'data-testid': 'footer-cell' }, 'Add') }
               : {}),
@@ -224,9 +231,12 @@ test('moves the expansion row with its data row when a reorder is applied', asyn
               ],
               expansion: ({ row }: { row: Row }) =>
                 h(
-                  'td',
-                  { colspan: 2, 'data-testid': `expansion-${row.id}` },
-                  `expanded:${row.name}`
+                  'tr',
+                  h(
+                    'td',
+                    { colspan: 2, 'data-testid': `expansion-${row.id}` },
+                    `expanded:${row.name}`
+                  )
                 )
             }
           )
