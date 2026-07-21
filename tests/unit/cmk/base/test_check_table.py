@@ -214,6 +214,7 @@ def test_check_table_enforced_vs_discovered_precedence(
         ),
         service_name_config,
         check_plugins,
+        config_cache.label_manager.labels_of_service,
     )
 
     node_services = config_cache.check_table(
@@ -236,6 +237,71 @@ def test_check_table_enforced_vs_discovered_precedence(
     assert _source_of_item(node_services, "node-item") == "enforced-on-node"
     assert _source_of_item(cluster_services, "cluster-item") == "enforced-on-node"
     assert _source_of_item(cluster_services, "cluster-item-overridden") == "enforced-on-cluster"
+
+
+def test_check_table_enforced_services_get_ruleset_labels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The 'Service labels' ruleset must apply to enforced services (SUP-29851).
+
+    Enforced services have no discovered labels, but ruleset-assigned labels must
+    still reach the monitoring core config via ConfiguredService.labels.
+    """
+    smart = CheckPluginName("smart_temp")
+    hostname = HostName("host")
+
+    ts = Scenario()
+    ts.add_host(hostname)
+    ts.set_option(
+        "static_checks",
+        {
+            "temperature": [
+                {
+                    "id": "01",
+                    "value": ("smart_temp", "enforced-item", {}),
+                    "condition": {"host_name": [hostname]},
+                },
+            ]
+        },
+    )
+    ts.set_ruleset(
+        "service_label_rules",
+        [
+            {
+                "id": "02",
+                "condition": {"service_description": [{"$regex": "Temperature SMART"}]},
+                "value": {"from_ruleset": "yes"},
+            }
+        ],
+    )
+    loading_result = ts.apply(monkeypatch)
+    config_cache = loading_result.config_cache
+    service_name_config = config_cache.make_passive_service_name_config(
+        make_final_service_name_config(loading_result.loaded_config, config_cache.ruleset_matcher)
+    )
+    check_plugins = _TEST_CHECK_PLUGINS
+    enforced_services_table = EnforcedServicesTable(
+        BundledHostRulesetMatcher(
+            loading_result.loaded_config.static_checks,
+            config_cache.ruleset_matcher,
+            config_cache.label_manager.labels_of_host,
+        ),
+        service_name_config,
+        check_plugins,
+        config_cache.label_manager.labels_of_service,
+    )
+
+    services = config_cache.check_table(
+        hostname,
+        check_plugins,
+        config_cache.make_service_configurer(check_plugins, service_name_config),
+        service_name_config,
+        enforced_services_table,
+    )
+
+    enforced_service = services[ServiceID(smart, "enforced-item")]
+    assert enforced_service.is_enforced
+    assert enforced_service.labels == {"from_ruleset": "yes"}
 
 
 # TODO: This misses a lot of cases
@@ -591,6 +657,7 @@ def test_check_table(
         ),
         service_name_config,
         _TEST_CHECK_PLUGINS,
+        config_cache.label_manager.labels_of_service,
     )
 
     assert set(
@@ -719,6 +786,7 @@ def test_check_table__static_checks_win(
         ),
         service_name_config,
         _TEST_CHECK_PLUGINS,
+        config_cache.label_manager.labels_of_service,
     )
 
     chk_table = config_cache.check_table(

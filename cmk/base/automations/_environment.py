@@ -179,6 +179,7 @@ class AutomationEnvironment:
             ),
             self.passive_service_name_config,
             self.plugins.check_plugins,
+            self.label_manager.labels_of_service,
         )
 
     @cached_property

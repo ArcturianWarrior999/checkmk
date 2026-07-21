@@ -941,6 +941,7 @@ def _execute_discovery(
                     ),
                     service_name_config=passive_service_name_config,
                     plugins=plugins.check_plugins,
+                    labels_of_service=config_cache.label_manager.labels_of_service,
                 )(host_name).items()
             },
             on_error=on_error,
@@ -3407,6 +3408,7 @@ class AutomationDiagHost:
                     ),
                     service_name_config,
                     plugins.check_plugins,
+                    config_cache.label_manager.labels_of_service,
                 ),
                 SNMPFetcherConfig(
                     on_error=OnError.RAISE,

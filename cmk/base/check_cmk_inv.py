@@ -162,6 +162,7 @@ def _inventory_as_check(
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
 
     ip_lookup_config = config_cache.ip_lookup_config()
