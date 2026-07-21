@@ -57,14 +57,11 @@ def get_single_oid(
 
     if value is not None:
         logger.debug("Got OID %(oid): %(value)s", {"oid": oid, "value": value})
-    else:
-        logger.warning("Getting OID %(oid)s failed.", {"oid": oid})
-
-    if value is not None:
         decoded_value: SNMPDecodedString | None = ensure_str(
             value, encoding=backend.config.character_encoding
         )  # used ensure_str function with different possible encoding arguments
     else:
+        logger.warning("Getting OID %(oid)s failed.", {"oid": oid})
         decoded_value = value
 
     single_oid_cache[oid] = decoded_value
