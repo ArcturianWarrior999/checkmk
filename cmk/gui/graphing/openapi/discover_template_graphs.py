@@ -25,7 +25,7 @@ from .._engine_plugins import registered_graphs, registered_metrics, registered_
 from .._engine_rrd import EngineRRDFetchMetricNames
 from .._engine_template_graphs import build_template_graphs, matches_graph_id
 from ._family import GRAPH_FAMILY
-from .models import ApiDiscoveredGraph
+from .models import ApiDiscoveredGraph, GraphsDiscoverResponse
 
 
 @api_model
@@ -42,23 +42,9 @@ class TemplateGraphsDiscoverRequest:
     )
 
 
-@api_model
-class TemplateGraphsDiscoverResponse:
-    graphs: list[ApiDiscoveredGraph] = api_field(
-        description="The data-less graph definitions of the service. Empty when nothing matched.",
-    )
-    no_data_message: str | None = api_field(
-        description=(
-            "A human-readable explanation of why no graphs are available (an expected empty "
-            "state, e.g. a filter matching no monitored data), or null when graphs were found."
-        ),
-        example="The service 'CPU load' of host 'my-host' has no matching template graphs.",
-    )
-
-
 def discover_template_graphs_v1(
     body: TemplateGraphsDiscoverRequest,
-) -> TemplateGraphsDiscoverResponse:
+) -> GraphsDiscoverResponse:
     """Discover the data-less template graph definitions of a service"""
     try:
         graphs = build_template_graphs(
@@ -74,7 +60,7 @@ def discover_template_graphs_v1(
             ),
         )
     except MKMissingDataError as exc:
-        return TemplateGraphsDiscoverResponse(graphs=[], no_data_message=str(exc))
+        return GraphsDiscoverResponse(graphs=[], no_data_message=str(exc))
     except MKLivestatusException as exc:
         raise ProblemException(
             status=503,
@@ -91,14 +77,14 @@ def discover_template_graphs_v1(
     if body.graph_id is not None:
         graphs = [graph for graph in graphs if matches_graph_id(graph, body.graph_id)]
     if not graphs:
-        return TemplateGraphsDiscoverResponse(
+        return GraphsDiscoverResponse(
             graphs=[],
             no_data_message=(
                 f"The service '{body.service_description}' of host '{body.hostname}' has no "
                 "matching template graphs."
             ),
         )
-    return TemplateGraphsDiscoverResponse(
+    return GraphsDiscoverResponse(
         graphs=[ApiDiscoveredGraph.from_graph(graph) for graph in graphs],
         no_data_message=None,
     )

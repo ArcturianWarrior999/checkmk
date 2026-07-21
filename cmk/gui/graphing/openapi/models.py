@@ -116,6 +116,22 @@ class ApiDiscoveredGraph:
 
 
 @api_model
+class GraphsDiscoverResponse:
+    """The shared response of the graph discovery endpoints."""
+
+    graphs: list[ApiDiscoveredGraph] = api_field(
+        description="The data-less graph definitions. Empty when nothing matched.",
+    )
+    no_data_message: str | None = api_field(
+        description=(
+            "A human-readable explanation of why no graphs are available (an expected empty "
+            "state, e.g. a filter matching no monitored data), or null when graphs were found."
+        ),
+        example="There is no registered metric named 'cpu_utilization'.",
+    )
+
+
+@api_model
 class GraphFetchRequest:
     graph_type: str = api_field(
         description="The graph type, selecting the engine evaluator.", example="template"
