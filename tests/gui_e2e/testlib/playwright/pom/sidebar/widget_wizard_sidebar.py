@@ -173,7 +173,7 @@ class MetricsAndGraphsWidgetWizard(BaseWidgetWizard):
     @property
     def _combobox_text_input(self) -> Locator:
         """Locator property of the text input to search a value in a combobox."""
-        return self.locator().get_by_role("listbox").get_by_role("textbox")
+        return self.locator().locator("ul.cmk-suggestions").get_by_role("textbox")
 
     @property
     def _host_selection_add_filter_button(self) -> Locator:
@@ -289,7 +289,7 @@ class MetricsAndGraphsWidgetWizard(BaseWidgetWizard):
         dropdown_helper = DropdownHelper[T](
             dropdown_name=dropdown_name,
             dropdown_box=dropdown,
-            dropdown_list=self.locator().get_by_role("listbox"),
+            dropdown_list=self.locator().locator("ul.cmk-suggestions"),
             text_input_filter=text_input,
         )
         dropdown_helper.select_option(option, search=(text_input is not None))

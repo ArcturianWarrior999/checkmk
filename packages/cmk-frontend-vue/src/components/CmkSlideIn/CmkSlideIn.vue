@@ -8,6 +8,8 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { DialogContent, DialogPortal, DialogRoot } from 'reka-ui'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
+import { provideFloatingTarget } from '@/lib/useFloatingTarget'
+
 import { useSlideInStack } from './useSlideInStack'
 
 // As DialogContent exists outside our vue app hierarchy, we manually apply our global vue CSS class
@@ -45,6 +47,8 @@ export interface CmkSlideInProps {
 const props = defineProps<CmkSlideInProps>()
 const emit = defineEmits(['close'])
 const dialogContentRef = ref<InstanceType<typeof DialogContent>>()
+
+provideFloatingTarget(() => dialogContentRef.value?.$el as HTMLElement | undefined)
 
 const { isTopMost, register, unregister } = useSlideInStack(props.stackPriority ?? null)
 const effectiveOpen = computed(() => props.open && isTopMost.value)
