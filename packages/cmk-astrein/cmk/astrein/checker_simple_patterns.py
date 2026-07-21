@@ -78,6 +78,7 @@ _INCLUDED_PATHS = (
     "cmk/gui/userdb",
     "cmk/special_agents",
     "cmk/gui/ldap_integration",
+    "cmk/gui/wato",
 )
 
 

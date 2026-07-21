@@ -1345,8 +1345,8 @@ class PageAjaxAgentReceiverPort(AjaxPage):
             return {"port": int(result), "is_default": False}  # type: ignore[call-overload]
         except Exception:
             logger.debug(
-                "Failed to get agent receiver port from site %s, using default",
-                site_id,
+                "Failed to get agent receiver port from site %(site_id)s, using default",
+                {"site_id": site_id},
                 exc_info=True,
             )
             return {"port": get_agent_receiver_port(omd_root), "is_default": True}

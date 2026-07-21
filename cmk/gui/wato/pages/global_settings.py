@@ -279,7 +279,7 @@ class ABCGlobalSettingsMode(WatoMode):
                 try:
                     to_text = valuespec.value_to_html(value)
                 except Exception:
-                    logger.exception("error converting %r to text", value)
+                    logger.exception("error converting %(value)r to text", {"value": value})
                     to_text = html.render_error(
                         _("Failed to render value: %(value)r") % {"value": value}
                     )
