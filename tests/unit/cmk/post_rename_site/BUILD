@@ -9,14 +9,10 @@ py_library(
     ],
     visibility = [":__subpackages__"],
     deps = [
-        "//cmk/gui:config",
-        "//cmk/gui:core_toolkit",
         "//cmk/plugins",
-        "//packages/cmk-ccc:user",
-        "//tests/testlib/unit",
-        requirement("flask"),
+        "//packages/cmk-ccc:version",
+        "//tests/testlib/gui",
         requirement("pytest"),
-        requirement("pytest-mock"),
     ],
 )
 
@@ -42,9 +38,6 @@ py_cmk_test(
         "//cmk/post_rename_site/plugins",
         "//tests/unit:conftest",
         requirement("pytest-asyncio"),
-        requirement("pytest-mock"),
-        requirement("werkzeug"),
-        requirement("flask"),
         requirement("pytest-random-order"),
     ],
 )
