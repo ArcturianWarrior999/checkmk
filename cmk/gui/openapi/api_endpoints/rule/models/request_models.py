@@ -244,6 +244,22 @@ class RuleConditionsRequestModel:
             self.service_labels = None
         return self
 
+    @model_validator(mode="after")
+    def _reject_empty_match_on(self) -> Self:
+        """Reject an empty `match_on` list, matching the GUI's own validation.
+
+        `MatchExpressionModel` is shared with the response side, where an empty
+        `match_on` list must still be representable (it is a valid, existing
+        condition meaning "matches no host/service") - so this is enforced here,
+        on the request model, rather than as a field constraint on the shared
+        model itself.
+        """
+        if self.host_name is not None and not self.host_name.match_on:
+            raise ValueError("Please add at least one host.")
+        if self.service_description is not None and not self.service_description.match_on:
+            raise ValueError("Please add at least one service pattern.")
+        return self
+
 
 @api_model
 class UpdateRuleModel:
