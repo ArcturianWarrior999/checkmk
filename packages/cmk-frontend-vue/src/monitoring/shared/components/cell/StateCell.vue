@@ -9,27 +9,35 @@ import usei18n from '@/lib/i18n'
 
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 
-import type { HostState } from '../../api/types.ts'
+import type { HostState, ServiceState } from '../../api/types.ts'
 import HostStateDisplay from '../HostStateDisplay.vue'
+import ServiceStateDisplay from '../ServiceStateDisplay.vue'
 import BaseCell from './BaseCell.vue'
 
-export interface StateCellProps {
-  state: HostState
+interface BaseStateCellProps {
   stale?: boolean | undefined
   pending?: boolean | undefined
   columnId?: string | undefined
 }
 
+export type StateCellProps = BaseStateCellProps &
+  ({ kind?: 'host'; state: HostState } | { kind: 'service'; state: ServiceState })
+
 const { _t } = usei18n()
 
-defineProps<StateCellProps>()
+const props = defineProps<StateCellProps>()
 </script>
 
 <template>
   <BaseCell :column-id="columnId">
     <template #default>
       <div class="monitoring-state-cell">
-        <HostStateDisplay :state="state" :pending="pending" />
+        <ServiceStateDisplay
+          v-if="props.kind === 'service'"
+          :state="props.state"
+          :pending="pending"
+        />
+        <HostStateDisplay v-else :state="props.state" :pending="pending" />
         <CmkMultitoneIcon
           v-if="stale"
           name="stale"
