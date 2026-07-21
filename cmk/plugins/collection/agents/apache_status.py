@@ -97,10 +97,7 @@ def parse_address_and_port(address_and_port, ssl_ports):
 
     # Switch protocol if port is SSL port. In case you use SSL on another
     # port you would have to change/extend the ssl_port list
-    if server_port in ssl_ports:
-        scheme = "https"
-    else:
-        scheme = "http"
+    scheme = "https" if server_port in ssl_ports else "http"
 
     return scheme, server_address, server_port
 

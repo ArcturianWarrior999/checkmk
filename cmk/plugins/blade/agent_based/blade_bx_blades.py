@@ -38,10 +38,7 @@ def check_blade_bx_blades(item: str, section: StringTable) -> CheckResult:
     for id_, status, serial, name in section:
         if id_ == item:
             state, state_readable = status_codes[status]
-            if name:
-                name_info = f"[{name}, Serial: {serial}]"
-            else:
-                name_info = "[Serial: %s]" % serial
+            name_info = f"[{name}, Serial: {serial}]" if name else "[Serial: %s]" % serial
             yield Result(state=state, summary=f"{name_info} Status: {state_readable}")
             return
 

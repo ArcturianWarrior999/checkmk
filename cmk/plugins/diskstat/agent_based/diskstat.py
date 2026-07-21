@@ -283,10 +283,7 @@ def diskstat_extract_name_info(
                     case "dmsetup_info":
                         try:
                             major, minor = map(int, line[1].split(":"))
-                            if len(line) == 4:
-                                name = "LVM %s" % line[0]
-                            else:
-                                name = "DM %s" % line[0]
+                            name = "LVM %s" % line[0] if len(line) == 4 else "DM %s" % line[0]
                             name_info[major, minor] = name
                         except Exception:
                             pass  # ignore such crap as "No Devices Found"

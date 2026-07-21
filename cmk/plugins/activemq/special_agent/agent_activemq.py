@@ -150,10 +150,7 @@ def _parse_api_url(
     port: int | None,
 ) -> str:
     address_start = f"{protocol}://{server_address}"
-    if port:
-        address = f"{address_start}:{port}"
-    else:
-        address = f"{address_start}"
+    address = f"{address_start}:{port}" if port else f"{address_start}"
 
     return f"{address}/admin/xml/"
 

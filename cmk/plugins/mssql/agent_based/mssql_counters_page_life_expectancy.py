@@ -44,13 +44,10 @@ def _get_item(item: str, section: Section) -> Counters:
     """
     sitem = item.split()
     obj = sitem[0]
-    if len(sitem) == 3:
-        instance = sitem[1]
-    else:
-        # This is the string set by the plug-in if the instance is not defined by MSSQL.
-        # We have to keep this for compatibility reasons with other counters. It is stripped
-        # off in the discovery of this plug-in to return a prettier item name.
-        instance = "None"
+    # "None" is the string set by the plug-in if the instance is not defined by MSSQL.
+    # We have to keep this for compatibility reasons with other counters. It is stripped
+    # off in the discovery of this plug-in to return a prettier item name.
+    instance = sitem[1] if len(sitem) == 3 else "None"
 
     return section.get((obj, instance), {})
 

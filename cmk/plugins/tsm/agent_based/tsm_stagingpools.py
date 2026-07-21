@@ -56,10 +56,7 @@ def parse_tsm_stagingpools(string_table: StringTable) -> SECTION:
 
     def add_item(lineinfo: Sequence[str]) -> None:
         inst, pool, util = lineinfo
-        if inst == "default":
-            item = pool
-        else:
-            item = inst + " / " + pool
+        item = pool if inst == "default" else inst + " / " + pool
         parsed.setdefault(item, [])
         parsed[item].append(util.replace(",", "."))
 

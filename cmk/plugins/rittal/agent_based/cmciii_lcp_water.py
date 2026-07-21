@@ -90,10 +90,7 @@ def check_cmciii_lcp_water(item: str, params: TempParamType, section: Section) -
     unit_status_name = section[2]
     yield Result(state=_parse_status(unit_status_name), summary=f"Unit: {unit_status_name}")
 
-    if item == "IN":
-        lines = section[5:12]
-    else:
-        lines = section[14:21]
+    lines = section[5:12] if item == "IN" else section[14:21]
 
     # ['18.2 \xb0C', '50.0 \xb0C', '40.0 \xb0C', '13.0 \xb0C', '10.0 \xb0C', '3 %', 'OK']
 

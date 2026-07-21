@@ -66,10 +66,7 @@ def check_datapower_pdrive(item: str, section: StringTable) -> CheckResult:
             member_of_ldrive = f"{controller}-{ldrive}"
             state, state_txt = datapower_pdrive_status[status]
             position_txt = datapower_pdrive_position[position]
-            if int(progress) != 0:
-                progress_txt = " - Progress: %s%%" % progress
-            else:
-                progress_txt = ""
+            progress_txt = " - Progress: %s%%" % progress if int(progress) != 0 else ""
             infotext = f"{state_txt}{progress_txt}, Position: {position_txt}, Logical Drive: {member_of_ldrive}, Product: {vendor} {product}"
             yield Result(state=state, summary=infotext)
 

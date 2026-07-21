@@ -588,10 +588,7 @@ def fetch_metric(inst, path, title, itemspec, inst_add=None):
         instance_out = instance_out.replace(" ", "_")
 
         if title:
-            if subinstance:
-                title_out = title + "." + subinstance[-1]
-            else:
-                title_out = title
+            title_out = title + "." + subinstance[-1] if subinstance else title
         else:
             title_out = subinstance[-1]
 

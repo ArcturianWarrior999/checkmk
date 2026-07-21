@@ -129,10 +129,7 @@ def check_mkbackup(job_state: JobData) -> CheckResult:
             # 60 seconds in case the check before the backup is delayed and
             # 60 seconds in case the mkbackup plugin doesn't update its state
             expected_time_with_buffer = next_run + 60 * 2
-            if time.time() > expected_time_with_buffer:
-                state = State.CRIT
-            else:
-                state = State.OK
+            state = State.CRIT if time.time() > expected_time_with_buffer else State.OK
             yield Result(state=state, summary="Next run: %s" % render.datetime(next_run))
 
 

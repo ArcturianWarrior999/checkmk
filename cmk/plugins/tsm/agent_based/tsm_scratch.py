@@ -35,10 +35,7 @@ def parse_tsm_scratch(string_table: StringTable) -> Section:
         except ValueError:
             continue
 
-        if inst != "default":
-            item = f"{inst} / {library}"
-        else:
-            item = library
+        item = f"{inst} / {library}" if inst != "default" else library
 
         section[item] = num_tapes
     return section

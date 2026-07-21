@@ -92,10 +92,7 @@ def check_cisco_hsrp(item: str, params: Mapping[str, Any], section: StringTable)
         _interface_index, hsrp_grp = hsrp_grp_entry.split(".")
         hsrp_state = int(r_hsrp_state)
 
-        if "-" in item:
-            vip_grp = f"{vip}-{hsrp_grp}"
-        else:
-            vip_grp = vip
+        vip_grp = f"{vip}-{hsrp_grp}" if "-" in item else vip
 
         if vip_grp == item:
             # FIXME: This should be shorter.

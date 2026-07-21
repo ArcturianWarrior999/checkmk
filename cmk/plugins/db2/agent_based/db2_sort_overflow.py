@@ -36,10 +36,7 @@ def check_db2_sort_overflow(item: str, params: Mapping[str, Any], section: Secti
         raise IgnoreResultsError("Login into database failed")
 
     total, overflows = (float(x[-1]) for x in db)
-    if total > 0:
-        overflow_perc = overflows * 100 / total
-    else:
-        overflow_perc = 0.0
+    overflow_perc = overflows * 100 / total if total > 0 else 0.0
     warn, crit = params["levels_perc"]
     if overflow_perc >= crit:
         yield Result(

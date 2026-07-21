@@ -72,10 +72,7 @@ def parse_hyperv_vm_nic(string_table: StringTable) -> Section:
                 current_nic_data[field_name] = full_id
 
                 # Extract the GUID part after the backslash to use as service name
-                if "\\" in full_id:
-                    nic_id = full_id.split("\\")[-1]
-                else:
-                    nic_id = full_id
+                nic_id = full_id.split("\\")[-1] if "\\" in full_id else full_id
 
             case "nic":
                 # Skip the "nic X" line - we don't need it since we use nic.name as separator

@@ -76,10 +76,7 @@ def check_genua_carp(item: str, section: Sequence[StringTable]) -> CheckResult:
     nodes = len(section)
     masters = 0
     output = ""
-    if nodes > 1:
-        prefix = "Cluster test: "
-    else:
-        prefix = "Node test: "
+    prefix = "Cluster test: " if nodes > 1 else "Node test: "
 
     # Loop over all nodes, just one line if not a cluster
     for line in section:
@@ -113,10 +110,7 @@ def check_genua_carp(item: str, section: Sequence[StringTable]) -> CheckResult:
             elif ifName == item and nodes == 1:
                 output = f"node in carp state {ifCarpStateStr} with IfLinkState {ifLinkStateStr}"
                 # carp backup
-                if ifCarpState == "1" and ifLinkState == "1":
-                    state = 0
-                else:
-                    state = 1
+                state = 0 if ifCarpState == "1" and ifLinkState == "1" else 1
 
     # no masters found in cluster
     if nodes > 1 and masters == 0:

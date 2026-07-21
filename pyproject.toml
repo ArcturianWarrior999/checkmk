@@ -212,7 +212,6 @@ ignore = [
 ]
 
 # SIM108 incremental rollout
-"cmk/plugins/**" = ["SIM108"]
 "cmk/gui/**" = ["SIM108"]
 "cmk/base/**" = ["SIM108"]
 "cmk/bi/**" = ["SIM108"]

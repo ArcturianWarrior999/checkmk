@@ -314,21 +314,12 @@ def check_oracle_asm_diskgroup(
             dg_sizefactor = 1
 
         elif dgtype == "NORMAL":
-            if fg_count == 1:
-                # we miss the 2nd required fg.
-                # => factor is down from 2 to 1
-                dg_sizefactor = 1
-
-            else:
-                dg_sizefactor = 2
+            # if fg_count == 1: we miss the 2nd required fg. => factor is down from 2 to 1
+            dg_sizefactor = 1 if fg_count == 1 else 2
 
         elif dgtype == "HIGH":
-            if fg_count <= 3:
-                # we are under the minimum required fgs for the dg.
-                dg_sizefactor = fg_count
-
-            else:
-                dg_sizefactor = 3
+            # if fg_count <= 3: we are under the minimum required fgs for the dg.
+            dg_sizefactor = fg_count if fg_count <= 3 else 3
 
         elif dgtype == "FLEX":
             dg_sizefactor = 1
@@ -388,18 +379,12 @@ def check_oracle_asm_diskgroup(
             add_text += ", old plug-in data, possible wrong used and free space"
 
             if dgtype == "NORMAL":
-                if voting_files == "Y":
-                    # NORMAL Redundancy Disk-Groups with Voting requires 3 Failgroups
-                    dg_sizefactor = 3
-                else:
-                    dg_sizefactor = 2
+                # NORMAL Redundancy Disk-Groups with Voting requires 3 Failgroups
+                dg_sizefactor = 3 if voting_files == "Y" else 2
 
             elif dgtype == "HIGH":
-                if voting_files == "Y":
-                    # HIGH Redundancy Disk-Groups with Voting requires 5 Failgroups
-                    dg_sizefactor = 5
-                else:
-                    dg_sizefactor = 3
+                # HIGH Redundancy Disk-Groups with Voting requires 5 Failgroups
+                dg_sizefactor = 5 if voting_files == "Y" else 3
 
     total_mb = total_mb // dg_sizefactor
     free_space_mb = free_mb // dg_sizefactor

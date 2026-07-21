@@ -87,14 +87,7 @@ class VPNTunnel:
             "phase_1",
             now,
         )
-        if self.phase_2:
-            rates_phase_2 = self.phase_2.rates(
-                value_store,
-                "phase_2",
-                now,
-            )
-        else:
-            rates_phase_2 = None
+        rates_phase_2 = self.phase_2.rates(value_store, "phase_2", now) if self.phase_2 else None
         if rates_phase_1 is None or (self.phase_2 and rates_phase_2 is None):
             raise IgnoreResultsError("Initializing counters")
         return VPNTunnel(

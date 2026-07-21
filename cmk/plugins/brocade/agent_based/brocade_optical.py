@@ -290,10 +290,7 @@ def discover_brocade_optical(
     params: Sequence[Mapping[str, Any]],
     section: Section,
 ) -> DiscoveryResult:
-    if section:
-        pad_width = max(map(len, section))
-    else:
-        pad_width = 0
+    pad_width = max(map(len, section)) if section else 0
 
     for key, entry in section.items():
         # find the most specific rule which applies to this interface and which has single-interface
@@ -331,10 +328,7 @@ def _infotext(
     unit: str,
 ) -> str:
     assert reading[0] is not None
-    if reading[0] < -214748.0:
-        reading_text = "off"
-    else:
-        reading_text = f"{reading[0]:.1f} {unit}"
+    reading_text = "off" if reading[0] < -214748.0 else f"{reading[0]:.1f} {unit}"
     return f"{title} {reading_text} ({reading[1]})"
 
 

@@ -87,10 +87,7 @@ def discover_cisco_vss(section: Sequence[StringTable]) -> DiscoveryResult:
 def check_cisco_vss(section: Sequence[StringTable]) -> CheckResult:
     chassis, ports = section
     for switch_id, chassis_role in chassis:
-        if chassis_role == "1":
-            state = State.CRIT
-        else:
-            state = State.OK
+        state = State.CRIT if chassis_role == "1" else State.OK
         yield Result(
             state=state, summary=f"chassis {switch_id}: {cisco_vss_role_names[chassis_role]}"
         )
@@ -98,19 +95,13 @@ def check_cisco_vss(section: Sequence[StringTable]) -> CheckResult:
     yield Result(state=State.OK, summary="%d VSL connections configured" % len(ports))
 
     for core_switch_id, operstatus, conf_portcount, op_portcount in ports:
-        if operstatus == "1":
-            state = State.OK
-        else:
-            state = State.CRIT
+        state = State.OK if operstatus == "1" else State.CRIT
         yield Result(
             state=state,
             summary=f"core switch {core_switch_id}: VSL {cisco_vss_operstatus_names[operstatus]}",
         )
 
-        if conf_portcount == op_portcount:
-            state = State.OK
-        else:
-            state = State.CRIT
+        state = State.OK if conf_portcount == op_portcount else State.CRIT
         yield Result(state=state, summary=f"{op_portcount}/{conf_portcount} ports operational")
 
 

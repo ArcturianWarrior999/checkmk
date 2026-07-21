@@ -141,11 +141,8 @@ def parse_apc_symmetra(
         state_output_state,
     ) = battery_info[0]
 
-    if state_output_state != "":
-        # string contains a bitmask, convert to int
-        output_state_bitmask = int(state_output_state, 2)
-    else:
-        output_state_bitmask = 0
+    # string contains a bitmask, convert to int
+    output_state_bitmask = int(state_output_state, 2) if state_output_state != "" else 0
     self_test_in_progress = output_state_bitmask & 1 << 35 != 0
 
     parsed["status"] = Status(

@@ -64,11 +64,8 @@ def cluster_check_ps(
     core_counts = {
         node_section[0] for node_section in section_ps.values() if node_section is not None
     }
-    if len(core_counts) == 1:
-        cpu_cores = core_counts.pop()
-    else:
-        # inconsistent cpu counts, what can we do? There's no 'None' option.
-        cpu_cores = 1
+    # inconsistent cpu counts, what can we do? There's no 'None' option.
+    cpu_cores = core_counts.pop() if len(core_counts) == 1 else 1
 
     yield from ps.check_ps_common(
         label="Processes",

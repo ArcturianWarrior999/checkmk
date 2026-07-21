@@ -233,10 +233,7 @@ def check_oracle_jobs(item: str, params: Mapping[str, Any], section: StringTable
             job_nextrun = job_schedule
     output.append("Next Run: %s" % job_nextrun)
 
-    if "missinglog" in params:
-        missinglog = params["missinglog"]
-    else:
-        missinglog = 1
+    missinglog = params.get("missinglog", 1)
 
     # A job who is running forever has no last run state and job_last_state is
     # STOPPED

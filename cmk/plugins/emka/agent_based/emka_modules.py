@@ -83,10 +83,7 @@ def parse_emka_modules(string_table: Sequence[StringTable]) -> Section | None:
             continue
 
         table = map_component_types[ty]
-        if remark == "":
-            itemname = oidend
-        else:
-            itemname = f"{remark} {oidend}"
+        itemname = oidend if remark == "" else f"{remark} {oidend}"
 
         parsed.setdefault(table, {})
         parsed[table].setdefault(itemname, {"_location_": oidend})
@@ -106,10 +103,7 @@ def parse_emka_modules(string_table: Sequence[StringTable]) -> Section | None:
 
     for oidend, threshold in string_table[5]:
         location, threshold_ty = oidend.split(".")
-        if threshold_ty == "1":
-            ty = "levels_lower"
-        else:
-            ty = "levels"
+        ty = "levels_lower" if threshold_ty == "1" else "levels"
 
         for entry, attrs in list(parsed.get("sensor", {}).items()):
             if attrs["_location_"].startswith(f"{location}."):

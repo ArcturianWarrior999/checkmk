@@ -100,10 +100,7 @@ def check_fortigate_signatures(params: FortigateSignaturesParams, section: Secti
         levels_upper: LevelsT[int] | None = None
         if key in params:
             _params = params[key]
-            if _params[0] is None:
-                levels_upper = ("no_levels", None)
-            else:
-                levels_upper = ("fixed", _params)
+            levels_upper = ("no_levels", None) if _params[0] is None else ("fixed", _params)
 
         yield from check_levels(
             entry.age,

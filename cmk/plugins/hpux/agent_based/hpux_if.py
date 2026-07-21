@@ -80,10 +80,7 @@ def parse_hpux_if(
 
 def hpux_parse_speed(speed: str) -> float:
     parts = speed.split()
-    if parts[1] == "Gbps":
-        mult = 1000 * 1000 * 1000
-    else:
-        mult = 1000 * 1000
+    mult = 1000 * 1000 * 1000 if parts[1] == "Gbps" else 1000 * 1000
     return float(parts[0]) * mult
 
 

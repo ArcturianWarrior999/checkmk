@@ -51,16 +51,10 @@ def check_stormshield_cluster(section: StringTable) -> CheckResult:
             state=State.OK, summary=f"Member: {number}, Active: {active}, Links used: {eth_links}"
         )
 
-        if _not_replying > 0:
-            status = State.CRIT
-        else:
-            status = State.OK
+        status = State.CRIT if _not_replying > 0 else State.OK
         yield Result(state=status, summary="Not replying: %s" % _not_replying)
 
-        if _faulty_links > 0:
-            status = State.CRIT
-        else:
-            status = State.OK
+        status = State.CRIT if _faulty_links > 0 else State.OK
         yield Result(state=status, summary="Faulty: %s" % _faulty_links)
 
 

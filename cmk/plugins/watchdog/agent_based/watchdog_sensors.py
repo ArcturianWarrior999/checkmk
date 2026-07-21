@@ -114,10 +114,7 @@ def parse_watchdog_sensors(string_table: Sequence[StringTable]) -> Section:
 
     version = int(general[0][0].replace(".", ""))
 
-    if version <= 300:
-        line_parser = _parse_legacy_line
-    else:
-        line_parser = _parse_line
+    line_parser = _parse_legacy_line if version <= 300 else _parse_line
 
     for line in data:
         for sensor_type, parsed_line in line_parser(line, temp_unit):

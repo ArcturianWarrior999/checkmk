@@ -96,10 +96,7 @@ def apache_status_parse_legacy(info: StringTable) -> Section:
 
         address, port = line[:2]
         value = caster(line[-1])
-        if port == "None":
-            item = address
-        else:
-            item = f"{address}:{port}"
+        item = address if port == "None" else f"{address}:{port}"
 
         if item not in data:
             data[item] = {}

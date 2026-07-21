@@ -178,10 +178,7 @@ def check_siemens_plc_duration(
             line[1].startswith("hours") or line[1].startswith("seconds")
         ) and f"{line[0]} {line[2]}" == item:
             value_store = get_value_store()
-            if line[1].startswith("hours"):
-                seconds = float(line[-1]) * 3600
-            else:
-                seconds = float(line[-1])
+            seconds = float(line[-1]) * 3600 if line[1].startswith("hours") else float(line[-1])
 
             key = f"siemens_plc.duration.{item}"
             old_seconds = value_store.get(key)

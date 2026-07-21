@@ -100,10 +100,7 @@ def parse_multipath(
                 if matchobject:
                     uuid = matchobject.group(uuid_pos).strip()
 
-                    if alias_pos:
-                        alias = matchobject.group(alias_pos)
-                    else:
-                        alias = None
+                    alias = matchobject.group(alias_pos) if alias_pos else None
 
                     if dm_pos:
                         dm_device: str | None = matchobject.group(dm_pos)
