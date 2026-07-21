@@ -782,6 +782,11 @@ def main(argv: list[str] | None = None) -> int:
     if os.getuid() == 0:
         output.error("cmk-dev-deploy must not be run as root.")
         return 1
+    # Everything created for the site (clone parent directories, wheel
+    # installs, ...) must stay readable by the *site* user; a restrictive
+    # personal umask (e.g. 027) would lock the site out of its own version
+    # tree.  Subprocesses (cp, uv, sudo) inherit this.
+    os.umask(0o022)
     _guard_terminal_settings()
     args = parse_args(argv)
     output.set_verbosity(args.verbose)

@@ -223,6 +223,39 @@ class TestEnsureClone:
 
 
 # ---------------------------------------------------------------------------
+# Parent directory permissions
+# ---------------------------------------------------------------------------
+
+
+class TestParentDirPermissions:
+    """The site user resolves its ``version`` symlink through the clone's
+    parent directories, so they must stay group/other-traversable no
+    matter which umask they were created under."""
+
+    def test_restrictive_umask_yields_traversable_parent_dirs(self, omd: FakeOmd) -> None:
+        old_umask = os.umask(0o077)
+        try:
+            ensure_clone(omd.site_root)
+        finally:
+            os.umask(old_umask)
+
+        for parent in (omd.dev_versions, omd.clone.parent):
+            assert parent.stat().st_mode & 0o055 == 0o055
+
+    def test_heals_restrictive_parent_dirs_of_active_clone(self, omd: FakeOmd) -> None:
+        """Dirs created by earlier tool versions under umask 027/077 are
+        repaired on the next run, even when the clone itself is a no-op."""
+        ensure_clone(omd.site_root)
+        omd.dev_versions.chmod(0o700)
+        omd.clone.parent.chmod(0o700)
+
+        ensure_clone(omd.site_root)
+
+        for parent in (omd.dev_versions, omd.clone.parent):
+            assert parent.stat().st_mode & 0o055 == 0o055
+
+
+# ---------------------------------------------------------------------------
 # Capability binaries
 # ---------------------------------------------------------------------------
 

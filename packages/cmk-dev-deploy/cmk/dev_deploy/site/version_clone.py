@@ -96,6 +96,7 @@ def ensure_clone(site_root: Path) -> None:
         CloneError: Unexpected symlink target, stale clone, or build failure.
     """
     site_name = site_root.name
+    _ensure_traversable(sudoers.DEV_VERSIONS_DIR, _clone_base(site_name))
     target = _read_version_link(site_root)
     if target is None:
         raise CloneError(f"Site {site_root} has no readable 'version' symlink")
@@ -206,6 +207,7 @@ def _build_clone(pristine: Path, clone: Path) -> None:
     if not pristine.is_dir():
         raise CloneError(f"Pristine version directory {pristine} does not exist")
     clone.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_traversable(clone.parent)
     partial = clone.parent / f".partial-{clone.name}"
     if partial.exists():
         _rmtree(partial)
@@ -329,6 +331,30 @@ def _link_capability_binaries(pristine: Path, clone: Path) -> None:
         clone_path.unlink()
         clone_path.symlink_to(path)
         output.verbose(f"  Linked capability binary to pristine: {rel}")
+
+
+def _ensure_traversable(*dirs: Path) -> None:
+    """Give existing *dirs* group/other read+execute permission.
+
+    The site user resolves its ``version`` symlink through these
+    deploy-user-owned directories.  Each is created only once, ever, so
+    one created under a restrictive umask (e.g. 027) locks the site user
+    out of the clone permanently: every service fails on start with
+    EACCES.  ``main()`` forces umask 022 for anything created from now
+    on; this heals directories created by earlier versions of this tool.
+    """
+    for path in dirs:
+        try:
+            mode = path.stat().st_mode
+            if mode & 0o055 != 0o055:
+                path.chmod(mode | 0o055)
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            output.warn(
+                f"{path} is not readable by the site user and cannot be fixed "
+                f"({exc}); fix manually: chmod go+rx {path}"
+            )
 
 
 def _ensure_writable_dirs(root: Path) -> None:
