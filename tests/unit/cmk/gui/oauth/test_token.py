@@ -3,6 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import urllib.parse
+
 import pytest
 from flask import Flask
 
@@ -12,7 +14,13 @@ from cmk.gui.oauth._token import OAuthTokenPage
 from cmk.gui.pages import PageContext
 
 _FORM_CONTENT_TYPE = "application/x-www-form-urlencoded"
-_VALID_FORM = {"grant_type": "authorization_code"}
+# The code_verifier is the RFC 7636 appendix B example value (43 characters).
+_VALID_FORM = {
+    "grant_type": "authorization_code",
+    "code": "SplxlOBeZQQYbYS6WxSbIA",
+    "client_id": "test-client",
+    "code_verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+}
 
 
 @pytest.mark.usefixtures("request_context")
@@ -71,7 +79,7 @@ class TestOAuthTokenPage:
     def test_accepts_a_form_content_type_with_charset_parameter(self, flask_app: Flask) -> None:
         with flask_app.test_request_context(
             method="POST",
-            data="grant_type=authorization_code",
+            data=urllib.parse.urlencode(_VALID_FORM),
             content_type="application/x-www-form-urlencoded; charset=UTF-8",
         ):
             flask_app.preprocess_request()
@@ -115,6 +123,74 @@ class TestOAuthTokenPage:
 
             assert response.status_code == 400
             assert response.json == {"error": "unsupported_grant_type"}
+
+    @pytest.mark.parametrize("param", ["code", "client_id", "code_verifier"])
+    def test_rejects_a_missing_required_parameter(self, flask_app: Flask, param: str) -> None:
+        form = {name: value for name, value in _VALID_FORM.items() if name != param}
+        with flask_app.test_request_context(method="POST", data=form):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_request"}
+
+    @pytest.mark.parametrize("param", ["code", "client_id", "code_verifier"])
+    def test_treats_an_empty_required_parameter_as_missing(
+        self, flask_app: Flask, param: str
+    ) -> None:
+        with flask_app.test_request_context(method="POST", data={**_VALID_FORM, param: ""}):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_request"}
+
+    @pytest.mark.parametrize("param", ["grant_type", "code", "client_id", "code_verifier"])
+    def test_rejects_a_duplicated_parameter(self, flask_app: Flask, param: str) -> None:
+        body = (
+            urllib.parse.urlencode(_VALID_FORM)
+            + "&"
+            + urllib.parse.urlencode({param: _VALID_FORM[param]})
+        )
+        with flask_app.test_request_context(
+            method="POST", data=body, content_type=_FORM_CONTENT_TYPE
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_request"}
+
+    @pytest.mark.parametrize(
+        "code_verifier",
+        [
+            "a" * 42,  # below the 43-character minimum
+            "a" * 129,  # above the 128-character maximum
+            "a" * 42 + "!",  # character outside the unreserved set
+            "a" * 42 + "+",
+        ],
+    )
+    def test_rejects_a_malformed_code_verifier(self, flask_app: Flask, code_verifier: str) -> None:
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code_verifier": code_verifier}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 400
+            assert response.json == {"error": "invalid_request"}
+
+    @pytest.mark.parametrize("code_verifier", ["a" * 43, "a" * 128])
+    def test_accepts_code_verifier_length_boundaries(
+        self, flask_app: Flask, code_verifier: str
+    ) -> None:
+        with flask_app.test_request_context(
+            method="POST", data={**_VALID_FORM, "code_verifier": code_verifier}
+        ):
+            flask_app.preprocess_request()
+            OAuthTokenPage(lambda: True).handle_page(PageContext(config=Config(), request=request))
+
+            assert response.status_code == 200
 
     def test_token_response_is_not_cacheable(self, flask_app: Flask) -> None:
         with flask_app.test_request_context(method="POST", data=_VALID_FORM):
