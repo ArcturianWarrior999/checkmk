@@ -7,6 +7,7 @@ from logging import Logger
 
 from cmk.ccc.site import SiteId
 from cmk.gui.config import active_config
+from cmk.gui.logged_in import user
 from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.post_rename_site.internal import (
@@ -66,6 +67,9 @@ def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger)
             all_sites,
             activate=True,
             pprint_value=active_config.wato_pprint_config,
+            liveproxyd_enabled=active_config.liveproxyd_enabled,
+            use_git=active_config.wato_use_git,
+            acting_user_id=user.id,
         )
 
 

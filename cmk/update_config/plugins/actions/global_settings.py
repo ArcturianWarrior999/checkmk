@@ -106,6 +106,9 @@ def _update_remote_site_specific_global_settings(
         configured_sites,
         activate=False,
         pprint_value=ui_config.wato_pprint_config,
+        liveproxyd_enabled=ui_config.liveproxyd_enabled,
+        use_git=ui_config.wato_use_git,
+        acting_user_id=None,
     )
 
 

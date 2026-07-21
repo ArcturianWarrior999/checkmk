@@ -72,6 +72,9 @@ def site_connection_login_v1(
             password=body.password,
             pprint_value=api_context.config.wato_pprint_config,
             debug=api_context.config.debug,
+            liveproxyd_enabled=api_context.config.liveproxyd_enabled,
+            use_git=api_context.config.wato_use_git,
+            acting_user_id=api_context.user.id,
         )
     except LoginException as exc:
         raise RestAPIRequestGeneralException(

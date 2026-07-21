@@ -414,6 +414,7 @@ class ModeEditSite(WatoMode):
         *,
         pprint_value: bool,
         use_git: bool,
+        liveproxyd_enabled: bool,
     ) -> ActionResult:
         if not transactions.check_transaction():
             return redirect(mode_url("sites"))
@@ -450,6 +451,9 @@ class ModeEditSite(WatoMode):
             configured_sites,
             activate=True,
             pprint_value=pprint_value,
+            liveproxyd_enabled=liveproxyd_enabled,
+            use_git=use_git,
+            acting_user_id=user.id,
         )
 
         msg = add_changes_after_editing_site_connection(
@@ -477,6 +481,7 @@ class ModeEditSite(WatoMode):
             self._configured_sites,
             pprint_value=config.wato_pprint_config,
             use_git=config.wato_use_git,
+            liveproxyd_enabled=config.liveproxyd_enabled,
         )
 
     def page(self, config: Config) -> None:
@@ -1133,6 +1138,8 @@ class ModeDistributedMonitoring(WatoMode):
                     local_site=omd_site(),
                     user_id=user.id,
                 ),
+                liveproxyd_enabled=config.liveproxyd_enabled,
+                use_git=config.wato_use_git,
             )
 
         delete_folders_id = request.get_ascii_input("_delete_folders")
@@ -1173,6 +1180,8 @@ class ModeDistributedMonitoring(WatoMode):
                     local_site=omd_site(),
                     user_id=user.id,
                 ),
+                liveproxyd_enabled=config.liveproxyd_enabled,
+                use_git=config.wato_use_git,
             )
 
         login_id = request.get_ascii_input("_login")
@@ -1183,6 +1192,7 @@ class ModeDistributedMonitoring(WatoMode):
                 debug=config.debug,
                 pprint_value=config.wato_pprint_config,
                 use_git=config.wato_use_git,
+                liveproxyd_enabled=config.liveproxyd_enabled,
             )
 
         if trigger_certs_site_id := request.get_ascii_input("_trigger_certs_creation"):
@@ -1207,6 +1217,8 @@ class ModeDistributedMonitoring(WatoMode):
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
+        liveproxyd_enabled: bool,
+        use_git: bool,
     ) -> ActionResult:
         # TODO: Can we delete this ancient code? The site attribute is always available
         # these days and the following code does not seem to have any effect.
@@ -1286,6 +1298,9 @@ class ModeDistributedMonitoring(WatoMode):
             delete_id,
             pprint_value=pprint_value,
             pending_changes=pending_changes,
+            liveproxyd_enabled=liveproxyd_enabled,
+            use_git=use_git,
+            acting_user_id=user.id,
         )
         return redirect(mode_url("sites"))
 
@@ -1336,6 +1351,8 @@ class ModeDistributedMonitoring(WatoMode):
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
+        liveproxyd_enabled: bool,
+        use_git: bool,
     ) -> ActionResult:
         configured_sites = self._site_mgmt.load_sites()
         site = configured_sites[logout_id]
@@ -1346,6 +1363,9 @@ class ModeDistributedMonitoring(WatoMode):
             configured_sites,
             activate=True,
             pprint_value=pprint_value,
+            liveproxyd_enabled=liveproxyd_enabled,
+            use_git=use_git,
+            acting_user_id=user.id,
         )
         pending_changes.add(
             Change(
@@ -1360,7 +1380,14 @@ class ModeDistributedMonitoring(WatoMode):
         return redirect(mode_url("sites"))
 
     def _action_login(
-        self, tree: FolderTree, login_id: SiteId, *, debug: bool, pprint_value: bool, use_git: bool
+        self,
+        tree: FolderTree,
+        login_id: SiteId,
+        *,
+        debug: bool,
+        pprint_value: bool,
+        use_git: bool,
+        liveproxyd_enabled: bool,
     ) -> ActionResult:
         configured_sites = self._site_mgmt.load_sites()
         if request.get_ascii_input("_cancel"):
@@ -1393,6 +1420,9 @@ class ModeDistributedMonitoring(WatoMode):
                     configured_sites,
                     activate=True,
                     pprint_value=pprint_value,
+                    liveproxyd_enabled=liveproxyd_enabled,
+                    use_git=use_git,
+                    acting_user_id=user.id,
                 )
                 message = _("Successfully logged into remote site %(site_alias)s.") % {
                     "site_alias": HTMLWriter.render_tt(site["alias"])
@@ -2000,6 +2030,9 @@ class ModeEditSiteGlobals(ABCGlobalSettingsMode):
             self._configured_sites,
             activate=False,
             pprint_value=config.wato_pprint_config,
+            liveproxyd_enabled=config.liveproxyd_enabled,
+            use_git=config.wato_use_git,
+            acting_user_id=user.id,
         )
 
         if self._site_id == omd_site():
@@ -2103,12 +2136,17 @@ class ModeEditSiteGlobalSetting(ABCEditGlobalSettingMode):
     def _affected_sites(self) -> list[SiteId]:
         return [self._site_id]
 
-    def _save(self, tree: FolderTree, *, pprint_value: bool, use_git: bool) -> None:
+    def _save(
+        self, tree: FolderTree, *, pprint_value: bool, use_git: bool, liveproxyd_enabled: bool
+    ) -> None:
         site_management_registry["site_management"].save_sites(
             tree,
             self._configured_sites,
             activate=False,
             pprint_value=pprint_value,
+            liveproxyd_enabled=liveproxyd_enabled,
+            use_git=use_git,
+            acting_user_id=user.id,
         )
         if self._site_id == omd_site():
             save_site_global_settings(self._current_settings)

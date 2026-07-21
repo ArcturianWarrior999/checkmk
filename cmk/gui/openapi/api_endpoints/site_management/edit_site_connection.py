@@ -74,6 +74,9 @@ def edit_site_connection_v1(
             site_id,
             site_config_spec_from_request,
             pprint_value=api_context.config.wato_pprint_config,
+            liveproxyd_enabled=api_context.config.liveproxyd_enabled,
+            use_git=api_context.config.wato_use_git,
+            acting_user_id=api_context.user.id,
         )
     except MKUserError as exc:
         raise RestAPIRequestGeneralException(

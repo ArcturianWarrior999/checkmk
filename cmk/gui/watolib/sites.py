@@ -16,6 +16,8 @@ from collections.abc import Collection, Mapping
 from multiprocessing import JoinableQueue, Process
 from typing import Any, assert_never, cast, NamedTuple, Protocol
 
+from flask import has_request_context
+
 import cmk.ccc.version as cmk_version
 import cmk.gui.sites
 import cmk.gui.watolib.activate_changes
@@ -24,6 +26,7 @@ from cmk.ccc import store
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.site import omd_site, SiteId
 from cmk.ccc.store import load_from_mk_file
+from cmk.ccc.user import UserId
 from cmk.gui import hooks, log
 from cmk.gui.config import active_config
 from cmk.gui.exceptions import MKUserError
@@ -142,7 +145,14 @@ def register(config_file_registry: ConfigFileRegistry) -> None:
 
 class LivestatusProxyHook(Protocol):
     def livestatus_proxy_form_spec(self) -> FormSpec[Any]: ...
-    def on_sites_saved(self, sites: SiteConfigurations) -> None: ...
+    def on_sites_saved(
+        self,
+        sites: SiteConfigurations,
+        *,
+        liveproxyd_enabled: bool,
+        use_git: bool,
+        acting_user_id: UserId | None,
+    ) -> None: ...
     def affected_config_domains(self) -> list[ABCConfigDomain]: ...
 
 
@@ -154,7 +164,14 @@ class NoOpLivestatusProxy:
             label=Label("Connect directly (not available in Checkmk Community)"),
         )
 
-    def on_sites_saved(self, sites: SiteConfigurations) -> None:
+    def on_sites_saved(
+        self,
+        sites: SiteConfigurations,
+        *,
+        liveproxyd_enabled: bool,
+        use_git: bool,
+        acting_user_id: UserId | None,
+    ) -> None:
         pass
 
     def affected_config_domains(self) -> list[ABCConfigDomain]:
@@ -947,17 +964,27 @@ class SiteManagement:
         return SitesConfigFile().load_for_reading()
 
     def save_sites(
-        self, tree: FolderTree, sites: SiteConfigurations, *, activate: bool, pprint_value: bool
+        self,
+        tree: FolderTree,
+        sites: SiteConfigurations,
+        *,
+        activate: bool,
+        pprint_value: bool,
+        liveproxyd_enabled: bool,
+        use_git: bool,
+        acting_user_id: UserId | None,
     ) -> None:
         SitesConfigFile().save(sites, pprint_value)
 
         # Do not activate when just the site's global settings have
         # been edited
         if activate:
-            # Patch the current request's config with the changed sites. The tree
-            # holds a config snapshot from its construction time, so it needs the
-            # update explicitly for later reads through the invalidated caches.
-            active_config.sites = sites
+            if has_request_context():
+                # Patch the current request's config with the changed sites, so that
+                # later reads within the same request see the new state.
+                active_config.sites = sites
+            # The tree holds a config snapshot from its construction time, so it needs
+            # the update explicitly for later reads through the invalidated caches.
             tree.config = dataclasses.replace(tree.config, sites=sites)
             tree.invalidate_caches()
 
@@ -970,7 +997,12 @@ class SiteManagement:
             # Call the sites saved hook
             hooks.call("sites-saved", sites)
 
-            self._liveproxy_hook.on_sites_saved(sites)
+            self._liveproxy_hook.on_sites_saved(
+                sites,
+                liveproxyd_enabled=liveproxyd_enabled,
+                use_git=use_git,
+                acting_user_id=acting_user_id,
+            )
 
     def delete_site(
         self,
@@ -979,6 +1011,9 @@ class SiteManagement:
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
+        liveproxyd_enabled: bool,
+        use_git: bool,
+        acting_user_id: UserId | None,
     ) -> None:
         sites_config_file = SitesConfigFile()
         all_sites = sites_config_file.load_for_modification()
@@ -1030,7 +1065,15 @@ class SiteManagement:
         )
 
         del all_sites[site_id]
-        self.save_sites(tree, all_sites, activate=True, pprint_value=pprint_value)
+        self.save_sites(
+            tree,
+            all_sites,
+            activate=True,
+            pprint_value=pprint_value,
+            liveproxyd_enabled=liveproxyd_enabled,
+            use_git=use_git,
+            acting_user_id=acting_user_id,
+        )
 
         pending_changes.add(
             Change(

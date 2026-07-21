@@ -41,6 +41,9 @@ def site_connection_logout_v1(
         make_folder_tree(api_context.config),
         site_id=site_id,
         pprint_value=api_context.config.wato_pprint_config,
+        liveproxyd_enabled=api_context.config.liveproxyd_enabled,
+        use_git=api_context.config.wato_use_git,
+        acting_user_id=api_context.user.id,
     )
 
 

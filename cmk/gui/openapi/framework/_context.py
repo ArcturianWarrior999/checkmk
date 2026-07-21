@@ -84,6 +84,7 @@ class ApiConfig:
     debug: bool
     default_temperature_unit: str
     graph_timeranges: list[GraphTimerange]
+    liveproxyd_enabled: bool
     password_policy: PasswordPolicy
     sites: SiteConfigurations
     tags: TagConfig
@@ -107,6 +108,7 @@ class ApiConfig:
             debug=config.debug,
             default_temperature_unit=config.default_temperature_unit,
             graph_timeranges=config.graph_timeranges,
+            liveproxyd_enabled=config.liveproxyd_enabled,
             password_policy=config.password_policy,
             sites=config.sites,
             tags=config.tags,
