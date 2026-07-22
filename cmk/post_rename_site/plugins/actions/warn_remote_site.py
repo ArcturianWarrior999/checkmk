@@ -7,7 +7,7 @@ from logging import Logger
 
 from cmk.ccc import tty
 from cmk.ccc.site import SiteId
-from cmk.gui.config import load_config
+from cmk.gui.config import active_config
 from cmk.gui.site_config import is_distributed_setup_remote_site
 from cmk.post_rename_site.internal import (
     Name,
@@ -24,7 +24,7 @@ def warn_about_renamed_remote_site(
     """Warn user about central site that needs to be updated manually
 
     Detect whether or not this is a remote site and issue a warning to let the user known"""
-    if not is_distributed_setup_remote_site(load_config().sites):
+    if not is_distributed_setup_remote_site(active_config.sites):
         return
 
     logger.info("")

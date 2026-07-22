@@ -183,7 +183,7 @@ allows = ["@ccc", "cmk.dcd", "cmk.gui.config", "cmk.post_rename_site.internal"]
 allows = [
   "@ccc",
   "cmk.gui.config",
-  "cmk.gui.site_config",
+  "cmk.gui.user_sites",
   "cmk.gui.watolib.audit_log",
   "cmk.gui.watolib.pending_changes",
   "cmk.otel_collector.gui",
