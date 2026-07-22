@@ -14,7 +14,7 @@ import pytest
 from flask import Flask
 from pytest_mock import MockerFixture
 
-from cmk.ccc.exceptions import MKTimeout
+from cmk.ccc.exceptions import MKGeneralException, MKTimeout
 from cmk.ccc.user import UserId
 from cmk.gui.config import Config
 from cmk.gui.http import request, response
@@ -112,6 +112,7 @@ class TestOAuthAuthorizePage:
     ) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -138,6 +139,34 @@ class TestOAuthAuthorizePage:
         query = parse_qs(parts.query)
         assert query["state"] == ["xyz"]
         assert query["code"][0]
+
+    @pytest.mark.usefixtures("clean_redis")
+    def test_rejects_post_without_a_valid_csrf_token(
+        self, flask_app: Flask, registered_client_id: str
+    ) -> None:
+        with (
+            patch.object(TransactionManager, "check_transaction", return_value=True),
+            flask_app.test_request_context(
+                method="POST",
+                data={
+                    "redirect_uri": "https://client.example/callback",
+                    "response_type": "code",
+                    "client_id": registered_client_id,
+                    "code_challenge": "test-challenge",
+                    "code_challenge_method": "S256",
+                },
+            ),
+        ):
+            flask_app.preprocess_request()
+            with (
+                UserContext(_SESSION_USER, UserPermissions({}, {}, {}, [])),
+                pytest.raises(MKGeneralException, match="CSRF"),
+            ):
+                OAuthAuthorizePage(lambda: True).handle_page(
+                    PageContext(config=Config(), request=request)
+                )
+
+        assert get_redis_client().keys() == []
 
     def test_redirects_with_access_denied_when_denied(
         self, flask_app: Flask, registered_client_id: str
@@ -177,6 +206,7 @@ class TestOAuthAuthorizePage:
         client_id = register_client(["https://client.example/callback?foo=bar"], None).client_id
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -211,6 +241,7 @@ class TestOAuthAuthorizePage:
         # it's necessarily a different origin (the OAuth client's callback).
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -588,6 +619,7 @@ class TestOAuthAuthorizePage:
     ) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -625,6 +657,7 @@ class TestOAuthAuthorizePage:
     ) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -654,6 +687,7 @@ class TestOAuthAuthorizePage:
     def test_deny_persists_nothing(self, flask_app: Flask, registered_client_id: str) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -680,6 +714,7 @@ class TestOAuthAuthorizePage:
     ) -> None:
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -715,6 +750,7 @@ class TestOAuthAuthorizePage:
         mock_log = mocker.patch("cmk.gui.oauth._authorize.log_security_event")
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -749,6 +785,7 @@ class TestOAuthAuthorizePage:
         mock_logger = mocker.patch("cmk.gui.oauth._authorize.logger")
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
@@ -773,18 +810,19 @@ class TestOAuthAuthorizePage:
 
     @pytest.mark.usefixtures("clean_redis")
     def test_treats_a_request_timeout_as_a_store_failure(
-        self, flask_app: Flask, mocker: MockerFixture
+        self, flask_app: Flask, mocker: MockerFixture, registered_client_id: str
     ) -> None:
         # A timeout inside store() takes the store-outage path, not the framework's handling.
         mocker.patch.object(AuthCodeStore, "store", side_effect=MKTimeout)
         with (
             patch.object(TransactionManager, "check_transaction", return_value=True),
+            patch("cmk.gui.oauth._authorize.check_csrf_token"),
             flask_app.test_request_context(
                 method="POST",
                 data={
                     "redirect_uri": "https://client.example/callback",
                     "response_type": "code",
-                    "client_id": "test-client",
+                    "client_id": registered_client_id,
                     "code_challenge": "test-challenge",
                     "code_challenge_method": "S256",
                 },

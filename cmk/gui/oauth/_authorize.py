@@ -19,6 +19,7 @@ from cmk.gui.logged_in import user
 from cmk.gui.oauth._auth_code_store import AuthCodeRecord, AuthCodeStore
 from cmk.gui.oauth._store import get_registered_client
 from cmk.gui.pages import Page, PageContext, PageResult
+from cmk.gui.utils.csrf_token import check_csrf_token
 from cmk.gui.utils.security_log_events import OAuthAuthorizationFailureEvent
 from cmk.gui.utils.transaction_manager import transactions
 from cmk.utils.security_event import log_security_event
@@ -106,12 +107,14 @@ class OAuthAuthorizePage(Page):
             return None
 
         # received authorization form OK
-        if request.request_method == "POST" and transactions.check_transaction():
-            if request.var("_deny") is not None:
-                self._error_redirect(ctx, redirect_uri, "access_denied")
+        if request.request_method == "POST":
+            check_csrf_token()
+            if transactions.check_transaction():
+                if request.var("_deny") is not None:
+                    self._error_redirect(ctx, redirect_uri, "access_denied")
+                    return None
+                self._issue_code(ctx, redirect_uri, client_id, code_challenge)
                 return None
-            self._issue_code(ctx, redirect_uri, client_id, code_challenge)
-            return None
 
         # show concent page
         self._show_consent_page(ctx, redirect_uri)
