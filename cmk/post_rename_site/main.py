@@ -3,14 +3,26 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+import os
 from argparse import ArgumentParser
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 import cmk.ccc.debug
+import cmk.ccc.version as cmk_version
 from cmk.ccc.i18n import _ as localizer
 from cmk.ccc.site import omd_site, SiteId
 from cmk.discover_plugins import discover_plugins_from_modules, discover_submodules
+
+# This special script needs persistence and conversion code from different places of Checkmk. We may
+# centralize the conversion and move the persistence to a specific layer in the future, but for the
+# the moment we need to deal with it.
+from cmk.gui import main_modules
+from cmk.gui.session_context import SuperUserContext
+from cmk.gui.watolib.automations import ENV_VARIABLE_FORCE_CLI_INTERFACE
+from cmk.gui.wsgi.app import gui_context
+from cmk.utils import paths
 from cmk.utils.log import VERBOSE
 
 from .internal import entry_point_prefixes, RenameAction
@@ -62,6 +74,13 @@ def main(args: Sequence[str]) -> int:
         logger.info("OLD_SITE_ID is equal to current OMD_SITE - Nothing to do.")
         return 0
 
+    # Do the loading here so that run() can be tested without any additional loading
+    logger.debug("Initializing application...")
+    main_modules.register(cmk_version.edition(paths.omd_root))
+    if errors := main_modules.get_failed_plugins():
+        logger.error("The following errors occurred during plug-in loading: %r", errors)
+        return 1
+
     plugins = load_plugins()
 
     try:
@@ -101,18 +120,30 @@ def run(
     plugins: Iterable[RenameAction], debug: bool, old_site_id: SiteId, new_site_id: SiteId
 ) -> bool:
     has_errors = False
-    logger.debug("Starting actions...")
-    actions = sorted(plugins, key=lambda a: a.sort_index)
-    total = len(actions)
-    for count, rename_action in enumerate(actions, start=1):
-        logger.log(VERBOSE, " %i/%i %s...", count, total, rename_action.title.localize(localizer))
-        try:
-            rename_action.run(old_site_id, new_site_id, logger)
-        except Exception:
-            has_errors = True
-            logger.exception(' + "%s" failed', rename_action.title)
-            if debug:
-                raise
+    with _force_automations_cli_interface(), gui_context(), SuperUserContext():
+        logger.debug("Starting actions...")
+        actions = sorted(plugins, key=lambda a: a.sort_index)
+        total = len(actions)
+        for count, rename_action in enumerate(actions, start=1):
+            logger.log(
+                VERBOSE, " %i/%i %s...", count, total, rename_action.title.localize(localizer)
+            )
+            try:
+                rename_action.run(old_site_id, new_site_id, logger)
+            except Exception:
+                has_errors = True
+                logger.exception(' + "%s" failed', rename_action.title)
+                if debug:
+                    raise
 
     logger.log(VERBOSE, "Done")
     return has_errors
+
+
+@contextmanager
+def _force_automations_cli_interface() -> Iterator[None]:
+    try:
+        os.environ[ENV_VARIABLE_FORCE_CLI_INTERFACE] = "True"
+        yield
+    finally:
+        os.environ.pop(ENV_VARIABLE_FORCE_CLI_INTERFACE, None)
