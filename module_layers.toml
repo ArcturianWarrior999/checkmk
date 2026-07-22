@@ -167,12 +167,11 @@ allows = [
 allows = [
   "@ccc",
   "cmk.gui.config",
-  "cmk.gui.main_modules",
-  "cmk.gui.watolib.automations",
-  "cmk.gui.watolib.hosts_and_folders",
+  "cmk.gui.request_globals",
+  "cmk.gui.session_context",
   "cmk.gui.watolib.rulesets",
+  "cmk.gui.wsgi.app",
   "cmk.post_rename_site.internal",
-  "cmk.utils.paths",
   "cmk.utils.redis",
   "cmk.ruleset_matcher",
 ]
