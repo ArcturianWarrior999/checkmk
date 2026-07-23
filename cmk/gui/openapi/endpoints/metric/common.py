@@ -134,10 +134,11 @@ def reorganize_response(graph_spec: GraphSpec) -> ReorganizedGraphSpec:
     ...            1.0,
     ...        ],
     ...        "line_type": "area",
-    ...        "title": "RAM used"
+    ...        "title": "RAM used",
+    ...        "attributes": {"resource": {"host.name": "heute"}}
     ...    }]
     ... })
-    {'time_range': {'start': 123, 'end': 456}, 'step': 60, 'metrics': [{'color': '#ffffff', 'line_type': 'area', 'title': 'RAM used', 'data_points': [1.0, 2.0, 3.0, 1.0]}]}
+    {'time_range': {'start': 123, 'end': 456}, 'step': 60, 'metrics': [{'line_type': 'area', 'color': '#ffffff', 'title': 'RAM used', 'attributes': {'resource': {'host.name': 'heute'}}, 'data_points': [1.0, 2.0, 3.0, 1.0]}]}
     """
     return ReorganizedGraphSpec(
         time_range=ReorganizedTimeRange(

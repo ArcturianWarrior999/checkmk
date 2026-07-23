@@ -25,7 +25,12 @@ from .metric import (
     SingleMetricContent,
     TopListContent,
 )
-from .network_flow import NetworkFlowDonutContent, NetworkFlowTopTableContent
+from .network_flow import (
+    NetworkFlowDonutContent,
+    NetworkFlowKpiStatCardContent,
+    NetworkFlowTopTableContent,
+    NetworkFlowTrendChartContent,
+)
 from .ntop import NtopAlertsContent, NtopFlowsContent, NtopTopTalkersContent
 from .overview import AlertOverviewContent, SiteOverviewContent
 from .sidebar import SidebarElementContent
@@ -97,6 +102,8 @@ type WidgetContent = Annotated[
     | NtopTopTalkersContent
     | NetworkFlowTopTableContent
     | NetworkFlowDonutContent
+    | NetworkFlowKpiStatCardContent
+    | NetworkFlowTrendChartContent
     | NotSupportedContent,
     Discriminator("type"),
 ]
@@ -135,6 +142,8 @@ _CONTENT_TYPES = (
     NtopTopTalkersContent,
     NetworkFlowTopTableContent,
     NetworkFlowDonutContent,
+    NetworkFlowKpiStatCardContent,
+    NetworkFlowTrendChartContent,
 )
 
 

@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import queue
 import re
 import time
@@ -56,7 +57,7 @@ from cmk.gui.userdb import (
     saml_connection_choices,
 )
 from cmk.gui.utils.transaction_manager import transactions
-from cmk.gui.utils.urls import makeactionuri
+from cmk.gui.utils.urls import makeactionuri, makeuri_contextless
 from cmk.gui.valuespec import (
     Dictionary as _LegacyDictionary,
 )
@@ -86,6 +87,7 @@ from cmk.gui.watolib.config_sync import (
     create_distributed_wato_files,
 )
 from cmk.gui.watolib.global_settings import load_configuration_settings
+from cmk.gui.watolib.hosts_and_folders import FolderTree
 from cmk.gui.watolib.mode import mode_registry
 from cmk.gui.watolib.pending_changes import Change, ChangeScope, PendingChanges
 from cmk.gui.watolib.simple_config_file import ConfigFileRegistry, WatoSingleConfigFile
@@ -211,7 +213,7 @@ def _user_attribute_sync_from_disk(value: object) -> tuple[str, object]:
     ``"list"``. The disk shape is ``Literal["all", "disabled"] | list[str]``
     with absence meaning "inherit from the central site".
     """
-    # Absent key → form shows "Use same connections as the central site".
+    # Absent key → form shows "Use same as the central site".
     if value is None:
         return "central_site", True
     if value == "disabled":
@@ -404,7 +406,7 @@ class SiteManagement:
             elements.append(
                 CascadingSingleChoiceElement(
                     name="central_site",
-                    title=Title("Use same connections as the central site"),
+                    title=Title("Use same as the central site"),
                     parameter_form=FixedValue(
                         value=True,
                         label=Label(  # astrein: disable=localization-checker
@@ -416,7 +418,7 @@ class SiteManagement:
         elements.append(
             CascadingSingleChoiceElement(
                 name="all",
-                title=Title("Use all connections"),
+                title=Title("Use all"),
                 parameter_form=FixedValue(
                     value=True,
                     label=Label(""),
@@ -426,7 +428,7 @@ class SiteManagement:
         elements.append(
             CascadingSingleChoiceElement(
                 name="list",
-                title=Title("Use the following connections"),
+                title=Title("Use the following"),
                 parameter_form=cls._editable_connections_form_spec(),
             ),
         )
@@ -434,11 +436,11 @@ class SiteManagement:
         if distributed_saml_supported():
             help_text = Help(
                 "Select the connections that are available for login on this site. "
-                "Choose <i>Use same connections as the central site</i> to inherit "
+                "Choose <i>Use same as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "after the next configuration sync), <i>Use all</i> to enable "
                 "every configured LDAP and SAML connection — including ones added later — "
-                "or <i>Use the following connections</i> to pick specific LDAP and SAML "
+                "or <i>Use the following</i> to pick specific LDAP and SAML "
                 "connections. <br>Authentication connections are responsible "
                 "of creating the user and the initial user setup.<br>SAML connection are only authorized "
                 "to overwrite user attributes if no other Attribute Sync Connection is configured for that user."
@@ -446,11 +448,11 @@ class SiteManagement:
         else:
             help_text = Help(
                 "Select the connections that are available for login on this site. "
-                "Choose <i>Use same connections as the central site</i> to inherit "
+                "Choose <i>Use same as the central site</i> to inherit "
                 "the central site's selection (changes made on the central site take effect "
-                "after the next configuration sync), <i>Use all connections</i> to enable "
+                "after the next configuration sync), <i>Use all</i> to enable "
                 "every configured LDAP connection — including ones added later — or "
-                "<i>Use the following connections</i> to pick specific LDAP connections."
+                "<i>Use the following</i> to pick specific LDAP connections."
                 "<br>Authentication connections are responsible "
                 "of creating the user and the initial user setup."
             )
@@ -473,10 +475,9 @@ class SiteManagement:
             help_text=Help(
                 "URL where this site serves the SAML service provider metadata "
                 "for this connection. Derived from the site's <i>Server URL for "
-                "SAML ACS callback</i> and the connection ID. The URL is only "
-                "shown after saving the site configuration and reopening this "
-                "dialog."
+                "SAML ACS callback</i> and the connection ID."
             ),
+            placeholder=Label("The URL will be generated automatically after you save the form."),
         )
 
     @staticmethod
@@ -486,9 +487,9 @@ class SiteManagement:
             help_text=Help(
                 "URL where this site receives SAML responses from the IdP for "
                 "this connection. Register this URL with the IdP's client "
-                "configuration. The URL is only shown after saving the site "
-                "configuration and reopening this dialog."
+                "configuration."
             ),
+            placeholder=Label("The URL will be generated automatically after you save the form."),
         )
 
     @classmethod
@@ -556,17 +557,41 @@ class SiteManagement:
 
     @staticmethod
     def _central_site_connections_summary(site_configuration: SiteConfiguration | None) -> str:
-        """One-line summary of the connections the central site currently hands down when known."""
+        """One-line summary of the connections the central site currently hands down when known.
+
+        The result is rendered as HTML so connection names are escaped edit-page links."""
         entries = inherited_authentication_connections(
             central_site_config(active_config.sites), site_configuration
         )
         if not entries:
             return ""
-        return _("Currently inherited: %(connections)s") % {
-            "connections": ", ".join(
-                entry[1] if entry[0] == "ldap" else entry[1]["connection_id"] for entry in entries
+        links = []
+        for entry in entries:
+            match entry:
+                case ("ldap", connection_id):
+                    edit_mode = "edit_ldap_connection"
+                case ("saml", saml_entry):
+                    connection_id = saml_entry["connection_id"]
+                    edit_mode = "edit_saml_config"
+                case _:
+                    assert_never(entry)
+            links.append(
+                str(
+                    html.render_a(
+                        connection_id,
+                        makeuri_contextless(
+                            request,
+                            [
+                                ("mode", edit_mode),
+                                ("id", connection_id),
+                                ("edit", connection_id),
+                            ],
+                            filename="wato.py",
+                        ),
+                    )
+                )
             )
-        }
+        return _("Currently inherited: %(connections)s") % {"connections": ", ".join(links)}
 
     @staticmethod
     def _central_site_user_attribute_sync_summary() -> str:
@@ -592,7 +617,7 @@ class SiteManagement:
             elements.append(
                 CascadingSingleChoiceElement(
                     name="central_site",
-                    title=Title("Use same connections as the central site"),
+                    title=Title("Use same as the central site"),
                     parameter_form=FixedValue(
                         value=True,
                         label=Label(  # astrein: disable=localization-checker
@@ -921,18 +946,20 @@ class SiteManagement:
     def load_sites(cls) -> SiteConfigurations:
         return SitesConfigFile().load_for_reading()
 
-    def save_sites(self, sites: SiteConfigurations, *, activate: bool, pprint_value: bool) -> None:
-        # TODO: Clean this up
-        from cmk.gui.watolib.hosts_and_folders import folder_tree
-
+    def save_sites(
+        self, tree: FolderTree, sites: SiteConfigurations, *, activate: bool, pprint_value: bool
+    ) -> None:
         SitesConfigFile().save(sites, pprint_value)
 
         # Do not activate when just the site's global settings have
         # been edited
         if activate:
-            # Patch the current requests config with the changed config
+            # Patch the current request's config with the changed sites. The tree
+            # holds a config snapshot from its construction time, so it needs the
+            # update explicitly for later reads through the invalidated caches.
             active_config.sites = sites
-            folder_tree().invalidate_caches()
+            tree.config = dataclasses.replace(tree.config, sites=sites)
+            tree.invalidate_caches()
 
             _update_distributed_wato_file(sites)
             cmk.gui.watolib.sidebar_reload.need_sidebar_reload()
@@ -947,14 +974,12 @@ class SiteManagement:
 
     def delete_site(
         self,
+        tree: FolderTree,
         site_id: SiteId,
         *,
         pprint_value: bool,
         pending_changes: PendingChanges,
     ) -> None:
-        # TODO: Clean this up
-        from cmk.gui.watolib.hosts_and_folders import folder_tree
-
         sites_config_file = SitesConfigFile()
         all_sites = sites_config_file.load_for_modification()
         if site_id not in all_sites:
@@ -963,7 +988,7 @@ class SiteManagement:
             )
 
         # Make sure that site is not being used by hosts and folders
-        if site_id in folder_tree().root_folder().all_site_ids():
+        if site_id in tree.root_folder().all_site_ids():
             search_url = makeactionuri(
                 request,
                 transactions,
@@ -1005,7 +1030,7 @@ class SiteManagement:
         )
 
         del all_sites[site_id]
-        self.save_sites(all_sites, activate=True, pprint_value=pprint_value)
+        self.save_sites(tree, all_sites, activate=True, pprint_value=pprint_value)
 
         pending_changes.add(
             Change(

@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "utils",
@@ -15,6 +16,7 @@ py_library(
     deps = [
         "//cmk/utils",
         "//packages/cmk-ccc:exceptions",
+        "//packages/cmk-profiling:backend",
     ],
 )
 
@@ -244,6 +246,7 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-crash:crash",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-profiling:backend",
         requirement("requests"),
     ],
 )
@@ -390,5 +393,14 @@ sh_library(
     name = "f12",
     srcs = [
         ".f12",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":diagnostics",
+        ":notify",
     ],
 )

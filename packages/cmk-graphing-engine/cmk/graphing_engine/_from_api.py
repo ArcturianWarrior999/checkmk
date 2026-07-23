@@ -62,6 +62,24 @@ class _SingleQuantityBuilder:
 _SINGLE_QUANTITY_BUILDER = _SingleQuantityBuilder()
 
 
+def drawn_quantity(
+    metric_name: str,
+    services: Sequence[Service],
+    quantity_builder: QuantityBuilder,
+) -> Quantity:
+    return quantity_builder(
+        [
+            RRDMetric(
+                site_id=service.site_id,
+                host_name=service.host_name,
+                service_name=service.service_name,
+                metric_name=MetricName(metric_name),
+            )
+            for service in services
+        ]
+    )
+
+
 @dataclass(frozen=True)
 class _ParseContext:
     services: Sequence[Service]
@@ -70,20 +88,12 @@ class _ParseContext:
     registered_metrics: Mapping[str, metrics_v1.Metric]
 
     def drawn(self, metric_name: str) -> Quantity:
-        return self.quantity_builder(
-            [
-                RRDMetric(
-                    host_name=service.host_name,
-                    service_name=service.service_name,
-                    metric_name=MetricName(metric_name),
-                )
-                for service in self.services
-            ]
-        )
+        return drawn_quantity(metric_name, self.services, self.quantity_builder)
 
     def scalar(self, metric_name: str) -> RRDMetric:
         service = self.services[0]
         return RRDMetric(
+            site_id=service.site_id,
             host_name=service.host_name,
             service_name=service.service_name,
             metric_name=MetricName(metric_name),
@@ -204,6 +214,20 @@ def _parse_quantity(quantity: _ApiQuantity, context: _ParseContext) -> Quantity:
             assert_never(quantity)
 
 
+def _operands_of(quantity: _ApiQuantity) -> Sequence[_ApiQuantity]:
+    match quantity:
+        case metrics_v1.Sum():
+            return quantity.summands
+        case metrics_v1.Product():
+            return quantity.factors
+        case metrics_v1.Difference():
+            return [quantity.minuend, quantity.subtrahend]
+        case metrics_v1.Fraction():
+            return [quantity.dividend, quantity.divisor]
+        case _:
+            return []
+
+
 def _metric_names_in_quantity(quantity: _ApiQuantity) -> Iterable[MetricName]:
     match quantity:
         case str():
@@ -219,18 +243,14 @@ def _metric_names_in_quantity(quantity: _ApiQuantity) -> Iterable[MetricName]:
             | metrics_v1.MaximumOf()
         ):
             yield MetricName(quantity.metric_name)
-        case metrics_v1.Sum():
-            for summand in quantity.summands:
-                yield from _metric_names_in_quantity(summand)
-        case metrics_v1.Product():
-            for factor in quantity.factors:
-                yield from _metric_names_in_quantity(factor)
-        case metrics_v1.Difference():
-            yield from _metric_names_in_quantity(quantity.minuend)
-            yield from _metric_names_in_quantity(quantity.subtrahend)
-        case metrics_v1.Fraction():
-            yield from _metric_names_in_quantity(quantity.dividend)
-            yield from _metric_names_in_quantity(quantity.divisor)
+        case (
+            metrics_v1.Sum()
+            | metrics_v1.Product()
+            | metrics_v1.Difference()
+            | metrics_v1.Fraction()
+        ):
+            for operand in _operands_of(quantity):
+                yield from _metric_names_in_quantity(operand)
         case _:
             assert_never(quantity)
 
@@ -249,14 +269,13 @@ def _is_scalar(quantity: _ApiQuantity) -> bool:
             | metrics_v1.MaximumOf()
         ):
             return True
-        case metrics_v1.Sum():
-            return all(_is_scalar(s) for s in quantity.summands)
-        case metrics_v1.Product():
-            return all(_is_scalar(f) for f in quantity.factors)
-        case metrics_v1.Difference():
-            return _is_scalar(quantity.minuend) and _is_scalar(quantity.subtrahend)
-        case metrics_v1.Fraction():
-            return _is_scalar(quantity.dividend) and _is_scalar(quantity.divisor)
+        case (
+            metrics_v1.Sum()
+            | metrics_v1.Product()
+            | metrics_v1.Difference()
+            | metrics_v1.Fraction()
+        ):
+            return all(_is_scalar(operand) for operand in _operands_of(quantity))
         case _:
             assert_never(quantity)
 
@@ -368,7 +387,7 @@ def parse_graph_from_api(
     localizer: Callable[[str], str],
     registered_metrics: Mapping[str, metrics_v1.Metric],
     *,
-    graph_type: str,
+    kind: str,
     quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Graph:
     context = _ParseContext(
@@ -383,7 +402,7 @@ def parse_graph_from_api(
             return Graph(
                 name=graph.name,
                 title=graph.title.localize(localizer),
-                graph_type=graph_type,
+                kind=kind,
                 vertical_range=_parse_range(graph, context),
                 stacks=stacks,
                 lines=lines,
@@ -399,7 +418,7 @@ def parse_graph_from_api(
             return Graph(
                 name=graph.name,
                 title=graph.title.localize(localizer),
-                graph_type=graph_type,
+                kind=kind,
                 vertical_range=_bidirectional_range(graph, context),
                 stacks=[*upper_stacks, *lower_stacks],
                 lines=[*upper_lines, *lower_lines],

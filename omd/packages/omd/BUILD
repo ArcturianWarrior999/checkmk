@@ -262,7 +262,6 @@ py_doc_test(
     env = {
         "PYTHONWARNINGS": "ignore",
     },
-    tags = ["no-mypy"],
 )
 
 # Not shipped — only exists so that static analysis tools (ruff, mypy, …)

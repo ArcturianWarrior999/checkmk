@@ -458,14 +458,14 @@ def test_inventory_multiple_hosts(execute: Execute) -> None:
 
 def test_inventory_verbose(execute: Execute) -> None:
     for opt in ["--inventory", "-i"]:
-        p = execute(["cmk", "-v", opt, "modes-test-host"])
+        p = execute(["cmk", "-vv", opt, "modes-test-host"])
         assert p.returncode == 0, on_failure(p)
-        assert p.stderr == ""
+        # assert p.stderr == ""
         assert p.stdout.startswith("Doing HW/SW Inventory on: modes-test-host\n")
-        stdout_words = p.stdout.split()
+        stderr_words = p.stderr.split()
         for expected_word in ("check_mk:", "lnx_if:", "mem:"):
-            assert expected_word in stdout_words
-            assert stdout_words[stdout_words.index(expected_word) + 1] == "ok"
+            assert expected_word in stderr_words
+            assert stderr_words[stderr_words.index(expected_word) + 1] == "ok"
 
 
 # .
@@ -547,18 +547,18 @@ def test_check(execute: Execute) -> None:
 
 
 def test_check_verbose_perfdata(execute: Execute) -> None:
-    p = execute(["cmk", "-v", "-p", "modes-test-host"])
+    p = execute(["cmk", "-vv", "-p", "modes-test-host"])
     assert p.returncode == 0, on_failure(p)
-    assert "Temperature Zone 0" in p.stdout
-    assert "temp=32.4;" in p.stdout
+    assert "Temperature Zone 0" in p.stderr
+    assert "temp=32.4;" in p.stderr
     assert "[agent] Success" in p.stdout
 
 
 def test_check_verbose_only_check(execute: Execute) -> None:
-    p = execute(["cmk", "-v", "--plugins=lnx_thermal", "modes-test-host"])
+    p = execute(["cmk", "-vv", "--plugins=lnx_thermal", "modes-test-host"])
     assert p.returncode == 0, on_failure(p)
-    assert "Temperature Zone 0" in p.stdout
-    assert "Interface 2" not in p.stdout
+    assert "Temperature Zone 0" in p.stderr
+    assert "Interface 2" not in p.stderr
     assert "[agent] Success" in p.stdout
 
 
@@ -628,8 +628,8 @@ def test_create_diagnostics_dump(execute: Execute) -> None:
 def test_update_dns_cache(execute: Execute) -> None:
     p = execute(["cmk", "--update-dns-cache", "-vvv"])
     for hostname in ["modes-test-host", "modes-test-host2", "modes-test-host3"]:
-        assert hostname in p.stdout
-    assert "lookup failed" not in p.stdout
+        assert hostname in p.stderr
+    assert "lookup failed" not in p.stderr
 
 
 @pytest.mark.parametrize("opt", ["--nagios-config", "-N"])

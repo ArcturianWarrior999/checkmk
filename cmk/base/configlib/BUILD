@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "configlib",
@@ -27,4 +28,10 @@ py_library(
         "//packages/cmk-logwatch:config",
         "//packages/cmk-plugin-apis:agent_based",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":configlib"],
 )

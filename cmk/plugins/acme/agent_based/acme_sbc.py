@@ -73,10 +73,7 @@ def discover_acme_sbc(section: Section) -> DiscoveryResult:
 def check_acme_sbc(section: Section) -> CheckResult:
     health = int(section[0]["Health"])
     dev_state = section[0]["State"]
-    if health == 100:
-        state = State.OK
-    else:
-        state = State.CRIT
+    state = State.OK if health == 100 else State.CRIT
     yield Result(state=state, summary="Health at %d %% (State: %s)" % (health, dev_state))
 
 

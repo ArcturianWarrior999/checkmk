@@ -74,7 +74,7 @@ test('a sum metric shows the rate function and no quantile input', async () => {
   expect(models.aggregationHistogramPercentile.value).toBe(90)
 })
 
-test('a sum metric offers the rate and last-recorded-raw functions', async () => {
+test('a sum metric offers the rate, last-recorded-raw and delta functions', async () => {
   renderConsolidation({ metricTypes: ['sum'] })
 
   await userEvent.click(chip())
@@ -83,6 +83,7 @@ test('a sum metric offers the rate and last-recorded-raw functions', async () =>
   await waitFor(() => {
     expect(screen.getByRole('option', { name: 'Rate' })).toBeVisible()
     expect(screen.getByRole('option', { name: 'Last recorded value (raw)' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Delta' })).toBeVisible()
   })
 })
 
@@ -107,14 +108,17 @@ test('a gauge metric offers the last, max, avg and min functions', async () => {
   })
 })
 
-test('the offered function is fixed to the single backend-supported one', async () => {
+test('a histogram metric offers the quantile, count delta and count rate functions', async () => {
   renderConsolidation({ metricTypes: ['histogram'] })
 
   await userEvent.click(chip())
+  await userEvent.click(screen.getByRole('combobox', { name: 'Consolidation function' }))
 
-  // A single supported function leaves nothing to choose, so it renders read-only.
-  expect(screen.queryByRole('combobox', { name: 'Consolidation function' })).toBeNull()
-  expect(screen.getByText('Quantile')).toBeVisible()
+  await waitFor(() => {
+    expect(screen.getByRole('option', { name: 'Quantile' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Count delta' })).toBeVisible()
+    expect(screen.getByRole('option', { name: 'Count rate' })).toBeVisible()
+  })
 })
 
 test('editing the lookback writes back to the aggregation-lookback model', async () => {

@@ -128,7 +128,7 @@ if _webauthn_json_mapping := getattr(fido2.features, "webauthn_json_mapping", No
 
 
 def make_fido2_server(rp_id: str) -> Fido2Server:
-    logger.debug("Using %r as relaying party ID", rp_id)
+    logger.debug("Using %(rp_id)r as relaying party ID", {"rp_id": rp_id})
     # apparently the browsers allow localhost as a secure domain, but the
     # Fido2Server does not. We do not really care if the rp_id is also the
     # origin sent from the browser. We feel the browser is supposed to check
@@ -1244,7 +1244,10 @@ class UserWebAuthnRegisterBegin(JsonPage):
         )
 
         session.session_info.webauthn_action_state = _serialize_webauthn_state(state)
-        logger.debug("Registration data: %r", registration_data)
+        logger.debug(
+            "Registration data: %(registration_data)r",
+            {"registration_data": registration_data},
+        )
         return dict(registration_data)
 
 
@@ -1259,11 +1262,14 @@ class UserWebAuthnRegisterComplete(JsonPage):
             user.need_permission("general.manage_2fa")
 
         raw_data = ctx.request.get_data()
-        logger.debug("Raw request: %r", raw_data)
+        logger.debug("Raw request: %(raw_data)r", {"raw_data": raw_data})
         json_data = json.loads(raw_data)
         data = AuthenticatorAttestationResponse.from_dict(json_data)
-        logger.debug("Client data: %r", data.client_data)
-        logger.debug("Attestation object: %r", data.attestation_object)
+        logger.debug("Client data: %(client_data)r", {"client_data": data.client_data})
+        logger.debug(
+            "Attestation object: %(attestation_object)r",
+            {"attestation_object": data.attestation_object},
+        )
         try:
             auth_data = make_fido2_server(ctx.request.host).register_complete(
                 state=session.session_info.webauthn_action_state,
@@ -1500,7 +1506,7 @@ class UserWebAuthnLoginBegin(JsonPage):
         )
 
         session.session_info.webauthn_action_state = _serialize_webauthn_state(state)
-        logger.debug("Authentication data: %r", auth_data)
+        logger.debug("Authentication data: %(auth_data)r", {"auth_data": auth_data})
         return dict(auth_data)
 
 
@@ -1513,8 +1519,11 @@ class UserWebAuthnLoginComplete(JsonPage):
             raise MKGeneralException(_("Two-factor authentication not enabled"))
         json_data = json.loads(ctx.request.get_data())
         data = AuthenticatorAssertionResponse.from_dict(json_data)
-        logger.debug("ClientData: %r", data.client_data)
-        logger.debug("AuthenticatorData: %r", data.authenticator_data)
+        logger.debug("ClientData: %(client_data)r", {"client_data": data.client_data})
+        logger.debug(
+            "AuthenticatorData: %(authenticator_data)r",
+            {"authenticator_data": data.authenticator_data},
+        )
 
         try:
             make_fido2_server(ctx.request.host).authenticate_complete(

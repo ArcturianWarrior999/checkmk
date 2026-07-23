@@ -82,7 +82,7 @@ def _rich_graphs() -> Sequence[Graph]:
         Graph(
             name="g1",
             title="G1",
-            graph_type="template",
+            kind="template",
             vertical_range=FixedRange(lower=0, upper=100),
             stacks=[
                 Stack(
@@ -132,7 +132,7 @@ def _rich_graphs() -> Sequence[Graph]:
         Graph(
             name="g2",
             title="G2",
-            graph_type="template",
+            kind="template",
             # A Bound that is itself a quantity, plus the remaining notation / precision variants.
             vertical_range=MinimalRange(lower=Constant(0), upper=_METRIC),
             lines=[
@@ -164,10 +164,10 @@ def test_rrd_metric_site_id_round_trips() -> None:
     # A resolved site must survive the self-contained graph JSON, so a same host/service on two sites
     # stays distinct after a round-trip.
     metric = RRDMetric(
+        site_id=SiteID("mysite"),
         host_name=HostName("h"),
         service_name=ServiceName("svc"),
         metric_name=MetricName("m"),
-        site_id=SiteID("mysite"),
     )
     attributes = CurveAttributes(
         title="t",
@@ -177,7 +177,7 @@ def test_rrd_metric_site_id_round_trips() -> None:
     graph = Graph(
         name="g",
         title="G",
-        graph_type="template",
+        kind="template",
         lines=[Line(curve=Curve(quantity=metric, attributes=attributes), inverse=False)],
     )
     [restored] = graph_codec().deserialize_graphs(serialize_graphs([graph]))
@@ -191,10 +191,10 @@ def test_template_round_trip_is_lossless() -> None:
     payload = serialize_graphs(built_graphs)
     # The payload is plain JSON.
     assert json.loads(json.dumps(payload)) == payload
-    # Each graph carries its own graph_type; there is no separate envelope field.
+    # Each graph carries its own kind; there is no separate envelope field.
     serialized_graphs = payload["graphs"]
     assert isinstance(serialized_graphs, list)
-    assert all(graph["graph_type"] == "template" for graph in serialized_graphs)
+    assert all(graph["kind"] == "template" for graph in serialized_graphs)
     # The round-trip is stable: deserializing and re-serializing reproduces the same payload (compared
     # as JSON, so the empty-sequence list/tuple distinction the dataclass defaults carry is irrelevant).
     restored = codec.deserialize_graphs(payload)

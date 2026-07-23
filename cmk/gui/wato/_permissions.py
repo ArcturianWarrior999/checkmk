@@ -592,6 +592,20 @@ def register(
     permission_registry.register(
         Permission(
             section=PERMISSION_SECTION_WATO,
+            name="performance_profiles",
+            title=_l("Access the performance profiles"),
+            description=_l(
+                "View and manage stored performance profiles and their interactive "
+                "flamegraphs. This also allows uploading cProfile dumps, which are "
+                "deserialised server-side."
+            ),
+            defaults=["admin"],
+        )
+    )
+
+    permission_registry.register(
+        Permission(
+            section=PERMISSION_SECTION_WATO,
             name="add_or_modify_executables",
             title=_l("Add or modify executables"),
             description=_l(

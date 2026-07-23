@@ -258,10 +258,7 @@ def haproxy_result(
     if uptime is not None:
         stateStr = "UP"
         if isinstance(data, Backend):
-            if isinstance(status, HAProxyServerStatus):
-                stateStr = status.value
-            else:
-                stateStr = status
+            stateStr = status.value if isinstance(status, HAProxyServerStatus) else status
 
         yield Result(
             state=State.OK,

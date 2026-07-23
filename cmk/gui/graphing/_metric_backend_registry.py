@@ -9,8 +9,14 @@ from typing import Protocol
 
 from cmk.ccc.plugin_registry import Registry
 from cmk.ccc.resulttype import Result
+from cmk.graphing_engine import Quantity
 
-from ._graph_metric_expressions import QueryData, QueryDataError, QueryDataKey
+from ._graph_metric_expressions import (
+    ConsolidationFunction,
+    QueryData,
+    QueryDataError,
+    QueryDataKey,
+)
 
 METRIC_BACKEND_KEY = "metric_backend"
 
@@ -26,6 +32,20 @@ class FetchTimeSeries(Protocol):
     ) -> Iterator[Result[QueryData, QueryDataError]]: ...
 
 
+class BackendQueryBuilder(Protocol):
+    """Builds the graph-engine quantity for a metric-backend V2 data source."""
+
+    def __call__(
+        self,
+        *,
+        metric_name: str,
+        resource_attributes: Sequence[tuple[str, str]],
+        scope_attributes: Sequence[tuple[str, str]],
+        data_point_attributes: Sequence[tuple[str, str]],
+        consolidation_function: ConsolidationFunction,
+    ) -> Quantity: ...
+
+
 @dataclass(frozen=True, kw_only=True)
 class MetricBackend:
     @property
@@ -33,6 +53,9 @@ class MetricBackend:
         return False
 
     def get_time_series_fetcher(self) -> FetchTimeSeries | None:
+        return None
+
+    def get_backend_query_builder(self) -> BackendQueryBuilder | None:
         return None
 
 

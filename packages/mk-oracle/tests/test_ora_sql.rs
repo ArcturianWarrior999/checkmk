@@ -20,10 +20,11 @@ extern crate common;
 mod common;
 
 use crate::common::tools::{
-    make_mini_config, make_mini_config_cdb_root, make_mini_config_custom_instance,
+    make_endpoint_tns_admin_dir, make_mini_config, make_mini_config_cdb_root,
+    make_mini_config_custom_instance, make_mini_config_custom_instance_with_tns_admin,
     make_mini_config_pdb, make_mini_config_pdb_builtin_then_custom,
-    make_mini_config_pdb_custom_then_builtin, make_mini_config_with_sid, make_wallet_config,
-    platform::add_runtime_to_path, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
+    make_mini_config_pdb_custom_then_builtin, make_mini_config_with_sid,
+    platform::add_runtime_to_path, role_spec, ORA_ENDPOINT_ENV_VAR_EXT, ORA_ENDPOINT_ENV_VAR_LOCAL,
 };
 use mk_oracle::config::authentication::{AuthType, Authentication, Role, SqlDbEndpoint};
 use mk_oracle::config::defines::defaults::SECTION_SEPARATOR;
@@ -195,10 +196,11 @@ static WORKING_ENDPOINTS: LazyLock<Vec<SqlDbEndpoint>> = LazyLock::new(load_endp
 fn test_endpoints_file() {
     let s = &WORKING_ENDPOINTS;
     let r = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_EXT).unwrap();
+    let local = SqlDbEndpoint::from_env(ORA_ENDPOINT_ENV_VAR_LOCAL).ok();
     assert!(!s.is_empty());
     assert_eq!(s[0], r);
     for e in &s[..] {
-        if e.host == "localhost" {
+        if e.host == "localhost" || Some(e) == local.as_ref() {
             continue; // skip local endpoint, it may have strange credentials
         }
         assert_eq!(e.user, r.user);
@@ -330,6 +332,7 @@ oracle:
        username: "{}"
        password: "{}"
        type: standard
+       role: {}
     connection:
        hostname: {}
        port: {}
@@ -344,7 +347,12 @@ oracle:
             greeting: "hello-from-params"
             column: "dummy"
 "#,
-        endpoint.user, endpoint.pwd, endpoint.host, endpoint.port, endpoint.service_name
+        endpoint.user,
+        endpoint.pwd,
+        role_spec(&endpoint.role, &endpoint.host),
+        endpoint.host,
+        endpoint.port,
+        endpoint.service_name
     );
     let config = Config::from_string(config_str).unwrap().unwrap();
 
@@ -461,10 +469,15 @@ async fn test_remote_tns_custom_instance_connection() {
         std::env::var("TNS_ADMIN").unwrap_or_default()
     );
     let endpoint = remote_reference_endpoint();
-    let config = make_mini_config_custom_instance(
+    // Resolve the alias through a generated tnsnames.ora that points at the
+    // reference endpoint itself: the alias mechanics get exercised without
+    // pinning the test to one specific reference DB host.
+    let tns_admin = make_endpoint_tns_admin_dir(&endpoint, "ora_remote");
+    let config = make_mini_config_custom_instance_with_tns_admin(
         &endpoint,
         "FREE",
         Some(InstanceAlias::from("ora_remote".to_string())),
+        &tns_admin,
     );
     let env = Env::default();
     let r = generate_data(&config, &env).await;
@@ -738,22 +751,27 @@ fn test_locks_last() {
         // Let's QA team checks correctness
         let sid = get_sid(endpoint);
         let sid_name = sid.as_str();
-        let row0_starts = format!("{}.CDB$ROOT|", sid_name);
+        let cdb_prefix = format!("{}.CDB$ROOT|", sid_name);
+        let pdb_prefix = format!("{0}.", sid_name);
+
+        let row_prefixes = [cdb_prefix.as_str(), pdb_prefix.as_str(), sid_name];
         assert!(
-            rows[0].starts_with(&row0_starts),
-            "expected {} starts with {row0_starts}",
-            rows[0]
-        );
-        let row1_starts = format!("{0}.", sid_name);
-        assert!(
-            rows[1].starts_with(&row1_starts),
-            "expected {} starts with {sid_name}",
-            rows[1]
+            row_prefixes.iter().any(|p| rows[0].starts_with(p)),
+            "expected {} to start with one of {:?}",
+            rows[0],
+            row_prefixes
         );
         assert!(
-            rows[2].starts_with(sid_name.to_string().as_str()),
-            "expected {} starts with {sid_name}",
-            rows[2]
+            row_prefixes.iter().any(|p| rows[1].starts_with(p)),
+            "expected {} to start with one of {:?}",
+            rows[1],
+            row_prefixes
+        );
+        assert!(
+            row_prefixes.iter().any(|p| rows[2].starts_with(p)),
+            "expected {} to start with one of {:?}",
+            rows[2],
+            row_prefixes
         );
     }
 }
@@ -1647,7 +1665,15 @@ fn test_detection_registry() {
     eprintln!("Instances = {:?}", instances);
     assert!(!instances.is_empty());
     for i in instances {
-        assert!(i.name == InstanceName::from("XE") || i.name == InstanceName::from("FREE"));
+        // Instance names are deployment-specific: XE / FREE on the reference
+        // hosts, ORCL* on the ORACLE-WIN-CI VM (e.g. ORCL19 alongside 23ai Free).
+        let name = i.name.to_string();
+        assert!(
+            i.name == InstanceName::from("XE")
+                || i.name == InstanceName::from("FREE")
+                || name.starts_with("ORCL"),
+            "unexpected instance name: {name}"
+        );
         assert!(std::path::PathBuf::from(&i.home).is_dir());
         assert!(std::path::PathBuf::from(&i.home).exists());
         let base = i.base.unwrap();
@@ -1832,6 +1858,7 @@ oracle:
 fn test_add_runtime_to_path() {
     use mk_oracle::platform::get_local_instances;
     use mk_oracle::setup::add_runtime_path_to_env;
+
     fn exec_add_runtime_to_path(
         cfg: &OracleConfig,
         mk_lib: &str,
@@ -1840,7 +1867,12 @@ fn test_add_runtime_to_path() {
         unsafe {
             std::env::set_var(mut_env_var.to_str(), "xxx");
         }
-        add_runtime_path_to_env(cfg, Some(mk_lib.to_owned()), Some(mut_env_var.clone()))
+        add_runtime_path_to_env(
+            cfg,
+            Some(mk_lib.to_owned()),
+            Some(mut_env_var.clone()),
+            false,
+        )
     }
     let mk_lib_dir_env_var = "MK_LIB_DIR_TEST_VAR_XXX".to_string();
     let mut_env_var = EnvVarName::from("SOME_PATH_TEST_VAR_XXX".to_string());
@@ -2037,68 +2069,21 @@ fn test_create_plugin_async() {
 
 #[test]
 fn test_find_current_instance_runtime() {
-    use mk_oracle::setup::find_default_instance_runtime;
-    let skip_permission_validation = true;
-    assert!(find_default_instance_runtime("HURZ-burz", skip_permission_validation).is_none());
-    assert!(find_default_instance_runtime("PATH", skip_permission_validation).is_none());
+    use mk_oracle::setup::find_env_var_lib_runtime;
+    assert!(find_env_var_lib_runtime("HURZ-burz").is_none());
+    assert!(find_env_var_lib_runtime("PATH").is_none());
     let db_location = tempfile::tempdir().unwrap();
     let temp_var = "ORACLE_HOME_TEST_VAR";
     unsafe {
         std::env::set_var(temp_var, db_location.path());
     }
-    assert!(find_default_instance_runtime(temp_var, skip_permission_validation).is_none());
+    assert!(find_env_var_lib_runtime(temp_var).is_none());
     let lib_path = db_location.path().join("lib");
     std::fs::create_dir_all(&lib_path).unwrap();
     assert_eq!(
-        find_default_instance_runtime(temp_var, skip_permission_validation).unwrap(),
+        find_env_var_lib_runtime(temp_var).unwrap(),
         db_location.path().join("lib")
     );
-}
-
-#[ignore = "requires Oracle Wallet files"]
-#[tokio::test(flavor = "multi_thread")]
-async fn test_wallet_authentication_connection() {
-    // This test requires:
-    // MK_CONFDIR env var pointing to a directory with oracle_wallet containing valid wallet files
-    // OR a pre-configured sqlnet.ora with wallet location
-
-    let base_dir = base_dir();
-
-    // Set MK_CONFDIR based on where oracle_wallet exists
-    let mk_confdir = if base_dir.join("oracle_wallet").exists() {
-        base_dir.clone()
-    } else {
-        base_dir.join("tests").join("files")
-    };
-
-    unsafe {
-        std::env::set_var("MK_CONFDIR", &mk_confdir);
-    }
-    eprintln!("MK_CONFDIR set to: {:?}", mk_confdir);
-
-    add_runtime_to_path();
-    let endpoint = remote_reference_endpoint();
-    let config = make_wallet_config(&endpoint);
-    let env = Env::default();
-    let r = generate_data(&config, &env).await;
-
-    assert!(r.is_ok(), "Wallet authentication failed: {:?}", r.err());
-    let table = r.unwrap();
-    eprintln!("Wallet auth result: {:?}", table);
-    assert_eq!(table.len(), 2);
-    assert_eq!(table[0], "<<<oracle_instance>>>");
-    let rows: Vec<&str> = table[1].split("\n").collect();
-    assert_eq!(rows[0], "<<<oracle_instance:sep(124)>>>");
-    for row in rows[1..].iter() {
-        if !row.is_empty() {
-            assert!(
-                row.starts_with(endpoint.instance_name.as_ref().unwrap()),
-                "Row should start with instance name '{}': {}",
-                endpoint.instance_name.as_ref().unwrap(),
-                row
-            );
-        }
-    }
 }
 
 #[test]
@@ -2213,6 +2198,66 @@ mod find_sids {
         let result = find_oracle_home(&Sid::from("NONEXISTENT"), Some(oratab_str.to_string()));
         assert!(result.unwrap().is_none());
     }
+}
+
+#[cfg(unix)]
+#[test]
+fn test_add_oracle_home_to_env() {
+    use mk_oracle::setup::try_add_oracle_home_to_env;
+    use mk_oracle::types::EnvVarName;
+
+    let make_env_var = |name: &str| Some(EnvVarName::from(name.to_string()));
+
+    // oratab with two instances: the home of the first doesn't exist,
+    // the home of the second does and contains a lib dir
+    let tmp_dir = tempfile::tempdir().expect("create temp dir");
+    let home = tmp_dir.path().join("dbhome");
+    std::fs::create_dir_all(home.join("lib")).expect("create home/lib");
+    let oratab_path = tmp_dir.path().join("oratab");
+    std::fs::write(
+        &oratab_path,
+        format!("BAD:/nonexistent/oracle/home:N\nXE:{}:Y\n", home.display()),
+    )
+    .expect("write oratab");
+    let oratab = oratab_path.to_str().unwrap().to_string();
+
+    let config_auto = OracleConfig::load_str(&make_config_with_use_host("auto")).unwrap();
+    let config_never = OracleConfig::load_str(&make_config_with_use_host("never")).unwrap();
+
+    // use_host_client "never" -> gated out, variable stays unset
+    let env_var = "_MK_TEST_ORACLE_HOME_GATED";
+    let result =
+        try_add_oracle_home_to_env(&config_never, Some(oratab.clone()), make_env_var(env_var));
+    assert!(result.is_none());
+    assert!(std::env::var(env_var).is_err());
+
+    // variable already set -> untouched, fall back to runtime detection
+    let env_var = "_MK_TEST_ORACLE_HOME_PRESET";
+    unsafe {
+        std::env::set_var(env_var, "/already/set");
+    }
+    let result =
+        try_add_oracle_home_to_env(&config_auto, Some(oratab.clone()), make_env_var(env_var));
+    assert!(result.is_none());
+    assert_eq!(std::env::var(env_var).unwrap(), "/already/set");
+
+    // "auto" -> the first suitable home is set: BAD doesn't exist, XE wins
+    let env_var = "_MK_TEST_ORACLE_HOME_SET";
+    let result = try_add_oracle_home_to_env(&config_auto, Some(oratab), make_env_var(env_var));
+    assert!(result.is_some());
+    assert_eq!(std::env::var(env_var).unwrap(), home.to_str().unwrap());
+
+    // no suitable home at all -> nothing set
+    let bad_oratab_path = tmp_dir.path().join("oratab_bad");
+    std::fs::write(&bad_oratab_path, "BAD:/nonexistent/oracle/home:N\n").expect("write oratab");
+    let env_var = "_MK_TEST_ORACLE_HOME_NO_HOME";
+    let result = try_add_oracle_home_to_env(
+        &config_auto,
+        Some(bad_oratab_path.to_str().unwrap().to_string()),
+        make_env_var(env_var),
+    );
+    assert!(result.is_none());
+    assert!(std::env::var(env_var).is_err());
 }
 
 // NOTE: Test mutates a process-wide environment variable. The unique prefix

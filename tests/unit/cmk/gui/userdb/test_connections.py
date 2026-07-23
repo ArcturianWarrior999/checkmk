@@ -3,11 +3,6 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Iterator
-
-import pytest
-
-import cmk.utils.paths
 from cmk.ccc.site import omd_site
 from cmk.gui.config import Config
 from cmk.gui.userdb import effective_authentication_connections
@@ -17,22 +12,6 @@ from cmk.livestatus_client import (
     SiteConfiguration,
     SiteConfigurations,
 )
-
-
-@pytest.fixture(name="remote_site")
-def fixture_remote_site() -> Iterator[None]:
-    """Make the code believe it runs on a distributed-setup remote site."""
-    cmk.utils.paths.check_mk_config_dir.mkdir(parents=True, exist_ok=True)
-    distr_wato_mk = cmk.utils.paths.check_mk_config_dir / "distributed_wato.mk"
-    previous = distr_wato_mk.read_bytes() if distr_wato_mk.exists() else None
-    distr_wato_mk.write_text("is_distributed_setup_remote_site = True\n")
-    try:
-        yield
-    finally:
-        if previous is None:
-            distr_wato_mk.unlink(missing_ok=True)
-        else:
-            distr_wato_mk.write_bytes(previous)
 
 
 def _local_self_site(auth_connections: object) -> SiteConfiguration:

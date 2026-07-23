@@ -1,5 +1,5 @@
 {
-  "checksum": "81a2e7068be7c8694e2dbc405ceaeef9b50f4af9b840cd333b3186dde4fe6448",
+  "checksum": "d8f622711bc28267756f64b5b9d8a66859ccecdfe57481a04ac5932d1ec412d0",
   "crates": {
     "addr2line 0.24.2": {
       "name": "addr2line",
@@ -755,7 +755,14 @@
               "target": "utf8parse"
             }
           ],
-          "selects": {}
+          "selects": {
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "anstyle-wincon 3.0.10",
+                "target": "anstyle_wincon"
+              }
+            ]
+          }
         },
         "edition": "2021",
         "version": "0.6.20"
@@ -1694,6 +1701,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -1999,7 +2013,7 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -2089,10 +2103,15 @@
           "**"
         ],
         "crate_features": {
-          "common": [
-            "std"
-          ],
-          "selects": {}
+          "common": [],
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              "std"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "std"
+            ]
+          }
         },
         "edition": "2021",
         "version": "2.11.1"
@@ -2861,15 +2880,30 @@
         "deps": {
           "common": [
             {
-              "id": "iana-time-zone 0.1.63",
-              "target": "iana_time_zone"
-            },
-            {
               "id": "num-traits 0.2.19",
               "target": "num_traits"
             }
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              {
+                "id": "iana-time-zone 0.1.63",
+                "target": "iana_time_zone"
+              }
+            ],
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "windows-link 0.1.3",
+                "target": "windows_link"
+              }
+            ],
+            "x86_64-unknown-linux-gnu": [
+              {
+                "id": "iana-time-zone 0.1.63",
+                "target": "iana_time_zone"
+              }
+            ]
+          }
         },
         "edition": "2021",
         "version": "0.4.41"
@@ -3270,16 +3304,20 @@
               "target": "nix"
             },
             {
-              "id": "openssl 0.10.80",
-              "target": "openssl"
-            },
-            {
               "id": "os_info 3.12.0",
               "target": "os_info"
             },
             {
+              "id": "pem-rfc7468 0.7.0",
+              "target": "pem_rfc7468"
+            },
+            {
               "id": "rand 0.8.5",
               "target": "rand"
+            },
+            {
+              "id": "rcgen 0.13.2",
+              "target": "rcgen"
             },
             {
               "id": "reqwest 0.12.23",
@@ -3290,6 +3328,10 @@
               "target": "rpassword"
             },
             {
+              "id": "rsa 0.9.10",
+              "target": "rsa"
+            },
+            {
               "id": "rustls 0.23.31",
               "target": "rustls"
             },
@@ -3298,7 +3340,7 @@
               "target": "rustls_pemfile"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -3376,6 +3418,10 @@
             {
               "id": "tempfile 3.21.0",
               "target": "tempfile"
+            },
+            {
+              "id": "time 0.3.41",
+              "target": "time"
             }
           ],
           "selects": {}
@@ -3574,6 +3620,45 @@
         "version": "0.2.0"
       },
       "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "const-oid 0.9.6": {
+      "name": "const-oid",
+      "version": "0.9.6",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/const-oid",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/const-oid/0.9.6/download",
+          "sha256": "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "const_oid",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "const_oid",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.9.6"
+      },
+      "license": "Apache-2.0 OR MIT",
       "license_ids": [
         "Apache-2.0",
         "MIT"
@@ -4326,6 +4411,14 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "1.2.0"
       },
@@ -4767,6 +4860,72 @@
       ],
       "license_file": "LICENSE"
     },
+    "der 0.7.10": {
+      "name": "der",
+      "version": "0.7.10",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/der",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/der/0.7.10/download",
+          "sha256": "e7c1832837b905bbfb5101e07cc24c8deddf52f93225eee6ead5f4d63d53ddcb"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "der",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "der",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "oid",
+            "pem",
+            "std",
+            "zeroize"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "const-oid 0.9.6",
+              "target": "const_oid"
+            },
+            {
+              "id": "pem-rfc7468 0.7.0",
+              "target": "pem_rfc7468"
+            },
+            {
+              "id": "zeroize 1.8.1",
+              "target": "zeroize"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.7.10"
+      },
+      "license": "Apache-2.0 OR MIT",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
     "der-parser 8.2.0": {
       "name": "der-parser",
       "version": "8.2.0",
@@ -5099,10 +5258,14 @@
         ],
         "crate_features": {
           "common": [
+            "alloc",
             "block-buffer",
+            "const-oid",
             "core-api",
             "default",
             "mac",
+            "oid",
+            "std",
             "subtle"
           ],
           "selects": {}
@@ -5112,6 +5275,10 @@
             {
               "id": "block-buffer 0.10.4",
               "target": "block_buffer"
+            },
+            {
+              "id": "const-oid 0.9.6",
+              "target": "const_oid"
             },
             {
               "id": "crypto-common 0.1.7",
@@ -5233,7 +5400,7 @@
             ],
             "cfg(windows)": [
               {
-                "id": "windows-sys 0.60.2",
+                "id": "windows-sys 0.61.2",
                 "target": "windows_sys"
               }
             ]
@@ -5496,6 +5663,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "0.1.2"
       },
@@ -5835,7 +6009,7 @@
             ],
             "cfg(windows)": [
               {
-                "id": "windows-sys 0.52.0",
+                "id": "windows-sys 0.60.2",
                 "target": "windows_sys"
               }
             ]
@@ -7213,6 +7387,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -8730,7 +8910,14 @@
               "target": "tracing"
             }
           ],
-          "selects": {}
+          "selects": {
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "windows-registry 0.5.3",
+                "target": "windows_registry"
+              }
+            ]
+          }
         },
         "edition": "2021",
         "version": "0.1.16"
@@ -10356,6 +10543,22 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "spin",
+            "spin_no_std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "spin 0.9.8",
+              "target": "spin"
+            }
+          ],
+          "selects": {}
+        },
         "edition": "2015",
         "version": "1.5.0"
       },
@@ -10485,7 +10688,7 @@
             ],
             "cfg(windows)": [
               {
-                "id": "windows-targets 0.48.5",
+                "id": "windows-targets 0.53.3",
                 "target": "windows_targets"
               }
             ]
@@ -10499,6 +10702,83 @@
         "ISC"
       ],
       "license_file": "LICENSE"
+    },
+    "libm 0.2.16": {
+      "name": "libm",
+      "version": "0.2.16",
+      "package_url": "https://github.com/rust-lang/compiler-builtins",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/libm/0.2.16/download",
+          "sha256": "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "libm",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "libm",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "arch",
+            "default"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "libm 0.2.16",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.2.16"
+      },
+      "build_script_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "compile_data_glob_excludes": [
+          "**/*.rs"
+        ],
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_file": "LICENSE.txt"
     },
     "libredox 0.1.9": {
       "name": "libredox",
@@ -11556,10 +11836,6 @@
               "target": "build_script_build"
             },
             {
-              "id": "openssl 0.10.80",
-              "target": "openssl"
-            },
-            {
               "id": "tiberius 0.12.3",
               "target": "tiberius"
             },
@@ -11577,6 +11853,12 @@
             }
           ],
           "selects": {
+            "cfg(unix)": [
+              {
+                "id": "openssl 0.10.80",
+                "target": "openssl"
+              }
+            ],
             "cfg(windows)": [
               {
                 "id": "encoding_rs 0.8.35",
@@ -11674,7 +11956,14 @@
             "alpn",
             "default"
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              "vendored"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "vendored"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -12155,6 +12444,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "user"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -12230,7 +12526,7 @@
           "selects": {
             "cfg(windows)": [
               {
-                "id": "windows-sys 0.60.2",
+                "id": "windows-sys 0.61.2",
                 "target": "windows_sys",
                 "alias": "windows"
               }
@@ -12299,6 +12595,125 @@
         "version": "0.4.6"
       },
       "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "num-bigint-dig 0.8.6": {
+      "name": "num-bigint-dig",
+      "version": "0.8.6",
+      "package_url": "https://github.com/dignifiedquire/num-bigint",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/num-bigint-dig/0.8.6/download",
+          "sha256": "e661dda6640fad38e827a6d4a310ff4763082116fe217f279885c97f511bb0b7"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "num_bigint_dig",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "num_bigint_dig",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "i128",
+            "prime",
+            "rand",
+            "u64_digit",
+            "zeroize"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "lazy_static 1.5.0",
+              "target": "lazy_static"
+            },
+            {
+              "id": "libm 0.2.16",
+              "target": "libm"
+            },
+            {
+              "id": "num-bigint-dig 0.8.6",
+              "target": "build_script_build"
+            },
+            {
+              "id": "num-integer 0.1.46",
+              "target": "num_integer"
+            },
+            {
+              "id": "num-iter 0.1.45",
+              "target": "num_iter"
+            },
+            {
+              "id": "num-traits 0.2.19",
+              "target": "num_traits"
+            },
+            {
+              "id": "rand 0.8.5",
+              "target": "rand"
+            },
+            {
+              "id": "smallvec 1.15.1",
+              "target": "smallvec"
+            },
+            {
+              "id": "zeroize 1.8.1",
+              "target": "zeroize"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "rustc_flags": {
+          "common": [
+            "-Copt-level=3"
+          ],
+          "selects": {}
+        },
+        "version": "0.8.6"
+      },
+      "build_script_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "compile_data_glob_excludes": [
+          "**/*.rs"
+        ],
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT/Apache-2.0",
       "license_ids": [
         "Apache-2.0",
         "MIT"
@@ -12399,6 +12814,58 @@
       ],
       "license_file": "LICENSE-APACHE"
     },
+    "num-iter 0.1.45": {
+      "name": "num-iter",
+      "version": "0.1.45",
+      "package_url": "https://github.com/rust-num/num-iter",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/num-iter/0.1.45/download",
+          "sha256": "1429034a0490724d0075ebb2bc9e875d6503c3cf69e235a8941aa757d83ef5bf"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "num_iter",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "num_iter",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "num-integer 0.1.46",
+              "target": "num_integer"
+            },
+            {
+              "id": "num-traits 0.2.19",
+              "target": "num_traits"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.45"
+      },
+      "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
     "num-traits 0.2.19": {
       "name": "num-traits",
       "version": "0.2.19",
@@ -12444,12 +12911,17 @@
           "common": [
             "default",
             "i128",
+            "libm",
             "std"
           ],
           "selects": {}
         },
         "deps": {
           "common": [
+            {
+              "id": "libm 0.2.16",
+              "target": "libm"
+            },
             {
               "id": "num-traits 0.2.19",
               "target": "build_script_build"
@@ -13673,6 +14145,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "odbc_version_3_80"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -13755,6 +14234,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "odbc_version_3_50",
+            "odbc_version_3_80"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -14032,6 +14518,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default"
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "1.70.1"
       },
@@ -14124,10 +14616,16 @@
         ],
         "crate_features": {
           "common": [
-            "default",
-            "vendored"
+            "default"
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              "vendored"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "vendored"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -14429,11 +14927,17 @@
           "**"
         ],
         "crate_features": {
-          "common": [
-            "openssl-src",
-            "vendored"
-          ],
-          "selects": {}
+          "common": [],
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              "openssl-src",
+              "vendored"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "openssl-src",
+              "vendored"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -14474,10 +14978,6 @@
               "target": "cc"
             },
             {
-              "id": "openssl-src 300.5.2+3.5.2",
-              "target": "openssl_src"
-            },
-            {
               "id": "pkg-config 0.3.32",
               "target": "pkg_config"
             },
@@ -14486,7 +14986,20 @@
               "target": "vcpkg"
             }
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              {
+                "id": "openssl-src 300.5.2+3.5.2",
+                "target": "openssl_src"
+              }
+            ],
+            "x86_64-unknown-linux-gnu": [
+              {
+                "id": "openssl-src 300.5.2+3.5.2",
+                "target": "openssl_src"
+              }
+            ]
+          }
         },
         "build_script_env": {
           "common": {
@@ -14794,7 +15307,7 @@
               "target": "log"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -15172,6 +15685,60 @@
       ],
       "license_file": "LICENSE-APACHE"
     },
+    "pem-rfc7468 0.7.0": {
+      "name": "pem-rfc7468",
+      "version": "0.7.0",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/pem-rfc7468",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/pem-rfc7468/0.7.0/download",
+          "sha256": "88b39c9bfcfc231068454382784bb460aae594343fb030d46e9f50a645418412"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "pem_rfc7468",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "pem_rfc7468",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "base64ct 1.8.3",
+              "target": "base64ct"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.7.0"
+      },
+      "license": "Apache-2.0 OR MIT",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
     "percent-encoding 2.3.2": {
       "name": "percent-encoding",
       "version": "2.3.2",
@@ -15395,6 +15962,132 @@
         "version": "0.1.0"
       },
       "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "pkcs1 0.7.5": {
+      "name": "pkcs1",
+      "version": "0.7.5",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/pkcs1",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/pkcs1/0.7.5/download",
+          "sha256": "c8ffb9f10fa047879315e6625af03c164b16962a5368d724ed16323b68ace47f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "pkcs1",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "pkcs1",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "pem",
+            "pkcs8",
+            "std",
+            "zeroize"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "der 0.7.10",
+              "target": "der"
+            },
+            {
+              "id": "pkcs8 0.10.2",
+              "target": "pkcs8"
+            },
+            {
+              "id": "spki 0.7.3",
+              "target": "spki"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.7.5"
+      },
+      "license": "Apache-2.0 OR MIT",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "pkcs8 0.10.2": {
+      "name": "pkcs8",
+      "version": "0.10.2",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/pkcs8",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/pkcs8/0.10.2/download",
+          "sha256": "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "pkcs8",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "pkcs8",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "pem",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "der 0.7.10",
+              "target": "der"
+            },
+            {
+              "id": "spki 0.7.3",
+              "target": "spki"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.10.2"
+      },
+      "license": "Apache-2.0 OR MIT",
       "license_ids": [
         "Apache-2.0",
         "MIT"
@@ -16463,7 +17156,7 @@
                 "target": "once_cell"
               },
               {
-                "id": "windows-sys 0.52.0",
+                "id": "windows-sys 0.59.0",
                 "target": "windows_sys"
               }
             ]
@@ -16623,8 +17316,24 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "default",
+            "getrandom",
+            "getrandom_package",
+            "libc",
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
+            {
+              "id": "getrandom 0.1.16",
+              "target": "getrandom",
+              "alias": "getrandom_package"
+            },
             {
               "id": "rand_core 0.5.1",
               "target": "rand_core"
@@ -16699,10 +17408,6 @@
         "deps": {
           "common": [
             {
-              "id": "libc 0.2.175",
-              "target": "libc"
-            },
-            {
               "id": "rand_chacha 0.3.1",
               "target": "rand_chacha"
             },
@@ -16711,7 +17416,20 @@
               "target": "rand_core"
             }
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              {
+                "id": "libc 0.2.175",
+                "target": "libc"
+              }
+            ],
+            "x86_64-unknown-linux-gnu": [
+              {
+                "id": "libc 0.2.175",
+                "target": "libc"
+              }
+            ]
+          }
         },
         "edition": "2018",
         "version": "0.8.5"
@@ -16800,6 +17518,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -16962,6 +17686,23 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "getrandom",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "getrandom 0.1.16",
+              "target": "getrandom"
+            }
+          ],
+          "selects": {}
+        },
         "edition": "2018",
         "version": "0.5.1"
       },
@@ -17144,6 +17885,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "0.6.2"
       },
@@ -17286,6 +18034,74 @@
         "MIT"
       ],
       "license_file": "LICENSE-APACHE"
+    },
+    "rcgen 0.13.2": {
+      "name": "rcgen",
+      "version": "0.13.2",
+      "package_url": "https://github.com/rustls/rcgen",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/rcgen/0.13.2/download",
+          "sha256": "75e669e5202259b5314d1ea5397316ad400819437857b90861765f24c4cf80a2"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "rcgen",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "rcgen",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "crypto",
+            "ring"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "ring 0.17.14",
+              "target": "ring"
+            },
+            {
+              "id": "rustls-pki-types 1.12.0",
+              "target": "rustls_pki_types",
+              "alias": "pki_types"
+            },
+            {
+              "id": "time 0.3.41",
+              "target": "time"
+            },
+            {
+              "id": "yasna 0.5.2",
+              "target": "yasna"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.13.2"
+      },
+      "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE"
     },
     "redox_syscall 0.4.1": {
       "name": "redox_syscall",
@@ -17846,7 +18662,14 @@
             "socks",
             "system-proxy"
           ],
-          "selects": {}
+          "selects": {
+            "aarch64-unknown-linux-gnu": [
+              "native-tls-vendored"
+            ],
+            "x86_64-unknown-linux-gnu": [
+              "native-tls-vendored"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -17916,7 +18739,7 @@
               "target": "rustls_pki_types"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -18145,6 +18968,33 @@
       ],
       "license_file": "LICENSE"
     },
+    "robotmk_ext 0.1.0": {
+      "name": "robotmk_ext",
+      "version": "0.1.0",
+      "package_url": null,
+      "repository": null,
+      "targets": [],
+      "library_target_name": null,
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "clap 4.5.45",
+              "target": "clap"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.1.0"
+      },
+      "license": null,
+      "license_ids": [],
+      "license_file": null
+    },
     "rpassword 7.4.0": {
       "name": "rpassword",
       "version": "7.4.0",
@@ -18202,6 +19052,114 @@
       "license": "Apache-2.0",
       "license_ids": [
         "Apache-2.0"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "rsa 0.9.10": {
+      "name": "rsa",
+      "version": "0.9.10",
+      "package_url": "https://github.com/RustCrypto/RSA",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/rsa/0.9.10/download",
+          "sha256": "b8573f03f5883dcaebdfcf4725caa1ecb9c15b2ef50c43a07b816e06799bb12d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "rsa",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "rsa",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "pem",
+            "std",
+            "u64_digit"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "const-oid 0.9.6",
+              "target": "const_oid"
+            },
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            },
+            {
+              "id": "num-bigint-dig 0.8.6",
+              "target": "num_bigint_dig",
+              "alias": "num_bigint"
+            },
+            {
+              "id": "num-integer 0.1.46",
+              "target": "num_integer"
+            },
+            {
+              "id": "num-traits 0.2.19",
+              "target": "num_traits"
+            },
+            {
+              "id": "pkcs1 0.7.5",
+              "target": "pkcs1"
+            },
+            {
+              "id": "pkcs8 0.10.2",
+              "target": "pkcs8"
+            },
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
+            },
+            {
+              "id": "signature 2.2.0",
+              "target": "signature"
+            },
+            {
+              "id": "spki 0.7.3",
+              "target": "spki"
+            },
+            {
+              "id": "subtle 2.6.1",
+              "target": "subtle"
+            },
+            {
+              "id": "zeroize 1.8.1",
+              "target": "zeroize"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "rustc_flags": {
+          "common": [
+            "-Copt-level=3"
+          ],
+          "selects": {}
+        },
+        "version": "0.9.10"
+      },
+      "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
       ],
       "license_file": "LICENSE-APACHE"
     },
@@ -18475,7 +19433,7 @@
                 "alias": "libc_errno"
               },
               {
-                "id": "windows-sys 0.52.0",
+                "id": "windows-sys 0.59.0",
                 "target": "windows_sys"
               }
             ]
@@ -18594,7 +19552,7 @@
                 "alias": "libc_errno"
               },
               {
-                "id": "windows-sys 0.52.0",
+                "id": "windows-sys 0.60.2",
                 "target": "windows_sys"
               }
             ]
@@ -19282,7 +20240,7 @@
               "target": "ref_cast"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -19341,7 +20299,7 @@
               "target": "ref_cast"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -19582,14 +20540,14 @@
       ],
       "license_file": "LICENSE-APACHE"
     },
-    "serde 1.0.219": {
+    "serde 1.0.228": {
       "name": "serde",
-      "version": "1.0.219",
+      "version": "1.0.228",
       "package_url": "https://github.com/serde-rs/serde",
       "repository": {
         "Http": {
-          "url": "https://static.crates.io/crates/serde/1.0.219/download",
-          "sha256": "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
+          "url": "https://static.crates.io/crates/serde/1.0.228/download",
+          "sha256": "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
         }
       },
       "targets": [
@@ -19636,23 +20594,27 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "build_script_build"
+            },
+            {
+              "id": "serde_core 1.0.228",
+              "target": "serde_core"
             }
           ],
           "selects": {}
         },
-        "edition": "2018",
+        "edition": "2021",
         "proc_macro_deps": {
           "common": [
             {
-              "id": "serde_derive 1.0.219",
+              "id": "serde_derive 1.0.228",
               "target": "serde_derive"
             }
           ],
           "selects": {}
         },
-        "version": "1.0.219"
+        "version": "1.0.228"
       },
       "build_script_attrs": {
         "compile_data_glob": [
@@ -19672,14 +20634,104 @@
       ],
       "license_file": "LICENSE-APACHE"
     },
-    "serde_derive 1.0.219": {
-      "name": "serde_derive",
-      "version": "1.0.219",
+    "serde_core 1.0.228": {
+      "name": "serde_core",
+      "version": "1.0.228",
       "package_url": "https://github.com/serde-rs/serde",
       "repository": {
         "Http": {
-          "url": "https://static.crates.io/crates/serde_derive/1.0.219/download",
-          "sha256": "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
+          "url": "https://static.crates.io/crates/serde_core/1.0.228/download",
+          "sha256": "41d385c7d4ca58e59fc732af25c3983b67ac852c1a25000afe1175de458b67ad"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "serde_core",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "serde_core",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "result",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "serde_core 1.0.228",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "proc_macro_deps": {
+          "common": [],
+          "selects": {
+            "cfg(any())": [
+              {
+                "id": "serde_derive 1.0.228",
+                "target": "serde_derive"
+              }
+            ]
+          }
+        },
+        "version": "1.0.228"
+      },
+      "build_script_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "compile_data_glob_excludes": [
+          "**/*.rs"
+        ],
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "serde_derive 1.0.228": {
+      "name": "serde_derive",
+      "version": "1.0.228",
+      "package_url": "https://github.com/serde-rs/serde",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/serde_derive/1.0.228/download",
+          "sha256": "d540f220d3187173da220f885ab66608367b6574e925011a9353e4badda91d79"
         }
       },
       "targets": [
@@ -19724,8 +20776,8 @@
           ],
           "selects": {}
         },
-        "edition": "2015",
-        "version": "1.0.219"
+        "edition": "2021",
+        "version": "1.0.228"
       },
       "license": "MIT OR Apache-2.0",
       "license_ids": [
@@ -19797,7 +20849,7 @@
               "target": "ryu"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -19866,7 +20918,7 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -19926,7 +20978,7 @@
               "target": "ryu"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -19983,7 +21035,7 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -19993,7 +21045,7 @@
         "proc_macro_deps": {
           "common": [
             {
-              "id": "serde_derive 1.0.219",
+              "id": "serde_derive 1.0.228",
               "target": "serde_derive"
             },
             {
@@ -20329,6 +21381,67 @@
       ],
       "license_file": "LICENSE-APACHE"
     },
+    "signature 2.2.0": {
+      "name": "signature",
+      "version": "2.2.0",
+      "package_url": "https://github.com/RustCrypto/traits/tree/master/signature",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/signature/2.2.0/download",
+          "sha256": "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "signature",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "signature",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "digest",
+            "rand_core",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            },
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "2.2.0"
+      },
+      "license": "Apache-2.0 OR MIT",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
     "slab 0.4.11": {
       "name": "slab",
       "version": "0.4.11",
@@ -20449,6 +21562,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2018",
         "version": "0.2.2"
       },
@@ -20571,6 +21691,106 @@
         "version": "0.6.0"
       },
       "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": "LICENSE-APACHE"
+    },
+    "spin 0.9.8": {
+      "name": "spin",
+      "version": "0.9.8",
+      "package_url": "https://github.com/mvdnes/spin-rs.git",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/spin/0.9.8/download",
+          "sha256": "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "spin",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "spin",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "once"
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.9.8"
+      },
+      "license": "MIT",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_file": "LICENSE"
+    },
+    "spki 0.7.3": {
+      "name": "spki",
+      "version": "0.7.3",
+      "package_url": "https://github.com/RustCrypto/formats/tree/master/spki",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/spki/0.7.3/download",
+          "sha256": "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "spki",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "spki",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "pem",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "der 0.7.10",
+              "target": "der"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.7.3"
+      },
+      "license": "Apache-2.0 OR MIT",
       "license_ids": [
         "Apache-2.0",
         "MIT"
@@ -21128,7 +22348,11 @@
             "system",
             "user"
           ],
-          "selects": {}
+          "selects": {
+            "x86_64-pc-windows-msvc": [
+              "windows"
+            ]
+          }
         },
         "deps": {
           "common": [
@@ -21142,6 +22366,16 @@
               {
                 "id": "libc 0.2.175",
                 "target": "libc"
+              }
+            ],
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "ntapi 0.4.2",
+                "target": "ntapi"
+              },
+              {
+                "id": "windows 0.62.2",
+                "target": "windows"
               }
             ]
           }
@@ -21350,7 +22584,7 @@
             ],
             "cfg(windows)": [
               {
-                "id": "windows-sys 0.52.0",
+                "id": "windows-sys 0.60.2",
                 "target": "windows_sys"
               }
             ]
@@ -21844,7 +23078,14 @@
               "target": "uuid"
             }
           ],
-          "selects": {}
+          "selects": {
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "winauth 0.0.4",
+                "target": "winauth"
+              }
+            ]
+          }
         },
         "edition": "2021",
         "proc_macro_deps": {
@@ -22242,17 +23483,17 @@
             "time",
             "tokio-macros"
           ],
-          "selects": {}
+          "selects": {
+            "x86_64-pc-windows-msvc": [
+              "windows-sys"
+            ]
+          }
         },
         "deps": {
           "common": [
             {
               "id": "bytes 1.12.0",
               "target": "bytes"
-            },
-            {
-              "id": "libc 0.2.175",
-              "target": "libc"
             },
             {
               "id": "mio 1.0.4",
@@ -22267,19 +23508,29 @@
               "target": "pin_project_lite"
             },
             {
-              "id": "signal-hook-registry 1.4.6",
-              "target": "signal_hook_registry"
-            },
-            {
               "id": "socket2 0.6.0",
               "target": "socket2"
             }
           ],
           "selects": {
+            "aarch64-unknown-linux-gnu": [
+              {
+                "id": "libc 0.2.175",
+                "target": "libc"
+              },
+              {
+                "id": "signal-hook-registry 1.4.6",
+                "target": "signal_hook_registry"
+              }
+            ],
             "cfg(all(tokio_uring, target_os = \"linux\"))": [
               {
                 "id": "io-uring 0.7.10",
                 "target": "io_uring"
+              },
+              {
+                "id": "libc 0.2.175",
+                "target": "libc"
               },
               {
                 "id": "slab 0.4.11",
@@ -22290,6 +23541,22 @@
               {
                 "id": "backtrace 0.3.75",
                 "target": "backtrace"
+              }
+            ],
+            "x86_64-pc-windows-msvc": [
+              {
+                "id": "windows-sys 0.59.0",
+                "target": "windows_sys"
+              }
+            ],
+            "x86_64-unknown-linux-gnu": [
+              {
+                "id": "libc 0.2.175",
+                "target": "libc"
+              },
+              {
+                "id": "signal-hook-registry 1.4.6",
+                "target": "signal_hook_registry"
               }
             ]
           }
@@ -22595,7 +23862,7 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -22661,7 +23928,7 @@
         "deps": {
           "common": [
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -22721,7 +23988,7 @@
               "target": "indexmap"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             },
             {
@@ -23920,7 +25187,7 @@
               "target": "percent_encoding"
             },
             {
-              "id": "serde 1.0.219",
+              "id": "serde 1.0.228",
               "target": "serde"
             }
           ],
@@ -25101,6 +26368,14 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "1.2.0"
       },
@@ -25152,6 +26427,38 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "accctrl",
+            "aclapi",
+            "basetsd",
+            "cfg",
+            "evntrace",
+            "fileapi",
+            "handleapi",
+            "impl-default",
+            "in6addr",
+            "inaddr",
+            "lmaccess",
+            "lmapibuf",
+            "lmcons",
+            "minwinbase",
+            "minwindef",
+            "ntsecapi",
+            "processthreadsapi",
+            "sddl",
+            "securitybaseapi",
+            "sspi",
+            "winbase",
+            "windef",
+            "winerror",
+            "winioctl",
+            "winnt",
+            "winsock2",
+            "winsvc"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -25300,7 +26607,7 @@
           "selects": {
             "cfg(windows)": [
               {
-                "id": "windows-sys 0.48.0",
+                "id": "windows-sys 0.60.2",
                 "target": "windows_sys"
               }
             ]
@@ -25483,6 +26790,56 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Wdk",
+            "Wdk_System",
+            "Wdk_System_SystemInformation",
+            "Wdk_System_SystemServices",
+            "Wdk_System_Threading",
+            "Win32",
+            "Win32_Foundation",
+            "Win32_NetworkManagement",
+            "Win32_NetworkManagement_IpHelper",
+            "Win32_NetworkManagement_Ndis",
+            "Win32_NetworkManagement_NetManagement",
+            "Win32_Networking",
+            "Win32_Networking_WinSock",
+            "Win32_Security",
+            "Win32_Security_Authentication",
+            "Win32_Security_Authentication_Identity",
+            "Win32_Security_Authorization",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Com",
+            "Win32_System_Diagnostics",
+            "Win32_System_Diagnostics_Debug",
+            "Win32_System_Diagnostics_ToolHelp",
+            "Win32_System_IO",
+            "Win32_System_Ioctl",
+            "Win32_System_Kernel",
+            "Win32_System_Memory",
+            "Win32_System_Ole",
+            "Win32_System_Performance",
+            "Win32_System_Power",
+            "Win32_System_ProcessStatus",
+            "Win32_System_Registry",
+            "Win32_System_RemoteDesktop",
+            "Win32_System_Rpc",
+            "Win32_System_SystemInformation",
+            "Win32_System_SystemServices",
+            "Win32_System_Threading",
+            "Win32_System_Variant",
+            "Win32_System_WindowsProgramming",
+            "Win32_System_Wmi",
+            "Win32_UI",
+            "Win32_UI_Shell",
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -25543,6 +26900,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -25660,6 +27023,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -25729,6 +27098,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -25975,6 +27350,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26027,6 +27408,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26083,6 +27471,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26131,6 +27525,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26179,6 +27579,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26227,6 +27633,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26325,6 +27737,22 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Win32",
+            "Win32_Foundation",
+            "Win32_Security",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Diagnostics",
+            "Win32_System_Diagnostics_Debug",
+            "Win32_System_Registry",
+            "Win32_System_Time",
+            "default"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26373,6 +27801,50 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Win32",
+            "Win32_Devices",
+            "Win32_Devices_HumanInterfaceDevice",
+            "Win32_Foundation",
+            "Win32_Globalization",
+            "Win32_Graphics",
+            "Win32_Graphics_Dwm",
+            "Win32_Graphics_Gdi",
+            "Win32_Media",
+            "Win32_Networking",
+            "Win32_Networking_WinSock",
+            "Win32_Security",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Com",
+            "Win32_System_Com_StructuredStorage",
+            "Win32_System_Console",
+            "Win32_System_IO",
+            "Win32_System_LibraryLoader",
+            "Win32_System_Ole",
+            "Win32_System_Registry",
+            "Win32_System_SystemInformation",
+            "Win32_System_SystemServices",
+            "Win32_System_Threading",
+            "Win32_System_WindowsProgramming",
+            "Win32_UI",
+            "Win32_UI_Accessibility",
+            "Win32_UI_Controls",
+            "Win32_UI_HiDpi",
+            "Win32_UI_Input",
+            "Win32_UI_Input_Ime",
+            "Win32_UI_Input_KeyboardAndMouse",
+            "Win32_UI_Input_Pointer",
+            "Win32_UI_Input_Touch",
+            "Win32_UI_Shell",
+            "Win32_UI_TextServices",
+            "Win32_UI_WindowsAndMessaging",
+            "default"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26421,6 +27893,32 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Wdk",
+            "Wdk_Foundation",
+            "Wdk_Storage",
+            "Wdk_Storage_FileSystem",
+            "Wdk_System",
+            "Wdk_System_IO",
+            "Win32",
+            "Win32_Foundation",
+            "Win32_Networking",
+            "Win32_Networking_WinSock",
+            "Win32_Security",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Console",
+            "Win32_System_IO",
+            "Win32_System_Pipes",
+            "Win32_System_SystemServices",
+            "Win32_System_Threading",
+            "Win32_System_WindowsProgramming",
+            "default"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26469,6 +27967,18 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Win32",
+            "Win32_Foundation",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Console",
+            "default"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -26517,6 +28027,30 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "Win32",
+            "Win32_Foundation",
+            "Win32_Globalization",
+            "Win32_Security",
+            "Win32_Security_Authentication",
+            "Win32_Security_Authentication_Identity",
+            "Win32_Security_Credentials",
+            "Win32_Security_Cryptography",
+            "Win32_Storage",
+            "Win32_Storage_FileSystem",
+            "Win32_System",
+            "Win32_System_Com",
+            "Win32_System_Console",
+            "Win32_System_LibraryLoader",
+            "Win32_System_Memory",
+            "Win32_System_SystemInformation",
+            "Win32_UI",
+            "Win32_UI_Shell",
+            "default"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -29147,6 +30681,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "rwh_06"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -29160,6 +30700,11 @@
             {
               "id": "dpi 0.1.2",
               "target": "dpi"
+            },
+            {
+              "id": "raw-window-handle 0.6.2",
+              "target": "raw_window_handle",
+              "alias": "rwh_06"
             },
             {
               "id": "smol_str 0.2.2",
@@ -29785,6 +31330,62 @@
         "MIT"
       ],
       "license_file": "LICENSE"
+    },
+    "yasna 0.5.2": {
+      "name": "yasna",
+      "version": "0.5.2",
+      "package_url": "https://github.com/qnighy/yasna.rs",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/yasna/0.5.2/download",
+          "sha256": "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "yasna",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "allow_empty": true,
+              "include": [
+                "**/*.rs"
+              ]
+            }
+          }
+        }
+      ],
+      "library_target_name": "yasna",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std",
+            "time"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "time 0.3.41",
+              "target": "time"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.5.2"
+      },
+      "license": "MIT OR Apache-2.0",
+      "license_ids": [
+        "Apache-2.0",
+        "MIT"
+      ],
+      "license_file": null
     },
     "yoke 0.8.0": {
       "name": "yoke",
@@ -30415,7 +32016,8 @@
     "check-http 0.1.0": "packages/check-http",
     "cmk-agent-ctl 1.0.0": "packages/cmk-agent-ctl",
     "mk-oracle 0.1.0": "packages/mk-oracle",
-    "mk-sql 0.1.0": "packages/mk-sql"
+    "mk-sql 0.1.0": "packages/mk-sql",
+    "robotmk_ext 0.1.0": "agents/wnx/extensions/robotmk_ext"
   },
   "conditions": {
     "aarch64-linux-android": [],
@@ -30430,7 +32032,9 @@
     "cfg(all(any(all(target_arch = \"aarch64\", target_endian = \"little\"), all(target_arch = \"arm\", target_endian = \"little\")), any(target_os = \"android\", target_os = \"linux\")))": [
       "aarch64-unknown-linux-gnu"
     ],
-    "cfg(all(any(target_arch = \"x86_64\", target_arch = \"arm64ec\"), target_env = \"msvc\", not(windows_raw_dylib)))": [],
+    "cfg(all(any(target_arch = \"x86_64\", target_arch = \"arm64ec\"), target_env = \"msvc\", not(windows_raw_dylib)))": [
+      "x86_64-pc-windows-msvc"
+    ],
     "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", any(target_arch = \"s390x\", target_arch = \"powerpc\")), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc\"), all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": [],
     "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", any(target_endian = \"little\", target_arch = \"s390x\"), any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"s390x\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": [],
     "cfg(all(any(target_os = \"linux\", target_os = \"android\"), not(any(all(target_os = \"linux\", target_env = \"\"), getrandom_backend = \"custom\", getrandom_backend = \"linux_raw\", getrandom_backend = \"rdrand\", getrandom_backend = \"rndr\"))))": [
@@ -30461,7 +32065,9 @@
     "cfg(all(target_arch = \"x86_64\", target_env = \"gnu\", not(target_abi = \"llvm\"), not(windows_raw_dylib)))": [
       "x86_64-unknown-linux-gnu"
     ],
-    "cfg(all(target_arch = \"x86_64\", target_env = \"msvc\", not(windows_raw_dylib)))": [],
+    "cfg(all(target_arch = \"x86_64\", target_env = \"msvc\", not(windows_raw_dylib)))": [
+      "x86_64-pc-windows-msvc"
+    ],
     "cfg(all(target_family = \"wasm\", target_feature = \"atomics\"))": [],
     "cfg(all(target_family = \"wasm\", target_os = \"unknown\"))": [],
     "cfg(all(target_os = \"uefi\", getrandom_backend = \"efi_rng\"))": [],
@@ -30477,6 +32083,7 @@
     "cfg(any())": [],
     "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(any(target_os = \"dragonfly\", target_os = \"freebsd\", target_os = \"hurd\", target_os = \"illumos\", target_os = \"cygwin\", all(target_os = \"horizon\", target_arch = \"arm\")))": [],
@@ -30492,13 +32099,17 @@
       "aarch64-unknown-linux-gnu",
       "x86_64-unknown-linux-gnu"
     ],
-    "cfg(any(windows, target_os = \"cygwin\"))": [],
+    "cfg(any(windows, target_os = \"cygwin\"))": [
+      "x86_64-pc-windows-msvc"
+    ],
     "cfg(not(all(target_arch = \"arm\", target_os = \"none\")))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(not(all(target_family = \"wasm\", target_os = \"unknown\")))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(not(all(windows, target_env = \"msvc\", not(target_vendor = \"uwp\"))))": [
@@ -30507,6 +32118,7 @@
     ],
     "cfg(not(any(target_os = \"unknown\", target_arch = \"wasm32\")))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(not(any(target_os = \"windows\", target_vendor = \"apple\")))": [
@@ -30515,10 +32127,12 @@
     ],
     "cfg(not(target_arch = \"wasm32\"))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(not(target_os = \"emscripten\"))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(not(windows))": [
@@ -30527,6 +32141,7 @@
     ],
     "cfg(not(windows_raw_dylib))": [
       "aarch64-unknown-linux-gnu",
+      "x86_64-pc-windows-msvc",
       "x86_64-unknown-linux-gnu"
     ],
     "cfg(target_arch = \"wasm32\")": [],
@@ -30543,14 +32158,18 @@
     "cfg(target_os = \"solaris\")": [],
     "cfg(target_os = \"vxworks\")": [],
     "cfg(target_os = \"wasi\")": [],
-    "cfg(target_os = \"windows\")": [],
+    "cfg(target_os = \"windows\")": [
+      "x86_64-pc-windows-msvc"
+    ],
     "cfg(target_vendor = \"apple\")": [],
     "cfg(tokio_taskdump)": [],
     "cfg(unix)": [
       "aarch64-unknown-linux-gnu",
       "x86_64-unknown-linux-gnu"
     ],
-    "cfg(windows)": [],
+    "cfg(windows)": [
+      "x86_64-pc-windows-msvc"
+    ],
     "cfg(windows_raw_dylib)": [],
     "i686-pc-windows-gnu": [],
     "i686-pc-windows-gnullvm": [],
@@ -30559,7 +32178,9 @@
     "i686-uwp-windows-msvc": [],
     "x86_64-pc-windows-gnu": [],
     "x86_64-pc-windows-gnullvm": [],
-    "x86_64-pc-windows-msvc": [],
+    "x86_64-pc-windows-msvc": [
+      "x86_64-pc-windows-msvc"
+    ],
     "x86_64-unknown-linux-gnu": [
       "x86_64-unknown-linux-gnu"
     ],
@@ -30597,15 +32218,18 @@
     "openssl-probe 0.1.6",
     "oracle 0.6.3",
     "os_info 3.12.0",
+    "pem-rfc7468 0.7.0",
     "rand 0.8.5",
     "rayon 1.11.0",
+    "rcgen 0.13.2",
     "regex 1.12.2",
     "reqwest 0.12.23",
     "rpassword 7.4.0",
+    "rsa 0.9.10",
     "rustls 0.23.31",
     "rustls-pemfile 2.2.0",
     "scrypt 0.11.0",
-    "serde 1.0.219",
+    "serde 1.0.228",
     "serde_json 1.0.143",
     "serde_with 3.14.0",
     "shellexpand 3.1.2",

@@ -33,10 +33,7 @@ def discover_arris_cmts_cpu(section: StringTable) -> DiscoveryResult:
 def check_arris_cmts_cpu(item: str, params: Mapping[str, Any], section: StringTable) -> CheckResult:
     for oid_id, cpu_id, cpu_idle_util in section:
         # see inventory function
-        if cpu_id:
-            citem = cpu_id
-        else:
-            citem = str(int(oid_id) - 1)
+        citem = cpu_id or str(int(oid_id) - 1)
 
         if citem == item:
             # We get the IDLE percentage, but need the usage

@@ -43,8 +43,8 @@ class RuntimeFiltersSidebar(SidebarHelper):
 
     @property
     def _dropdown_list(self) -> Locator:
-        """Locator property of the dropdown listbox."""
-        return self.locator().get_by_role("listbox")
+        """Locator property of the dropdown listbox (the CmkSuggestions element)."""
+        return self.locator().locator("ul.cmk-suggestions")
 
     @property
     def dropdown_list_filter_textbox(self) -> Locator:

@@ -4,7 +4,6 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script setup lang="ts">
-import type { Autocompleter } from 'cmk-shared-typing/typescript/vue_formspec_components'
 import { computed } from 'vue'
 
 import usei18n from '@/lib/i18n'
@@ -13,11 +12,13 @@ import type { TranslatedString } from '@/lib/i18nString'
 import CmkDropdown from '@/components/CmkDropdown'
 import CmkLabel from '@/components/CmkLabel.vue'
 
-import FormAutocompleter from '@/form/private/FormAutocompleter/FormAutocompleter.vue'
-
 import type { GraphItemsStore } from '../../composables/useGraphItems'
 import { type DraftScalarItem, scalarColor } from '../../drafts'
 import type { ScalarItem } from '../../types'
+import HostNameSelect from './fields/HostNameSelect.vue'
+import ServiceMetricSelect from './fields/ServiceMetricSelect.vue'
+import ServiceNameSelect from './fields/ServiceNameSelect.vue'
+import { hostServiceContext } from './fields/utils'
 
 const { item, store, thresholds } = defineProps<{
   item: DraftScalarItem
@@ -42,6 +43,8 @@ const scalarTypeSuggestions = {
   suggestions: SCALAR_TYPES.map((name) => ({ name, title: SCALAR_TYPE_TITLES[name] }))
 }
 
+const metricContext = computed(() => hostServiceContext(item.host_name, item.service_name))
+
 /** A palette color to fall back to; never keeps a threshold color on the way out. */
 function paletteFallback(color: string): string {
   return color === thresholds.warning || color === thresholds.critical
@@ -60,37 +63,6 @@ function onScalarTypeChange(value: string | null): void {
   }
 }
 
-const hostAutocompleter: Autocompleter = {
-  fetch_method: 'rest_autocomplete',
-  data: { ident: 'monitored_hostname', params: { strict: true } }
-}
-
-const serviceAutocompleter = computed<Autocompleter>(() => ({
-  fetch_method: 'rest_autocomplete',
-  data: {
-    ident: 'monitored_service_description',
-    params: {
-      strict: true,
-      literal_search: true,
-      context: item.host_name === null ? {} : { host: { host: item.host_name } }
-    }
-  }
-}))
-
-const metricAutocompleter = computed<Autocompleter>(() => ({
-  fetch_method: 'rest_autocomplete',
-  data: {
-    ident: 'monitored_metrics',
-    params: {
-      strict: true,
-      context: {
-        ...(item.host_name === null ? {} : { host: { host: item.host_name } }),
-        ...(item.service_name === null ? {} : { service: { service: item.service_name } })
-      }
-    }
-  }
-}))
-
 /** Selecting upstream clears the dependent selections (host -> service -> metric). */
 function onHostChange(hostName: string | null): void {
   store.replace({ ...item, host_name: hostName, service_name: null, metric_name: null })
@@ -107,41 +79,17 @@ function onMetricChange(metricName: string | null): void {
 
 <template>
   <div class="graphing-service-reference-line-form">
-    <div class="graphing-service-reference-line-form__field">
-      <CmkLabel variant="subtitle">{{ _t('Host name') }}</CmkLabel>
-      <FormAutocompleter
-        :model-value="item.host_name"
-        :autocompleter="hostAutocompleter"
-        :size="0"
-        :placeholder="_t('Select host')"
-        width="wide"
-        @update:model-value="onHostChange"
-      />
-    </div>
-
-    <div class="graphing-service-reference-line-form__field">
-      <CmkLabel variant="subtitle">{{ _t('Service') }}</CmkLabel>
-      <FormAutocompleter
-        :model-value="item.service_name"
-        :autocompleter="serviceAutocompleter"
-        :size="0"
-        :placeholder="_t('Select service')"
-        width="wide"
-        @update:model-value="onServiceChange"
-      />
-    </div>
-
-    <div class="graphing-service-reference-line-form__field">
-      <CmkLabel variant="subtitle">{{ _t('Service metric') }}</CmkLabel>
-      <FormAutocompleter
-        :model-value="item.metric_name"
-        :autocompleter="metricAutocompleter"
-        :size="0"
-        :placeholder="_t('Select metric')"
-        width="wide"
-        @update:model-value="onMetricChange"
-      />
-    </div>
+    <HostNameSelect :model-value="item.host_name" @update:model-value="onHostChange" />
+    <ServiceNameSelect
+      :model-value="item.service_name"
+      :host-name="item.host_name"
+      @update:model-value="onServiceChange"
+    />
+    <ServiceMetricSelect
+      :model-value="item.metric_name"
+      :context="metricContext"
+      @update:model-value="onMetricChange"
+    />
 
     <div class="graphing-service-reference-line-form__field">
       <CmkLabel variant="subtitle">{{ _t('Threshold') }}</CmkLabel>
@@ -149,6 +97,7 @@ function onMetricChange(metricName: string | null): void {
         :model-value="item.scalar_type"
         :options="scalarTypeSuggestions"
         :label="_t('Threshold type')"
+        floating
         @update:model-value="onScalarTypeChange"
       />
     </div>

@@ -38,16 +38,19 @@ done
 exec "$@"
 """
 
-# Fake install: copies <src> <dst>, ignoring mode/owner options.
+# Fake install: ``-d`` creates directories, otherwise copies <src> <dst>.
+# Mode/owner options are ignored (applying them would need root).
 _FAKE_INSTALL = """\
 #!/bin/sh
+dir_mode=false
 while [ $# -gt 0 ]; do
   case "$1" in
+    -d) dir_mode=true; shift ;;
     -m|-o|-g) shift 2 ;;
     *) break ;;
   esac
 done
-cp "$1" "$2"
+if $dir_mode; then mkdir -p "$@"; else cp "$1" "$2"; fi
 """
 
 
@@ -105,7 +108,7 @@ class TestRuleConstruction:
         commands = sudoers.admin_setup_commands("v260")
         assert "testuser ALL=(v260) NOPASSWD: ALL" in commands
         assert "visudo -cf" in commands
-        assert str(sudoers.DEV_VERSIONS_DIR) in commands
+        assert f"install -d -m 0755 -o testuser {sudoers.DEV_VERSIONS_DIR}" in commands
 
 
 # ---------------------------------------------------------------------------
@@ -255,11 +258,14 @@ class TestEnsureDevVersionsDir:
     def test_creates_via_sudo(
         self, shim_bin: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        _write_shim(shim_bin, "chown", "#!/bin/sh\nexit 0\n")
+        _write_shim(shim_bin, "install", _FAKE_INSTALL)
         dev_versions = tmp_path / "dev-versions"
         monkeypatch.setattr(sudoers, "DEV_VERSIONS_DIR", dev_versions)
         sudoers.ensure_dev_versions_dir()
         assert dev_versions.is_dir()
+        # World-traversable and deploy-user-owned, regardless of the umask.
+        expected = f"install -d -m 0755 -o testuser {dev_versions}"
+        assert any(expected in line for line in _sudo_log(tmp_path))
 
     def test_failure_raises(
         self, shim_bin: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

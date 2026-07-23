@@ -3,6 +3,7 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+from collections.abc import Mapping, Sequence
 from typing import Literal
 
 import pytest
@@ -10,7 +11,7 @@ import pytest
 from livestatus import MKLivestatusSocketError
 
 from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
-from cmk.gui.graphing._engine_dispatch import EvaluatedGraphs, GraphDataRequest, serialize_graphs
+from cmk.gui.graphing._engine_dispatch import EvaluatedGraphs, serialize_graphs
 from cmk.gui.graphing._engine_rrd import FetchDiagnostics, QueryLimitReached
 from cmk.gui.graphing.openapi import fetch_graph_data as fetch_graph_data_module
 from cmk.gui.graphing.openapi._serialize import api_consolidation_to_engine, evaluated_to_response
@@ -64,7 +65,7 @@ def test_fetch_graph_data_empty_graph_runs_end_to_end() -> None:
     # therefore runs end to end (evaluate_graphs -> evaluate_template_graphs -> evaluated_to_response)
     # and returns an empty, fallback-ranged response -- guarding the real wiring without a livestatus
     # fixture.
-    graph = Graph(name="g", title="t", graph_type="template")
+    graph = Graph(name="g", title="t", kind="template")
     request = GraphFetchRequest(
         graph_type="template",
         internal=serialize_graphs([graph]),
@@ -92,10 +93,11 @@ def test_fetch_graph_data_invalid_internal_raises_500() -> None:
 
 
 @pytest.mark.usefixtures("load_config")
-def test_fetch_graph_data_unknown_graph_type_raises_500() -> None:
+def test_fetch_graph_data_unknown_graph_kind_raises_500() -> None:
+    # Routing is by the graph's own kind; an unregistered kind has no dispatcher and fails evaluation.
     request = GraphFetchRequest(
-        graph_type="does-not-exist",
-        internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+        graph_type="template",
+        internal={"graphs": [{"kind": "does-not-exist"}]},
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
     )
@@ -108,13 +110,13 @@ def test_fetch_graph_data_unknown_graph_type_raises_500() -> None:
 def test_fetch_graph_data_livestatus_failure_raises_503(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def _raise(_request: object) -> None:
+    def _raise(_graphs: object, _options: object) -> None:
         raise MKLivestatusSocketError("connection refused")
 
     monkeypatch.setattr(fetch_graph_data_module, "evaluate_graphs", _raise)
     request = GraphFetchRequest(
         graph_type="template",
-        internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+        internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
         requested_time_range=ApiTimeRange(start=0, end=60, step=10),
         consolidation_function="avg",
     )
@@ -127,8 +129,8 @@ def test_fetch_graph_data_livestatus_failure_raises_503(
 @pytest.mark.usefixtures("load_config")
 def test_fetch_graph_data_multiple_internal_graphs_raises_500() -> None:
     graphs = [
-        Graph(name="g1", title="t1", graph_type="template"),
-        Graph(name="g2", title="t2", graph_type="template"),
+        Graph(name="g1", title="t1", kind="template"),
+        Graph(name="g2", title="t2", kind="template"),
     ]
     request = GraphFetchRequest(
         graph_type="template",
@@ -144,10 +146,12 @@ def test_fetch_graph_data_multiple_internal_graphs_raises_500() -> None:
 
 
 def _capture_request(
-    monkeypatch: pytest.MonkeyPatch, captured: dict[str, GraphDataRequest]
+    monkeypatch: pytest.MonkeyPatch, captured: dict[str, Mapping[str, object]]
 ) -> None:
-    def _capture(request: GraphDataRequest) -> EvaluatedGraphs:
-        captured["request"] = request
+    def _capture(
+        _graphs: Sequence[Mapping[str, object]], options: Mapping[str, object]
+    ) -> EvaluatedGraphs:
+        captured["options"] = options
         return EvaluatedGraphs(
             graphs=[EvaluatedGraph(name="g", title="t", vertical_range=None, stacks=[], lines=[])],
             diagnostics=FetchDiagnostics(),
@@ -160,32 +164,32 @@ def _capture_request(
 def test_fetch_graph_data_passes_combination_mode_into_options(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    captured: dict[str, GraphDataRequest] = {}
+    captured: dict[str, Mapping[str, object]] = {}
     _capture_request(monkeypatch, captured)
     fetch_graph_data_v1(
         GraphFetchRequest(
             graph_type="combined",
-            internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+            internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",
             combination_mode="stacked",
         )
     )
-    assert captured["request"].options["combination_mode"] == "stacked"
+    assert captured["options"]["combination_mode"] == "stacked"
 
 
 @pytest.mark.usefixtures("load_config")
 def test_fetch_graph_data_omits_combination_mode_when_not_requested(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    captured: dict[str, GraphDataRequest] = {}
+    captured: dict[str, Mapping[str, object]] = {}
     _capture_request(monkeypatch, captured)
     fetch_graph_data_v1(
         GraphFetchRequest(
             graph_type="template",
-            internal=serialize_graphs([Graph(name="g", title="t", graph_type="template")]),
+            internal=serialize_graphs([Graph(name="g", title="t", kind="template")]),
             requested_time_range=ApiTimeRange(start=0, end=60, step=10),
             consolidation_function="avg",
         )
     )
-    assert "combination_mode" not in captured["request"].options
+    assert "combination_mode" not in captured["options"]

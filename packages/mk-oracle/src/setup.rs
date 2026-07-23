@@ -19,7 +19,7 @@ use crate::config::merge;
 use crate::config::system::{Logging, SystemConfig};
 use crate::config::OracleConfig;
 use crate::constants::{get_user_config_file, RUNTIME_DIR};
-use crate::platform::get_local_instances;
+use crate::platform::{get_local_instances, registry};
 use crate::types::{EnvVarName, SectionFilter, UseHostClient};
 use crate::version::VERSION;
 use crate::{constants, setup};
@@ -286,17 +286,19 @@ fn make_log_file_spec(log_dir: &Path) -> FileSpec {
 
 pub const RUNTIME_SUB_DIR: &str = "mk-oracle";
 
+/// Detects Oracle runtime path using local Oracle instances or environment variables
+/// Do not obligated to validate permissions
 pub fn detect_host_runtime() -> Option<PathBuf> {
     match get_local_instances() {
         Err(e) => {
             log::info!("Local Oracle instances detection failed with {} - can't use them to detect runtime path", &e.to_string());
-            try_find_instance_runtime()
+            find_std_env_var_runtime()
         }
         Ok(instances) if instances.is_empty() => {
             log::info!(
                 "Local Oracle instances are not detected - can't use them to detect runtime path"
             );
-            try_find_instance_runtime()
+            find_std_env_var_runtime()
         }
         Ok(locals) => {
             for local in &locals {
@@ -307,8 +309,8 @@ pub fn detect_host_runtime() -> Option<PathBuf> {
                     local.base
                 );
                 let candidate = local.home.join("bin");
-                if candidate.is_dir() && validate_permissions(&candidate) {
-                    return Some(local.home.join("bin"));
+                if candidate.is_dir() {
+                    return Some(candidate);
                 } else {
                     log::warn!("Oracle home {:?} is not suitable", local.home);
                 }
@@ -318,11 +320,11 @@ pub fn detect_host_runtime() -> Option<PathBuf> {
     }
 }
 
-fn try_find_instance_runtime() -> Option<PathBuf> {
+fn find_std_env_var_runtime() -> Option<PathBuf> {
     const CLIENT_ENV_VAR: &str = "ORACLE_INSTANT_CLIENT";
     if let Ok(env_var) = std::env::var(CLIENT_ENV_VAR) {
         let candidate = PathBuf::from(env_var);
-        return if candidate.is_dir() && validate_permissions(&candidate) {
+        return if candidate.is_dir() {
             Some(candidate)
         } else {
             log::warn!(
@@ -335,9 +337,7 @@ fn try_find_instance_runtime() -> Option<PathBuf> {
     };
 
     const ENV_VAR: &str = "ORACLE_HOME";
-    if let Some(runtime) =
-        find_default_instance_runtime(ENV_VAR, false).filter(|r| validate_permissions(r))
-    {
+    if let Some(runtime) = find_env_var_lib_runtime(ENV_VAR) {
         Some(runtime)
     } else {
         log::info!("Failed to find local Oracle instances using {ENV_VAR}");
@@ -345,10 +345,7 @@ fn try_find_instance_runtime() -> Option<PathBuf> {
     }
 }
 
-pub fn find_default_instance_runtime(
-    env_var: &str,
-    skip_permission_validation: bool,
-) -> Option<PathBuf> {
+pub fn find_env_var_lib_runtime(env_var: &str) -> Option<PathBuf> {
     let oracle_home = match std::env::var(env_var) {
         Ok(path) => path,
         Err(_) => {
@@ -361,9 +358,6 @@ pub fn find_default_instance_runtime(
 
     if !candidate.is_dir() {
         log::warn!("{} path {:?} is not a directory", env_var, candidate);
-        None
-    } else if !validate_permissions(&candidate) && !skip_permission_validation {
-        log::warn!("{env_var} path {:?} has wrong permissions", candidate);
         None
     } else {
         log::info!("Using {} {:?} for runtime", env_var, candidate);
@@ -405,21 +399,24 @@ pub fn detect_factory_runtime(env_var: Option<String>) -> Option<PathBuf> {
     }
 }
 
+/// Detects Oracle runtime path using local Oracle instances or environment variables
 pub fn detect_runtime(use_host_client: &UseHostClient, env_var: Option<String>) -> Option<PathBuf> {
     match use_host_client {
         UseHostClient::Always => detect_host_runtime(),
         UseHostClient::Never => detect_factory_runtime(env_var),
-        UseHostClient::Auto => detect_factory_runtime(env_var).or_else(detect_host_runtime),
+        UseHostClient::Auto => detect_factory_runtime(env_var).or_else(|| {
+            log::info!("Factory setup not found");
+            detect_host_runtime()
+        }),
         UseHostClient::Path(p) => Some(PathBuf::from(p)),
     }
     .and_then(|p| {
-        if p.is_dir() {
-            log::info!("Runtime detected at {:?}", p);
-            Some(p)
-        } else {
+        if !p.is_dir() {
             log::error!("Runtime path {:?} is not a directory or missing", p);
-            None
+            return None;
         }
+        log::info!("Runtime detected at {:?}", p);
+        Some(p)
     })
 }
 
@@ -436,12 +433,99 @@ const ENV_VAR_SEP: &str = ";";
 #[cfg(unix)]
 const ENV_VAR_SEP: &str = ":";
 
+pub const ORACLE_HOME_ENV_VAR: &str = "ORACLE_HOME";
+
+/// On Unix tries to prepare the environment for the Oracle client using
+/// ORACLE_HOME: takes the home of the first local instance (as listed in
+/// oratab) which exists and whose lib dir passes the permission validation
+/// and sets it to the ORACLE_HOME environment variable. Applies only when
+/// use_host_client is auto or always: other values ask for a concrete client
+/// and are handled by add_runtime_path_to_env.
+pub fn try_add_oracle_home_to_env(
+    config: &OracleConfig,
+    custom_path: Option<String>,
+    mut_env: Option<EnvVarName>,
+) -> Option<PathBuf> {
+    if cfg!(windows) {
+        log::debug!("{ORACLE_HOME_ENV_VAR} based setup is not supported on Windows");
+        return None;
+    }
+
+    let use_host_client: UseHostClient = config.ora_sql()?.options().use_host_client().clone();
+    if !matches!(use_host_client, UseHostClient::Always | UseHostClient::Auto) {
+        log::info!(
+            "Use host client is {use_host_client:?}: skipping {ORACLE_HOME_ENV_VAR} based setup"
+        );
+        return None;
+    }
+
+    let env_var = mut_env.unwrap_or_else(|| EnvVarName::from(ORACLE_HOME_ENV_VAR.to_string()));
+    let current = std::env::var(env_var.to_str()).unwrap_or_default();
+    if !current.is_empty() {
+        log::info!("{env_var} is already set to {current}, falling back to runtime detection");
+        return None;
+    }
+
+    let locals = match registry::get_instances(custom_path) {
+        Ok(locals) if !locals.is_empty() => locals,
+        Ok(_) => {
+            log::info!("Local Oracle instances are not detected - can't use them to set {env_var}");
+            return None;
+        }
+        Err(e) => {
+            log::info!(
+                "Local Oracle instances detection failed with {e} - can't use them to set {env_var}"
+            );
+            return None;
+        }
+    };
+
+    let home = locals.into_iter().find_map(|local| {
+        log::info!(
+            "Checking Oracle home {:?} of local instance {}",
+            local.home,
+            local.name
+        );
+        if !local.home.is_dir() {
+            log::warn!("Oracle home {:?} doesn't exist", local.home);
+            return None;
+        }
+        let lib_dir = local.home.join("lib");
+        if lib_dir.is_dir() && validate_permissions(&lib_dir) {
+            Some(local.home)
+        } else {
+            log::warn!(
+                "Oracle home {:?} has no lib dir or it has wrong permissions",
+                local.home
+            );
+            None
+        }
+    });
+
+    if let Some(home) = &home {
+        log::info!("Setting {env_var} to {:?}", home);
+        unsafe {
+            std::env::set_var(env_var.to_str(), home);
+        }
+        // LD_LIBRARY_PATH is left untouched: return its current content so
+        // that resetting the environment after the spawn is a no-op
+        Some(PathBuf::from(
+            std::env::var(DEFAULT_ENV_VAR.to_str()).unwrap_or_default(),
+        ))
+    } else {
+        log::info!("No suitable Oracle home found to set {env_var}");
+        None
+    }
+}
+
 /// On Unix we modify LD_LIBRARY_PATH using config and, by default, MK_LIBDIR
 /// On Windows we modify PATH using config and, by default, MK_LIBDIR
+/// May validate permissions of the detected path: returns None if they are not correct
 pub fn add_runtime_path_to_env(
     config: &OracleConfig,
     mk_lib_dir: Option<String>,
     mut_env: Option<EnvVarName>,
+    check_permissions: bool,
 ) -> Option<PathBuf> {
     log::info!("Runtime to be added");
     let mutable_var_name = mut_env.unwrap_or(DEFAULT_ENV_VAR.clone());
@@ -454,10 +538,14 @@ pub fn add_runtime_path_to_env(
     let runtime = detect_runtime(&use_host_client, mk_lib_dir)?.into_os_string();
     log::info!("Runtime found at {:?}", runtime);
     let mut additional_path = runtime.clone();
+    if check_permissions && !validate_permissions(&PathBuf::from(&runtime)) {
+        log::error!("Runtime path {:?} has wrong permissions", runtime);
+        return None;
+    }
     additional_path.push(ENV_VAR_SEP);
     additional_path.push(&mutable_var_content);
     unsafe {
-        std::env::set_var(mutable_var_name.to_str(), additional_path);
+        std::env::set_var(mutable_var_name.to_str(), &additional_path);
     }
     Some(PathBuf::from(mutable_var_content))
 }

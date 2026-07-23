@@ -16,6 +16,7 @@ import { type CSSProperties, inject } from 'vue'
 
 import usei18n from '@/lib/i18n'
 
+import CmkHelpText from '@/components/CmkHelpText.vue'
 import CmkIconEmblem from '@/components/CmkIcon/CmkIconEmblem.vue'
 import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
 import CmkCheckbox from '@/components/user-input/CmkCheckbox.vue'
@@ -47,6 +48,10 @@ function setFilterValue(
 
 function columnLabel(column: Column<T, unknown>): string {
   return column.columnDef.header?.toString() ?? column.id
+}
+
+function helpLabel(column: Column<T, unknown>): string {
+  return _t('Help for %{label}', { label: columnLabel(column) })
 }
 
 function selectAllModel(table: Table<T>): boolean | 'indeterminate' {
@@ -222,6 +227,19 @@ function reservesFilterSpace(header: Header<T, unknown>): boolean {
             </span>
           </button>
           <span
+            v-else-if="!header.isPlaceholder && header.column.columnDef.meta?.headerHelp"
+            class="monitoring-table-header__label-group monitoring-table-header__label-group--standalone"
+            :style="labelStyle(header.column.columnDef)"
+          >
+            <span class="monitoring-table-header__label">
+              <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
+            </span>
+            <CmkHelpText
+              :help="header.column.columnDef.meta.headerHelp"
+              :aria-label="helpLabel(header.column)"
+            />
+          </span>
+          <span
             v-else-if="!header.isPlaceholder"
             class="monitoring-table-header__label monitoring-table-header__label--standalone"
             :style="labelStyle(header.column.columnDef)"
@@ -370,6 +388,18 @@ function reservesFilterSpace(header: Header<T, unknown>): boolean {
 }
 
 .monitoring-table-header__label--standalone {
+  flex: 1 1 auto;
+  padding-left: var(--dimension-4);
+}
+
+.monitoring-table-header__label-group {
+  display: flex;
+  align-items: center;
+  gap: var(--dimension-2);
+  min-width: 0;
+}
+
+.monitoring-table-header__label-group--standalone {
   flex: 1 1 auto;
   padding-left: var(--dimension-4);
 }

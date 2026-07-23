@@ -22,7 +22,7 @@ const ROWS: RankedTableRow[] = [
 
 function renderTable(rows: RankedTableRow[] = ROWS) {
   return render(CmkRankedTable, {
-    props: { columns: COLUMNS, rows, barColor: 'rgb(1, 2, 3)' }
+    props: { columns: COLUMNS, rows, barColor: 'green' as const }
   })
 }
 
@@ -50,7 +50,8 @@ test('scales inline bars to the column max and fills them with the accent color'
     ...container.querySelectorAll<HTMLElement>('.network-flow-cmk-ranked-table__bar-fill')
   ]
   expect(fills.map((el) => el.style.width)).toEqual(['100%', '40%', '20%'])
-  expect(fills[0]!.style.backgroundColor).toBe('rgb(1, 2, 3)')
+  // The named color resolves to its theme palette CSS variable.
+  expect(fills[0]!.style.backgroundColor).toBe('var(--color-corporate-green-50)')
 })
 
 test('formats byte columns as human-readable SI values', () => {

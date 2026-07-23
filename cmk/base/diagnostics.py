@@ -20,7 +20,7 @@ import textwrap
 import traceback
 import urllib.parse
 import uuid
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime
 from functools import cache
@@ -69,6 +69,7 @@ from cmk.diagnostics import (
     OPT_CHECKMK_LOG_FILES,
     OPT_CHECKMK_OVERVIEW,
     OPT_COMP_METRIC_BACKEND,
+    OPT_GUI_PROFILES,
     OPT_LOCAL_FILES,
     OPT_OMD_CONFIG,
     OPT_PERFORMANCE_GRAPHS,
@@ -80,6 +81,7 @@ from cmk.inventory.structured_data import (
     serialize_tree,
 )
 from cmk.licensing.usage import deserialize_dump
+from cmk.profiling.backend import PROFILE_ID_RE, PROFILE_SUFFIXES
 from cmk.utils import log
 from cmk.utils.local_secrets import SiteInternalSecret
 from cmk.utils.log import console, section
@@ -232,6 +234,12 @@ def _get_diagnostics_dump_sub_options(edition: cmk_version.Edition) -> list[Opti
         Option(
             long_option=OPT_CHECKMK_CRASH_REPORTS,
             short_help="Pack the latest crash reports.",
+        ),
+        Option(
+            long_option=OPT_GUI_PROFILES,
+            short_help="Pack stored GUI performance profiles and flamegraphs. Comma-separated profile IDs.",
+            argument=True,
+            argument_descr="ID,ID...",
         ),
         Option(
             long_option=OPT_CHECKMK_OVERVIEW,
@@ -492,6 +500,9 @@ def diagnostics_elements_for(
 
     if parameters.get(OPT_CHECKMK_CRASH_REPORTS):
         elements.append(CrashDumpsDiagnosticsElement())
+
+    if gui_profile_ids := parameters.get(OPT_GUI_PROFILES):
+        elements.append(GUIProfilesDiagnosticsElement(gui_profile_ids))
 
     if parameters.get(OPT_BI_RUNTIME_DATA):
         # HACK, should be in the COMPONENT_DIRECTORIES loop below
@@ -1362,10 +1373,9 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         self.rel_checkmk_files = rel_checkmk_files
         self.file_map_config = self._file_map_config
 
-    @property
-    def _checkmk_files_map(self) -> CheckmkFilesMap:
+    def _checkmk_files_map(self, omd_root: Path) -> CheckmkFilesMap:
         return self.file_map_config.map_generator(
-            None,
+            omd_root / self.file_map_config.rel_base_folder,
             lambda base_folder: list(os.walk(base_folder)),
         )
 
@@ -1375,10 +1385,13 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         raise NotImplementedError
 
     def _copy_and_decrypt(
-        self, *, omd_root: Path, rel_filepath: Path, tmp_dump_folder: Path
+        self,
+        *,
+        checkmk_files_map: CheckmkFilesMap,
+        omd_root: Path,
+        rel_filepath: Path,
+        tmp_dump_folder: Path,
     ) -> Path | None:
-        checkmk_files_map = self._checkmk_files_map
-
         filepath = checkmk_files_map.get(str(rel_filepath))
         if filepath is None or not filepath.exists():
             return None
@@ -1435,10 +1448,14 @@ class ABCCheckmkFilesDiagnosticsElement(ABCDiagnosticsElement):
         self, *, omd_root: Path, tmp_dump_folder: Path
     ) -> DiagnosticsElementFilepaths:
         unknown_files = []
+        checkmk_files_map = self._checkmk_files_map(omd_root)
 
         for rel_filepath in self.rel_checkmk_files:
             tmp_filepath = self._copy_and_decrypt(
-                omd_root=omd_root, rel_filepath=Path(rel_filepath), tmp_dump_folder=tmp_dump_folder
+                checkmk_files_map=checkmk_files_map,
+                omd_root=omd_root,
+                rel_filepath=Path(rel_filepath),
+                tmp_dump_folder=tmp_dump_folder,
             )
 
             if tmp_filepath is None:
@@ -1712,6 +1729,47 @@ class CrashDumpsDiagnosticsElement(ABCDiagnosticsElement):
                         tar.add(file, arcname=file.relative_to(dumpfile_path))
 
                 yield tarfile_path
+
+
+class GUIProfilesDiagnosticsElement(ABCDiagnosticsElement):
+    def __init__(self, profile_ids: Iterable[str]) -> None:
+        self._profile_ids = list(profile_ids)
+
+    @override
+    @property
+    def title(self) -> str:
+        return _("Performance profiles and flamegraphs")
+
+    @override
+    @property
+    def description(self) -> str:
+        return _("Stored performance profiles (.profile) and metadata from var/check_mk/profiles")
+
+    @override
+    def add_or_get_files(
+        self, *, omd_root: Path, tmp_dump_folder: Path
+    ) -> DiagnosticsElementFilepaths:
+        profiles_dir = omd_root / "var/check_mk/profiles"
+        if not profiles_dir.is_dir():
+            raise DiagnosticsElementInfo("No profiles found")
+
+        tmpdir = tmp_dump_folder / "var/check_mk/profiles"
+        tmpdir.mkdir(parents=True, exist_ok=True)
+
+        found_any = False
+        for profile_id in self._profile_ids:
+            if not PROFILE_ID_RE.match(profile_id):
+                continue
+            for suffix in PROFILE_SUFFIXES:
+                src_file = profiles_dir / f"{profile_id}{suffix}"
+                if src_file.is_file():
+                    dst = tmpdir / src_file.name
+                    shutil.copy2(src_file, dst)
+                    found_any = True
+                    yield dst
+
+        if not found_any:
+            raise DiagnosticsElementInfo("No profiles found")
 
 
 class CMCDumpDiagnosticsElement(ABCDiagnosticsElement):

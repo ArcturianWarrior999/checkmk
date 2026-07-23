@@ -98,7 +98,7 @@ def _fallback(name: MetricName) -> Graph:
     return Graph(
         name=name,
         title=name,
-        graph_type=_KIND,
+        kind=_KIND,
         stacks=[_dstack(_rrd(name))],
         rules=[
             Rule(
@@ -197,7 +197,7 @@ def _discover(
         services=[service],
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
-        graph_type=_KIND,
+        kind=_KIND,
         registered_graphs=registered_graphs,
         registered_metrics=_METRICS,
     )
@@ -255,7 +255,7 @@ def test_discover_template_graphs_matching_plugin_claims_its_metrics() -> None:
     discovered = _discover(service, registered_graphs, fetch_data=fetch_data)
 
     assert len(discovered) == 1
-    assert discovered[0] == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
+    assert discovered[0] == parse_graph_from_api(plugin, [service], _id, _METRICS, kind=_KIND)
     # A plain title without expressions is carried through unchanged.
     assert _evaluate(discovered[0], fetch_data).title == "CPU"
     assert [line.curve.value for line in _evaluate(discovered[0], fetch_data).lines] == [1.0, 1.0]
@@ -273,7 +273,7 @@ def test_discover_template_graphs_emits_default_graph_for_unclaimed_metrics() ->
 
     [matched, fallback] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert matched == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
+    assert matched == parse_graph_from_api(plugin, [service], _id, _METRICS, kind=_KIND)
     assert fallback == _fallback(extra)
 
 
@@ -305,7 +305,7 @@ def test_discover_template_graphs_optional_missing_metric_still_matches() -> Non
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, kind=_KIND)
 
 
 def test_discover_template_graphs_conflicting_metric_present_rejects_plugin() -> None:
@@ -342,7 +342,7 @@ def test_discover_template_graphs_matches_v2_unstable_graph() -> None:
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, kind=_KIND)
 
 
 def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
@@ -362,7 +362,7 @@ def test_discover_template_graphs_matches_v2_unstable_bidirectional() -> None:
 
     [discovered] = _discover(service, registered_graphs, fetch_data=fetch_data)
 
-    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, graph_type=_KIND)
+    assert discovered == parse_graph_from_api(plugin, [service], _id, _METRICS, kind=_KIND)
 
 
 def test_discover_template_graphs_carries_scalars_for_v2_unstable_scalar_quantity() -> None:
@@ -570,7 +570,7 @@ def test_build_matched_graphs_builds_threshold_rules_for_fallback_graphs() -> No
         services=[service],
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
-        graph_type=_KIND,
+        kind=_KIND,
         registered_graphs=[],
         registered_metrics=_METRICS,
     )
@@ -594,7 +594,7 @@ def test_build_matched_graphs_keeps_threshold_rules_when_adding_predictive_lines
         services=[service],
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
-        graph_type=_KIND,
+        kind=_KIND,
         registered_graphs=[],
         registered_metrics=_METRICS,
     )
@@ -645,7 +645,7 @@ def _discover_combined(
         services=services,
         localizer=_id,
         fetch_metric_names=_FakeRRDFetchMetricNames(fetch_data.performance_response),
-        graph_type=_KIND,
+        kind=_KIND,
         registered_graphs=registered_graphs,
         registered_metrics=_METRICS,
         quantity_builder=_SumQuantityBuilder(),

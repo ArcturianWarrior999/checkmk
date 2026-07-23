@@ -7,8 +7,12 @@ import {
   type DesignerItem,
   isComplete,
   newConstantDraft,
+  newMetricBackendDraft,
   newRrdMetricDraft,
+  newRrdQueryDraft,
   newScalarDraft,
+  rrdMetricToQueryDraft,
+  rrdQueryToMetricDraft,
   scalarColor,
   toApiDataSources
 } from '@/graphing/designer/drafts'
@@ -40,9 +44,21 @@ describe('isComplete', () => {
     expect(isComplete({ ...draft, value: 0 })).toBe(true)
   })
 
+  test('a fresh RRD query draft is incomplete until a metric is set (filters stay optional)', () => {
+    const draft = newRrdQueryDraft('A')
+    expect(isComplete(draft)).toBe(false)
+    expect(isComplete({ ...draft, metric_name: 'util' })).toBe(true)
+  })
+
   test('a scalar needs host, service and metric', () => {
     expect(isComplete(newScalarDraft('A', '#123456'))).toBe(false)
     expect(isComplete(scalarItem('A'))).toBe(true)
+  })
+
+  test('a fresh metric backend draft is incomplete until a metric is set', () => {
+    const draft = newMetricBackendDraft('A')
+    expect(isComplete(draft)).toBe(false)
+    expect(isComplete({ ...draft, metric_name: 'span.latency' })).toBe(true)
   })
 
   test('wire items are always complete', () => {
@@ -105,6 +121,70 @@ describe('drafts and converters', () => {
       service_name: null,
       metric_name: null,
       scalar_type: 'warning'
+    })
+  })
+
+  test('a fresh RRD query draft starts empty with the default title and no color', () => {
+    const draft = newRrdQueryDraft('A')
+    expect(draft).toEqual({
+      id: 'A',
+      type: 'rrd_query',
+      title: DEFAULT_TITLE_MACRO,
+      line_type: 'line',
+      mirrored: false,
+      visible: true,
+      context: {},
+      metric_name: null,
+      consolidation: 'avg'
+    })
+  })
+
+  test('switching a single metric to a query keeps metric and consolidation, drops color and host/service', () => {
+    const metric = {
+      ...newRrdMetricDraft('A', '#123456'),
+      title: 'T',
+      line_type: 'area' as const,
+      mirrored: true,
+      visible: false,
+      host_name: 'h',
+      service_name: 's',
+      metric_name: 'util',
+      consolidation: 'max' as const
+    }
+    const query = rrdMetricToQueryDraft(metric)
+    expect(query).toEqual({
+      id: 'A',
+      type: 'rrd_query',
+      title: 'T',
+      line_type: 'area',
+      mirrored: true,
+      visible: false,
+      context: {},
+      metric_name: 'util',
+      consolidation: 'max'
+    })
+    expect('color' in query).toBe(false)
+  })
+
+  test('switching a query back to a single metric assigns a color and clears host/service', () => {
+    const query = {
+      ...newRrdQueryDraft('A'),
+      metric_name: 'util',
+      consolidation: 'min' as const,
+      context: { host: { host: 'h' } }
+    }
+    expect(rrdQueryToMetricDraft(query, '#abcdef')).toEqual({
+      id: 'A',
+      type: 'rrd_metric',
+      title: DEFAULT_TITLE_MACRO,
+      line_type: 'line',
+      mirrored: false,
+      visible: true,
+      color: '#abcdef',
+      host_name: null,
+      service_name: null,
+      metric_name: 'util',
+      consolidation: 'min'
     })
   })
 

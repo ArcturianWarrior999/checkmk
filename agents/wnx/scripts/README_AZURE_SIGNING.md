@@ -32,12 +32,16 @@ AZURE_ARTIFACT_SIGNING_CLIENT_SECRET  Service principal client secret (sensitive
 
 See `sign_code_azure.ps1` regarding the script to perform the signing.
 
+## View certs
+
+Go to "Artifact Signing Accounts->checkmk->objects->Certificate profiles->CheckmkPublic" and view all existing (active and expired) certificates. At this location a certificate can be revoked.
+
 ## Rotate signing secret
 
 By using azure code signing, we do not physically own the private key. The access is solely
 established via a secret token.
 In order to mitigate the risk, we will use short living secrets and regularly rotate the secret.
-This can be done in azure under "Microsoft Entra ID->App Registration->checkmk-signing->Certificates & secrets".
+This can be done in azure under "Microsoft Entra ID->Manage->App Registration->checkmk-signing->Manage->Certificates & secrets".
 
 When the new secret is created, test it first in the CI by using an intermediate new entry in the credential store and triggering an altered job (see e.g. this [change](https://review.lan.tribe29.com/c/check_mk/+/145660)).
 When the new secret works, change the actual secret in Jenkin's credential store and delete the previous token in azure.

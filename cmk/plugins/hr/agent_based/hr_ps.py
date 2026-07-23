@@ -79,10 +79,7 @@ def discover_hr_ps(params: Sequence[Mapping[str, Any]], section: Section) -> Dis
             if not matches:
                 continue
 
-            if matches is True:
-                match_groups = []
-            else:
-                match_groups = [g if g else "" for g in matches.groups()]
+            match_groups = [] if matches is True else [g if g else "" for g in matches.groups()]
 
             service_descr = ps.replace_service_description(
                 rule["descr"], match_groups, match_name_or_path
@@ -126,10 +123,7 @@ def check_hr_ps(item: str, params: Mapping[str, Any], section: Section) -> Check
     process_state_map = dict(params.get("status", []))
     for (state_key, state_short, state_long), processes in processes_by_state.items():
         state = process_state_map.get(state_key, 0)
-        if state_long:
-            state_info = f"{state_short} ({state_long})"
-        else:
-            state_info = state_short
+        state_info = f"{state_short} ({state_long})" if state_long else state_short
         yield Result(state=State(state), summary=f"{len(processes)} {state_info}")
 
 

@@ -7,7 +7,11 @@
 import pytest
 
 from cmk.agent_based.v2 import StringTable
-from cmk.plugins.tcp.agent_based.netstat import parse_netstat
+from cmk.plugins.tcp.agent_based.netstat import (
+    parse_connection_state,
+    parse_netstat,
+    STATE_TRANSLATIONS,
+)
 from cmk.plugins.tcp.agent_based.win_netstat import parse_win_netstat
 from cmk.plugins.tcp.lib.models import Connection, ConnectionState, Section, SplitIP
 
@@ -32,6 +36,14 @@ from cmk.plugins.tcp.lib.models import Connection, ConnectionState, Section, Spl
             [
                 [
                     "tcp",
+                    "FIN-WAIT-1",
+                    "0",
+                    "0",
+                    "[::ffff:11.111.0.11]:442",
+                    "[::ffff:11.111.0.11]:11110",
+                ],
+                [
+                    "tcp",
                     "FIN-WAIT-2",
                     "0",
                     "0",
@@ -41,6 +53,12 @@ from cmk.plugins.tcp.lib.models import Connection, ConnectionState, Section, Spl
                 ["tcp", "ESTAB", "0", "0", "[::ffff:127.0.0.1]:8888", "[::ffff:127.0.0.1]:55555"],
             ],
             [
+                Connection(
+                    proto="TCP",
+                    local_address=SplitIP(ip_address="[::ffff:11.111.0.11]", port="442"),
+                    remote_address=SplitIP(ip_address="[::ffff:11.111.0.11]", port="11110"),
+                    state=ConnectionState.FIN_WAIT1,
+                ),
                 Connection(
                     proto="TCP",
                     local_address=SplitIP(ip_address="[::ffff:11.111.0.11]", port="443"),
@@ -97,6 +115,8 @@ from cmk.plugins.tcp.lib.models import Connection, ConnectionState, Section, Spl
                 ["tcp", "ESTAB", "0", "0", "10.230.254.109:8280", "172.17.0.3:39484"],
                 ["tcp", "CLOSED", "0", "0", "10.230.254.109:8280", "172.17.0.3:39484"],
                 ["tcp", "CLOSE-WAIT", "0", "0", "10.230.254.109:8280", "172.17.0.3:39484"],
+                # SUP-29809: iproute2 reports [SS_CLOSE] as "UNCONN"
+                ["tcp", "UNCONN", "0", "0", "*:11111", "*:*"],
                 ["udp", "UNCONN", "0", "0", "127.0.0.1:778", "0.0.0.0:*"],
             ],
             [
@@ -135,6 +155,12 @@ from cmk.plugins.tcp.lib.models import Connection, ConnectionState, Section, Spl
                     local_address=SplitIP("10.230.254.109", "8280"),
                     remote_address=SplitIP("172.17.0.3", "39484"),
                     state=ConnectionState.CLOSE_WAIT,
+                ),
+                Connection(
+                    proto="TCP",
+                    local_address=SplitIP("*", "11111"),
+                    remote_address=SplitIP("*", "*"),
+                    state=ConnectionState.CLOSED,
                 ),
                 Connection(
                     proto="UDP",
@@ -291,3 +317,26 @@ def test_parse_netstat(info: StringTable, expected_parsed: Section) -> None:
 )
 def test_parse_win_netstat(info: StringTable, expected_parsed: Section) -> None:
     assert parse_win_netstat(info) == expected_parsed
+
+
+@pytest.mark.parametrize("raw_state, expected", list(STATE_TRANSLATIONS.items()))
+def test_parse_connection_state_translations(raw_state: str, expected: ConnectionState) -> None:
+    assert parse_connection_state(raw_state) == expected
+
+
+@pytest.mark.parametrize(
+    "raw_state, expected",
+    [
+        ("TIME-WAIT", ConnectionState.TIME_WAIT),
+        ("CLOSE-WAIT", ConnectionState.CLOSE_WAIT),
+    ],
+)
+def test_parse_connection_state_normalizes_dashes(
+    raw_state: str, expected: ConnectionState
+) -> None:
+    assert parse_connection_state(raw_state) == expected
+
+
+def test_parse_connection_state_raises_on_unknown_state() -> None:
+    with pytest.raises(ValueError, match="Unknown connection state 'NOPE'"):
+        parse_connection_state("NOPE")

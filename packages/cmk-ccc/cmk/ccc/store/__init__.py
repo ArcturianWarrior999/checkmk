@@ -174,10 +174,20 @@ def save_to_mk_file(
 ) -> None:
     fmt = pprint.pformat if pprint_value else repr
 
+    # Self-bootstrap `key` into the exec's locals so the file loads against
+    # `default={}` — symmetric with `Ruleset.format_raw_value`. Using locals()
+    # (not globals()) keeps each call isolated from process-wide module
+    # globals that would otherwise accumulate across loads.
     if isinstance(value, Mapping):
-        content = f"{key}.update({fmt(dict(value))})"
+        content = (
+            f"{key} = locals().setdefault({key!r}, {{}})\n"  #
+            f"{key}.update({fmt(dict(value))})"
+        )
     else:
-        content = f"{key} += {fmt(list(value))}"
+        content = (
+            f"{key} = locals().setdefault({key!r}, [])\n"  #
+            f"{key} += {fmt(list(value))}"
+        )
 
     save_mk_file(path, content)
 

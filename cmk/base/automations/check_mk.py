@@ -26,7 +26,7 @@ import time
 import uuid
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import redirect_stderr, redirect_stdout, suppress
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from itertools import chain, islice
 from pathlib import Path
 from typing import Any, Literal
@@ -133,6 +133,7 @@ from cmk.ccc.i18n import _
 from cmk.ccc.timeout import Timeout
 from cmk.ccc.version import edition_supports_nagvis
 from cmk.checkengine import agent_protocol
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.checking import compute_check_parameters, ServiceConfigurer
 from cmk.checkengine.discovery import (
@@ -220,7 +221,7 @@ from cmk.server_side_calls_backend import (
     SpecialAgent,
     SpecialAgentCommandLine,
 )
-from cmk.utils import config_warnings, ip_lookup, log, man_pages
+from cmk.utils import config_warnings, ip_lookup, man_pages
 from cmk.utils.auto_queue import AutoQueue
 from cmk.utils.caching import cache_manager
 from cmk.utils.encoding import ensure_str_with_fallback
@@ -940,6 +941,7 @@ def _execute_discovery(
                     ),
                     service_name_config=passive_service_name_config,
                     plugins=plugins.check_plugins,
+                    labels_of_service=config_cache.label_manager.labels_of_service,
                 )(host_name).items()
             },
             on_error=on_error,
@@ -1168,6 +1170,7 @@ def _execute_autodiscovery(
         logger.debug("No hosts marked by discovery check for autodiscovery")
         return {}, False
 
+    queue_size_at_start = len(autodiscovery_queue)
     logger.debug("Autodiscovery: Discovering all hosts marked by discovery check:")
 
     activation_required = False
@@ -1246,13 +1249,41 @@ def _execute_autodiscovery(
                     )
                     if not autodiscovery_result.skipped:
                         autodiscovery_queue.remove(host_name)
+                    else:
+                        logger.debug(
+                            "Autodiscovery: host %(host_name)s retained in queue for next run",
+                            {"host_name": host_name},
+                        )
 
                     if autodiscovery_result.discovery_result:
                         discovery_results[host_name] = autodiscovery_result.discovery_result
                         activation_required |= autodiscovery_result.activate
 
-    except (MKTimeout, TimeoutError) as exc:
-        logger.warning(str(exc))
+    except (MKTimeout, TimeoutError):
+        remaining_hosts = list(autodiscovery_queue)
+        logger.warning(
+            "Autodiscovery: timed out after %(elapsed).1fs (limit: %(limit)ds). "
+            "Processed %(processed)d host(s), %(remaining)d host(s) remaining in queue: %(hosts)s",
+            {
+                "elapsed": time.monotonic() - start,
+                "limit": limit,
+                "processed": len(hosts_processed),
+                "remaining": len(remaining_hosts),
+                "hosts": ", ".join(remaining_hosts) if remaining_hosts else "none",
+            },
+        )
+
+    logger.debug(
+        "Autodiscovery: run complete: queue_start=%(queue_start)d queue_end=%(queue_end)d "
+        "processed=%(processed)d results=%(results)d activation_required=%(activation_required)s",
+        {
+            "queue_start": queue_size_at_start,
+            "queue_end": len(autodiscovery_queue),
+            "processed": len(hosts_processed),
+            "results": len(discovery_results),
+            "activation_required": activation_required,
+        },
+    )
 
     if not activation_required:
         return discovery_results, False
@@ -1275,6 +1306,12 @@ def _execute_autodiscovery(
         notify_relay = _make_configured_notify_relay(bool(env.loaded_config.relays))
         core_objects_config = config.CoreObjectsConfig(
             env.loaded_config, env.ruleset_matcher, env.label_manager
+        )
+        checker_config_writer = make_packed_config_writer(
+            {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
+            hosts_config,
+            is_online=env.config_cache.is_online,
+            is_active=env.config_cache.is_active,
         )
 
         if env.loaded_config.monitoring_core == "cmc":
@@ -1305,6 +1342,7 @@ def _execute_autodiscovery(
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=notify_relay,
+                checker_config_writer=checker_config_writer,
             )
         else:
             do_restart(
@@ -1333,6 +1371,7 @@ def _execute_autodiscovery(
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=notify_relay,
+                checker_config_writer=checker_config_writer,
             )
     finally:
         cache_manager.clear_all()
@@ -2555,10 +2594,18 @@ def _execute_silently(
         env.loaded_config, env.ruleset_matcher, env.label_manager
     )
     hosts_config = rctx.hosts_config
+
+    # Config generation logic writes directly to STDOUT. We discard it here.
+    # TODO: Should we not capture and forward it to the logs?
+
+    checker_config_writer = make_packed_config_writer(
+        {f.name: getattr(env.loaded_config, f.name) for f in fields(env.loaded_config)},
+        hosts_config,
+        is_online=config_cache.is_online,
+        is_active=config_cache.is_active,
+    )
+
     with redirect_stdout(open(os.devnull, "w")):
-        # The IP lookup used to write to stdout, that is not the case anymore.
-        # The redirect might not be needed anymore.
-        log.setup_console_logging()
         try:
             do_restart(
                 config_cache,
@@ -2585,6 +2632,7 @@ def _execute_silently(
                 ),
                 bake_on_restart=rctx.bake_on_restart,
                 notify_relay=rctx.notify_relay,
+                checker_config_writer=checker_config_writer,
             )
         except (MKBailOut, MKGeneralException) as e:
             raise MKAutomationError(str(e))
@@ -3360,6 +3408,7 @@ class AutomationDiagHost:
                     ),
                     service_name_config,
                     plugins.check_plugins,
+                    config_cache.label_manager.labels_of_service,
                 ),
                 SNMPFetcherConfig(
                     on_error=OnError.RAISE,
@@ -3680,10 +3729,7 @@ class AutomationActiveCheck:
                     "Passive check - cannot be executed",
                 )
 
-        with redirect_stdout(open(os.devnull, "w")):
-            # The IP lookup used to write to stdout, that is not the case anymore.
-            # The redirect might not be needed anymore.
-            host_attrs = env.config_cache.get_host_attributes(host_name, ip_family, ip_address_of)
+        host_attrs = env.config_cache.get_host_attributes(host_name, ip_family, ip_address_of)
 
         secrets_config = StoredSecrets(
             path=(p := cmk.utils.password_store.pending_secrets_path_site()),

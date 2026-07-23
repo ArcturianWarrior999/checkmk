@@ -161,6 +161,7 @@ def _display_from_json(data: object) -> CurveAttributes | None:
 def _rrd_metric_to_json(quantity: Quantity, codec: QuantityCodec) -> Json:
     quantity = ensure_type(quantity, RRDMetric)
     return {
+        "site_id": quantity.site_id,
         "host_name": quantity.host_name,
         "service_name": quantity.service_name,
         "metric_name": str(quantity.metric_name),
@@ -169,7 +170,6 @@ def _rrd_metric_to_json(quantity: Quantity, codec: QuantityCodec) -> Json:
             if quantity.consolidation_function is None
             else str(quantity.consolidation_function)
         ),
-        "site_id": quantity.site_id,
     }
 
 
@@ -177,6 +177,7 @@ def _rrd_metric_from_json(data: Mapping[str, object], codec: QuantityCodec) -> R
     consolidation_function = data["consolidation_function"]
     site_id = data.get("site_id")
     return RRDMetric(
+        site_id=None if site_id is None else SiteID(ensure_type(site_id, str)),
         host_name=HostName(ensure_type(data["host_name"], str)),
         service_name=ServiceName(ensure_type(data["service_name"], str)),
         metric_name=MetricName(ensure_type(data["metric_name"], str)),
@@ -185,7 +186,6 @@ def _rrd_metric_from_json(data: Mapping[str, object], codec: QuantityCodec) -> R
             if consolidation_function is None
             else ConsolidationFunction(ensure_type(consolidation_function, str))
         ),
-        site_id=None if site_id is None else SiteID(ensure_type(site_id, str)),
     )
 
 
@@ -361,7 +361,7 @@ class GraphCodec:
         return {
             "name": graph.name,
             "title": graph.title,
-            "graph_type": graph.graph_type,
+            "kind": graph.kind,
             "vertical_range": (
                 None if graph.vertical_range is None else self._range_to_json(graph.vertical_range)
             ),
@@ -391,7 +391,7 @@ class GraphCodec:
         return Graph(
             name=ensure_type(data["name"], str),
             title=ensure_type(data["title"], str),
-            graph_type=ensure_type(data["graph_type"], str),
+            kind=ensure_type(data["kind"], str),
             vertical_range=(
                 None if vertical_range is None else self._range_from_json(vertical_range)
             ),

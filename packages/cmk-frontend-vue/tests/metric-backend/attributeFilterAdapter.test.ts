@@ -3,11 +3,15 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { AttributeFilter } from 'cmk-shared-typing/typescript/attribute_filter'
+
 import type { AttributeFilterModel, Condition } from '@/metric-backend/attribute-filter/types'
 import {
   type ThreeLists,
   buildAutocompleteContext,
+  fromAttributeFilter,
   fromModel,
+  toAttributeFilter,
   toModel
 } from '@/metric-backend/attributeFilterAdapter'
 
@@ -119,5 +123,139 @@ describe('buildAutocompleteContext', () => {
 
   test('omits empty optional fields', () => {
     expect(buildAutocompleteContext([])).toEqual({})
+  })
+})
+
+describe('toAttributeFilter', () => {
+  test('encodes one AND group', () => {
+    expect(toAttributeFilter(toModel(lists, newId))).toEqual({
+      type: 'and',
+      conjuncts: [
+        { type: 'equals', key: { kind: 'resource', name: 'service.name' }, value: 'frontend' },
+        { type: 'equals', key: { kind: 'scope', name: 'otel.library.name' }, value: 'http' },
+        { type: 'equals', key: { kind: 'data_point', name: 'http.method' }, value: 'GET' },
+        { type: 'equals', key: { kind: 'data_point', name: 'http.route' }, value: '/api' }
+      ]
+    })
+  })
+
+  test('encodes multiple groups as an OR of ANDs', () => {
+    const model: AttributeFilterModel = [
+      {
+        id: 'g1',
+        conditions: [
+          { id: 'a', attributeKind: 'resource', key: 'k1', operator: 'eq', value: 'v1' },
+          { id: 'b', attributeKind: 'scope', key: 'k2', operator: 'eq', value: 'v2' }
+        ]
+      },
+      {
+        id: 'g2',
+        conditions: [{ id: 'c', attributeKind: 'resource', key: 'k3', operator: 'eq', value: 'v3' }]
+      }
+    ]
+
+    expect(toAttributeFilter(model)).toEqual({
+      type: 'or',
+      disjuncts: [
+        {
+          type: 'and',
+          conjuncts: [
+            { type: 'equals', key: { kind: 'resource', name: 'k1' }, value: 'v1' },
+            { type: 'equals', key: { kind: 'scope', name: 'k2' }, value: 'v2' }
+          ]
+        },
+        { type: 'equals', key: { kind: 'resource', name: 'k3' }, value: 'v3' }
+      ]
+    })
+  })
+
+  test('encodes the exists operator without a value', () => {
+    const model = group({
+      id: 'a',
+      attributeKind: 'scope',
+      key: 'scope.name',
+      operator: 'exists',
+      value: ''
+    })
+
+    expect(toAttributeFilter(model)).toEqual({
+      type: 'exists',
+      key: { kind: 'scope', name: 'scope.name' }
+    })
+  })
+
+  test('drops incomplete conditions before encoding', () => {
+    const model = group(
+      { id: 'a', attributeKind: null, key: '', operator: 'eq', value: '' },
+      { id: 'b', attributeKind: 'resource', key: 'service.name', operator: 'eq', value: 'x' }
+    )
+
+    expect(toAttributeFilter(model)).toEqual({
+      type: 'equals',
+      key: { kind: 'resource', name: 'service.name' },
+      value: 'x'
+    })
+  })
+
+  test('encodes an empty model as an empty AND (match everything)', () => {
+    expect(toAttributeFilter([])).toEqual({ type: 'and', conjuncts: [] })
+  })
+
+  test('throws on an operator without a backend representation', () => {
+    const model = group({
+      id: 'a',
+      attributeKind: 'resource',
+      key: 'k',
+      operator: 'regex',
+      value: 'v'
+    })
+
+    expect(() => toAttributeFilter(model)).toThrow(/no backend representation/)
+  })
+})
+
+describe('fromAttributeFilter', () => {
+  test('decodes an OR of ANDs into groups, including exists', () => {
+    const filter: AttributeFilter = {
+      type: 'or',
+      disjuncts: [
+        {
+          type: 'and',
+          conjuncts: [
+            { type: 'equals', key: { kind: 'resource', name: 'k1' }, value: 'v1' },
+            { type: 'exists', key: { kind: 'scope', name: 'k2' } }
+          ]
+        },
+        { type: 'equals', key: { kind: 'resource', name: 'k3' }, value: 'v3' }
+      ]
+    }
+
+    expect(
+      fromAttributeFilter(filter, newId).map((g) =>
+        g.conditions.map((c) => [c.attributeKind, c.key, c.operator])
+      )
+    ).toEqual([
+      [
+        ['resource', 'k1', 'eq'],
+        ['scope', 'k2', 'exists']
+      ],
+      [['resource', 'k3', 'eq']]
+    ])
+  })
+
+  test('round-trips a model through toAttributeFilter -> fromAttributeFilter', () => {
+    const model = toModel(lists, newId)
+    const shape = (m: AttributeFilterModel) =>
+      m.map((g) => g.conditions.map((c) => [c.attributeKind, c.key, c.value, c.operator]))
+    expect(shape(fromAttributeFilter(toAttributeFilter(model), newId))).toEqual(shape(model))
+  })
+
+  test('throws on a filter that is not in disjunctive normal form', () => {
+    const filter: AttributeFilter = {
+      type: 'and',
+      conjuncts: [{ type: 'or', disjuncts: [] }]
+    }
+
+    expect(() => fromAttributeFilter(filter, newId)).toThrow(/disjunctive normal form/)
   })
 })

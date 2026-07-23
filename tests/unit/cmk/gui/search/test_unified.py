@@ -7,7 +7,7 @@ from dataclasses import asdict
 
 import pytest
 
-from cmk.gui.search.unified import UnifiedSearch
+from cmk.gui.search._unified import UnifiedSearch
 from cmk.shared_typing.unified_search import (
     ProviderName,
     UnifiedSearchResultItem,

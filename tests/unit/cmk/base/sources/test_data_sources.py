@@ -15,7 +15,7 @@ from typing import Literal, Never
 
 import pytest
 
-from cmk.base.config import ConfigCache, make_host_tags, make_hosts_config
+from cmk.base.config import LoadingResult
 from cmk.ccc.exceptions import OnError
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.fetchers.piggyback import PiggybackFetcher
@@ -50,7 +50,7 @@ def _dummy_rule_spec(host_name: HostName, value: Mapping[str, object] | str) -> 
 
 def _make_sources(
     hostname: HostName,
-    config_cache: ConfigCache,
+    loading_result: LoadingResult,
     *,
     tmp_path: Path,
 ) -> Sequence[Source]:
@@ -58,6 +58,7 @@ def _make_sources(
     # to test.
     ipaddress = HostAddress("127.0.0.1")
     ip_family: Literal[socket.AddressFamily.AF_INET] = socket.AddressFamily.AF_INET
+    config_cache = loading_result.config_cache
     return SourceBuilder(
         AgentBasedPlugins.empty(),
         hostname,
@@ -95,9 +96,7 @@ def _make_sources(
         ),
         computed_datasources=config_cache.computed_datasources(hostname),
         datasource_programs=config_cache.datasource_programs(hostname),
-        tag_list=make_host_tags(
-            config_cache.base_config, make_hosts_config(config_cache.base_config)
-        ).tag_list(hostname),
+        tag_list=loading_result.host_tags.tag_list(hostname),
         management_ip=ipaddress,
         management_protocol=config_cache.management_protocol(hostname),
         special_agent_command_lines=config_cache.special_agent_command_lines(
@@ -122,10 +121,10 @@ def test_ping_host(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
     ts = Scenario()
     ts.add_host(hostname, tags=tags)
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [PiggybackFetcher]
 
 
@@ -134,10 +133,10 @@ def test_agent_host(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
     ts = Scenario()
     ts.add_host(hostname)
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [TCPFetcher, PiggybackFetcher]
 
 
@@ -153,10 +152,10 @@ def test_agent_host_with_special_agents(monkeypatch: pytest.MonkeyPatch, tmp_pat
             "mqtt": [_dummy_rule_spec(hostname, {})],
         },
     )
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [ProgramFetcher, ProgramFetcher, PiggybackFetcher]
 
 
@@ -167,10 +166,10 @@ def test_snmp_host(snmp_ds: TagID, monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
 
     ts = Scenario()
     ts.add_host(hostname, tags=tags)
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [SNMPFetcher, PiggybackFetcher]
 
 
@@ -180,10 +179,10 @@ def test_dual_host(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
 
     ts = Scenario()
     ts.add_host(hostname, tags=tags)
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [TCPFetcher, SNMPFetcher, PiggybackFetcher]
 
 
@@ -201,10 +200,10 @@ def test_all_agents_host(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Non
         "special_agents",
         {"jolokia": [_dummy_rule_spec(hostname, {})]},
     )
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [ProgramFetcher, ProgramFetcher, PiggybackFetcher]
 
 
@@ -218,8 +217,8 @@ def test_special_agents_host(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) ->
         "special_agents",
         {"jolokia": [_dummy_rule_spec(hostname, {})]},
     )
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
     assert [
         type(source.fetcher())
-        for source in _make_sources(hostname, config_cache, tmp_path=tmp_path)
+        for source in _make_sources(hostname, loading_result, tmp_path=tmp_path)
     ] == [ProgramFetcher, PiggybackFetcher]

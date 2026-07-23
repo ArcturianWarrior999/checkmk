@@ -5,18 +5,27 @@
 
 [workspace]
 members = [
+  "agents/wnx/extensions/robotmk_ext",
   "packages/check-cert",
   "packages/check-http",
   "packages/cmk-agent-ctl",
   "packages/mk-oracle",
   "packages/mk-sql",
 ]
-exclude = ["agents/wnx/extensions/robotmk_ext", "agents/wnx/test_files/tools/v"]
+exclude = ["agents/wnx/test_files/tools/v"]
 package.edition = "2021"
 resolver = "2"
 
 [profile.release.package.cmk-agent-ctl]
 opt-level = "z" # Optimize for size.
+
+# Pure-Rust RSA key generation is unusably slow without optimization; keep
+# these optimized even in dev/test builds.
+[profile.dev.package.rsa]
+opt-level = 3
+
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
 
 [workspace.dependencies]
 aes-gcm = "*"
@@ -49,13 +58,16 @@ odbc-api = "10.0.0"
 openssl = { version = "0.10.57" }
 openssl-probe = "0.1.5"
 os_info = "3.9"
+pem-rfc7468 = "0.7"
 predicates = "*"
 rand = "0.8"
+rcgen = { version = "0.13", default-features = false, features = ["ring"] }
 rayon = "1.11"
 shellexpand = "3.1.2"
 regex = "*"
 reqwest = "0.12"
 rpassword = "7.3"
+rsa = "0.9"
 rustls = { version = "0.23.19", default-features = false }
 rustls-pemfile = "2.2"
 scrypt = { version = "*", default-features = false }

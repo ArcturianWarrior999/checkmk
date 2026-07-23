@@ -31,6 +31,7 @@ const selected = defineModel<string | null>({ required: false, default: null })
   <BaseCell class="monitoring-dropdown-cell" :column-id="columnId" :vertical-align="verticalAlign">
     <CmkDropdown
       v-model="selected"
+      floating
       :options="options"
       :label="label"
       :input-hint="inputHint"

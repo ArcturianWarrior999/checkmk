@@ -30,12 +30,16 @@ import { DashboardLayout, DashboardOwnerType } from '@/dashboard/types/dashboard
 import type { ContextFilter, ContextFilters, FilterOrigin } from '@/dashboard/types/filter.ts'
 import type {
   ComputedNetworkFlowDonutResponse,
+  ComputedNetworkFlowKpiStatCardResponse,
   ComputedNetworkFlowTopTableResponse,
+  ComputedNetworkFlowTrendChartResponse,
   ComputedTopListResponse,
   ComputedWidgetSpecResponse,
   EffectiveWidgetFilterContext,
   NetworkFlowDonutContent,
+  NetworkFlowKpiStatCardContent,
   NetworkFlowTopTableContent,
+  NetworkFlowTrendChartContent,
   TopListContent,
   VisualContext,
   WidgetAvailableInventory,
@@ -284,6 +288,31 @@ export const dashboardAPI = {
   ): Promise<ComputedNetworkFlowDonutResponse> => {
     return unwrap(
       await client.POST('/domain-types/dashboard/actions/compute-network-flow-donut/invoke', {
+        ...CONTENT_TYPE_HEADER,
+        body: { content, context }
+      })
+    )
+  },
+  computeNetworkFlowKpiStatCardData: async (
+    content: NetworkFlowKpiStatCardContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowKpiStatCardResponse> => {
+    return unwrap(
+      await client.POST(
+        '/domain-types/dashboard/actions/compute-network-flow-kpi-stat-card/invoke',
+        {
+          ...CONTENT_TYPE_HEADER,
+          body: { content, context }
+        }
+      )
+    )
+  },
+  computeNetworkFlowTrendChartData: async (
+    content: NetworkFlowTrendChartContent,
+    context: VisualContext
+  ): Promise<ComputedNetworkFlowTrendChartResponse> => {
+    return unwrap(
+      await client.POST('/domain-types/dashboard/actions/compute-network-flow-trend-chart/invoke', {
         ...CONTENT_TYPE_HEADER,
         body: { content, context }
       })

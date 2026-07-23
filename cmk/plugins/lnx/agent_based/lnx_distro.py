@@ -48,10 +48,7 @@ _SUSE_CODE_NAMES: Final = {
 
 def inv_lnx_parse_suse(line: _Line) -> _KVPairs:
     major = line[1].split()[-1]
-    if len(line) >= 3:
-        patchlevel = line[2].split()[-1]
-    else:
-        patchlevel = "0"
+    patchlevel = line[2].split()[-1] if len(line) >= 3 else "0"
 
     version = f"{major}.{patchlevel}"
 

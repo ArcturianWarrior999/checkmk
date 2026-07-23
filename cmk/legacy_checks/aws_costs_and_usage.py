@@ -9,19 +9,31 @@
 # mypy: disable-error-code="var-annotated"
 
 import collections
+from collections.abc import Mapping
+from dataclasses import dataclass
 
 from cmk.agent_based.legacy.v0_unstable import check_levels, LegacyCheckDefinition
+from cmk.agent_based.v2 import StringTable
 from cmk.plugins.aws.lib import parse_aws
 
 check_info = {}
+
+
+@dataclass(frozen=True)
+class CostMetric:
+    amount: float
+    unit: str
+
+
+Section = Mapping[tuple[str, str], Mapping[str, CostMetric]]
 
 AWSCostAndUageMetrics = [
     ("Unblended", "UnblendedCost", "unblended"),
 ]
 
 
-def parse_aws_costs_and_usage(string_table):
-    parsed = {}
+def parse_aws_costs_and_usage(string_table: StringTable) -> Section:
+    parsed: dict[tuple[str, str], dict[str, CostMetric]] = {}
     for row in parse_aws(string_table):
         timeperiod = row["TimePeriod"]["Start"]
         for group in row.get("Groups", []):
@@ -34,7 +46,7 @@ def parse_aws_costs_and_usage(string_table):
                     continue
                 else:
                     parsed.setdefault((timeperiod, service_name), {}).setdefault(
-                        metric_name, (costs, unit)
+                        metric_name, CostMetric(amount=costs, unit=unit)
                     )
     return parsed
 
@@ -55,7 +67,7 @@ def discover_aws_costs_and_usage_summary(parsed):
     return []
 
 
-def check_aws_costs_and_usage_summary(item, params, parsed):
+def check_aws_costs_and_usage_summary(item, params, parsed: Section):
     amounts_by_metrics = collections.defaultdict(float)
     for (timeperiod, _service_name), metrics in parsed.items():
         for (
@@ -63,8 +75,8 @@ def check_aws_costs_and_usage_summary(item, params, parsed):
             metric_name,
             key,
         ) in AWSCostAndUageMetrics:
-            costs, unit = metrics[metric_name]
-            amounts_by_metrics[(timeperiod, title, unit, key)] += costs
+            metric = metrics[metric_name]
+            amounts_by_metrics[(timeperiod, title, metric.unit, key)] += metric.amount
 
     for (timeperiod, title, unit, key), costs in amounts_by_metrics.items():
         yield check_levels(
@@ -100,7 +112,7 @@ def discover_aws_costs_and_usage_per_service(parsed):
         yield service_name, {}
 
 
-def check_aws_costs_and_usage_per_service(item, params, parsed):
+def check_aws_costs_and_usage_per_service(item, params, parsed: Section):
     data = None
     timeperiod = None
     for (timeperiod, service_name), metrics in parsed.items():
@@ -111,12 +123,12 @@ def check_aws_costs_and_usage_per_service(item, params, parsed):
         return
 
     for title, metric_name, key in AWSCostAndUageMetrics:
-        costs, unit = data[metric_name]
+        metric = data[metric_name]
         yield check_levels(
-            costs,
+            metric.amount,
             "aws_costs_%s" % key,
             params.get("levels_%s" % key, (None, None)),
-            infoname=f"({timeperiod}) {title} {unit}",
+            infoname=f"({timeperiod}) {title} {metric.unit}",
         )
 
 

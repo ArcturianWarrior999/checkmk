@@ -155,10 +155,7 @@ def check_cisco_ip_sla(item: str, params: Mapping[str, Any], section: Section) -
             continue
 
         state = State.OK
-        if unit:
-            infotext = f"{description}: {value} {unit}"
-        else:
-            infotext = f"{description}: {value}"
+        infotext = f"{description}: {value} {unit}" if unit else f"{description}: {value}"
 
         param = params.get(description.lower().replace(" ", "_"))
 

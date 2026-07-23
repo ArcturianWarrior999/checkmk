@@ -98,7 +98,7 @@ def test_empty_graphs_returns_empty_list() -> None:
 
 def test_fetches_performance_data_and_time_series() -> None:
     cpu_user = _rrd("cpu_user")
-    graph = Graph(name="cpu", title="CPU", graph_type="test", lines=[_line(cpu_user)])
+    graph = Graph(name="cpu", title="CPU", kind="test", lines=[_line(cpu_user)])
     series = _ts(1.0, 2.0, 3.0)
     fetch_data = _FakeRRDFetchData({cpu_user: _fetched(42.0, series)})
 
@@ -111,8 +111,8 @@ def test_fetches_performance_data_and_time_series() -> None:
 
 def test_returns_one_evaluated_graph_per_graph_in_order() -> None:
     x, y = _rrd("x"), _rrd("y")
-    graph_x = Graph(name="x", title="x", graph_type="test", lines=[_line(x)])
-    graph_y = Graph(name="y", title="y", graph_type="test", lines=[_line(y)])
+    graph_x = Graph(name="x", title="x", kind="test", lines=[_line(x)])
+    graph_y = Graph(name="y", title="y", kind="test", lines=[_line(y)])
     fetch_data = _FakeRRDFetchData({x: _fetched(1.0, _ts(1.0)), y: _fetched(2.0, _ts(2.0))})
 
     results = _update(graph_x, graph_y, fetch_data=fetch_data)
@@ -125,7 +125,7 @@ def test_evaluates_lines_in_both_directions() -> None:
     graph = Graph(
         name="if",
         title="Interface",
-        graph_type="test",
+        kind="test",
         lines=[_line(out), _line(in_, inverse=True)],
     )
     fetch_data = _FakeRRDFetchData({in_: _fetched(1.0, _ts(1.0)), out: _fetched(2.0, _ts(2.0))})
@@ -148,7 +148,7 @@ def test_resolves_a_title_expression_against_a_non_drawn_metric() -> None:
     graph = Graph(
         name="g",
         title='Load - _EXPRESSION:{"metric": "cores", "scalar": "max"} cores',
-        graph_type="test",
+        kind="test",
         lines=[_line(load)],
     )
     fetch_data = _FakeRRDFetchData(

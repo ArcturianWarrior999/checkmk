@@ -121,6 +121,7 @@ def _find_sections(
             section_name=name,
             single_oid_cache={**initial_system_oids},
             backend=backend,
+            warn_on_empty_value=False,  # During discovery, this is not worth a warning
         )
         try:
             if evaluate_snmp_detection(

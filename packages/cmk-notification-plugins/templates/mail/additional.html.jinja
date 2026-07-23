@@ -2,8 +2,7 @@
 {% macro additional_tr(data, title, key) %}
     <tr>
         <td {{ macros.td_first_child(width="170px") }}>{{ title }}:
-            <span style="font-weight: initial;" {{ macros.td_last_child() }}>{{ data[key] }}
-            </span>
+            <span style="font-weight: initial;" {{ macros.td_last_child() }}>{{ data[key] }}</span>
         </td>
     </tr>
 {% endmacro %}
@@ -72,10 +71,9 @@
                             {{ additional_tr(data, "Host metrics", "HOSTPERFDATA") }}
                         {% endif %}
                     {% elif element == "notesurl" %}
+                        {{ additional_tr(data, "Custom host notes URL", "HOSTNOTESURL") }}
                         {% if service_notification %}
                             {{ additional_tr(data, "Custom service notes URL", "SERVICENOTESURL") }}
-                        {% else %}
-                            {{ additional_tr(data, "Custom host notes URL", "HOSTNOTESURL") }}
                         {% endif %}
                     {% elif element == "hostchildren" and not service_notification %}
                         <tr>
@@ -94,9 +92,7 @@
                         </tr>
                     {% elif element == "context" %}
                         <tr>
-                            <td {{ macros.td_first_child(width="170px") }}>
-                                Complete variable list:
-                            </td>
+                            <td {{ macros.td_first_child(width="170px") }}>Complete variable list:</td>
                         </tr>
                         <tr>
                             <td>

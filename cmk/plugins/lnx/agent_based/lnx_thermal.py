@@ -65,12 +65,9 @@ def parse_lnx_thermal(string_table: StringTable) -> Section:
 
         thermal_type, unscaled_temp, raw_trip_points = thermal_info
 
-        if thermal_type["type"] == "sunxi-therm":
-            # From kernel docs (sysfs-api): unit is milli-degrees
-            # but on SunXI the unit is degree (may be a BUG)
-            factor = 1.0
-        else:
-            factor = 1000.0
+        # From kernel docs (sysfs-api): unit is milli-degrees
+        # but on SunXI the unit is degree (may be a BUG)
+        factor = 1.0 if thermal_type["type"] == "sunxi-therm" else 1000.0
 
         trip_points = _get_trip_points(factor, raw_trip_points)
 

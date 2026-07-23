@@ -21,12 +21,12 @@ defineProps<{ screenshotMode: boolean }>()
 // Slices are provided pre-ranked and already include the aggregated "Other"
 // slice; percentages are derived from the sum of all values.
 const slices: DonutSlice[] = [
-  { key: 'tls', label: 'TLS', value: 47.2, color: 'var(--color-corporate-green-50)' },
-  { key: 'pops', label: 'POPS', value: 17.0, color: 'var(--color-blue-50)' },
-  { key: 'imaps', label: 'IMAPS', value: 11.0, color: 'var(--color-purple-50)' },
-  { key: 'smtps', label: 'SMTPS', value: 9.0, color: 'var(--color-yellow-50)' },
-  { key: 'unknown', label: 'Unknown', value: 7.6, color: 'var(--color-orange-50)' },
-  { key: 'other', label: 'Other', value: 8.2, color: 'var(--color-mid-grey-50)' }
+  { key: 'tls', label: 'TLS', value: 47.2, color: 'green' },
+  { key: 'pops', label: 'POPS', value: 17.0, color: 'blue' },
+  { key: 'imaps', label: 'IMAPS', value: 11.0, color: 'purple' },
+  { key: 'smtps', label: 'SMTPS', value: 9.0, color: 'yellow' },
+  { key: 'unknown', label: 'Unknown', value: 7.6, color: 'orange' },
+  { key: 'other', label: 'Other', value: 8.2, color: 'grey' }
 ]
 </script>
 

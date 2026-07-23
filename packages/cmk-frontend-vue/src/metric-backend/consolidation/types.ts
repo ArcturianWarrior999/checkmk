@@ -79,11 +79,11 @@ export const CONSOLIDATION_CATALOG: {
   ],
   histogram: [
     { fn: 'histogram_preserve', raw: false, output: 'histogram' },
+    { fn: 'histogram_quantile', raw: false, output: 'float' },
     { fn: 'histogram_count_delta', raw: false, output: 'float' },
     { fn: 'histogram_count_rate', raw: false, output: 'float' },
     { fn: 'histogram_sum_delta', raw: false, output: 'float' },
     { fn: 'histogram_sum_rate', raw: false, output: 'float' },
-    { fn: 'histogram_quantile', raw: false, output: 'float' },
     { fn: 'histogram_fraction_below', raw: false, output: 'float' },
     { fn: 'histogram_fraction_between', raw: false, output: 'float' },
     { fn: 'histogram_sum_raw', raw: true, output: 'float' }

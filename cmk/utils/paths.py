@@ -82,6 +82,7 @@ builtin_host_labels_file = base_builtin_host_labels_file
 autodiscovery_dir = _omd_path("var/check_mk/autodiscovery")
 profile_dir = var_dir / "web"
 diagnostics_dir = var_dir / "diagnostics"
+profiles_dir = var_dir / "profiles"
 site_config_dir = var_dir / "site_configs"
 visuals_cache_dir = tmp_dir / "visuals_cache"
 predictions_dir = var_dir / "prediction"

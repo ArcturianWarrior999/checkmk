@@ -69,7 +69,12 @@ from ._user_attribute import (
 )
 from ._user_selection import UserSelection
 from ._user_spec import add_internal_attributes, new_user_template
-from ._user_sync_config import user_sync_config, user_sync_default_config, UserSyncConfig
+from ._user_sync_config import (
+    effective_user_attribute_sync_connections,
+    user_sync_config,
+    user_sync_default_config,
+    UserSyncConfig,
+)
 from .session import is_valid_user_session, load_session_infos
 from .store import (
     contactgroups_of_user,
@@ -118,6 +123,7 @@ __all__ = [
     "disable_two_factor_authentication",
     "distributed_saml_supported",
     "effective_authentication_connections",
+    "effective_user_attribute_sync_connections",
     "find_timeperiod_usage_in_notification_rule",
     "general_userdb_job",
     "get_active_saml_connections",

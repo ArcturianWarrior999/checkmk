@@ -17,6 +17,8 @@
     "warning_color": { "type": "string" },
     "critical_color": { "type": "string" },
     "logged_in_user": { "type": "string" },
+    "metric_backend_available": { "type": "boolean" },
+    "title_macro_help": { "type": "string" },
     "initial_breadcrumb": {
       "type": "array",
       "items": { "$ref": "#/$defs/breadcrumb_item" }
@@ -31,6 +33,8 @@
     "warning_color",
     "critical_color",
     "logged_in_user",
+    "metric_backend_available",
+    "title_macro_help",
     "initial_breadcrumb",
     "time_picker"
   ],

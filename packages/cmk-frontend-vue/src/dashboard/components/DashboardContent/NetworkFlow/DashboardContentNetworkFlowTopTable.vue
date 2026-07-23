@@ -15,7 +15,7 @@ import CmkLoading from '@/components/CmkLoading.vue'
 import type { NetworkFlowTopTableContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
 import CmkRankedTable from '@/network-flow/CmkRankedTable'
-import type { RankedTableColumn, RankedTableRow } from '@/network-flow/CmkRankedTable'
+import type { ChartColor, RankedTableColumn, RankedTableRow } from '@/network-flow/CmkRankedTable'
 
 import DashboardContentContainer from '../DashboardContentContainer.vue'
 import type { ContentProps } from '../types.ts'
@@ -30,25 +30,9 @@ const rows = ref<RankedTableRow[] | undefined>(undefined)
 // an error - mirroring how the ntop widget distinguishes severity.
 const error = ref<{ variant: 'warning' | 'error'; message: string } | null>(null)
 
-// The bar accent is widget configuration; mapping to the theme palette is
-// presentation and therefore lives here.
-function accentToColor(accent: NetworkFlowTopTableContent['accent']): string {
-  switch (accent) {
-    case 'blue':
-      return 'var(--color-light-blue-50)'
-    case 'magenta':
-      return 'var(--color-pink-50)'
-    case 'green':
-      return 'var(--color-corporate-green-50)'
-    case 'yellow':
-      return 'var(--color-yellow-50)'
-    case 'orange':
-      return 'var(--color-orange-50)'
-    case 'purple':
-      return 'var(--color-purple-50)'
-  }
-}
-const barColor = computed<string>(() => accentToColor(props.content.accent))
+// The widget's accent values name colors of the chart palette, so the
+// configuration passes straight through (the assignment is type-checked).
+const barColor = computed<ChartColor>(() => props.content.accent)
 
 const fetchData = async (): Promise<void> => {
   error.value = null

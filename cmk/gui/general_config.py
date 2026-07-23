@@ -35,6 +35,7 @@ from cmk.livestatus_client import (
     BrokerConnections,
     SiteConfigurations,
 )
+from cmk.profiling.backend import ProfilingOptions
 from cmk.ruleset_matcher.tags import TagConfigSpec
 from cmk.utils import paths
 
@@ -159,7 +160,7 @@ class GeneralConfig:
             "cmk.web.saml2": 30,
             "cmk.web.auth": 30,
             "cmk.web.bi.compilation": 30,
-            "cmk.web.automations": 30,
+            "cmk.automations": 30,
             "cmk.web.background-job": 30,
             "cmk.web.ui-job-scheduler": 20,
             "cmk.web.slow-views": 30,
@@ -718,3 +719,5 @@ class GeneralConfig:
     load_frontend_vue: Literal["static_files", "inject"] = "static_files"
     # Vue experimental feature settings
     vue_experimental_features: dict[str, Any] = field(default_factory=dict)
+    # Performance profile store retention
+    profiling_options: ProfilingOptions = field(default_factory=ProfilingOptions)

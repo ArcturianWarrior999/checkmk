@@ -76,6 +76,7 @@ DOCUMENTED_BUILTIN_HOST_LABELS: Final = {
     "cmk/pve/cluster:<cluster_name>",
     "cmk/pve/entity:node",
     "cmk/pve/entity:<entity_type>",
+    "cmk/pve/tag/<tag>:yes",
     "cmk/vsphere_object",
     "cmk/vsphere_vcenter",
     "cmk/systemd/unit/{name}:yes",

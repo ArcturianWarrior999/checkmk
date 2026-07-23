@@ -161,6 +161,8 @@ def test_registered_pages() -> None:
         "ajax_initial_view_filters",
         "ajax_initial_topology_filters",
         "ajax_graph_images",
+        "profile_data",
+        "profile_download",
         "gui_timings",
         "download_product_usage",
         "monitor_all_hosts",

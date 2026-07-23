@@ -56,7 +56,7 @@ class SiteContext:
 
     def is_stopped(self, verbose: bool) -> bool:
         """Check if site is completely stopped"""
-        return check_status(self._paths.home, verbose, display=False) == 1
+        return check_status(self._paths.home, verbose=verbose, display=False) == 1
 
     @property
     def skel_permissions(self) -> Permissions:

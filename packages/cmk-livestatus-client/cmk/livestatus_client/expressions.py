@@ -40,7 +40,7 @@ class LqSafe:
         >>> LqSafe("string\\nwith\\nnewlines")
         Traceback (most recent call last):
             ...
-        ValueError: invalid LqSafe string (contains newlines): 'string\\nwith\\nnewlines'
+        ValueError: Invalid Livestatus Query string: 'string\\nwith\\nnewlines'
 
         >>> LqSafe("tab\\ttabs are ok")
         LqSafe(value='tab\\ttabs are ok')

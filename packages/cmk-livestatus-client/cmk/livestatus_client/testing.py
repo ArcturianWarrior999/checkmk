@@ -197,7 +197,7 @@ class MockLiveStatusConnection:
             ...      pass
             Traceback (most recent call last):
             ...
-            cmk.livestatus_client.LivestatusTestingError: Expected queries were not queried on site 'NO_SITE':
+            cmk.livestatus_client._connection.LivestatusTestingError: Expected queries were not queried on site 'NO_SITE':
              * 'GET status\\nColumns: livestatus_version program_version \
 program_start num_hosts num_services max_long_output_size core_pid edition'
             <BLANKLINE>
@@ -211,7 +211,7 @@ program_start num_hosts num_services max_long_output_size core_pid edition'
             ...     live.result_of_next_query("Foo bar!")
             Traceback (most recent call last):
             ...
-            cmk.livestatus_client.LivestatusTestingError: Expected query (strict) on site 'NO_SITE':
+            cmk.livestatus_client._connection.LivestatusTestingError: Expected query (strict) on site 'NO_SITE':
              * 'Hello world!'
             Got query:
              * 'Foo bar!'
@@ -227,7 +227,7 @@ program_start num_hosts num_services max_long_output_size core_pid edition'
             ...     live.result_of_next_query("Spanish inquisition!")
             Traceback (most recent call last):
             ...
-            cmk.livestatus_client.LivestatusTestingError: Got unexpected query on site 'NO_SITE':
+            cmk.livestatus_client._connection.LivestatusTestingError: Got unexpected query on site 'NO_SITE':
              * 'Spanish inquisition!'
             <BLANKLINE>
             The following queries were sent to site NO_SITE:
@@ -917,7 +917,7 @@ def evaluate_stats(query: str, columns: list[ColumnName], result: ResultList) ->
             ...                [{'state': 1}, {'state': 2}, {'state': 1}])
             Traceback (most recent call last):
             ...
-            cmk.livestatus_client.LivestatusTestingError: Stats combinators are not yet implemented!
+            cmk.livestatus_client._connection.LivestatusTestingError: Stats combinators are not yet implemented!
 
         Non-contiguous results don't throw the grouper off-track.
 
@@ -1253,7 +1253,7 @@ def make_filter_func(line: str) -> FilterKeyFunc:
             >>> f = make_filter_func("Filter: name !! heute")
             Traceback (most recent call last):
             ...
-            cmk.livestatus_client.LivestatusTestingError: Operator '!!' not \
+            cmk.livestatus_client._connection.LivestatusTestingError: Operator '!!' not \
 implemented. Please check docs or implement.
 
 
@@ -1402,9 +1402,13 @@ def mock_livestatus_communication() -> Iterator[MockLiveStatusConnection]:
     live = MockLiveStatusConnection()
     with (
         mock.patch(
-            "livestatus.MultiSiteConnection.expect_query", new=live.expect_query, create=True
+            "cmk.livestatus_client.MultiSiteConnection.expect_query",
+            new=live.expect_query,
+            create=True,
         ),
-        mock.patch("livestatus.SingleSiteConnection._create_socket", new=live.create_socket),
+        mock.patch(
+            "cmk.livestatus_client.SingleSiteConnection._create_socket", new=live.create_socket
+        ),
     ):
         yield live
 

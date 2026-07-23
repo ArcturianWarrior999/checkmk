@@ -20,6 +20,7 @@ from cmk.gui.openapi.framework.versioned_endpoint import (
     VersionedEndpoint,
 )
 from cmk.gui.openapi.restful_objects.constructors import object_action_href
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.site_management import SitesApiMgr
 
 from .endpoint_family import SITE_MANAGEMENT_FAMILY
@@ -37,6 +38,7 @@ def site_connection_logout_v1(
     """Logout from a remote site"""
     user.need_permission("wato.sites")
     SitesApiMgr().logout_of_site(
+        make_folder_tree(api_context.config),
         site_id=site_id,
         pprint_value=api_context.config.wato_pprint_config,
     )

@@ -2,6 +2,7 @@ load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
 
@@ -44,6 +45,15 @@ py_library(
     ],
 )
 
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":crash",
+        ":crash_reporting",
+    ],
+)
+
 filegroup(
     name = "crash_py_typed",
     srcs = ["cmk/crash/py.typed"],
@@ -75,8 +85,8 @@ py_wheel(
 # The CLI implementation lands in Epic 2 (CMK-202); the entry point is wired here as a placeholder.
 py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {"cmk-upload-crashes": "cmk.crash_reporting.cli:main"},
     distribution = "cmk-crash-entrypoint",
+    entry_points = {"console_scripts": ["cmk-upload-crashes = cmk.crash_reporting.cli:main"]},
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [],

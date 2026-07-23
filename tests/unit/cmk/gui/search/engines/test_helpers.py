@@ -4,7 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 from dataclasses import asdict
 
-from cmk.gui.search.engines._helpers import (
+from cmk.gui.search._engines._helpers import (
     transform_legacy_loading_transition_to_unified,
     transform_legacy_results_to_unified,
 )

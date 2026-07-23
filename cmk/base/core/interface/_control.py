@@ -12,6 +12,7 @@ import socket
 import sys
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager, suppress
+from pathlib import Path
 from typing import Literal
 
 import cmk.ccc.debug
@@ -70,6 +71,7 @@ def do_reload(
     duplicates: Sequence[HostName],
     bake_on_restart: Callable[[], None],
     notify_relay: Callable[[config_warnings.IssueConfigWarning], None],
+    checker_config_writer: Callable[[Path], None],
 ) -> None:
     do_restart(
         config_cache,
@@ -92,6 +94,7 @@ def do_reload(
         duplicates=duplicates,
         bake_on_restart=bake_on_restart,
         notify_relay=notify_relay,
+        checker_config_writer=checker_config_writer,
     )
 
 
@@ -123,6 +126,7 @@ def do_restart(
     duplicates: Sequence[HostName],
     bake_on_restart: Callable[[], None],
     notify_relay: Callable[[config_warnings.IssueConfigWarning], None],
+    checker_config_writer: Callable[[Path], None],
 ) -> None:
     try:
         with activation_lock(
@@ -147,6 +151,7 @@ def do_restart(
                 duplicates=duplicates,
                 bake_on_restart=bake_on_restart,
                 notify_relay=notify_relay,
+                checker_config_writer=checker_config_writer,
             )
             core.core_client.run(action, log=_print)
 
@@ -182,6 +187,7 @@ def do_create_config(
     duplicates: Collection[HostName],
     bake_on_restart: Callable[[], None],
     notify_relay: Callable[[config_warnings.IssueConfigWarning], None],
+    checker_config_writer: Callable[[Path], None],
 ) -> None:
     """Creating the monitoring core configuration and additional files
 
@@ -219,6 +225,7 @@ def do_create_config(
                 hosts_to_update=hosts_to_update,
                 service_depends_on=service_depends_on,
                 duplicates=duplicates,
+                checker_config_writer=checker_config_writer,
             )
     except Exception as e:
         if cmk.ccc.debug.enabled():
@@ -298,6 +305,7 @@ def _create_active_config(
     service_depends_on: Callable[[HostAddress, ServiceName], Sequence[ServiceName]],
     *,
     duplicates: Collection[HostName],
+    checker_config_writer: Callable[[Path], None],
 ) -> None:
     config_warnings.initialize()
 
@@ -316,6 +324,9 @@ def _create_active_config(
     ):
         snapshot_local_dir(cmk.utils.paths.local_root, config_creation_context.path_created)
         snapshot_trusted_cas(cmk.utils.paths.trusted_ca_file, config_creation_context.path_created)
+
+        checker_config_writer(config_creation_context.path_created)
+
         core.create_config(
             config_creation_context,
             config_cache,

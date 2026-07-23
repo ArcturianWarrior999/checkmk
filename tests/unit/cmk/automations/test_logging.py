@@ -43,7 +43,7 @@ def test_stream_logging_emits_records() -> None:
     with manager.stream_logging(stream=stream, log_level=logging.WARNING):
         manager.get_logger().warning("danger")
 
-    assert stream.getvalue() == "danger\n"
+    assert stream.getvalue() == "[WARNING] danger\n"
 
 
 def test_stream_logging_respects_handler_level() -> None:
@@ -76,7 +76,7 @@ def test_file_logging_writes_to_file(tmp_path: Path) -> None:
 
     content = log_file.read_text(encoding="utf-8")
     assert "hello file" in content
-    assert f"[{logging.INFO}]" in content
+    assert "[INFO]" in content
     assert "[cmk]" in content
 
 
@@ -104,7 +104,7 @@ def test_temporary_log_level() -> None:
 
         logger.info("bye file")
 
-        assert stream.getvalue() == "hello file\nbye file\n"
+        assert stream.getvalue() == "[INFO] hello file\n[INFO] bye file\n"
 
 
 def test_temporary_log_level_restores_previous_level() -> None:
@@ -136,7 +136,7 @@ def test_nesting_handlers(tmp_path: Path) -> None:
         logger.warning("WARNING message")
         logger.error("ERROR message")
 
-    assert stream.getvalue() == "ERROR message\n"
+    assert stream.getvalue() == "[ERROR] ERROR message\n"
 
     logged_lines = log_file.read_text(encoding="utf-8").splitlines()
     for level in ("INFO", "WARNING", "ERROR"):

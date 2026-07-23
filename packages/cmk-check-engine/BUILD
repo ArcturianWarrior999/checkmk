@@ -3,6 +3,7 @@ load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
@@ -185,6 +186,18 @@ py_library(
 )
 
 py_library(
+    name = "checker-helper-config",
+    srcs = [
+        "cmk/checkengine/checker_helper_config.py",
+    ],
+    imports = ["."],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//packages/cmk-ccc:hostaddress",
+    ],
+)
+
+py_library(
     name = "specs",
     srcs = glob([
         "cmk/checkengine/specs/*.py",
@@ -255,13 +268,35 @@ py_library(
         ":section-parser",
         ":specs",
         "//cmk/inventory",
-        "//cmk/utils",
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:hostaddress",
-        "//packages/cmk-ccc:tty",
         "//packages/cmk-check-engine/cmk/checkengine/parser",
         "//packages/cmk-check-engine/cmk/checkengine/plugins",
         "//packages/cmk-plugin-apis:agent_based",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":checker-plugin",
+        ":fetcher-protocol",
+        ":fetchers",
+        ":helper-interface",
+        ":inventory",
+        ":lib",
+        ":section-parser",
+        ":snmp-backends",
+        ":snmplib",
+        ":sources",
+        ":specs",
+        ":subclass-discovery",
+        "//packages/cmk-check-engine/cmk/checkengine/checking",
+        "//packages/cmk-check-engine/cmk/checkengine/discovery",
+        "//packages/cmk-check-engine/cmk/checkengine/parser",
+        "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
+        "//packages/cmk-check-engine/cmk/checkengine/plugins",
     ],
 )
 
@@ -403,6 +438,15 @@ py_cmk_test(
     ],
 )
 
+py_cmk_test(
+    name = "checker-helper-config-tests",
+    size = "small",
+    srcs = ["tests/cmk/checkengine/test_checker_helper_config.py"],
+    deps = [
+        ":checker-helper-config",
+    ],
+)
+
 py_wheel(
     name = "wheel_fetchers",
     distribution = "cmk-check-engine-fetchers",
@@ -442,6 +486,7 @@ py_wheel(
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [
+        ":checker-helper-config",
         ":checker-plugin",
         ":inventory",
         ":lib",
@@ -501,6 +546,7 @@ sh_library(
 py_requirements_test(
     name = "requirements-test",
     libs = [
+        ":checker-helper-config",
         ":fetchers",
         ":fetcher-protocol",
         ":helper-interface",

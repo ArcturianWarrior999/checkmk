@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProfilingFlamegraphData",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "anyOf": [{ "$ref": "#/$defs/profile_metadata" }, { "type": "null" }]
+    },
+    "hotspots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hotspot_data" }
+    },
+    "flamegraph_tree": {
+      "anyOf": [{ "$ref": "#/$defs/flamegraph_node" }, { "type": "null" }]
+    },
+    "function_paths": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "total_time": { "type": "number" },
+    "total_calls": { "type": "integer" },
+    "total_functions": { "type": "integer" }
+  },
+  "required": [
+    "metadata",
+    "hotspots",
+    "flamegraph_tree",
+    "function_paths",
+    "total_time",
+    "total_calls",
+    "total_functions"
+  ],
+  "$defs": {
+    "profile_source_type": {
+      "title": "ProfileSourceType",
+      "type": "string",
+      "enum": ["gui_request", "file_upload", "base_command"]
+    },
+    "profile_metadata": {
+      "title": "ProfileMetadata",
+      "type": "object",
+      "properties": {
+        "profile_id": { "type": "string" },
+        "source_type": { "$ref": "#/$defs/profile_source_type" },
+        "source_info": { "type": "string" },
+        "duration_ms": { "type": ["number", "null"] },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["profile_id", "source_type", "source_info", "duration_ms", "timestamp"]
+    },
+    "caller_info": {
+      "title": "CallerInfo",
+      "type": "object",
+      "properties": {
+        "function": { "type": "string" },
+        "ncalls": {
+          "type": "integer",
+          "description": "total number of calls (including recursive re-entries)"
+        },
+        "primitive_calls": {
+          "type": "integer",
+          "description": "non-recursive calls; differs from ncalls only on recursion"
+        },
+        "cumulative_time_ms": { "type": "number" }
+      },
+      "required": ["function", "ncalls", "primitive_calls", "cumulative_time_ms"]
+    },
+    "hotspot_data": {
+      "title": "HotspotData",
+      "type": "object",
+      "properties": {
+        "function": { "type": "string" },
+        "file": { "type": "string" },
+        "line": { "type": "integer" },
+        "self_time_ms": { "type": "number" },
+        "self_pct": { "type": "number" },
+        "cumulative_time_ms": { "type": "number" },
+        "cumulative_pct": { "type": "number" },
+        "ncalls": {
+          "type": "integer",
+          "description": "total number of calls (including recursive re-entries)"
+        },
+        "primitive_calls": {
+          "type": "integer",
+          "description": "non-recursive calls; differs from ncalls only on recursion"
+        },
+        "top_callers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/caller_info" }
+        },
+        "top_callees": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/caller_info" }
+        }
+      },
+      "required": [
+        "function",
+        "file",
+        "line",
+        "self_time_ms",
+        "self_pct",
+        "cumulative_time_ms",
+        "cumulative_pct",
+        "ncalls",
+        "primitive_calls",
+        "top_callers",
+        "top_callees"
+      ]
+    },
+    "flamegraph_node": {
+      "title": "FlamegraphNode",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "value": { "type": "number", "description": "self-time in seconds" },
+        "total": {
+          "type": "number",
+          "description": "total time (self + children) in seconds"
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/flamegraph_node" }
+        }
+      },
+      "required": ["name", "value", "total", "children"]
+    }
+  }
+}

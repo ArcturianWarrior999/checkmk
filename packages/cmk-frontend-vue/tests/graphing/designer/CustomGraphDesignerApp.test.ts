@@ -102,6 +102,14 @@ function metadataCollection(): unknown {
 
 const METADATA_COLLECTION_PATH = '/domain-types/custom_graph_metadata/collections/all'
 
+const FILTER_DEFINITIONS_PATH = '/domain-types/visual_filter/collections/all'
+const FILTER_GROUPS_PATH = '/domain-types/visual_filter_group/collections/all'
+
+/** The designer app root loads filter definitions once; the query form needs them. */
+function isFilterPath(path: string): boolean {
+  return path === FILTER_DEFINITIONS_PATH || path === FILTER_GROUPS_PATH
+}
+
 function okResponse(data: unknown, etag = '"etag-1"'): unknown {
   return {
     data,
@@ -118,6 +126,8 @@ const PROPS: CustomGraphDesigner = {
   warning_color: '#ffd000',
   critical_color: '#ff3232',
   logged_in_user: 'me',
+  metric_backend_available: false,
+  title_macro_help: 'Available title macros',
   initial_breadcrumb: [
     { title: 'Customize', link: null },
     { title: 'Custom graphs', link: 'custom_graphs.py' }
@@ -134,11 +144,14 @@ let putSpy: any
 
 /** GET returns the metadata collection for the selector's list call, the graph for everything else. */
 function mockGraphGet(graph: unknown = graphObject()): void {
-  getSpy.mockImplementation((path: string) =>
-    Promise.resolve(
+  getSpy.mockImplementation((path: string) => {
+    if (isFilterPath(path)) {
+      return Promise.resolve(okResponse({ value: [] }))
+    }
+    return Promise.resolve(
       path === METADATA_COLLECTION_PATH ? okResponse(metadataCollection()) : okResponse(graph)
     )
-  )
+  })
 }
 
 beforeEach(() => {
@@ -206,6 +219,9 @@ test('saving PUTs the definition with If-Match and returns to view mode', async 
 test('a stale graph load does not overwrite a newer selection', async () => {
   let resolveFirst: (value: unknown) => void = () => {}
   getSpy.mockImplementation((path: string, options?: { params?: { path?: { name?: string } } }) => {
+    if (isFilterPath(path)) {
+      return Promise.resolve(okResponse({ value: [] }))
+    }
     if (path === METADATA_COLLECTION_PATH) {
       return Promise.resolve(
         okResponse({
@@ -257,9 +273,11 @@ test('a second save click while a save is in flight is ignored', async () => {
 test('saving is refused when the graph was loaded without an ETag', async () => {
   getSpy.mockImplementation((path: string) =>
     Promise.resolve(
-      path === METADATA_COLLECTION_PATH
-        ? okResponse(metadataCollection())
-        : { data: graphObject(), error: undefined, response: new Response(null, { status: 200 }) }
+      isFilterPath(path)
+        ? okResponse({ value: [] })
+        : path === METADATA_COLLECTION_PATH
+          ? okResponse(metadataCollection())
+          : { data: graphObject(), error: undefined, response: new Response(null, { status: 200 }) }
     )
   )
   await renderApp()

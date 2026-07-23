@@ -16,7 +16,8 @@ from cmk.gui.openapi.utils import ProblemException
 from cmk.gui.utils import permission_verification as permissions
 from cmk.livestatus_client import MKLivestatusException
 
-from .._engine_dispatch import evaluate_graphs, GraphDataRequest
+from .._engine_dispatch import evaluate_graphs
+from .._engine_serialization import ensure_type
 from ._family import GRAPH_FAMILY
 from ._serialize import (
     api_consolidation_to_engine,
@@ -38,11 +39,8 @@ def fetch_graph_data_v1(body: GraphFetchRequest) -> GraphFetchResponse:
         options["combination_mode"] = body.combination_mode
     try:
         evaluated = evaluate_graphs(
-            GraphDataRequest(
-                graph_type=body.graph_type,
-                graphs=body.internal,
-                options=options,
-            )
+            [ensure_type(graph, dict) for graph in ensure_type(body.internal["graphs"], list)],
+            options,
         )
     except MKLivestatusException as exc:
         raise ProblemException(
@@ -76,8 +74,8 @@ ENDPOINT_FETCH_GRAPH_DATA = VersionedEndpoint(
         method="post",
     ),
     permissions=EndpointPermissions(
-        required=permissions.Undocumented(
-            permissions.AnyPerm(
+        required=permissions.Optional(
+            permissions.AllPerm(
                 [
                     permissions.Perm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),

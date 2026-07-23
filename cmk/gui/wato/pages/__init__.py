@@ -5,6 +5,7 @@
 
 from collections.abc import Callable
 
+import cmk.profiling.gui
 from cmk.ccc.version import Edition
 from cmk.gui.background_job.job import BackgroundJobRegistry
 from cmk.gui.main_menu import MainMenuRegistry
@@ -105,6 +106,7 @@ def register(
     object_parameters.register(mode_registry)
     password_store.register(mode_registry)
     predefined_conditions.register(mode_registry)
+    cmk.profiling.gui.register(page_registry, mode_registry)
     random_hosts.register(mode_registry)
     read_only.register(mode_registry)
     rulesets.register(mode_registry, match_item_generator_registry)

@@ -79,6 +79,7 @@ dependency_list(
         "//:Cargo.lock",
         "//:pnpm-lock.yaml",
         "//:runtime-requirements.txt",
+        "manual_dependency_manifest.yml",
     ],
     sbom_target = "//omd:deps_packages_base",
 )

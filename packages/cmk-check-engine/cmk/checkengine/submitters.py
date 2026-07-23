@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import abc
+import logging
 import os
 import time
 from collections.abc import Iterable, Iterator
@@ -15,15 +16,14 @@ from random import Random
 from typing import Final, final, IO, Literal
 
 import cmk.utils.paths
-from cmk.ccc import tty
 from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostName
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine.specs.checkresults import ServiceCheckResult, ServiceState
-from cmk.utils.log import console
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.servicename import ServiceName
 
+logger = logging.getLogger(__name__)
 _CacheInfo = tuple[int, int]
 
 ServiceDetails = str
@@ -118,6 +118,20 @@ class FormattedSubmittee:
     details: ServiceDetails
     cache_info: _CacheInfo | None
     pending: bool
+
+    @property
+    def state_string(self) -> str:
+        if self.pending:
+            return "PEND"
+        match self.state:
+            case 0:
+                return "OK"
+            case 1:
+                return "WARNING"
+            case 2:
+                return "ERROR"
+            case _:
+                return ""
 
 
 class Submitter(abc.ABC):
@@ -304,9 +318,14 @@ def _output_check_result(
     *,
     show_perfdata: bool,
 ) -> None:
-    weight, state_txt = (
-        ("", "PEND ") if submittee.pending else (tty.bold, tty.states[submittee.state])
-    )
     details = submittee.details.split("|", 1)[0].split("\n", 1)[0]
-    perfdata = f" ({submittee.details.split('|', 1)[1]})" if show_perfdata else ""
-    console.verbose(f"{submittee.name:<20} {weight}{state_txt}{details}{tty.normal}{perfdata}")
+    perfdata = f"({submittee.details.split('|', 1)[1]})" if show_perfdata else ""
+    logger.debug(
+        "%(service_name)s [%(state_txt)s] %(details)s [%(perfdata)s]",
+        {
+            "service_name": submittee.name,
+            "state_txt": submittee.state_string,
+            "details": details,
+            "perfdata": perfdata,
+        },
+    )

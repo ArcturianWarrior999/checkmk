@@ -8,7 +8,7 @@ from __future__ import annotations
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
 from cmk.gui.logged_in import user as global_user
-from cmk.gui.site_config import enabled_sites, is_replication_enabled, site_is_local
+from cmk.gui.site_config import all_activation_sites, enabled_sites, site_is_local
 from cmk.livestatus_client import SiteConfigurations
 
 
@@ -68,14 +68,8 @@ def get_activation_site_choices(site_configs: SiteConfigurations) -> list[tuple[
 
 
 def activation_sites(site_configs: SiteConfigurations) -> SiteConfigurations:
-    """Returns sites that are affected by Setup changes
+    """Returns sites that are affected by Setup changes and the user is authorized for
 
     These sites are shown on activation page and get change entries
     added during Setup changes."""
-    return SiteConfigurations(
-        {
-            site_id: site
-            for site_id, site in global_user.authorized_sites(unfiltered_sites=site_configs).items()
-            if site_is_local(site) or is_replication_enabled(site)
-        }
-    )
+    return all_activation_sites(global_user.authorized_sites(unfiltered_sites=site_configs))

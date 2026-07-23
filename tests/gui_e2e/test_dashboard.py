@@ -547,17 +547,22 @@ def test_builtin_dashboard_runtime_filter(
     )
 
     for widget_title in graphic_widgets:
-        success_message = dashboard_page.get_widget(widget_title).locator("div.success")
+        # The migrated widgets render the empty state through the new graph engine
+        # (div.db-content-time-series-graph__no-data); widgets still on the legacy graph
+        # dashlet render the same message in div.success. Accept either container.
+        no_data_message = dashboard_page.get_widget(widget_title).locator(
+            "div.db-content-time-series-graph__no-data, div.success"
+        )
 
         expect(
-            success_message, message="Widget does not contain a success message."
+            no_data_message, message="Widget does not contain an empty-state message."
         ).to_be_visible()
 
         expect(
-            success_message,
+            no_data_message,
             message=(
-                f"Widget does not contain the expected success message ('{expected_message}'). "
-                f"Actual message: {success_message.text_content()}"
+                f"Widget does not contain the expected empty-state message ('{expected_message}'). "
+                f"Actual message: {no_data_message.text_content()}"
             ),
         ).to_have_text(expected_message)
 

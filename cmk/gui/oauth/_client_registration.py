@@ -4,16 +4,28 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import http.client as http_client
-import secrets
 from collections.abc import Callable
 from typing import override
 
+from pydantic import ValidationError
+
 from cmk.gui.http import request, response
 from cmk.gui.oauth._models import (
+    OAuthClientRegistrationErrorResponse,
     OAuthClientRegistrationRequest,
     OAuthClientRegistrationResponse,
 )
+from cmk.gui.oauth._store import ClientRegistrationLimitExceededError, register_client
 from cmk.gui.pages import Page, PageContext, PageResult
+
+
+def _registration_error(exc: ValidationError) -> OAuthClientRegistrationErrorResponse:
+    error = exc.errors()[0]
+    field = error["loc"][0] if error["loc"] else "redirect_uris"
+    code = "invalid_redirect_uri" if field == "redirect_uris" else "invalid_client_metadata"
+    return OAuthClientRegistrationErrorResponse(
+        error=code, error_description=error["msg"].removeprefix("Value error, ")
+    )
 
 
 class OAuthClientRegistrationPage(Page):
@@ -24,10 +36,13 @@ class OAuthClientRegistrationPage(Page):
     no OAuth-consuming feature is enabled for the site (the enabled predicate
     is injected at registration).
 
-    This is a stub: it does not validate or persist the submitted client
-    metadata, it only hands out a random client_id. redirect_uris is echoed
-    back from the request body -- see OAuthClientRegistrationResponse's
-    docstring for why that's required, not optional polish.
+    Validates the shape of the submitted client metadata (see
+    OAuthClientRegistrationRequest) and persists it via
+    cmk.gui.oauth._store.register_client. redirect_uris is echoed back from
+    the request body -- see OAuthClientRegistrationResponse's docstring for
+    why that's required, not optional polish. Validation failures and a
+    reached registration limit are both reported per RFC 7591 section 3.2.2
+    (JSON error/error_description body), not just a bare status code.
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -43,13 +58,34 @@ class OAuthClientRegistrationPage(Page):
             response.status_code = http_client.METHOD_NOT_ALLOWED
             return None
 
-        body = OAuthClientRegistrationRequest.model_validate(request.get_json(silent=True) or {})
+        try:
+            body = OAuthClientRegistrationRequest.model_validate(request.get_json(silent=True))
+        except ValidationError as exc:
+            response.status_code = http_client.BAD_REQUEST
+            response.set_content_type("application/json")
+            response.set_data(_registration_error(exc).model_dump_json())
+            return None
+
+        try:
+            registration = register_client(body.redirect_uris, body.client_name)
+        except ClientRegistrationLimitExceededError:
+            response.status_code = http_client.BAD_REQUEST
+            response.set_content_type("application/json")
+            response.set_data(
+                OAuthClientRegistrationErrorResponse(
+                    error="invalid_client_metadata",
+                    error_description="client registration limit reached",
+                ).model_dump_json()
+            )
+            return None
 
         response.status_code = http_client.CREATED
         response.set_content_type("application/json")
         response.set_data(
             OAuthClientRegistrationResponse(
-                client_id=secrets.token_urlsafe(32), redirect_uris=body.redirect_uris
+                client_id=registration.client_id,
+                redirect_uris=body.redirect_uris,
+                client_name=body.client_name,
             ).model_dump_json()
         )
         return None

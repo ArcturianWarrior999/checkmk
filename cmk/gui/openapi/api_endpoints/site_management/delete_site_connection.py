@@ -20,6 +20,7 @@ from cmk.gui.openapi.restful_objects.constructors import object_action_href
 from cmk.gui.openapi.utils import RestAPIRequestGeneralException
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.pending_changes import (
     index_update_change_hook,
     PendingChanges,
@@ -45,6 +46,7 @@ def delete_site_connection_v1(
     user.need_permission("wato.sites")
     try:
         SitesApiMgr().delete_a_site(
+            make_folder_tree(api_context.config),
             site_id,
             pprint_value=api_context.config.wato_pprint_config,
             pending_changes=PendingChanges(

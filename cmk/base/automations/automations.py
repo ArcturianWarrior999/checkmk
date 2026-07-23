@@ -2,10 +2,9 @@
 # Copyright (C) 2019 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
-
 import enum
+import logging
 import os
-import sys
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import nullcontext, redirect_stdout
 from dataclasses import dataclass
@@ -22,9 +21,8 @@ from cmk.ccc.exceptions import MKGeneralException, MKTimeout
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine.plugins import AgentBasedPlugins
 from cmk.discover_plugins import discover_plugins_from_modules
-from cmk.utils import log
-from cmk.utils.log import console
 
+logger = logging.getLogger(__name__)
 tracer = trace.get_tracer()
 
 
@@ -118,15 +116,17 @@ class Automations:
                 result = automation.handler(app, args, plugins, loading_result)
 
         except (MKGeneralException, MKTimeout) as e:
-            console.error(f"{e}", file=sys.stderr)
+            logger.error(  # noqa: TRY400
+                "Execution of automation '%(cmd)s' failed: %(error)s", {"cmd": cmd, "error": e}
+            )
             if cmk.ccc.debug.enabled():
                 raise
             return AutomationError.KNOWN_ERROR
 
-        except Exception as e:
+        except Exception:
+            logger.exception("Execution of automation '%(cmd)s' failed", {"cmd": cmd})
             if cmk.ccc.debug.enabled():
                 raise
-            console.error(f"{e}", file=sys.stderr)
             return AutomationError.UNKNOWN_ERROR
 
         return result
@@ -144,7 +144,6 @@ def load_plugins() -> AgentBasedPlugins:
         tracer.span("load_all_plugins"),
         redirect_stdout(open(os.devnull, "w")),
     ):
-        log.setup_console_logging()
         return config.load_all_plugins()
 
 

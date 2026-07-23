@@ -34,6 +34,16 @@ from cmk.plugins.dell.agent_based.dell_idrac_fans import (
             ],
             [Service(item="3"), Service(item="4"), Service(item="5")],
         ),
+        (
+            # Crash report 4799 / CMK-36317: iDRAC reports an empty status column.
+            # Discovery must silently ignore such fans, just like it does for
+            # the mapped OTHER/UNKNOWN status values.
+            [
+                ["6", "", "", "System Board Fan3A", "", "", "", ""],
+                ["7", "3", "7000", "System Board Fan3B", "", "", "", ""],
+            ],
+            [Service(item="7")],
+        ),
     ],
 )
 def test_discover_dell_idrac_fans(
@@ -85,6 +95,20 @@ def test_discover_dell_idrac_fans(
             [
                 Result(state=State.OK, summary="Status: OK, Name: FAN2A"),
                 Result(state=State.OK, summary="Speed: 7000 RPM"),
+            ],
+        ),
+        (
+            # Crash report 4799 / CMK-36317: iDRAC reports an empty status column
+            # for a discovered fan. The check must report the fan as UNKNOWN and
+            # continue instead of crashing with KeyError('').
+            "6",
+            {},
+            [["6", "", "", "System Board Fan3A", "", "", "", ""]],
+            [
+                Result(
+                    state=State.UNKNOWN,
+                    summary="Status: NO DATA FROM DEVICE, Name: System Board Fan3A",
+                )
             ],
         ),
     ],

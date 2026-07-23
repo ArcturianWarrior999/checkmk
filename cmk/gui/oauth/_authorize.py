@@ -14,9 +14,15 @@ from cmk.gui.header import make_header
 from cmk.gui.htmllib.html import html
 from cmk.gui.http import request, response
 from cmk.gui.i18n import _
+from cmk.gui.log import logger
 from cmk.gui.logged_in import user
+from cmk.gui.oauth._auth_code_store import AuthCodeRecord, AuthCodeStore
+from cmk.gui.oauth._store import get_registered_client
 from cmk.gui.pages import Page, PageContext, PageResult
+from cmk.gui.utils.csrf_token import check_csrf_token
+from cmk.gui.utils.security_log_events import OAuthAuthorizationFailureEvent
 from cmk.gui.utils.transaction_manager import transactions
+from cmk.utils.security_event import log_security_event
 
 
 class OAuthAuthorizePage(Page):
@@ -29,9 +35,14 @@ class OAuthAuthorizePage(Page):
     code. Returns 404 while no OAuth-consuming feature is enabled for the
     site (the enabled predicate is injected at registration).
 
-    This is a stub: it does not validate the client_id, it hands out a
-    random authorization code as soon as the user confirms the consent
-    screen.
+    Codes minted on approval are persisted PKCE-bound via AuthCodeStore; the
+    token endpoint later redeems them single-use. Validates client_id against
+    the registered-client store (see cmk.gui.oauth._store) and requires
+    redirect_uri to exactly match one of that client's registered
+    redirect_uris. _token.py does not yet validate that a code was issued to
+    the client redeeming it -- that's separate follow-up work. Rejected
+    requests are logged as security events (see
+    OAuthAuthorizationFailureEvent).
     """
 
     def __init__(self, enabled: Callable[[], bool]) -> None:
@@ -51,20 +62,59 @@ class OAuthAuthorizePage(Page):
             # Rejects javascript:/data: etc. here, once, rather than at each
             # place redirect_uri ends up in a href/content attribute below --
             # HTML-escaping alone doesn't neutralize a dangerous URL scheme.
+            self._log_authorization_failure("invalid or missing redirect_uri")
             response.status_code = http_client.BAD_REQUEST
             return None
 
-        # received authorization form OK
-        if request.request_method == "POST" and transactions.check_transaction():
-            params = (
-                {"error": "access_denied"}
-                if request.var("_deny") is not None
-                else {"code": secrets.token_urlsafe(32)}
-            )
-            if (state := request.var("state")) is not None:
-                params["state"] = state
-            self._show_redirect_page(ctx, redirect_uri, params)
+        client_id = request.var("client_id")
+        if client_id is None:
+            # Same MUST-NOT-redirect treatment as redirect_uri (RFC 6749
+            # section 4.1.2.1): an unknown client's redirect_uri isn't trustworthy.
+            self._log_authorization_failure("missing client_id")
+            response.status_code = http_client.BAD_REQUEST
             return None
+
+        registration = get_registered_client(client_id)
+        if registration is None:
+            self._log_authorization_failure("unknown client_id")
+            response.status_code = http_client.BAD_REQUEST
+            return None
+
+        if redirect_uri not in registration.redirect_uris:
+            self._log_authorization_failure("redirect_uri not registered for client_id")
+            response.status_code = http_client.BAD_REQUEST
+            return None
+
+        response_type = request.var("response_type")
+        if response_type is None:
+            self._log_authorization_failure("missing response_type")
+            self._error_redirect(ctx, redirect_uri, "invalid_request")
+            return None
+        if response_type != "code":
+            self._log_authorization_failure("unsupported response_type")
+            self._error_redirect(ctx, redirect_uri, "unsupported_response_type")
+            return None
+
+        code_challenge = request.var("code_challenge")
+        if code_challenge is None:
+            self._log_authorization_failure("missing code_challenge")
+            self._error_redirect(ctx, redirect_uri, "invalid_request")
+            return None
+
+        if request.var("code_challenge_method") != "S256":
+            self._log_authorization_failure("unsupported code_challenge_method")
+            self._error_redirect(ctx, redirect_uri, "invalid_request")
+            return None
+
+        # received authorization form OK
+        if request.request_method == "POST":
+            check_csrf_token()
+            if transactions.check_transaction():
+                if request.var("_deny") is not None:
+                    self._error_redirect(ctx, redirect_uri, "access_denied")
+                    return None
+                self._issue_code(ctx, redirect_uri, client_id, code_challenge)
+                return None
 
         # show concent page
         self._show_consent_page(ctx, redirect_uri)
@@ -98,6 +148,55 @@ class OAuthAuthorizePage(Page):
         html.close_div()
         html.close_div()
         html.footer()
+
+    def _issue_code(
+        self, ctx: PageContext, redirect_uri: str, client_id: str, code_challenge: str
+    ) -> None:
+        # The bound user is the server-side session user; the page registry
+        # guarantees an authenticated session before this code runs.
+        assert user.id is not None
+        code = secrets.token_urlsafe(32)
+        record = AuthCodeRecord(
+            user_id=user.id,
+            client_id=client_id,
+            redirect_uri=redirect_uri,
+            scope=request.var("scope"),
+            resource=request.var("resource"),
+            code_challenge=code_challenge,
+        )
+        try:
+            AuthCodeStore().store(code, record)
+        except Exception:
+            # A code without a stored record can never be redeemed; handing it
+            # to the client would only feign success. RFC 6749 section 4.1.2.1
+            # calls this condition server_error.
+            # Deliberately also catches the GUI request timeout (MKTimeout):
+            # the client should get the OAuth error redirect.
+            # The security event only carries a static reason, so the cause
+            # goes to the log.
+            logger.exception("failed to persist OAuth authorization code")
+            self._log_authorization_failure("failed to persist authorization code")
+            self._error_redirect(ctx, redirect_uri, "server_error")
+            return
+        params = {"code": code}
+        if (state := request.var("state")) is not None:
+            params["state"] = state
+        self._show_redirect_page(ctx, redirect_uri, params)
+
+    def _log_authorization_failure(self, reason: str) -> None:
+        log_security_event(
+            OAuthAuthorizationFailureEvent(
+                reason=reason,
+                client_id=request.var("client_id"),
+                remote_ip=request.remote_ip,
+            )
+        )
+
+    def _error_redirect(self, ctx: PageContext, redirect_uri: str, error: str) -> None:
+        params = {"error": error}
+        if (state := request.var("state")) is not None:
+            params["state"] = state
+        self._show_redirect_page(ctx, redirect_uri, params)
 
     def _show_redirect_page(
         self, ctx: PageContext, redirect_uri: str, params: dict[str, str]

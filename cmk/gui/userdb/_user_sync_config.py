@@ -13,31 +13,26 @@ from cmk.gui.config import active_config
 from cmk.gui.site_config import is_distributed_setup_remote_site, site_is_local
 from cmk.livestatus_client import SiteConfiguration
 
-UserSyncConfig = Literal["all", "master"] | tuple[Literal["list"], list[str]] | None
+UserSyncConfig = Literal["all"] | tuple[Literal["list"], list[str]] | None
+
+
+def effective_user_attribute_sync_connections() -> Literal["all", "disabled"] | list[str]:
+    """The ``user_attribute_sync_connections`` value effective on this site."""
+    if is_distributed_setup_remote_site(active_config.sites):
+        return active_config.user_attribute_sync_connections
+    site_config = active_config.sites[omd_site()]
+    if "user_attribute_sync_connections" in site_config:
+        return site_config["user_attribute_sync_connections"]
+    return active_config.user_attribute_sync_connections
 
 
 def user_sync_config() -> UserSyncConfig:
-    # use global option as default for reading legacy options and on remote site
-    # for reading the value set by the Setup master site
-    site_config = active_config.sites[omd_site()]
-    # Precedence:
-    #   1. per-site `user_attribute_sync_connections` if present
-    #   2. global `active_config.user_attribute_sync_connections` (propagated
-    #      from central via `get_site_globals()` on remotes)
-    #   3. default derived from `active_config.userdb_automatic_sync`
-    # Absence of the per-site key means "inherit from the central site"; the
-    # remote falls through to the propagated global.
-    if "user_attribute_sync_connections" in site_config:
-        per_site = site_config["user_attribute_sync_connections"]
-        if per_site == "disabled":
-            return None
-        return ("list", list(per_site)) if isinstance(per_site, list) else per_site
-    global_value = active_config.user_attribute_sync_connections
-    if global_value == "disabled":
+    value = effective_user_attribute_sync_connections()
+    if value == "disabled":
         return None
-    if isinstance(global_value, list):
-        return "list", list(global_value)
-    return global_value
+    if isinstance(value, list):
+        return "list", list(value)
+    return value
 
 
 # Legacy option config.userdb_automatic_sync defaulted to "master".

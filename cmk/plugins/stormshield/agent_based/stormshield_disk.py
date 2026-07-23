@@ -82,10 +82,7 @@ def check_stormshield_disk(item: str, section: Section) -> CheckResult:
     for disk in section:
         if item == disk["clusterindex"]:
             infotext = f"Device Index {disk['index']}, Selftest: {disk['selftest']}, Device Mount Point Name: {disk['name']}"
-            if disk["selftest"] != "PASSED":
-                status = State.WARN
-            else:
-                status = State.OK
+            status = State.WARN if disk["selftest"] != "PASSED" else State.OK
             if disk["israid"] != "0":
                 infotext = (
                     infotext

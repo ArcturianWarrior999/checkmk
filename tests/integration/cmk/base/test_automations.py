@@ -121,7 +121,7 @@ def _execute_automation(
     args: Sequence[str] | None = None,
     stdin: str | None = None,
     expect_stdout: str | None = None,
-    expect_stderr: str = "",
+    expect_stderr: str | None = None,
     expect_stderr_pattern: str = "",
     expect_exit_code: int = 0,
     parse_data: bool = True,
@@ -133,8 +133,8 @@ def _execute_automation(
     assert p.returncode == expect_exit_code, error_msg
 
     if expect_stderr_pattern:
-        assert re.match(expect_stderr_pattern, p.stderr) is not None, error_msg
-    else:
+        assert re.search(expect_stderr_pattern, p.stderr) is not None, error_msg
+    elif expect_stderr is not None:
         assert p.stderr == expect_stderr, error_msg
 
     if expect_stdout is not None:

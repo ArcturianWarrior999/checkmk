@@ -9,14 +9,22 @@ import MetricsTable from '@/graphing/designer/components/MetricsTable.vue'
 import { useGraphItems } from '@/graphing/designer/composables/useGraphItems'
 import type { DesignerItem } from '@/graphing/designer/drafts'
 
-import { constantItem, formulaItem, rrdMetricItem } from '../fixtures'
+import { constantItem, formulaItem, metricBackendItem, rrdMetricItem } from '../fixtures'
 
 const PALETTE: readonly string[] = ['#28a2f3', '#ff8400', '#ec48b6', '#ffd703']
 const THRESHOLDS = { warning: '#ffd000', critical: '#ff3232' }
+const TITLE_MACRO_HELP = 'Available title macros'
 
-function renderTable(seed: DesignerItem[] = []) {
+function renderTable(seed: DesignerItem[] = [], metricBackendAvailable = true) {
   const store = useGraphItems(PALETTE, seed)
-  const utils = render(MetricsTable, { props: { store, thresholds: THRESHOLDS } })
+  const utils = render(MetricsTable, {
+    props: {
+      store,
+      thresholds: THRESHOLDS,
+      metricBackendAvailable,
+      titleMacroHelp: TITLE_MACRO_HELP
+    }
+  })
   return { store, ...utils }
 }
 
@@ -121,4 +129,37 @@ test('title edits patch the row', async () => {
   const { store } = renderTable([rrdMetricItem('A')])
   await fireEvent.update(screen.getByLabelText('Title'), 'My title')
   expect(store.items.value[0]!.title).toBe('My title')
+})
+
+test('a formula row expands to the read-only formula form', async () => {
+  renderTable([formulaItem('A', { ast: { op: 'num', value: 5 } })])
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(await screen.findByRole('button', { name: /= 5/ })).toBeInTheDocument()
+})
+
+test('a metric_backend row expands to the metric backend form', async () => {
+  renderTable([metricBackendItem('A')])
+  await fireEvent.click(screen.getByRole('button', { name: 'Toggle details' }))
+  expect(await screen.findByText('Consolidation')).toBeInTheDocument()
+})
+
+test('the metric backend source is offered only when the feature is available', async () => {
+  renderTable([], false)
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  expect(screen.queryByRole('option', { name: 'Metrics backend' })).not.toBeInTheDocument()
+})
+
+test('adding a metric backend source opens its form', async () => {
+  const { store } = renderTable([], true)
+  await fireEvent.click(screen.getByRole('combobox', { name: 'Add source' }))
+  await fireEvent.click(await screen.findByRole('option', { name: 'Metrics backend' }))
+
+  expect(store.items.value[0]).toMatchObject({ type: 'metric_backend', metric_name: null })
+  expect(await screen.findByText('Consolidation')).toBeInTheDocument()
+})
+
+test('the title column header exposes the macro help via a help tooltip', async () => {
+  renderTable([rrdMetricItem('A')])
+  await fireEvent.click(screen.getByRole('button', { name: 'Help for Title' }))
+  expect(await screen.findByRole('tooltip')).toHaveTextContent(TITLE_MACRO_HELP)
 })

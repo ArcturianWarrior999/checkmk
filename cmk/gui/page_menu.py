@@ -420,7 +420,12 @@ class PageMenu:
 
 
 def _make_filtered_url(request_: Request, *, exclude: tuple[str, ...] = ()) -> str:
-    """Make a URI from the request, filtering out sensitive variables."""
+    """Make a URI from the request, filtering out sensitive variables.
+
+    Related sensitive-parameter filtering lives in
+    ``cmk.gui.wsgi.applications.profile_switcher._sanitize_query_string`` (which operates on a
+    raw query string). Keep the two in sync.
+    """
     sensitive_markers = ("_password", "_passphrase", "_secret")
     vars_: HTTPVariables = [
         (v, val)

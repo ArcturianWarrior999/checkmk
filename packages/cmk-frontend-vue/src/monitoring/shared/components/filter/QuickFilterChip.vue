@@ -9,6 +9,7 @@ import CmkChip, { type Colors, type Variants } from '@/components/CmkChip.vue'
 const props = defineProps<{
   label: string
   active: boolean
+  tooltip?: string | undefined
 }>()
 
 const emit = defineEmits<{
@@ -37,6 +38,7 @@ function toggle(): void {
   <CmkChip
     type="button"
     :aria-pressed="active"
+    :title="tooltip"
     :color="getColor()"
     :variant="getVariant()"
     @click="toggle"

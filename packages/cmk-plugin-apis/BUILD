@@ -261,11 +261,11 @@ py_doc_test(
         ":discover_plugins",
         ":graphing",
         ":inventory_ui",
+        ":password_store",
         ":rulesets",
         ":server_side_calls",
         ":server_side_programs",
     ],
-    tags = ["no-mypy"],
 )
 
 py_cmk_test(

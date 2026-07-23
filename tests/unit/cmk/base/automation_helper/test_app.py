@@ -230,7 +230,7 @@ def test_automation_with_system_exit(mocker: MockerFixture, cache: Cache) -> Non
     assert AutomationResponse.model_validate(resp.json()) == AutomationResponse(
         serialized_result_or_error_code=1,
         stdout="stdout_system_exit",
-        stderr="stderr_system_exit",
+        stderr='stderr_system_exit[ERROR] Encountered SystemExit exception while processing automation "dummy" with args: []\n',
     )
     mock_reload_config.assert_called_once()  # only at application startup
     mock_clear_caches_before_each_call.assert_called_once()

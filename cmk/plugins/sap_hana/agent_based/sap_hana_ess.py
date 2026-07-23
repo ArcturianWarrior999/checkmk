@@ -66,10 +66,7 @@ def check_sap_hana_ess(item: str, section: sap_hana.ParsedSection) -> CheckResul
     yield Result(state=state, summary="Active status: %s" % active_state_name)
 
     started_threads = data.get("started", 0)
-    if started_threads is None or started_threads < 1:
-        state = State.CRIT
-    else:
-        state = State.OK
+    state = State.CRIT if started_threads is None or started_threads < 1 else State.OK
     yield Result(state=state, summary="Started threads: %s" % started_threads)
     yield Metric("threads", started_threads)
 

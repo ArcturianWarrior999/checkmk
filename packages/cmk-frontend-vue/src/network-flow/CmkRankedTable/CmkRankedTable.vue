@@ -8,9 +8,12 @@ import { computed } from 'vue'
 
 import { SIFormatter } from '@/lib/unit-format/notationFormatter'
 
+import { chartColorCss } from '../colors'
 import type { CmkRankedTableProps, RankedTableColumn, RankedTableRow } from './types'
 
 const props = defineProps<CmkRankedTableProps>()
+
+const barColorCss = computed<string>(() => chartColorCss(props.barColor))
 
 // Canonical SI byte formatter (base 1000), matching the backend: 90_400_000_000 → "90.40 GB".
 const byteFormatter = new SIFormatter('B', { type: 'strict', digits: 2 })
@@ -78,7 +81,7 @@ function barPercent(column: RankedTableColumn, row: RankedTableRow): number {
                 class="network-flow-cmk-ranked-table__bar-fill"
                 :style="{
                   width: `${barPercent(column, row)}%`,
-                  backgroundColor: barColor
+                  backgroundColor: barColorCss
                 }"
               />
             </span>

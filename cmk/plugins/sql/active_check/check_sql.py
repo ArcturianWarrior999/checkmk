@@ -452,10 +452,7 @@ def process_result(
     number = float(row0[0])
 
     # handle case where sql query only results in one column
-    if len(row0) == 1:
-        text = "%s" % row0[0]
-    else:
-        text = "%s" % row0[1]
+    text = "%s" % row0[0] if len(row0) == 1 else "%s" % row0[1]
 
     perf = ""
     if metrics:

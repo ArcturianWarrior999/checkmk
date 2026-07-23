@@ -88,9 +88,20 @@ def test_active_connectors_for_user_preservation_includes_saml_connection_id(
     saml_entry: SAMLAuthenticationEntry = {"connection_id": "my_saml"}
     entries: list[AuthenticationConnectionEntry] = [("saml", saml_entry)]
     site_config["authentication_connections"] = entries
-    assert activate_changes._active_connectors_for_user_preservation(
-        site_config, default_sync_config=None
-    ) == ["my_saml"]
+    assert activate_changes._active_connectors_for_user_preservation(site_config) == ["my_saml"]
+
+
+def test_active_connectors_for_user_preservation_uses_propagated_attr_sync(
+    load_config: Config, remote_site: None
+) -> None:
+    """On a remote site the attribute-sync connection list configured on the
+    central site arrives via the propagated global; the seeded ``"all"`` in
+    the remote's own ``sites.mk`` entry must not shadow it."""
+    site_config = default_site_config()
+    assert site_config["user_attribute_sync_connections"] == "all"  # the seeded self-default
+    load_config.user_attribute_sync_connections = ["ldap_x"]
+    load_config.authentication_connections = []
+    assert activate_changes._active_connectors_for_user_preservation(site_config) == ["ldap_x"]
 
 
 def test_automation_get_config_sync_state(request_context: None) -> None:

@@ -3,18 +3,6 @@
   "type": "object",
   "title": "Create relay",
   "properties": {
-    "alias_validation": {
-      "type": "object",
-      "properties": {
-        "regex": {
-          "type": "string"
-        },
-        "regex_help": {
-          "type": "string"
-        }
-      },
-      "required": ["regex", "regex_help"]
-    },
     "urls": {
       "type": "object",
       "properties": {
@@ -31,6 +19,9 @@
       "required": ["create_host", "relay_overview", "documentation"]
     },
     "site_name": {
+      "type": "string"
+    },
+    "cert_fingerprint": {
       "type": "string"
     },
     "domain": {
@@ -50,16 +41,12 @@
     },
     "server_port": {
       "type": ["integer", "null"]
-    },
-    "exp_add_windows_relay_enabled": {
-      "type": "boolean",
-      "description": "When true, show the OS selector to allow registering a Windows relay."
     }
   },
   "required": [
-    "alias_validation",
     "urls",
     "site_name",
+    "cert_fingerprint",
     "domain",
     "agent_receiver_port",
     "site_version",

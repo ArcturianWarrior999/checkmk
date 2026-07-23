@@ -210,7 +210,9 @@ def is_user_file(filepath: str) -> bool:
     return entry.startswith("user_") or entry in ["tableoptions.mk", "treestates.mk", "sidebar.mk"]
 
 
-def populate_saml_site_endpoint_urls(site_config: SiteConfiguration) -> SiteConfiguration:
+def populate_saml_site_endpoint_urls(
+    site_config: SiteConfiguration, *, empty_marker: str = "-"
+) -> SiteConfiguration:
     """Inject SAML SP endpoint URLs into the resolved authentication connections.
 
     Returns a copy of `site_config` where each SAML entry under
@@ -227,19 +229,21 @@ def populate_saml_site_endpoint_urls(site_config: SiteConfiguration) -> SiteConf
 
     Entries that don't have enough information yet (e.g. a brand-new entry
     without a connection ID, or a site without a callback URL configured)
-    show ``-`` instead.
+    carry `empty_marker` instead: the ``-`` default for the sync path, or
+    ``""`` for the site-edit form where the endpoint widgets render their
+    placeholder alert for empty values.
     """
     auth_conns = site_config.get("authentication_connections")
     if auth_conns is None or isinstance(auth_conns, str):
         return site_config
 
     callback_url = site_config.get("multisiteurl", "")
-    populated = _populate_endpoint_urls(auth_conns, callback_url)
+    populated = _populate_endpoint_urls(auth_conns, callback_url, empty_marker=empty_marker)
     return {**site_config, "authentication_connections": populated}
 
 
 def _populate_endpoint_urls(
-    entries: list[AuthenticationConnectionEntry], callback_url: str
+    entries: list[AuthenticationConnectionEntry], callback_url: str, *, empty_marker: str
 ) -> list[AuthenticationConnectionEntry]:
     populated: list[AuthenticationConnectionEntry] = []
     for entry in entries:
@@ -248,7 +252,7 @@ def _populate_endpoint_urls(
             continue
         _kind, saml_entry = entry
         connection_id = saml_entry.get("connection_id", "")
-        metadata, acs = _saml_endpoint_urls(callback_url, connection_id)
+        metadata, acs = _saml_endpoint_urls(callback_url, connection_id, empty_marker=empty_marker)
         new_entry: SAMLAuthenticationEntry = {
             "connection_id": connection_id,
             "metadata_endpoint": metadata,
@@ -258,7 +262,9 @@ def _populate_endpoint_urls(
     return populated
 
 
-def _saml_endpoint_urls(callback_url: str, connection_id: str) -> tuple[str, str]:
+def _saml_endpoint_urls(
+    callback_url: str, connection_id: str, *, empty_marker: str
+) -> tuple[str, str]:
     """Compute the per-site SAML metadata + ACS URLs for a connection.
 
     On a remote site `callback_url` is the site's `multisiteurl` and the URLs
@@ -279,15 +285,15 @@ def _saml_endpoint_urls(callback_url: str, connection_id: str) -> tuple[str, str
         )
 
     if not connection_id:
-        return "-", "-"
+        return empty_marker, empty_marker
 
     connection = get_active_saml_connections().get(connection_id)
     if connection is None:
-        return "-", "-"
+        return empty_marker, empty_marker
 
     acs_endpoint = connection["checkmk_assertion_consumer_service_endpoint"]
     if not acs_endpoint:
-        return "-", "-"
+        return empty_marker, empty_marker
     # `checkmk_metadata_endpoint` is already stored as
     # `<server>/saml_metadata.py?RelayState=<connection_id>` (see
     # `checkmk_service_provider_metadata` in `_config.py`), so it must not be
@@ -306,6 +312,7 @@ def get_site_globals(site_id: SiteId, site_config: SiteConfiguration) -> SiteGlo
             "authentication_connections": _populate_endpoint_urls(
                 resolved_authentication_connections(site_config, central_config),
                 site_config.get("multisiteurl", ""),
+                empty_marker="-",
             ),
         }
     )

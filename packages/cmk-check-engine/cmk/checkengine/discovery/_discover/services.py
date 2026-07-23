@@ -4,11 +4,10 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import itertools
-import sys
+import logging
 from collections.abc import Container, Iterable, Iterator, Mapping, Sequence
 
 import cmk.ccc.debug
-from cmk.ccc import tty
 from cmk.ccc.exceptions import MKTimeout, OnError
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.discovery.types import QualifiedDiscovery
@@ -22,9 +21,9 @@ from cmk.checkengine.plugins import (
 )
 from cmk.checkengine.sectionparser import Provider
 from cmk.checkengine.sectionparserutils import get_section_kwargs
-from cmk.utils.log import console
 
 __all__ = ["analyse_services", "discover_services", "find_plugins"]
+logger = logging.getLogger(__name__)
 
 
 def find_plugins(
@@ -146,11 +145,14 @@ def discover_services(
             )
         except (KeyboardInterrupt, MKTimeout):
             raise
-        except Exception as e:
+        except Exception:
             if on_error is OnError.RAISE:
                 raise
             if on_error is OnError.WARN:
-                console.error(f"Discovery of '{check_plugin_name}' failed: {e}", file=sys.stderr)
+                logger.exception(
+                    "Discovery of '%(check_plugin_name)s' failed",
+                    {"check_plugin_name": check_plugin_name},
+                )
 
     # TODO: Building a dict to discard its keys isn't efficient.
     # (this currently deduplicates items. Could be done on a per-plugin basis.)
@@ -168,16 +170,23 @@ def _discover_plugins_services(
     try:
         plugin = plugins[check_plugin_name]
     except KeyError:
-        console.warning(tty.format_warning(f"  Missing check plug-in: '{check_plugin_name}'\n"))
+        logger.warning(
+            "Missing check plug-in: '%(check_plugin_name)s'",
+            {"check_plugin_name": check_plugin_name},
+        )
         return
 
     try:
         kwargs = get_section_kwargs(providers, host_key, plugin.sections)
-    except Exception as exc:
+    except Exception:
         if cmk.ccc.debug.enabled() or on_error is OnError.RAISE:
             raise
         if on_error is OnError.WARN:
-            console.warning(tty.format_warning(f"  Exception while parsing agent section: {exc}\n"))
+            logger.warning(
+                "Exception while parsing agent section of host '%(host)s' for check plugin '%(check_plugin_name)s'",
+                {"host": host_key.hostname, "check_plugin_name": check_plugin_name},
+                exc_info=True,
+            )
         return
 
     if not kwargs:
@@ -189,14 +198,14 @@ def _discover_plugins_services(
 
     try:
         yield from plugin.function(check_plugin_name, **kwargs)
-    except Exception as e:
+    except Exception:
         if on_error is OnError.RAISE:
             raise
         if on_error is OnError.WARN:
-            console.warning(
-                tty.format_warning(
-                    f"  Exception in discovery function of check plug-in '{check_plugin_name}': {e}"
-                )
+            logger.warning(
+                "Exception in discovery function of check plug-in '%(check_plugin_name)s' for host '%(host)s'",
+                {"host": host_key.hostname, "check_plugin_name": check_plugin_name},
+                exc_info=True,
             )
 
 

@@ -5,11 +5,16 @@
 from typing import Literal, override, Self
 
 from cmk.gui.dashboard.type_defs import (
-    NetworkFlowBarAccent,
+    NetworkFlowAccent,
     NetworkFlowDonutDashletConfig,
     NetworkFlowDonutDimension,
+    NetworkFlowKpiStatCardDashletConfig,
+    NetworkFlowKpiStatCardMetric,
     NetworkFlowTopTableDashletConfig,
     NetworkFlowTopTableDimension,
+    NetworkFlowTrendChartDashletConfig,
+    NetworkFlowTrendChartDimension,
+    NetworkFlowTrendChartDisplayMode,
 )
 from cmk.gui.openapi.framework.model import api_field, api_model
 
@@ -25,7 +30,7 @@ class NetworkFlowTopTableContent(BaseWidgetContent):
         description="Which entity dimension to rank (local hosts, remote hosts, applications "
         "or autonomous systems)."
     )
-    accent: NetworkFlowBarAccent = api_field(description="Accent color of the inline bars.")
+    accent: NetworkFlowAccent = api_field(description="Accent color of the inline bars.")
     limit_to: int = api_field(description="Maximum number of rows to display.")
 
     @classmethod
@@ -82,5 +87,85 @@ class NetworkFlowDonutContent(BaseWidgetContent):
         return NetworkFlowDonutDashletConfig(
             type=self.internal_type(),
             dimension=self.dimension,
+            limit_to=self.limit_to,
+        )
+
+
+@api_model
+class NetworkFlowKpiStatCardContent(BaseWidgetContent):
+    type: Literal["network_flow_kpi_stat_card"] = api_field(
+        description="Displays a single headline network flow metric with an optional change "
+        "indicator and a trend sparkline."
+    )
+    metric: NetworkFlowKpiStatCardMetric = api_field(
+        description="Which metric to display (byte volumes or activity counts). The unit "
+        "formatting follows the metric."
+    )
+    accent: NetworkFlowAccent = api_field(description="Accent color of the sparkline.")
+    show_delta: bool = api_field(
+        description="Whether to show the change versus the previous period."
+    )
+
+    @classmethod
+    @override
+    def internal_type(cls) -> str:
+        return "network_flow_kpi_stat_card"
+
+    @classmethod
+    def from_internal(cls, config: NetworkFlowKpiStatCardDashletConfig) -> Self:
+        return cls(
+            type="network_flow_kpi_stat_card",
+            metric=config["metric"],
+            accent=config["accent"],
+            show_delta=config["show_delta"],
+        )
+
+    @override
+    def to_internal(self) -> NetworkFlowKpiStatCardDashletConfig:
+        return NetworkFlowKpiStatCardDashletConfig(
+            type=self.internal_type(),
+            metric=self.metric,
+            accent=self.accent,
+            show_delta=self.show_delta,
+        )
+
+
+@api_model
+class NetworkFlowTrendChartContent(BaseWidgetContent):
+    type: Literal["network_flow_trend_chart"] = api_field(
+        description="Displays how network flow traffic evolved over time, broken down into "
+        "the top series of a dimension, with a statistics legend."
+    )
+    dimension: NetworkFlowTrendChartDimension = api_field(
+        description="Which dimension to break the traffic down into series (applications or "
+        "autonomous systems)."
+    )
+    display_mode: NetworkFlowTrendChartDisplayMode = api_field(
+        description="Whether to draw the series as separate lines or as cumulative stacked areas."
+    )
+    limit_to: int = api_field(
+        description="Maximum number of top series to plot before the rest are dropped."
+    )
+
+    @classmethod
+    @override
+    def internal_type(cls) -> str:
+        return "network_flow_trend_chart"
+
+    @classmethod
+    def from_internal(cls, config: NetworkFlowTrendChartDashletConfig) -> Self:
+        return cls(
+            type="network_flow_trend_chart",
+            dimension=config["dimension"],
+            display_mode=config["display_mode"],
+            limit_to=config["limit_to"],
+        )
+
+    @override
+    def to_internal(self) -> NetworkFlowTrendChartDashletConfig:
+        return NetworkFlowTrendChartDashletConfig(
+            type=self.internal_type(),
+            dimension=self.dimension,
+            display_mode=self.display_mode,
             limit_to=self.limit_to,
         )

@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 # Leaf target exposing wato types/helpers that feature modules need (quick_setup,
 # mkeventd, ldap_integration, oauth2_connections, backup, ...). This lets features
@@ -180,6 +181,7 @@ py_library(
         "//packages/cmk-plugin-apis:agent_based",
         "//packages/cmk-plugin-apis:discover_plugins",
         "//packages/cmk-plugin-apis:rulesets",
+        "//packages/cmk-profiling:gui",
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-werks:tool",
         requirement("cryptography"),
@@ -213,5 +215,14 @@ py_library(
         "//cmk/gui/valuespec",
         "//cmk/gui/watolib",
         "//cmk/gui/watolib:config_infra",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":base",
+        ":wato",
     ],
 )

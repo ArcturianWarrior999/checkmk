@@ -371,6 +371,8 @@ def test_rule_from_config_dict(
         (
             True,
             """
+checkgroup_parameters = locals().setdefault('checkgroup_parameters', {})
+
 checkgroup_parameters.setdefault('local', [])
 
 checkgroup_parameters['local'] = [
@@ -435,6 +437,8 @@ def test_ruleset_to_config(
         (
             True,
             """
+checkgroup_parameters = locals().setdefault('checkgroup_parameters', {})
+
 checkgroup_parameters.setdefault('local', [])
 
 checkgroup_parameters['local'] = [

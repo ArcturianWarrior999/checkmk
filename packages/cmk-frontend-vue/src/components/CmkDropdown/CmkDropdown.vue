@@ -10,6 +10,7 @@ import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { untranslated } from '@/lib/i18n'
 import type { TranslatedString } from '@/lib/i18nString'
 import useClickOutside from '@/lib/useClickOutside'
+import { useFloatingTarget } from '@/lib/useFloatingTarget'
 import { immediateWatch } from '@/lib/watch'
 
 import CmkLoading from '@/components/CmkLoading.vue'
@@ -64,6 +65,8 @@ const {
 const selectedOptionPublic = defineModel<string | null>({ default: null })
 
 const vClickOutside = useClickOutside()
+
+const floatingTarget = useFloatingTarget()
 
 const buttonLabel = ref<TranslatedString>(inputHint)
 const callbackFilteredErrorMessage = ref<string | null>(null)
@@ -333,7 +336,7 @@ const group = computed<ButtonVariants['group']>(() => {
       @update:open="onFloatingOpenChange"
     >
       <PopoverAnchor v-bind="rootRef ? { reference: rootRef } : {}" class="cmk-dropdown__anchor" />
-      <PopoverPortal>
+      <PopoverPortal :to="floatingTarget ?? 'body'">
         <PopoverContent
           side="bottom"
           align="start"

@@ -68,6 +68,7 @@ rsync -avz --relative -e "ssh -o UserKnownHostsFile=\"${KNOWN_HOSTS_FILE}\" -i \
     "${checkout_dir}/./Cargo.toml" \
     "${checkout_dir}/./Cargo.lock" \
     "${checkout_dir}/./.cargo" \
+    "${checkout_dir}/./agents/wnx/extensions/robotmk_ext" \
     "${checkout_dir}/./packages/"{cmk-agent-ctl,mk-oracle,mk-sql,check-cert,check-http} \
     "${REMOTE_USER}@${REMOTE_HOST}:${checkmk_path}"
 

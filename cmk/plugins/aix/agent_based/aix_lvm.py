@@ -128,10 +128,7 @@ def check_aix_lvm(item: str, section: Section) -> CheckResult:
             msgtxt.append("LV is not in sync state(!!)")
             state = max(state, 2)
 
-        if state == 0:
-            msgtxt_str = "LV is open/syncd"
-        else:
-            msgtxt_str = ", ".join(msgtxt)
+        msgtxt_str = "LV is open/syncd" if state == 0 else ", ".join(msgtxt)
         yield Result(state=State(state), summary=msgtxt_str)
         return
 

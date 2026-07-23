@@ -7,7 +7,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 import type { ColumnDef, RowSelectionState } from '@tanstack/vue-table'
 import { computed, ref } from 'vue'
 
-import usei18n from '@/lib/i18n'
+import usei18n, { untranslated } from '@/lib/i18n'
 
 import CmkButton from '@/components/CmkButton'
 import { CmkAddDropdown } from '@/components/CmkDropdown'
@@ -33,6 +33,7 @@ import { useRowLabels } from '../composables/useRowLabels'
 import {
   type DesignerItem,
   newConstantDraft,
+  newMetricBackendDraft,
   newRrdMetricDraft,
   newScalarDraft,
   scalarColor
@@ -40,12 +41,16 @@ import {
 import { type ItemId, isSingleLine, parseLineType } from '../types'
 import DeleteWithDependentsPopup from './DeleteWithDependentsPopup.vue'
 import ConstantLineForm from './forms/ConstantLineForm.vue'
-import RrdMetricForm from './forms/RrdMetricForm.vue'
+import FormulaForm from './forms/FormulaForm.vue'
+import MetricBackendForm from './forms/MetricBackendForm.vue'
+import RrdForm from './forms/RrdForm.vue'
 import ServiceReferenceLineForm from './forms/ServiceReferenceLineForm.vue'
 
-const { store, thresholds } = defineProps<{
+const { store, thresholds, metricBackendAvailable, titleMacroHelp } = defineProps<{
   store: GraphItemsStore
   thresholds: { warning: string; critical: string }
+  metricBackendAvailable: boolean
+  titleMacroHelp: string
 }>()
 
 const emit = defineEmits<{
@@ -65,7 +70,12 @@ const columns: ColumnDef<DesignerItem>[] = [
   { id: 'id', header: _t('ID'), meta: { justify: 'left' } },
   { id: 'source', header: _t('Source'), meta: { justify: 'left' } },
   { id: 'color', header: _t('Color'), meta: { justify: 'center' } },
-  { id: 'title', header: _t('Title'), minSize: 260, meta: { stretch: true } },
+  {
+    id: 'title',
+    header: _t('Title'),
+    minSize: 260,
+    meta: { stretch: true, headerHelp: untranslated(titleMacroHelp) }
+  },
   { id: 'line_style', header: _t('Line style'), meta: { justify: 'left' } },
   { id: 'mirrored', header: _t('Mirrored'), meta: { justify: 'center' } },
   { id: 'actions', header: _t('Actions') }
@@ -83,41 +93,37 @@ const selectedIds = computed<ItemId[]>(() => {
     .map(([id]) => id)
 })
 
-/** The addable source types: dropdown title plus the draft each one starts from. */
-const SOURCE_TYPES = {
-  rrd_metric: {
-    title: _t('Checkmk RRD'),
-    newDraft: (id: ItemId) => newRrdMetricDraft(id, store.nextColor.value)
-  },
-  constant: {
-    title: _t('Constant line'),
-    newDraft: (id: ItemId) => newConstantDraft(id, store.nextColor.value)
-  },
-  scalar: {
-    title: _t('Service reference line'),
-    newDraft: (id: ItemId) =>
-      newScalarDraft(id, scalarColor('warning', store.nextColor.value, thresholds))
+/**
+ * The addable source types and their dropdown titles; rrd_query is reached via the in-form toggle
+ * and metric_backend only appears when the feature is available in this edition.
+ */
+const addSourceSuggestions = computed(() => {
+  const suggestions = [
+    { name: 'rrd_metric', title: _t('Checkmk RRD') },
+    { name: 'constant', title: _t('Constant line') },
+    { name: 'scalar', title: _t('Service reference line') }
+  ]
+  if (metricBackendAvailable) {
+    suggestions.push({ name: 'metric_backend', title: _t('Metrics backend') })
   }
-}
-
-const addSourceSuggestions = {
-  type: 'fixed' as const,
-  suggestions: Object.entries(SOURCE_TYPES).map(([name, source]) => ({
-    name,
-    title: source.title
-  }))
-}
-
-/** Whether the row's type has an expandable source form below the table row. */
-function hasSourceForm(value: string): value is keyof typeof SOURCE_TYPES {
-  return value in SOURCE_TYPES
-}
+  return { type: 'fixed' as const, suggestions }
+})
 
 function onAddSource(value: string): void {
-  if (!hasSourceForm(value)) {
-    return
-  }
-  const id = store.addItem((assigned) => SOURCE_TYPES[value].newDraft(assigned))
+  const id = store.addItem((assigned): DesignerItem => {
+    switch (value) {
+      case 'rrd_metric':
+        return newRrdMetricDraft(assigned, store.nextColor.value)
+      case 'constant':
+        return newConstantDraft(assigned, store.nextColor.value)
+      case 'scalar':
+        return newScalarDraft(assigned, scalarColor('warning', store.nextColor.value, thresholds))
+      case 'metric_backend':
+        return newMetricBackendDraft(assigned)
+      default:
+        throw new Error(`Unknown source type: ${value}`)
+    }
+  })
   expandedRows.value = { ...expandedRows.value, [id]: true }
 }
 
@@ -218,7 +224,6 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
           />
           <BaseCell v-else column-id="color" vertical-align="middle" />
           <CollapsibleCell
-            v-if="hasSourceForm(row.type)"
             column-id="title"
             vertical-align="middle"
             :expanded="expandedRows[row.id] === true"
@@ -231,14 +236,6 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
               @update:model-value="onTitleChange(row, $event)"
             />
           </CollapsibleCell>
-          <BaseCell v-else column-id="title" vertical-align="middle">
-            <CmkInput
-              :model-value="row.title"
-              :aria-label="_t('Title')"
-              field-size="large"
-              @update:model-value="onTitleChange(row, $event)"
-            />
-          </BaseCell>
           <DropdownCell
             column-id="line_style"
             vertical-align="middle"
@@ -263,22 +260,34 @@ function onTitleChange(row: DesignerItem, title: string | undefined): void {
         </template>
 
         <template #expansion="{ row }">
-          <td v-if="titleColumnIndex > 0" :colspan="titleColumnIndex" />
-          <td
-            :colspan="columns.length - titleColumnIndex"
-            class="graphing-metrics-table__expansion"
-          >
-            <div class="graphing-metrics-table__editor-panel">
-              <RrdMetricForm v-if="row.type === 'rrd_metric'" :item="row" :store="store" />
-              <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
-              <ServiceReferenceLineForm
-                v-else-if="row.type === 'scalar'"
-                :item="row"
-                :store="store"
-                :thresholds="thresholds"
-              />
-            </div>
-          </td>
+          <tr>
+            <td v-if="titleColumnIndex > 0" :colspan="titleColumnIndex" />
+            <td
+              :colspan="columns.length - titleColumnIndex"
+              class="graphing-metrics-table__expansion"
+            >
+              <FormulaForm v-if="row.type === 'rrd_formula'" :item="row" :store="store" />
+              <div v-else class="graphing-metrics-table__editor-panel">
+                <RrdForm
+                  v-if="row.type === 'rrd_metric' || row.type === 'rrd_query'"
+                  :item="row"
+                  :store="store"
+                />
+                <ConstantLineForm v-else-if="row.type === 'constant'" :item="row" :store="store" />
+                <ServiceReferenceLineForm
+                  v-else-if="row.type === 'scalar'"
+                  :item="row"
+                  :store="store"
+                  :thresholds="thresholds"
+                />
+                <MetricBackendForm
+                  v-else-if="row.type === 'metric_backend'"
+                  :item="row"
+                  :store="store"
+                />
+              </div>
+            </td>
+          </tr>
         </template>
 
         <template #footer>

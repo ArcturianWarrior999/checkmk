@@ -20,6 +20,7 @@ from pytest_mock import MockerFixture
 from werkzeug.test import create_environ
 
 import cmk.gui.watolib.password_store
+import cmk.utils.paths
 from cmk.ccc.user import UserId
 from cmk.ccc.version import Edition
 from cmk.gui import http, login
@@ -135,6 +136,22 @@ def load_config(request_context: None) -> Iterator[Config]:
 @pytest.fixture(name="set_config")
 def set_config_fixture() -> SetConfig:
     return set_config_context
+
+
+@pytest.fixture(name="remote_site")
+def fixture_remote_site() -> Iterator[None]:
+    """Make the code believe it runs on a distributed-setup remote site."""
+    cmk.utils.paths.check_mk_config_dir.mkdir(parents=True, exist_ok=True)
+    distr_wato_mk = cmk.utils.paths.check_mk_config_dir / "distributed_wato.mk"
+    previous = distr_wato_mk.read_bytes() if distr_wato_mk.exists() else None
+    distr_wato_mk.write_text("is_distributed_setup_remote_site = True\n")
+    try:
+        yield
+    finally:
+        if previous is None:
+            distr_wato_mk.unlink(missing_ok=True)
+        else:
+            distr_wato_mk.write_bytes(previous)
 
 
 @pytest.fixture(scope="session", autouse=True)

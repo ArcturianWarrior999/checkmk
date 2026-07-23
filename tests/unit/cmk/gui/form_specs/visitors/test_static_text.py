@@ -18,16 +18,19 @@ from cmk.gui.form_specs import (
 )
 from cmk.gui.form_specs.unstable.static_text import StaticText, StaticTextStyle
 from cmk.gui.form_specs.visitors.static_text import StaticTextVisitor
-from cmk.rulesets.v1 import Help, Title
+from cmk.rulesets.v1 import Help, Label, Title
 from cmk.shared_typing import vue_formspec_components as shared_type_defs
 
 
-def _visitor(*, style: StaticTextStyle = "text") -> StaticTextVisitor:
+def _visitor(
+    *, style: StaticTextStyle = "text", placeholder: Label | None = None
+) -> StaticTextVisitor:
     return StaticTextVisitor(
         StaticText(
             title=Title("X"),
             help_text=Help("Y"),
             style=style,
+            placeholder=placeholder,
         ),
         VisitorOptions(migrate_values=False, mask_values=False),
     )
@@ -67,6 +70,27 @@ def test_non_string_input_falls_back_to_empty() -> None:
     spec, value = _visitor().to_vue(RawDiskData(None))
     assert value == ""
     assert spec.value == ""  # type: ignore[attr-defined]
+
+
+def test_to_vue_passes_placeholder_through() -> None:
+    spec, _ = _visitor(placeholder=Label("generated on save")).to_vue(DefaultValue())
+    assert isinstance(spec, shared_type_defs.StaticText)
+    assert spec.placeholder == "generated on save"
+
+
+def test_placeholder_defaults_to_none() -> None:
+    spec, _ = _visitor().to_vue(RawDiskData("hello"))
+    assert isinstance(spec, shared_type_defs.StaticText)
+    assert spec.placeholder is None
+
+
+def test_placeholder_does_not_replace_value() -> None:
+    """The placeholder only rides along in the schema; the value stays empty so
+    it never leaks to disk on submit."""
+    spec, value = _visitor(placeholder=Label("generated on save")).to_vue(DefaultValue())
+    assert value == ""
+    assert isinstance(spec, shared_type_defs.StaticText)
+    assert spec.value == ""
 
 
 def test_to_disk_round_trips_value() -> None:

@@ -144,12 +144,12 @@ class TopListDashletConfig(DashletConfig):
 NetworkFlowTopTableDimension = Literal[
     "local_hosts", "remote_hosts", "applications", "autonomous_systems"
 ]
-NetworkFlowBarAccent = Literal["blue", "magenta", "green", "yellow", "orange", "purple"]
+NetworkFlowAccent = Literal["blue", "magenta", "green", "yellow", "orange", "purple", "red"]
 
 
 class NetworkFlowTopTableDashletConfig(DashletConfig):
     dimension: NetworkFlowTopTableDimension
-    accent: NetworkFlowBarAccent
+    accent: NetworkFlowAccent
     limit_to: int
 
 
@@ -158,6 +158,34 @@ NetworkFlowDonutDimension = Literal["applications", "protocols"]
 
 class NetworkFlowDonutDashletConfig(DashletConfig):
     dimension: NetworkFlowDonutDimension
+    limit_to: int
+
+
+NetworkFlowKpiStatCardMetric = Literal[
+    "total_bytes",
+    "ingress_bytes",
+    "egress_bytes",
+    "active_hosts",
+    "total_flows",
+    "active_asn",
+    "peak_throughput",
+    "avg_throughput",
+]
+
+
+class NetworkFlowKpiStatCardDashletConfig(DashletConfig):
+    metric: NetworkFlowKpiStatCardMetric
+    accent: NetworkFlowAccent
+    show_delta: bool
+
+
+NetworkFlowTrendChartDimension = Literal["applications", "autonomous_systems"]
+NetworkFlowTrendChartDisplayMode = Literal["lines", "stacked_area"]
+
+
+class NetworkFlowTrendChartDashletConfig(DashletConfig):
+    dimension: NetworkFlowTrendChartDimension
+    display_mode: NetworkFlowTrendChartDisplayMode
     limit_to: int
 
 

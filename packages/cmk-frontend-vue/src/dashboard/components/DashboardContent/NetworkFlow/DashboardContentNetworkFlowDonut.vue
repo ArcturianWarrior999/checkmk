@@ -14,7 +14,7 @@ import CmkLoading from '@/components/CmkLoading.vue'
 
 import type { NetworkFlowDonutContent } from '@/dashboard/types/widget.ts'
 import { dashboardAPI } from '@/dashboard/utils.ts'
-import CmkDonutChart, { type DonutSlice } from '@/network-flow/CmkDonutChart'
+import CmkDonutChart, { type ChartColor, type DonutSlice } from '@/network-flow/CmkDonutChart'
 
 import DashboardContentContainer from '../DashboardContentContainer.vue'
 import type { ContentProps } from '../types.ts'
@@ -25,15 +25,7 @@ const props = defineProps<ContentProps<NetworkFlowDonutContent>>()
 // Slice colors are presentation, so the palette lives here rather than in the
 // config. Slices cycle through the accent palette; the aggregated "Other" tail
 // always uses the neutral grey.
-const SLICE_PALETTE = [
-  'var(--color-corporate-green-50)',
-  'var(--color-light-blue-50)',
-  'var(--color-pink-50)',
-  'var(--color-yellow-50)',
-  'var(--color-orange-50)',
-  'var(--color-purple-50)'
-]
-const OTHER_COLOR = 'var(--color-mid-grey-50)'
+const SLICE_PALETTE: ChartColor[] = ['green', 'blue', 'magenta', 'yellow', 'orange', 'purple']
 
 const slices = ref<DonutSlice[] | undefined>(undefined)
 // A backend-reported condition (flow monitoring disabled, database unreachable,
@@ -56,7 +48,7 @@ function buildSlices(
   const shown = computedSlices.reduce((sum, slice) => sum + slice.value, 0)
   const other = total - shown
   if (other > 0) {
-    result.push({ key: 'other', label: _t('Other'), value: other, color: OTHER_COLOR })
+    result.push({ key: 'other', label: _t('Other'), value: other, color: 'grey' })
   }
   return result
 }

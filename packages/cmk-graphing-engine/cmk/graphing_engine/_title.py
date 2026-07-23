@@ -8,7 +8,15 @@ import re
 from collections.abc import Iterable, Iterator, Mapping
 
 from ._perfdata import MetricName, Service
-from ._quantities import EvaluationContext, Metric, Quantity, RRDMetric, ScalarKind, ScalarOf
+from ._quantities import (
+    EvaluationContext,
+    first_value,
+    Metric,
+    Quantity,
+    RRDMetric,
+    ScalarKind,
+    ScalarOf,
+)
 
 _TITLE_EXPRESSION_PREFIX = "_EXPRESSION:"
 _TITLE_EXPRESSION_PATTERN = re.compile(re.escape(_TITLE_EXPRESSION_PREFIX) + r"\{.*?\}")
@@ -24,7 +32,11 @@ _TITLE_SCALAR_KINDS: Mapping[str, ScalarKind] = {
 
 def _unique_service(metrics: Iterable[Metric]) -> Service | None:
     services = {
-        Service(host_name=metric.host_name, service_name=metric.service_name)
+        Service(
+            site_id=metric.site_id,
+            host_name=metric.host_name,
+            service_name=metric.service_name,
+        )
         for metric in metrics
         if isinstance(metric, RRDMetric)
     }
@@ -34,6 +46,7 @@ def _unique_service(metrics: Iterable[Metric]) -> Service | None:
 def _title_quantity(raw: str, service: Service) -> Quantity | None:
     expression: Mapping[str, str] = json.loads(raw[len(_TITLE_EXPRESSION_PREFIX) :])
     metric = RRDMetric(
+        site_id=service.site_id,
         host_name=service.host_name,
         service_name=service.service_name,
         metric_name=MetricName(expression["metric"]),
@@ -66,8 +79,8 @@ def evaluate_title(
     for raw in _TITLE_EXPRESSION_PATTERN.findall(title):
         if service is None or (quantity := _title_quantity(raw, service)) is None:
             return _fallback_title(title)
-        evaluated = quantity.evaluate(context)
-        if not evaluated or evaluated[0].value is None:
+        value = first_value(quantity.evaluate(context))
+        if value is None:
             return _fallback_title(title)
-        title = title.replace(raw, str(int(evaluated[0].value)), 1)
+        title = title.replace(raw, str(int(value)), 1)
     return title

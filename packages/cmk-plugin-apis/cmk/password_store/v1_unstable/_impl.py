@@ -24,9 +24,9 @@ class Secret[T]:
     >>> s = Secret("s3cr37!")
     >>> # it will not show in strings or reprs:
     >>> print(s)
-    '****'
+    ****
     >>> repr(s)
-    'Secret(****)'
+    "Secret('****')"
     >>> # but you can still get the value:
     >>> s.reveal()
     's3cr37!'

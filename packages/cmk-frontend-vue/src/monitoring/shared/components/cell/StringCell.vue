@@ -5,9 +5,8 @@ conditions defined in the file COPYING, which is part of this source code packag
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import BaseCell, { type CellLink, type CellVerticalAlign } from './BaseCell.vue'
+import { useSoftBreak } from './base/useSoftBreak'
 
 const props = withDefaults(
   defineProps<{
@@ -27,14 +26,10 @@ const emit = defineEmits<{
   (event: 'click', payload: MouseEvent): void
 }>()
 
-const SOFT_BREAK_CHARS = /([ \-_.])/g
-const ZWSP = '​'
-
-const display = computed(() => {
-  const value = props.value ?? props.emptyLabel ?? 'n/a'
-  const hardBreak = new RegExp(`([^\\s\\-_.]{${props.hardBreakEvery}})`, 'g')
-  return value.replace(SOFT_BREAK_CHARS, `$1${ZWSP}`).replace(hardBreak, `$1${ZWSP}`)
-})
+const display = useSoftBreak(
+  () => props.value ?? props.emptyLabel ?? 'n/a',
+  () => props.hardBreakEvery
+)
 </script>
 
 <template>

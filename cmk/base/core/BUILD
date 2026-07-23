@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "core",
@@ -54,8 +55,15 @@ py_library(
         "//packages/cmk-ccc:debug",
         "//packages/cmk-ccc:hostaddress",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-check-engine:checker-helper-config",
         "//packages/cmk-check-engine:fetchers",
         "//packages/cmk-check-engine/cmk/checkengine/plugin_backend",
         "//packages/cmk-plugin-apis:discover_plugins",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":host-check-template"],
 )

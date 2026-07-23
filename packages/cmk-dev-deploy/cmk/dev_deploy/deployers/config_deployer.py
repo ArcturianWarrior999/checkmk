@@ -86,9 +86,9 @@ def _copy_dir(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path)
 
     Uses individual file copy when ``spec.files`` is non-empty (with optional
     delete_extra cleanup), otherwise falls back to ``shutil.copytree()``.
+    Directories are only created for files actually copied, so a spec that
+    was prefix-matched but contributes no files leaves no trace.
     """
-    dest.mkdir(parents=True, exist_ok=True)
-
     if spec.files:
         # Copy using the Bazel-derived file list.  The destination comes from
         # entry.dest, which carries pkg_files renames (e.g. bin/check_mk.py is
@@ -134,7 +134,7 @@ def _copy_dir(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path)
         # Delete extra files at dest not present in source.
         # Only clean directories where this spec actually has files — avoid
         # deleting into subdirectories that are managed by separate specs.
-        if spec.delete_extra:
+        if spec.delete_extra and dest.is_dir():
             expected_dirs = {str(Path(f).parent) for f in expected_files}
             for existing in dest.rglob("*"):
                 if existing.is_file():
@@ -161,7 +161,6 @@ def _copy_dir(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path)
 
 def _install_files(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: Path) -> int:
     """Install individual files from source to dest with explicit permissions."""
-    dest.mkdir(parents=True, exist_ok=True)
     count = 0
 
     if spec.files:
@@ -169,6 +168,7 @@ def _install_files(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: 
             src_path = _resolve_src(entry, repo_root)
             if not src_path.is_file():
                 continue
+            dest.mkdir(parents=True, exist_ok=True)
             dest_file = dest / os.path.basename(entry.dest)
             shutil.copy2(src_path, dest_file)
             mode = _resolve_mode(entry.mode, spec.mode, spec.file_chmod)
@@ -180,6 +180,7 @@ def _install_files(source: Path, dest: Path, spec: ConfigDeploySpec, repo_root: 
             if src_entry.is_dir():
                 continue
             assert spec.mode is not None
+            dest.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src_entry, dest / src_entry.name)
             os.chmod(dest / src_entry.name, spec.mode)
             count += 1
@@ -278,7 +279,9 @@ def deploy_config(changes: ChangeSet | None, repo_root: Path, site: SiteInfo) ->
     """Deploy config/data files to the OMD site.
 
     Deploys all specs when ``changes`` is None, otherwise only specs
-    matching the changed CONFIG and DATA files.
+    matching the changed CONFIG and DATA files.  Spec destinations are
+    version-root-relative and resolve through the site's ``version``
+    symlink into the active version tree (the writable clone).
     """
     start = time.monotonic()
 
@@ -319,11 +322,18 @@ def deploy_config(changes: ChangeSet | None, repo_root: Path, site: SiteInfo) ->
         if not spec.site_dest.strip():
             output.error(
                 f"Config spec has empty site_dest -- skipping to avoid "
-                f"deploying into the site root (source: {spec.source_prefix})"
+                f"deploying into the version root (source: {spec.source_prefix})"
             )
             continue
 
-        dest_dir = site.root / spec.site_dest.rstrip("/")
+        # site_dest is version-root-relative: everything packaged under
+        # //omd:deps_packages installs into the version tree.  Resolve it
+        # through the site's `version` symlink into the writable clone.
+        # Joining site.root directly only ever worked for the roots that
+        # `omd create` symlinks into the version (bin/include/lib/share);
+        # for any other root (e.g. skel/) it tries to create a directory
+        # in the site-user-owned site home and fails with EACCES.
+        dest_dir = site.root / "version" / spec.site_dest.rstrip("/")
 
         if not source_dir.is_dir():
             output.warn(f"Source directory not found, skipping: {source_dir}")

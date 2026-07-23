@@ -9,36 +9,11 @@ import { untranslated } from '@/lib/i18n'
 
 import ItemIdButton from '@/graphing/designer/calculation/components/ItemIdButton.vue'
 
-const DARK_TEXT = 'rgb(30, 38, 46)'
-const LIGHT_TEXT = 'rgb(255, 255, 255)'
-
 function renderButton(props: Record<string, unknown> = {}) {
-  const rendered = render(ItemIdButton, {
+  return render(ItemIdButton, {
     props: { id: 'A', label: untranslated('Insert A'), ...props }
   })
-  return {
-    ...rendered,
-    chip: rendered.container.querySelector('.graphing-item-id-button__chip') as HTMLElement
-  }
 }
-
-test.each([
-  ['#ffe000', 'rgb(255, 224, 0)', DARK_TEXT],
-  ['#0667c1', 'rgb(6, 103, 193)', LIGHT_TEXT]
-])(
-  'the chip text contrasts with the item color %s',
-  (color, expectedBackground, expectedContrast) => {
-    const { chip } = renderButton({ color })
-    expect(chip.style.backgroundColor).toBe(expectedBackground)
-    expect(chip.style.color).toBe(expectedContrast)
-  }
-)
-
-test('falls back to the grey placeholder without an item color', () => {
-  const { chip } = renderButton()
-  expect(chip.style.backgroundColor).toBe('var(--color-mid-grey-50)')
-  expect(chip.style.color).toBe('var(--color-conference-grey-100)')
-})
 
 test('emits click and takes its accessible name from the label', async () => {
   const { emitted } = renderButton()

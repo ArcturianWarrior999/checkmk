@@ -11,7 +11,10 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from cmk.werk_ids_server._db import reserve
 
-_MAX_RESERVABLE_IDS = 10
+# The reserve must stay at 10 usable IDs after `werk new`. `werk new` tops the
+# reserve up and then immediately consumes one ID for the werk it creates, so we
+# hand out one extra (10 kept + 1 consumed) to keep the steady-state buffer at 10.
+_MAX_RESERVABLE_IDS = 11
 
 app = Flask(__name__)
 setattr(app, "wsgi_app", ProxyFix(app.wsgi_app, x_for=1))

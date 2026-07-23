@@ -2,15 +2,24 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-"""Unit tests for the config deployer (_copy_dir, _install_files)."""
+"""Unit tests for the config deployer (_copy_dir, _install_files, deploy_config)."""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
-from cmk.dev_deploy.deployers.config_deployer import _copy_dir, _install_files
-from cmk.dev_deploy.types import ConfigDeploySpec, ConfigFileEntry, DeployMethod
+import pytest
+
+from cmk.dev_deploy.deployers import config_deployer
+from cmk.dev_deploy.deployers.config_deployer import _copy_dir, _install_files, deploy_config
+from cmk.dev_deploy.types import (
+    ConfigDeploySpec,
+    ConfigFileEntry,
+    DeployMethod,
+    Edition,
+    SiteInfo,
+)
 
 
 def _spec(
@@ -115,6 +124,139 @@ class TestCopyDirRenames:
 
         assert (site_bin / "check_mk").read_text() == "new"
         assert not (site_bin / "check_mk.py").exists()
+
+
+def _make_site(tmp_path: Path) -> tuple[SiteInfo, Path]:
+    """Simulate an OMD site home next to a writable version clone.
+
+    Mirrors ``omd create``: the site home symlinks only ``version`` plus
+    bin/include/lib/share into the version tree; everything else in the
+    home (etc, var, local -- and notably NOT skel) is site-user territory.
+    """
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    site_root = tmp_path / "sites" / "unit"
+    site_root.mkdir(parents=True)
+    (site_root / "version").symlink_to(clone)
+    for d in ("bin", "include", "lib", "share"):
+        (clone / d).mkdir()
+        (site_root / d).symlink_to(Path("version") / d)
+    site = SiteInfo(
+        name="unit",
+        root=site_root,
+        edition=Edition.ULTIMATE,
+        version_string="3.0.0",
+        build_commit=None,
+    )
+    return site, clone
+
+
+class TestDeployConfigVersionAnchor:
+    """deploy_config must write through the ``version`` symlink into the clone."""
+
+    def _deploy(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        repo: Path,
+        site: SiteInfo,
+        spec: ConfigDeploySpec,
+    ) -> int:
+        monkeypatch.setattr(config_deployer, "get_config_specs", lambda: (spec,))
+        return deploy_config(None, repo, site).specs_deployed
+
+    def test_skel_dest_lands_in_version_tree(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """skel/ has no site-home symlink -- only the version anchor works."""
+        site, clone = _make_site(tmp_path)
+        repo = tmp_path / "repo"
+        src = repo / "omd" / "packages" / "stunnel" / "skel" / "etc" / "stunnel"
+        src.mkdir(parents=True)
+        (src / "server.conf").write_text("cert = site\n")
+
+        deployed = self._deploy(
+            monkeypatch,
+            repo,
+            site,
+            _spec(
+                source_prefix="omd/packages/stunnel/skel/",
+                site_dest="skel/etc/stunnel/",
+                files=(
+                    ConfigFileEntry(
+                        src="omd/packages/stunnel/skel/etc/stunnel/server.conf",
+                        dest="skel/etc/stunnel/server.conf",
+                        mode="0644",
+                    ),
+                ),
+            ),
+        )
+
+        assert deployed == 1
+        assert (clone / "skel" / "etc" / "stunnel" / "server.conf").read_text() == "cert = site\n"
+        # The site home itself must stay untouched -- creating skel/ there
+        # is exactly the EACCES failure on a real site.
+        assert not (site.root / "skel").exists()
+
+    def test_share_dest_matches_the_site_home_symlink(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The version anchor reaches the same tree the share symlink exposes."""
+        site, clone = _make_site(tmp_path)
+        repo = tmp_path / "repo"
+        src = repo / "agents" / "plugins"
+        src.mkdir(parents=True)
+        (src / "mk_docker.py").write_text("plugin")
+
+        deployed = self._deploy(
+            monkeypatch,
+            repo,
+            site,
+            _spec(
+                source_prefix="agents/",
+                site_dest="share/check_mk/agents/plugins/",
+                files=(
+                    ConfigFileEntry(
+                        src="agents/plugins/mk_docker.py",
+                        dest="share/check_mk/agents/plugins/mk_docker.py",
+                        mode="0755",
+                    ),
+                ),
+            ),
+        )
+
+        assert deployed == 1
+        assert (clone / "share" / "check_mk" / "agents" / "plugins" / "mk_docker.py").is_file()
+        # Reachable exactly where the site serves it from.
+        assert (site.root / "share" / "check_mk" / "agents" / "plugins" / "mk_docker.py").is_file()
+
+    def test_spec_without_copyable_files_creates_no_directories(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A prefix-matched spec whose listed sources are absent is a no-op."""
+        site, clone = _make_site(tmp_path)
+        repo = tmp_path / "repo"
+        (repo / "agents" / "windows").mkdir(parents=True)
+
+        deployed = self._deploy(
+            monkeypatch,
+            repo,
+            site,
+            _spec(
+                source_prefix="agents/windows/",
+                site_dest="share/check_mk/agents/windows/",
+                files=(
+                    ConfigFileEntry(
+                        src="agents/windows/not_checked_in.exe",
+                        dest="share/check_mk/agents/windows/not_checked_in.exe",
+                        mode="0755",
+                    ),
+                ),
+                delete_extra=True,
+            ),
+        )
+
+        assert deployed == 1
+        assert not (clone / "share" / "check_mk").exists()
 
 
 class TestInstallFilesRenames:

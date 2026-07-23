@@ -36,7 +36,10 @@ const props = defineProps<{
   columns: ColumnDef<T>[]
   getRowKey: (row: T, index: number) => string | number
   rowHeight?: string
-  /** Expanded state per row key; each expanded row renders the `#expansion` slot beneath it. */
+  /**
+   * Expanded state per row key. Each expanded row renders the `#expansion` slot beneath it;
+   * the slot must supply its own `<tr>` element(s).
+   */
   expandedRows?: Record<string, boolean>
 }>()
 
@@ -156,9 +159,9 @@ function isRowExpanded(row: T, index: number): boolean {
         >
           <slot name="row" :row="row" :table-row="tableRowAt(index)" :index="index" />
         </tr>
-        <tr v-if="isRowExpanded(row, index)" class="monitoring-editable-table__expansion-row">
+        <template v-if="isRowExpanded(row, index)">
           <slot name="expansion" :row="row" :table-row="tableRowAt(index)" :index="index" />
-        </tr>
+        </template>
       </tbody>
       <tfoot v-if="$slots.footer">
         <tr class="monitoring-editable-table__footer-row">
@@ -219,10 +222,6 @@ body[data-theme='facelift']
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 body[data-theme='facelift'] .monitoring-editable-table__row-group--dragging :deep(td) {
   background-color: var(--color-light-blue-0);
-}
-
-.monitoring-editable-table__expansion-row {
-  background: transparent;
 }
 
 /* stylelint-disable-next-line selector-pseudo-class-no-unknown */

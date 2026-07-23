@@ -49,7 +49,7 @@ def test_to_cmk_time_series_graph_shell() -> None:
     graph = Graph(
         name="mygraph",
         title="My Graph",
-        graph_type="template",
+        kind="template",
         stacks=[
             Stack(
                 members=[

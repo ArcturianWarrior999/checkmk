@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "api_config",
@@ -124,5 +125,14 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-licensing",
         requirement("werkzeug"),
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":framework",
+        ":types",
     ],
 )

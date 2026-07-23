@@ -9,8 +9,8 @@ import CmkDonutChart from '@/network-flow/CmkDonutChart/CmkDonutChart.vue'
 import type { DonutSlice } from '@/network-flow/CmkDonutChart/types'
 
 const SLICES: DonutSlice[] = [
-  { key: 'tls', label: 'TLS', value: 90, color: 'rgb(1, 2, 3)' },
-  { key: 'other', label: 'Other', value: 60, color: 'rgb(4, 5, 6)' }
+  { key: 'tls', label: 'TLS', value: 90, color: 'green' },
+  { key: 'other', label: 'Other', value: 60, color: 'grey' }
 ]
 
 function renderChart(slices: DonutSlice[] = SLICES) {
@@ -52,7 +52,8 @@ test('colors each arc segment with its slice color', () => {
   const strokes = [...container.querySelectorAll<SVGCircleElement>('circle')].map((el) =>
     el.getAttribute('stroke')
   )
-  expect(strokes).toEqual(['rgb(1, 2, 3)', 'rgb(4, 5, 6)'])
+  // The named colors resolve to their theme palette CSS variables.
+  expect(strokes).toEqual(['var(--color-corporate-green-50)', 'var(--color-mid-grey-50)'])
 })
 
 test('renders an empty track and no center when there are no slices', () => {

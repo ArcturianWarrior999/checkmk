@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "speaklater",
@@ -93,6 +94,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -432,6 +434,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -488,6 +491,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -528,5 +532,15 @@ py_library(
         "//packages/cmk-ccc:site",
         "//packages/cmk-livestatus-client",
         "//packages/cmk-ruleset-matcher",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":labels",
+        ":permission_verification",
+        ":urls",
     ],
 )

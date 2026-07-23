@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "availability",
@@ -34,4 +35,10 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-livestatus-client",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":availability"],
 )

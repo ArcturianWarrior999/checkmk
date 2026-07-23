@@ -906,9 +906,9 @@ class SNMPCredentials(CmkOneOfSchema):
         ('authPriv', 'md5', 'foo', 'barbarbar', 'DES', 'barbarbar')
 
         >>> rv = schema.dump(('authPriv', 'md5', 'foo', 'barbarbar', 'DES', 'barbaric'))
-        >>>
-        {'type': 'v3_auth_privacy', 'security_name': 'foo', 'auth_password': 'barbarbar', \
-'auth_protocol': 'MD5-96', 'privacy_protocol': 'CBC-DES', 'privacy_password': 'barbaric'}
+        >>> rv
+        {'type': 'v3_auth_privacy', 'auth_protocol': 'MD5-96', 'security_name': 'foo', \
+'auth_password': 'barbarbar', 'privacy_protocol': 'CBC-DES', 'privacy_password': 'barbaric'}
 
         >>> schema.load(rv)
         ('authPriv', 'md5', 'foo', 'barbarbar', 'DES', 'barbaric')
@@ -922,6 +922,8 @@ class SNMPCredentials(CmkOneOfSchema):
 
     """
 
+    # The sub-schemas require their type field, so it must survive loading.
+    type_field_remove = False
     type_schemas = {
         "v1_v2_community": SNMPCommunity,
         "v3_no_auth_no_privacy": SNMPv3NoAuthNoPrivacy,

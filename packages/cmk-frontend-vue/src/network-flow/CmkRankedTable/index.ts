@@ -6,6 +6,7 @@
 import CmkRankedTable from './CmkRankedTable.vue'
 
 export default CmkRankedTable
+export type { ChartColor } from '../colors'
 export type {
   CmkRankedTableProps,
   RankedTableCellRender,

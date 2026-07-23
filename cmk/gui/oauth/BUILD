@@ -13,8 +13,13 @@ py_library(
     ],
     deps = [
         requirement("pydantic"),
+        requirement("redis"),
         "//cmk/gui:core_toolkit",
         "//cmk/gui:page_toolkit",
+        "//cmk/gui/utils:csrf_token",
+        "//cmk/utils:paths",
+        "//cmk/utils:redis",
         "//packages/cmk-ccc:site",
+        "//packages/cmk-ccc:store",
     ],
 )

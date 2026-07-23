@@ -61,7 +61,7 @@ class Rule:
 class Graph:
     name: str
     title: str
-    graph_type: str
+    kind: str
     vertical_range: VerticalRange | None = None
     stacks: Sequence[Stack] = ()
     lines: Sequence[Line] = ()

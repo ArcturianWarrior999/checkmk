@@ -14,36 +14,26 @@ const { _t } = usei18n()
 
 const monitoringService = inject(MONITORING_SERVICE)
 
-const truncated = computed(
+const narrowed = computed(
   () =>
-    (monitoringService?.resultsTruncated.value ?? false) &&
-    monitoringService?.fetchState.value !== 'foreground'
+    (monitoringService?.filters.activeFilterCount ?? 0) > 0 ||
+    (monitoringService?.committedSearchQuery.value ?? '') !== ''
 )
 
-const visible = computed(() => (monitoringService?.matched.value ?? 0) > 0)
+const matched = computed(() => monitoringService?.matched.value ?? 0)
 
-const label = computed(() => {
-  const count = monitoringService?.matched.value ?? 0
-  const total = monitoringService?.total.value ?? 0
-  const hasSearch = (monitoringService?.committedSearchQuery.value ?? '') !== ''
-  const filterCount = monitoringService?.filters.activeFilterCount ?? 0
-  if (filterCount > 0 || hasSearch) {
-    return _t('Rows matching your criteria: %{count} | Total rows: %{total}', { count, total })
-  }
-  return _t('Total rows: %{total}', { total })
-})
+const visible = computed(() => narrowed.value && matched.value > 0)
+
+const label = computed(() => _t('Rows matching your criteria: %{count}', { count: matched.value }))
 </script>
 
 <template>
-  <p v-if="!truncated" class="monitoring-results-count" aria-live="polite">
-    {{ visible ? label : '\xa0' }}
-  </p>
+  <p class="monitoring-results-count" aria-live="polite">{{ visible ? label : '' }}</p>
 </template>
 
 <style scoped>
 .monitoring-results-count {
+  min-height: 1lh;
   margin: 0;
-  color: var(--font-color-dimmed);
-  font-size: var(--font-size-small);
 }
 </style>

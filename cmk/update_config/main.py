@@ -35,8 +35,7 @@ from cmk.gui.exceptions import MKUserError
 from cmk.gui.log import logger as gui_logger
 from cmk.gui.request_globals import set_global_vars
 from cmk.gui.session_context import SuperUserContext
-from cmk.gui.site_config import is_distributed_setup_remote_site
-from cmk.gui.user_sites import activation_sites
+from cmk.gui.site_config import all_activation_sites, is_distributed_setup_remote_site
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
 from cmk.gui.watolib.automations import ENV_VARIABLE_FORCE_CLI_INTERFACE
 from cmk.gui.watolib.config_domain_name import CORE
@@ -320,7 +319,7 @@ def update_config(edition: Edition, logger: logging.Logger) -> Literal[0, 1]:
         if not has_errors and not is_distributed_setup_remote_site(active_config.sites):
             # Force synchronization of the config after a successful configuration update
             PendingChanges(
-                activation_sites=activation_sites(active_config.sites),
+                activation_sites=all_activation_sites(active_config.sites),
                 local_site=omd_site(),
                 acting_user=None,
                 store=PendingChangesStore(),

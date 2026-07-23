@@ -26,16 +26,14 @@ from ._engine_dispatch import (
     CommonGraphOptions,
     EngineGraphDispatcher,
     EvaluatedGraphs,
-    GraphDataRequest,
 )
 from ._engine_plugins import registered_translations
 from ._engine_rrd import EngineRRDFetchData
 from ._engine_serialization import (
     graph_codec,
+    GraphCodec,
 )
 from ._from_api import GraphFromAPI
-
-_CODEC = graph_codec()
 
 
 def _assert_uniform_unit(graph: Graph) -> None:
@@ -69,7 +67,7 @@ def build_template_graphs(
         services=[service],
         localizer=translate_to_current_language,
         fetch_metric_names=fetch_metric_names,
-        graph_type="template",
+        kind="template",
         registered_graphs=registered_graphs,
         registered_metrics=registered_metrics,
     )
@@ -92,16 +90,17 @@ def evaluate_template_graphs(
     )
 
 
-def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
+def _dispatched_evaluate_template_graphs(
+    *, codec: GraphCodec, graph: Mapping[str, object], options: Mapping[str, object]
+) -> EvaluatedGraphs:
     fetch_data = EngineRRDFetchData(
-        site_id=None,
         debug=active_config.debug,
         registered_translations=registered_translations(),
     )
     return EvaluatedGraphs(
         graphs=evaluate_template_graphs(
-            graphs=_CODEC.deserialize_graphs(request.graphs),
-            options=CommonGraphOptions.from_request_options(request.options),
+            graphs=[codec.deserialize_graph(graph)],
+            options=CommonGraphOptions.from_request_options(options),
             fetch_data=fetch_data,
         ),
         diagnostics=fetch_data.diagnostics,
@@ -109,7 +108,7 @@ def _dispatched_evaluate_template_graphs(request: GraphDataRequest) -> Evaluated
 
 
 TEMPLATE_GRAPH_DISPATCHER = EngineGraphDispatcher(
-    graph_type="template",
-    serialize=_CODEC.serialize_graphs,
+    kind="template",
+    codec=graph_codec(),
     evaluate=_dispatched_evaluate_template_graphs,
 )

@@ -253,7 +253,7 @@ def test_rotate_site_ca(
 
     with (
         patch(
-            "cmk.gui.cmkcert.cmkcert_rotate.activation_sites",
+            "cmk.gui.cmkcert.cmkcert_rotate.all_activation_sites",
             return_value=SiteConfigurations({}),
         ),
         patch("cmk.gui.cmkcert.cmkcert_rotate.PendingChanges") as mock_pending_changes,

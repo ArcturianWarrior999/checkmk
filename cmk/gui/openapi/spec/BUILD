@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "utils",
@@ -37,4 +38,10 @@ py_library(
         requirement("marshmallow-oneofschema"),
         requirement("pydantic"),
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":spec"],
 )

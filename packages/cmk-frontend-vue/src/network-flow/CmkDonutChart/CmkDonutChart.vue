@@ -6,6 +6,7 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { chartColorCss } from '../colors'
 import type { CmkDonutChartProps } from './types'
 
 const props = defineProps<CmkDonutChartProps>()
@@ -42,7 +43,7 @@ const segments = computed<Segment[]>(() => {
     const dash = (slice.value / total.value) * CIRCUMFERENCE
     const segment: Segment = {
       key: slice.key,
-      color: slice.color,
+      color: chartColorCss(slice.color),
       dash,
       gap: CIRCUMFERENCE - dash,
       offset: -consumed
@@ -111,7 +112,7 @@ const topSlice = computed(() => props.slices[0])
       >
         <span
           class="network-flow-cmk-donut-chart__swatch"
-          :style="{ backgroundColor: slice.color }"
+          :style="{ backgroundColor: chartColorCss(slice.color) }"
         />
         <span class="network-flow-cmk-donut-chart__legend-label">{{ slice.label }}</span>
         <span class="network-flow-cmk-donut-chart__legend-value">{{

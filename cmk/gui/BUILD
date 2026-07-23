@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "core_toolkit",
@@ -35,6 +36,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -79,6 +81,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -145,6 +148,7 @@ py_library(
         "//omd/packages:__subpackages__",
         "//omd/packages/appliance:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -164,6 +168,7 @@ py_library(
         "//packages/cmk-check-engine/cmk/checkengine/discovery",
         "//packages/cmk-licensing",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-profiling:backend",
         requirement("flask"),
         requirement("pydantic"),
     ],
@@ -194,6 +199,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -501,6 +507,7 @@ py_library(
         "//cmk:__subpackages__",
         "//non-free/packages:__subpackages__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//tests:__subpackages__",
     ],
     deps = [
@@ -852,5 +859,15 @@ sh_library(
     name = "f12",
     srcs = [
         ".f12",
+    ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [
+        ":auth",
+        ":config",
+        ":core_toolkit",
     ],
 )

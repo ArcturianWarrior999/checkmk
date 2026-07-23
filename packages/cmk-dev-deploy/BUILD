@@ -1,7 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_python//python:packaging.bzl", "py_wheel")
-load("//bazel/rules:package_wheel.bzl", "package_wheel")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
 
@@ -83,35 +82,19 @@ py_cmk_test(
 )
 
 py_wheel(
-    name = "wheel",
-    distribution = "cmk-dev-deploy",
-    strip_path_prefixes = ["packages/cmk-dev-deploy"],
-    # TODO: Duplicated from pyproject.toml
-    version = "1.0.0",
-    deps = [":cmk-dev-deploy"],
-)
-
-py_wheel(
     name = "wheel_entrypoint_only",
-    console_scripts = {
-        "cmk-dev-deploy": "cmk.dev_deploy.__main__:main",
-    },
     distribution = "cmk-dev-deploy-entrypoint",
+    entry_points = {
+        "console_scripts": ["cmk-dev-deploy = cmk.dev_deploy.__main__:main"],
+    },
     version = "1.0.0",
     visibility = ["//visibility:public"],
     deps = [],
 )
 
-package_wheel(
-    name = "pkg_tar",
-    visibility = ["//visibility:public"],
-    whl = "wheel",
-)
-
 build_test(
     name = "build_test",
     targets = [
-        ":wheel",
         ":wheel_entrypoint_only",
     ],
 )

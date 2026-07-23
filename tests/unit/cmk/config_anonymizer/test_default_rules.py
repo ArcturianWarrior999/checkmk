@@ -85,7 +85,6 @@ def test_default_rule_values_are_valid(
             "ALL_SERVICES": ALL_SERVICES,
             "NEGATE": NEGATE,
             "FOLDER_PATH": "",
-            **RulesetCollection._prepare_empty_rulesets(),
         },
         lock=False,
     )

@@ -1,4 +1,5 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
+load("@cmk_requirements//:requirements.bzl", "requirement")
 load("//bazel/rules:py_cmk_test.bzl", "py_cmk_test")
 
 # Owns __init__.py so the source-presence check finds it without putting it in
@@ -14,6 +15,7 @@ py_cmk_test(
     name = "change_quality",
     size = "small",
     srcs = [
+        "test_check_gaps.py",
         "test_components.py",
         "test_detect_test.py",
         "test_detect_test_rust.py",
@@ -31,7 +33,10 @@ py_cmk_test(
     tags = ["no-sandbox"],
     use_project_pytest_config = True,
     deps = [
+        "//packages/cmk-werks:tool",
         "//tests/qa_metrics/change_quality",
+        "//tests/qa_metrics/change_quality:check_gaps_lib",
         "//tests/unit/qa_metrics",
+        requirement("psycopg"),
     ],
 )

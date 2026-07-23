@@ -380,7 +380,6 @@ def register(
     )
     welcome.register(page_registry, snapin_registry)
     search_registration.register(
-        edition,
         page_registry,
         job_registry,
         match_plugin_registry,

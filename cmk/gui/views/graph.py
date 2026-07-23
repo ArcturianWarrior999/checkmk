@@ -315,7 +315,6 @@ def _paint_time_graph_cmk(
             registered_graphs=engine_plugins.registered_graphs(),
             registered_metrics=engine_plugins.registered_metrics(),
             fetch_metric_names=EngineRRDFetchMetricNames(
-                site_id=row["site"],
                 debug=debug,
                 registered_translations=engine_plugins.registered_translations(),
             ),

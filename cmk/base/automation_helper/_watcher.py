@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import contextlib
+import logging
 import time
 from collections.abc import Generator, Sequence
 
@@ -13,7 +14,8 @@ from watchdog.observers.inotify_buffer import InotifyBuffer
 
 from ._cache import Cache, CacheError
 from ._config import WatcherConfig
-from ._log import LOGGER
+
+LOGGER = logging.getLogger(__name__)
 
 # When a file or folder is moved, two events are created: IN_MOVED_FROM and IN_MOVED_TO.
 # watchdog tries to combine these two events into a single move event. In case it received
@@ -45,8 +47,8 @@ def run(config: WatcherConfig, cache: Cache) -> Generator[None]:
         observer.start()
         LOGGER.info("[watcher] Operational")
         yield
-    except Exception as err:
-        LOGGER.error("[watcher] Error while starting observer", exc_info=err)
+    except Exception:
+        LOGGER.exception("[watcher] Error while starting observer")
     finally:
         LOGGER.info("[watcher] Shutting down")
         observer.stop()
@@ -85,15 +87,18 @@ class _AutomationWatcherHandler(PatternMatchingEventHandler):
     def _store_last_detected_change(self, time: float) -> None:
         try:
             self._cache.store_last_detected_change(time)
-        except CacheError as err:
-            LOGGER.error("[watcher] Cache failure", exc_info=err)
+        except CacheError:
+            LOGGER.exception("[watcher] Cache failure")
 
     @classmethod
     def _log_handled_event(cls, event: FileSystemEvent) -> None:
         LOGGER.info(
-            f"[watcher] Source: {_decode_if_necessary(event.src_path) or 'n/a'}, "
-            f"destination: {_decode_if_necessary(event.dest_path) or 'n/a'}, "
-            f"type: {event.event_type}"
+            "[watcher] Source: %(src_path)s, destination: %(dest_path)s, type: %(type)s",
+            {
+                "src_path": _decode_if_necessary(event.src_path) or "n/a",
+                "dest_path": _decode_if_necessary(event.dest_path) or "n/a",
+                "type": event.event_type,
+            },
         )
 
 

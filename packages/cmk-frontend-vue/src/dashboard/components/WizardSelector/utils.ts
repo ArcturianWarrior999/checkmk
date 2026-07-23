@@ -72,7 +72,9 @@ export function widgetTypeToSelectorMatcher(
     }
 
     case 'network_flow_top_table':
-    case 'network_flow_donut': {
+    case 'network_flow_donut':
+    case 'network_flow_kpi_stat_card':
+    case 'network_flow_trend_chart': {
       return 'network_flow'
     }
 

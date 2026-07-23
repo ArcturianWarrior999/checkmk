@@ -15,7 +15,8 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
-from contextlib import suppress
+from contextlib import redirect_stdout, suppress
+from dataclasses import fields
 from pathlib import Path
 from typing import Final, Literal, NamedTuple, TypedDict
 
@@ -59,6 +60,7 @@ from cmk.ccc.hostaddress import HostAddress, HostName, Hosts
 from cmk.ccc.store import activation_lock
 from cmk.ccc.timeout import Timeout
 from cmk.checkengine import inventory
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checking import (
     execute_checkmk_checks,
     make_timing_results,
@@ -664,6 +666,7 @@ def _mode_dump_agent(
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
 
     host_labels = label_manager.labels_of_host(hostname)
@@ -909,6 +912,7 @@ def _mode_dump_hosts(app: CheckmkBaseApp, hostlist: Iterable[HostName]) -> None:
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
     for hostname in sorted(hosts - all_hosts):
         sys.stderr.write(f"unknown host: {hostname}\n")
@@ -1557,6 +1561,7 @@ def _mode_dump_nagios_config(app: CheckmkBaseApp, args: Sequence[HostName]) -> N
             ),
             service_name_config,
             plugins.check_plugins,
+            label_manager.labels_of_service,
         ),
         plugins.check_plugins,
         hostnames=hostnames,
@@ -1634,6 +1639,7 @@ def _mode_update(app: CheckmkBaseApp) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1658,6 +1664,7 @@ def _mode_update(app: CheckmkBaseApp) -> None:
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
 
     try:
@@ -1703,6 +1710,12 @@ def _mode_update(app: CheckmkBaseApp) -> None:
                 ),
                 bake_on_restart=bake_on_restart,
                 notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+                checker_config_writer=make_packed_config_writer(
+                    raw_config,
+                    hosts_config,
+                    is_online=loading_result.config_cache.is_online,
+                    is_active=loading_result.config_cache.is_active,
+                ),
             )
     except Exception as e:
         console.error(f"Configuration Error: {e}", file=sys.stderr)
@@ -1744,6 +1757,7 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1779,6 +1793,7 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
             ),
             passive_service_name_config,
             plugins.check_plugins,
+            label_manager.labels_of_service,
         ),
         ip_lookup_config.ip_stack_config,
         ip_lookup_config.default_address_family,
@@ -1810,6 +1825,12 @@ def _mode_restart(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+        checker_config_writer=make_packed_config_writer(
+            raw_config,
+            hosts_config,
+            is_online=loading_result.config_cache.is_online,
+            is_active=loading_result.config_cache.is_active,
+        ),
     )
     for warning in ip_address_of.error_handler.format_errors():
         console.warning(tty.format_warning(f"\n{warning}"))
@@ -1845,6 +1866,7 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
     plugins = load_checks()
     loading_result = load_config(app.edition)
     loaded_config = loading_result.loaded_config
+    raw_config = {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)}
     ruleset_matcher = loading_result.config_cache.ruleset_matcher
     label_manager = loading_result.config_cache.label_manager
     core_objects_config = config.CoreObjectsConfig(loaded_config, ruleset_matcher, label_manager)
@@ -1880,6 +1902,7 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
             ),
             passive_service_name_config,
             plugins.check_plugins,
+            label_manager.labels_of_service,
         ),
         ip_lookup_config.ip_stack_config,
         ip_lookup_config.default_address_family,
@@ -1911,6 +1934,12 @@ def _mode_reload(app: CheckmkBaseApp, args: Sequence[HostName]) -> None:
         ),
         bake_on_restart=app.make_bake_on_restart(loading_result, hosts_config.hosts),
         notify_relay=_make_configured_notify_relay(bool(loaded_config.relays)),
+        checker_config_writer=make_packed_config_writer(
+            raw_config,
+            hosts_config,
+            is_online=loading_result.config_cache.is_online,
+            is_active=loading_result.config_cache.is_active,
+        ),
     )
     for warning in ip_address_of.error_handler.format_errors():
         console.warning(tty.format_warning(f"\n{warning}"))
@@ -2052,20 +2081,6 @@ def _mode_automation(app: CheckmkBaseApp, args: list[str]) -> int:
     if not args:
         raise MKAutomationError("You need to provide arguments")
 
-    # At least for the automation calls that buffer and handle the stdout/stderr on their own
-    # we can now enable this. In the future we should remove this call for all automations calls and
-    # handle the output in a common way.
-    if args[0] not in [
-        "restart",
-        "reload",
-        "start",
-        "create-diagnostics-dump",
-        "service-discovery-preview",
-    ]:
-        log.logger.handlers[:] = []
-        log.logger.addHandler(logging.NullHandler())
-        log.logger.setLevel(logging.INFO)
-
     name, automation_args = AutomationID(args[0]), args[1:]
     automations = Automations(discover_automations())
     with tracer.span(
@@ -2076,7 +2091,15 @@ def _mode_automation(app: CheckmkBaseApp, args: list[str]) -> int:
         },
     ):
         try:
-            result = automations.execute(app, name, automation_args)
+            # The automation result is transmitted to the caller exclusively via
+            # stdout (see the serialize() call below) and parsed back with
+            # ast.literal_eval(). Any output an automation handler writes to stdout
+            # while running - e.g. the agent bakery's verbose progress when the
+            # subprocess is invoked with "-vv" - would therefore corrupt the
+            # serialized result. Redirect it to stderr, the channel the caller treats
+            # as diagnostics, so stdout only ever carries the parseable result.
+            with redirect_stdout(sys.stderr):
+                result = automations.execute(app, name, automation_args)
         finally:
             profiling.output_profile()
         if isinstance(result, AutomationError):
@@ -2145,6 +2168,7 @@ def _mode_check_discovery(
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
 
     discovery_config = DiscoveryConfig(
@@ -2501,6 +2525,7 @@ def _mode_discover(app: CheckmkBaseApp, options: _DiscoveryOptions, args: list[s
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
     ip_lookup_config = config_cache.ip_lookup_config()
     ip_address_of = ip_lookup.ConfiguredIPLookup(
@@ -2819,6 +2844,7 @@ def run_checking(
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
     logger = logging.getLogger("cmk.base.checking")
     fetcher = CMKFetcher(
@@ -3085,6 +3111,7 @@ def _mode_inventory(app: CheckmkBaseApp, options: _InventoryOptions, args: list[
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
     ip_lookup_config = config_cache.ip_lookup_config()
     ip_address_of = ip_lookup.ConfiguredIPLookup(
@@ -3433,6 +3460,7 @@ def _mode_inventorize_marked_hosts(app: CheckmkBaseApp, options: Mapping[str, ob
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )  # not obvious to me why/if we *really* need this
     ip_lookup_config = config_cache.ip_lookup_config()
     ip_address_of = ip_lookup.ConfiguredIPLookup(

@@ -29,14 +29,19 @@ function idFromIndex(index: number): ItemId {
   return id
 }
 
-function nextId(items: readonly DesignerItem[]): ItemId {
-  const used = new Set(items.map((item) => item.id))
-  for (let i = 0; ; i++) {
-    const candidate = idFromIndex(i)
-    if (!used.has(candidate)) {
-      return candidate
-    }
+/** Inverse of {@link idFromIndex}: A -> 0, Z -> 25, AA -> 26, ... */
+function indexFromId(id: ItemId): number {
+  let n = 0
+  for (const char of id) {
+    n = n * 26 + (char.charCodeAt(0) - CHAR_CODE_A + 1)
   }
+  return n - 1
+}
+
+/** Id after the highest one in use; a removed id only recurs once nothing above it remains. */
+function nextId(items: readonly DesignerItem[]): ItemId {
+  const highest = items.reduce((max, item) => Math.max(max, indexFromId(item.id)), -1)
+  return idFromIndex(highest + 1)
 }
 
 /** Picks the least-used palette color, preferring earlier entries on ties (unused counts as zero). */

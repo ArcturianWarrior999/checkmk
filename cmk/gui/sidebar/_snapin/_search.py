@@ -16,7 +16,7 @@ from cmk.gui.i18n import _
 from cmk.gui.log import logger
 from cmk.gui.pages import PageContext
 from cmk.gui.permissions import permission_registry
-from cmk.gui.search.engines.livestatus import (
+from cmk.gui.search.quicksearch import (
     ABCQuicksearchConductor,
     get_url_builder,
     IncorrectLabelInputError,

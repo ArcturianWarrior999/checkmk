@@ -165,10 +165,7 @@ class WMITable:
         row: str | int,
         column: str | int,
     ) -> str | None:
-        if isinstance(row, int):
-            row_index = row
-        else:
-            row_index = self.__row_lookup[row]
+        row_index = row if isinstance(row, int) else self.__row_lookup[row]
 
         if isinstance(column, int):
             col_index = column

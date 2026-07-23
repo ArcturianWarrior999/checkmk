@@ -1,7 +1,8 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc", "rust_library", "rust_test", "rust_test_suite")
+load("@rules_rust//rust:defs.bzl", "rust_doc", "rust_library", "rust_test", "rust_test_suite")
 load("@site_crates//:defs.bzl", "aliases", "all_crate_deps")
 load("//bazel/rules:file_from_flag.bzl", "file_from_flag")
+load("//bazel/rules:xcomp/rust.bzl", "rust_binary")
 
 file_from_flag(
     name = "version.rs",
@@ -125,9 +126,11 @@ rust_binary(
     aliases = aliases(),
     crate_name = "check_cert",
     edition = "2021",
+    opt = True,
     proc_macro_deps = all_crate_deps(
         proc_macro = True,
     ),
+    strip = True,
     visibility = ["//visibility:public"],
     deps = all_crate_deps() + [":check-cert-lib"],
 )

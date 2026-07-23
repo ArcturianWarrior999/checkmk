@@ -21,6 +21,8 @@ py_library(
         "//cmk/gui/openapi/framework:core",
         "//cmk/gui/openapi/framework:types",
         "//cmk/gui/openapi/restful_objects",
+        "//cmk/gui/search:matchers",
+        "//cmk/gui/search:permissions",
         "//cmk/gui/utils:flashed_messages",
         "//cmk/gui/utils:html",
         "//cmk/gui/utils:permission_verification",

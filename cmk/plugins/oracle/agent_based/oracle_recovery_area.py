@@ -46,10 +46,7 @@ def check_oracle_recovery_area(
             continue
         if line[0] == item:
             size_mb, used_mb, reclaimable_mb = map(int, line[2:5])
-            if size_mb == 0:
-                perc_used = 0.0
-            else:
-                perc_used = float(used_mb - reclaimable_mb) / size_mb * 100
+            perc_used = 0.0 if size_mb == 0 else float(used_mb - reclaimable_mb) / size_mb * 100
 
             warn, crit = params["levels"]
             warn_mb = size_mb * warn / 100

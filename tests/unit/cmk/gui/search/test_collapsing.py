@@ -5,7 +5,7 @@
 
 from polyfactory.factories import DataclassFactory
 
-from cmk.gui.search.collapsing import get_collapser
+from cmk.gui.search._collapsing import get_collapser
 from cmk.shared_typing.unified_search import (
     ProviderName,
     UnifiedSearchResultCounts,

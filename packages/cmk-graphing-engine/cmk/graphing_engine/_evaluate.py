@@ -6,14 +6,14 @@
 import colorsys
 import enum
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import assert_never
 
 from ._graph import Bound, Curve, FixedRange, Graph, MinimalRange, Rule, VerticalRange
 from ._options import ConsolidationFunction, TimeRange
-from ._perfdata import TimeSeries
-from ._quantities import EvaluationContext, Quantity
+from ._perfdata import MACRO_SERIES_ID, TimeSeries
+from ._quantities import EvaluationContext, first_value, Quantity
 from ._source import fetch_evaluation_context, RRDFetchData
 from ._title import evaluate_title
 from ._units import CurveAttributes
@@ -76,8 +76,7 @@ def _evaluate_bound(bound: Bound | None, context: EvaluationContext) -> float | 
         return None
     if isinstance(bound, int | float):
         return float(bound)
-    evaluated = bound.evaluate(context)
-    return evaluated[0].value if evaluated else None
+    return first_value(bound.evaluate(context))
 
 
 def _evaluate_vertical_range(
@@ -113,17 +112,27 @@ def _distinct_color(index: int) -> str:
     return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
 
 
-def _fanned_title(title: str, label: str) -> str:
-    if not label:
-        return title
-    return f"{title} - {label}" if title else label
+def _resolve_series_title(title: str, label_macros: Mapping[str, str], *, fanned: bool) -> str:
+    resolved = title
+    for macro, value in label_macros.items():
+        resolved = resolved.replace(macro, value)
+    if resolved != title:
+        # The title carried macros (e.g. a query line) - resolve them per series, at any count.
+        return resolved
+    if fanned and (series_id := label_macros.get(MACRO_SERIES_ID, "")):
+        # A macro-less title fanned into several series (e.g. a combined graph) - fall back to
+        # appending the series id so the curves stay distinguishable.
+        return f"{title} - {series_id}" if title else series_id
+    return title
 
 
-def _fanned_attributes(attributes: CurveAttributes, index: int, label: str) -> CurveAttributes:
+def _series_attributes(
+    attributes: CurveAttributes, *, index: int, fanned: bool, label_macros: Mapping[str, str]
+) -> CurveAttributes:
     return CurveAttributes(
-        title=_fanned_title(attributes.title, label),
+        title=_resolve_series_title(attributes.title, label_macros, fanned=fanned),
         unit=attributes.unit,
-        color=_distinct_color(index),
+        color=_distinct_color(index) if fanned else attributes.color,
     )
 
 
@@ -135,10 +144,8 @@ def _evaluate_curve(
     return [
         EvaluatedCurve(
             id=_create_id(curve.quantity, inverse=inverse, seen=seen),
-            attributes=(
-                _fanned_attributes(curve.attributes, index, evaluated.label)
-                if fanned
-                else curve.attributes
+            attributes=_series_attributes(
+                curve.attributes, index=index, fanned=fanned, label_macros=evaluated.label_macros
             ),
             value=evaluated.value,
             time_series=evaluated.time_series,
@@ -149,13 +156,13 @@ def _evaluate_curve(
 
 
 def _evaluate_rule(rule: Rule, rule_id: str, context: EvaluationContext) -> EvaluatedRule | None:
-    evaluated = rule.curve.quantity.evaluate(context)
-    if not evaluated or evaluated[0].value is None:
+    value = first_value(rule.curve.quantity.evaluate(context))
+    if value is None:
         return None
     return EvaluatedRule(
         id=rule_id,
         attributes=rule.curve.attributes,
-        value=evaluated[0].value,
+        value=value,
         inverse=rule.inverse,
     )
 

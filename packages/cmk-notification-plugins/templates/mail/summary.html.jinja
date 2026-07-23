@@ -5,11 +5,11 @@
               border: 1px solid #e5e5e5;
               border-collapse: separate;
               border-top: 8px solid {% if service_notification %} {{ state_mapping.get(data.SERVICESTATE, 'background-color: #888888;
-               color: #ffffff;
-               ').split('background-color: ')[1].split(';
+              color: #ffffff;
+              ').split('background-color: ')[1].split(';
               ')[0] }} {% else %} {{ state_mapping.get(data.HOSTSTATE, 'background-color: #888888;
-               color: #ffffff;
-               ').split('background-color: ')[1].split(';
+              color: #ffffff;
+              ').split('background-color: ')[1].split(';
               ')[0] }} {% endif %}">
     <tr>
         <td style="margin:0; padding: 10px 0 5px 0;">
@@ -77,12 +77,8 @@
                     </tr>
                 {% endif %}
                 <tr>
-                    <td {{ macros.td_first_child(width='80px', padding='8px') }}>
-                        Host:
-                    </td>
-                    <td {{ macros.td_last_child() }}>
-                        {{ data.HOSTNAME_AND_ALIAS_HTML | safe }}
-                    </td>
+                    <td {{ macros.td_first_child(width='80px', padding='8px') }}>Host:</td>
+                    <td {{ macros.td_last_child() }}>{{ data.HOSTNAME_AND_ALIAS_HTML | safe }}</td>
                 </tr>
             </table>
         </td>

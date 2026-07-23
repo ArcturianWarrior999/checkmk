@@ -9,7 +9,8 @@ from collections.abc import Iterable
 
 from cmk.ccc.exceptions import MKException
 from cmk.gui.i18n import _
-from cmk.gui.search.engines.livestatus import (
+from cmk.gui.search.matchers import match_plugin_registry
+from cmk.gui.search.quicksearch import (
     ABCLivestatusMatchPlugin,
     ABCQuicksearchConductor,
     BasicPluginQuicksearchConductor,
@@ -19,7 +20,6 @@ from cmk.gui.search.engines.livestatus import (
     UrlBuilder,
     UsedFilters,
 )
-from cmk.gui.search.matchers import match_plugin_registry
 from cmk.gui.type_defs import HTTPVariables, SearchQuery, SearchResultsByTopic
 from cmk.gui.utils.roles import UserPermissions
 

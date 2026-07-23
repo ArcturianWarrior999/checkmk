@@ -3,9 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import NewType, Self
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
+from typing import Final, NewType, Self
 
 from ._options import TimeRange
 
@@ -33,6 +33,9 @@ class MetricName(str):
 
 @dataclass(frozen=True, kw_only=True)
 class Service:
+    # The monitoring site the service lives on, when known. Carried through matching so the metrics
+    # built for the service can be tagged with it; None means "site not (yet) known".
+    site_id: SiteID | None = None
     host_name: HostName
     service_name: ServiceName
 
@@ -54,10 +57,16 @@ class TimeSeries:
     values: Sequence[float | None]
 
 
+# The one macro spelling the engine itself knows: a macro-less title fanned into several series
+# falls back to appending this macro's value so the curves stay distinguishable.
+MACRO_SERIES_ID: Final = "$SERIES_ID$"
+
+
 @dataclass(frozen=True, kw_only=True)
 class FetchedData:
     performance_data: PerformanceData | None
     time_series: TimeSeries | None
-    # Identifies the fetched series when a fan-out leaf produces several of them (empty for a
-    # single series); carried through to the evaluated curve's label.
-    label: str = ""
+    # Per-series title macros carried by a fan-out leaf's series (empty for a single, non-fanned
+    # series). The fetch layer names them (e.g. $HOST_NAME$, MACRO_SERIES_ID); the engine only
+    # substitutes whatever it is handed into the curve title.
+    label_macros: Mapping[str, str] = field(default_factory=dict)

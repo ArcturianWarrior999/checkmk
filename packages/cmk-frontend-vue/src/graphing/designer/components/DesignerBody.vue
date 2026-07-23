@@ -33,7 +33,17 @@ import MetricsTable from './MetricsTable.vue'
 /** Fallback until the container is measured (e.g. non-DOM test environments). */
 const DEFAULT_FIGURE_WIDTH = 1000
 
-const { graph, graphName, etag, ownerParam, mode, palette, thresholds } = defineProps<{
+const {
+  graph,
+  graphName,
+  etag,
+  ownerParam,
+  mode,
+  palette,
+  thresholds,
+  metricBackendAvailable,
+  titleMacroHelp
+} = defineProps<{
   graph: CustomGraphObject
   graphName: string
   etag: string | null
@@ -42,6 +52,8 @@ const { graph, graphName, etag, ownerParam, mode, palette, thresholds } = define
   mode: CustomGraphDesignerMode
   palette: readonly string[]
   thresholds: { warning: string; critical: string }
+  metricBackendAvailable: boolean
+  titleMacroHelp: string
 }>()
 
 const emit = defineEmits<{
@@ -244,6 +256,8 @@ const calculationDelete = useDeleteWithDependents(store)
             <MetricsTable
               :store="store"
               :thresholds="thresholds"
+              :metric-backend-available="metricBackendAvailable"
+              :title-macro-help="titleMacroHelp"
               @add-calculation="slideoutOpen = true"
             />
           </CmkTabContent>

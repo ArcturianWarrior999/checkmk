@@ -250,15 +250,12 @@ def test_openapi_create_rule(
     assert ext["folder"] == values["folder"]
     assert ext["properties"] == values["properties"]
     assert ext["conditions"].items() >= values["conditions"].items()
-    # Check that the format on disk is as expected.
+    # Check that the format on disk is as expected. Bundled rulesets are stored as
+    # `<parent>['<name>'] = [...]` so we index through the parent dict; the emitted
+    # source self-bootstraps the parent and loads against `default={}`.
     rules_mk = paths.omd_root / "etc/check_mk/conf.d/wato/rules.mk"
-
-    # Bundled rulesets like `discovery_parameters:<name>` / `checkgroup_parameters:<name>`
-    # are stored as `<parent>['<name>'] = [...]` and therefore need an initial empty
-    # dict for the parent variable in the exec context.
     parent, _, subkey = values["ruleset"].partition(":")
-    default: dict[str, object] = {parent: {}} if subkey else {}
-    environ = load_mk_file(rules_mk, default=default, lock=False)
+    environ = load_mk_file(rules_mk, default={}, lock=False)
     stored = environ[parent][subkey] if subkey else environ[parent]  # type: ignore[index]
     stored_condition = stored[0]["condition"]  # type: ignore[index]
     expected_condition = {
@@ -475,6 +472,52 @@ def test_create_rule_empty_match_on_str(clients: ClientRegistry) -> None:
         expect_ok=False,
     )
     resp.assert_status_code(400)
+
+
+def test_create_rule_empty_match_on_list_host_name(clients: ClientRegistry) -> None:
+    conditions: RuleConditions = {
+        "host_name": {
+            "operator": "one_of",
+            "match_on": [],
+        }
+    }
+    resp, _ = _create_rule(
+        clients=clients,
+        folder="/",
+        comment="They made me do it!",
+        description="This is my title for this very important rule.",
+        documentation_url="http://example.com/",
+        conditions=conditions,
+        expect_ok=False,
+    )
+    resp.assert_status_code(400)
+    assert (
+        resp.json["fields"]["body.conditions"]["msg"]
+        == "Value error, Please add at least one host."
+    )
+
+
+def test_create_rule_empty_match_on_list_service_description(clients: ClientRegistry) -> None:
+    conditions: RuleConditions = {
+        "service_description": {
+            "operator": "one_of",
+            "match_on": [],
+        }
+    }
+    resp, _ = _create_rule(
+        clients=clients,
+        folder="/",
+        comment="They made me do it!",
+        description="This is my title for this very important rule.",
+        documentation_url="http://example.com/",
+        conditions=conditions,
+        expect_ok=False,
+    )
+    resp.assert_status_code(400)
+    assert (
+        resp.json["fields"]["body.conditions"]["msg"]
+        == "Value error, Please add at least one service pattern."
+    )
 
 
 def test_create_rule_no_conditions_nor_properties(clients: ClientRegistry) -> None:

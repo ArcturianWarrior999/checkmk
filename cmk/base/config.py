@@ -21,7 +21,6 @@ import enum
 import itertools
 import numbers
 import os
-import pickle
 import socket
 import sys
 import time
@@ -548,6 +547,10 @@ def handle_ip_lookup_failure(host_name: HostName, exc: Exception) -> None:
 
 def get_default_config() -> dict[str, Any]:
     """Provides a dictionary containing the Check_MK default configuration"""
+    # Note: variable_defaults contains a lot of additional values not part of
+    # BaseConfig:
+    # Type definitions that are leaked by the '*' import, but also deprecated actual
+    # config values.
     return {
         key: copy.deepcopy(value) if isinstance(value, dict | list) else value
         for key, value in default_config.__dict__.items()
@@ -614,28 +617,8 @@ def load(
     return loading_result
 
 
-def load_packed_config(config_path: Path) -> dict[str, Any]:
-    """Load the configuration for the CMK helpers of CMC
-
-    These files are written by PackedConfig().
-
-    Returns the merged raw config dict; callers must invoke
-    `perform_post_config_loading_actions` to build a `LoadingResult`.
-    Compared to `load()`, the validations performed there don't need to be
-    performed for the check helpers.
-
-    See Also:
-        cmk.base.core.nagios._dump_precompiled_hostcheck()
-
-    """
-    return {
-        **get_default_config(),
-        **PackedConfigStore.from_serial(config_path).read(),
-    }
-
-
 def perform_post_config_loading_actions(
-    loaded_context: dict[str, Any],
+    loaded_context: Mapping[str, Any],
     *,
     edition: cmk_version.Edition,
 ) -> LoadingResult:
@@ -818,181 +801,6 @@ def get_config_file_paths(with_conf_d: bool) -> list[Path]:
         if path.exists():
             list_of_files.append(path)
     return list_of_files
-
-
-def save_packed_config(
-    config_path: Path,
-    config_cache: ConfigCache,
-    hosts_config: Hosts,
-) -> None:
-    """Create and store a precompiled configuration for Checkmk helper processes"""
-    base_config = config_cache.base_config
-    PackedConfigStore.from_serial(config_path).write(
-        PackedConfigGenerator(
-            config_cache,
-            hosts_config,
-            {f.name: getattr(base_config, f.name) for f in dataclasses.fields(base_config)},
-        ).generate()
-    )
-
-
-class PackedConfigGenerator:
-    """The precompiled host checks and the CMC Check_MK helpers use a
-    "precompiled" part of the Check_MK configuration during runtime.
-
-    a) They must not use the live config from etc/check_mk during
-       startup. They are only allowed to load the config activated by
-       the user.
-
-    b) They must not load the whole Check_MK config. Because they only
-       need the options needed for checking
-    """
-
-    # These variables are part of the Checkmk configuration, but are not needed
-    # by the Checkmk keepalive mode, so exclude them from the packed config
-    _skipped_config_variable_names = [
-        "define_contactgroups",
-        "define_hostgroups",
-        "define_servicegroups",
-        "service_contactgroups",
-        "host_contactgroups",
-        "service_groups",
-        "host_groups",
-        "contacts",
-        "timeperiods",
-        "extra_nagios_conf",
-    ]
-
-    def __init__(
-        self,
-        config_cache: ConfigCache,
-        hosts_config: Hosts,
-        loaded_config: Mapping[str, object],
-    ) -> None:
-        self._config_cache = config_cache
-        self._hosts_config = hosts_config
-        self._loaded_config = loaded_config
-
-    def generate(self) -> Mapping[str, Any]:
-        helper_config: dict[str, Any] = {}
-
-        # These functions purpose is to filter out hosts which are monitored on different sites
-        active_hosts = frozenset(
-            hn
-            for hn in itertools.chain(self._hosts_config.hosts, self._hosts_config.clusters)
-            if self._config_cache.is_active(hn) and self._config_cache.is_online(hn)
-        )
-
-        def filter_all_hosts(all_hosts_orig: list[HostName]) -> list[HostName]:
-            all_hosts_red = []
-            for host_entry in all_hosts_orig:
-                hostname = host_entry.split("|", 1)[0]
-                if hostname in active_hosts:
-                    all_hosts_red.append(host_entry)
-            return all_hosts_red
-
-        def filter_clusters(
-            clusters_orig: dict[HostName, list[HostName]],
-        ) -> dict[HostName, list[HostName]]:
-            clusters_red = {}
-            for cluster_entry, cluster_nodes in clusters_orig.items():
-                clustername = HostName(cluster_entry.split("|", 1)[0])
-                # Include offline cluster HOSTS.
-                # Otherwise, services clustered to those hosts will wrongly be checked by the NODES.
-                if clustername in self._hosts_config.clusters and self._config_cache.is_active(
-                    clustername
-                ):
-                    # But exclude offline cluster NODES.
-                    # Otherwise, the check on the cluster HOST will fail.
-                    clusters_red[cluster_entry] = [
-                        node for node in cluster_nodes if node in active_hosts
-                    ]
-            return clusters_red
-
-        def filter_hostname_in_dict(
-            values: dict[HostName, dict[str, str]],
-        ) -> dict[HostName, dict[str, str]]:
-            values_red = {}
-            for hostname, attributes in values.items():
-                if hostname in active_hosts:
-                    values_red[hostname] = attributes
-            return values_red
-
-        def filter_extra_service_conf(
-            values: dict[str, list[dict[str, str]]],
-        ) -> dict[str, list[dict[str, str]]]:
-            return {
-                "check_interval": values.get("check_interval", []),
-                "_ec_sl": values.get("_ec_sl", []),
-            }
-
-        filter_var_functions: dict[str, Callable[[Any], Any]] = {
-            "all_hosts": filter_all_hosts,
-            "clusters": filter_clusters,
-            "host_attributes": filter_hostname_in_dict,
-            "ipaddresses": filter_hostname_in_dict,
-            "ipv6addresses": filter_hostname_in_dict,
-            "explicit_snmp_communities": filter_hostname_in_dict,
-            "hosttags": filter_hostname_in_dict,  # unknown key, might be typo or legacy option
-            "host_tags": filter_hostname_in_dict,
-            "host_paths": filter_hostname_in_dict,
-            "extra_service_conf": filter_extra_service_conf,
-        }
-
-        #
-        # Add modified Checkmk base settings
-        #
-
-        variable_defaults = get_default_config()
-
-        for varname, default_value in variable_defaults.items():
-            if varname in self._skipped_config_variable_names:
-                continue
-
-            try:
-                val = self._loaded_config[varname]
-            except KeyError:
-                # Note: variable_defaults contains a lot of additional values not part of
-                # self._loaded_config:
-                # Type definitions that are leaked by the '*' import, but also deprecated actual
-                # config values. We simply skip them, they are not needed here.
-                continue
-
-            if val == default_value:
-                continue
-
-            if varname in filter_var_functions:
-                val = filter_var_functions[varname](val)
-
-            helper_config[varname] = val
-
-        return helper_config
-
-
-class PackedConfigStore:
-    """Caring about persistence of the packed configuration"""
-
-    def __init__(self, path: Path) -> None:
-        self.path: Final = path
-
-    @classmethod
-    def from_serial(cls, config_path: Path) -> PackedConfigStore:
-        return cls(cls.make_packed_config_store_path(config_path))
-
-    @classmethod
-    def make_packed_config_store_path(cls, config_path: Path) -> Path:
-        return config_path / "precompiled_check_config.mk"
-
-    def write(self, helper_config: Mapping[str, Any]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        tmp_path = self.path.with_suffix(f"{self.path.suffix}.compiled")
-        with tmp_path.open("wb") as compiled_file:
-            pickle.dump(helper_config, compiled_file)
-        tmp_path.rename(self.path)
-
-    def read(self) -> Mapping[str, Any]:
-        with self.path.open("rb") as f:
-            return pickle.load(f)  # nosec B301 # BNS:c3c5e9
 
 
 def parse_hostname_list(
@@ -1541,12 +1349,6 @@ class ConfigCache:
             parser=str,
         )
         return self
-
-    @property
-    def base_config(self) -> BaseConfig:
-        # Currently needed for save_packed_config.
-        # Please do not use this.
-        return self._loaded_config
 
     def make_passive_service_name_config(
         self,
@@ -3623,10 +3425,12 @@ class EnforcedServicesTable:
         ],
         service_name_config: Callable[[HostName, ServiceID, str | None], ServiceName],
         plugins: Mapping[CheckPluginName, CheckPlugin],
+        labels_of_service: Callable[[HostName, ServiceName, Labels], Labels],
     ) -> None:
         self._enforced_services_config = enforced_services_config
         self._service_name_config = service_name_config
         self._plugins = plugins
+        self._labels_of_service = labels_of_service
         self._memoized: dict[
             HostName, Mapping[ServiceID, tuple[RulesetName, ConfiguredService]]
         ] = {}
@@ -3652,31 +3456,7 @@ class EnforcedServicesTable:
             {
                 (sid := ServiceID(check_plugin_name, item)): (
                     RulesetName(checkgroup_name),
-                    ConfiguredService(
-                        check_plugin_name=check_plugin_name,
-                        item=item,
-                        description=self._service_name_config(
-                            hostname,
-                            sid,
-                            (
-                                None
-                                if (
-                                    p := agent_based_register.get_check_plugin(
-                                        check_plugin_name, self._plugins
-                                    )
-                                )
-                                is None
-                                else p.service_name
-                            ),
-                        ),
-                        parameters=compute_enforced_service_parameters(
-                            self._plugins, check_plugin_name, params
-                        ),
-                        discovered_parameters={},
-                        discovered_labels={},
-                        labels={},
-                        is_enforced=True,
-                    ),
+                    self._make_configured_service(hostname, sid, params),
                 )
                 for checkgroup_name, matched_rule_values in self._enforced_services_config(
                     hostname
@@ -3685,6 +3465,30 @@ class EnforcedServicesTable:
                     self._sanitize_enforced_entry(*entry) for entry in reversed(matched_rule_values)
                 )
             },
+        )
+
+    def _make_configured_service(
+        self,
+        hostname: HostName,
+        sid: ServiceID,
+        params: TimespecificParameterSet,
+    ) -> ConfiguredService:
+        p = agent_based_register.get_check_plugin(sid.name, self._plugins)
+        description = self._service_name_config(
+            hostname, sid, None if p is None else p.service_name
+        )
+        return ConfiguredService(
+            check_plugin_name=sid.name,
+            item=sid.item,
+            description=description,
+            parameters=compute_enforced_service_parameters(self._plugins, sid.name, params),
+            discovered_parameters={},
+            discovered_labels={},
+            # Enforced services have no discovered labels, but the "Service labels" ruleset
+            # still applies. Compute the effective labels (mirroring the discovered-service and
+            # clustered-enforced-service paths) so they reach the monitoring core config.
+            labels=self._labels_of_service(hostname, description, {}),
+            is_enforced=True,
         )
 
     @staticmethod

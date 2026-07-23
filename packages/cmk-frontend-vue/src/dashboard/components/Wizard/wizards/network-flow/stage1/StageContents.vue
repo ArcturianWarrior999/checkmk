@@ -26,7 +26,9 @@ import type {
 } from '@/dashboard/types/widget'
 
 import Donut from '../Donut/Donut.vue'
+import KpiStatCard from '../KpiStatCard/KpiStatCard.vue'
 import TopTable from '../TopTable/TopTable.vue'
+import TrendChart from '../TrendChart/TrendChart.vue'
 import { type GetValidWidgetProps, NetworkFlowWidgetType } from '../types'
 
 const { _t } = usei18n()
@@ -48,7 +50,9 @@ const emit = defineEmits<{
 
 const availableWidgets: WidgetItemList = [
   { id: NetworkFlowWidgetType.TOP_TABLE, label: _t('Top-N table'), icon: 'networking' },
-  { id: NetworkFlowWidgetType.DONUT, label: _t('Donut'), icon: 'pie-chart' }
+  { id: NetworkFlowWidgetType.DONUT, label: _t('Donut'), icon: 'pie-chart' },
+  { id: NetworkFlowWidgetType.KPI_STAT_CARD, label: _t('KPI stat card'), icon: 'graph' },
+  { id: NetworkFlowWidgetType.TREND_CHART, label: _t('Traffic trend'), icon: 'graph' }
 ]
 const enabledWidgets = computed(() => {
   return availableWidgets.map((item) => item.id)
@@ -65,12 +69,16 @@ const selectedWidget = ref<NetworkFlowWidgetType>(
 
 const topTableRef = useTemplateRef<InstanceType<typeof TopTable>>('topTableRef')
 const donutRef = useTemplateRef<InstanceType<typeof Donut>>('donutRef')
+const kpiStatCardRef = useTemplateRef<InstanceType<typeof KpiStatCard>>('kpiStatCardRef')
+const trendChartRef = useTemplateRef<InstanceType<typeof TrendChart>>('trendChartRef')
 const widgetRefs: Record<
   NetworkFlowWidgetType,
   Readonly<ShallowRef<GetValidWidgetProps | null>>
 > = {
   [NetworkFlowWidgetType.TOP_TABLE]: topTableRef,
-  [NetworkFlowWidgetType.DONUT]: donutRef
+  [NetworkFlowWidgetType.DONUT]: donutRef,
+  [NetworkFlowWidgetType.KPI_STAT_CARD]: kpiStatCardRef,
+  [NetworkFlowWidgetType.TREND_CHART]: trendChartRef
 }
 
 function gotoNextStage() {
@@ -135,6 +143,20 @@ function gotoNextStage() {
   <Donut
     v-show="selectedWidget === NetworkFlowWidgetType.DONUT"
     ref="donutRef"
+    :dashboard-key="dashboardKey"
+    :edit-widget-spec="editWidgetSpec"
+  />
+
+  <KpiStatCard
+    v-show="selectedWidget === NetworkFlowWidgetType.KPI_STAT_CARD"
+    ref="kpiStatCardRef"
+    :dashboard-key="dashboardKey"
+    :edit-widget-spec="editWidgetSpec"
+  />
+
+  <TrendChart
+    v-show="selectedWidget === NetworkFlowWidgetType.TREND_CHART"
+    ref="trendChartRef"
     :dashboard-key="dashboardKey"
     :edit-widget-spec="editWidgetSpec"
   />

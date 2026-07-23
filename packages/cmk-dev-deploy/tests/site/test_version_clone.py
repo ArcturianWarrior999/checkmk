@@ -6,8 +6,9 @@
 
 The module is pure file/symlink manipulation plus ``omd stop/start``
 through the sudoers rule.  The tests run it against a fake OMD layout in
-a tmp dir: ``run_as_site_user`` executes commands locally, and a fake
-``omd`` on ``$PATH`` records the stop/start sequence.
+a tmp dir: ``run_as_site_user`` executes commands locally, a fake
+``omd`` on ``$PATH`` records the stop/start sequence, and
+``delete_state`` is replaced by a recorder (``FakeOmd.state_resets``).
 """
 
 from __future__ import annotations
@@ -36,6 +37,7 @@ class FakeOmd:
     dev_versions: Path
     omd_log: Path
     shim_bin: Path
+    state_resets: list[Path]
 
     @property
     def version_link(self) -> Path:
@@ -89,7 +91,9 @@ def omd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> FakeOmd:
     monkeypatch.setenv("PATH", f"{shim_bin}{os.pathsep}{os.environ['PATH']}")
     monkeypatch.setenv("OMD_LOG", str(omd_log))
 
+    state_resets: list[Path] = []
     monkeypatch.setattr(version_clone, "PRISTINE_VERSIONS_DIR", tmp_path / "versions")
+    monkeypatch.setattr(version_clone, "delete_state", state_resets.append)
     monkeypatch.setattr(sudoers, "DEV_VERSIONS_DIR", dev_versions)
     monkeypatch.setattr(sudoers, "run_as_site_user", _local_run_as_site_user)
 
@@ -99,6 +103,7 @@ def omd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> FakeOmd:
         dev_versions=dev_versions,
         omd_log=omd_log,
         shim_bin=shim_bin,
+        state_resets=state_resets,
     )
 
 
@@ -182,13 +187,54 @@ class TestEnsureClone:
 
         assert (omd.clone / "bin" / "cmc").read_text() == "binary"
 
-    def test_stale_clone_after_version_change_fails_loudly(self, omd: FakeOmd) -> None:
+    def test_stale_clone_after_version_change_is_discarded(self, omd: FakeOmd) -> None:
+        stale = omd.dev_versions / "v260" / "2.5.0-old"
+        (stale / "lib").mkdir(parents=True)
+        (stale / "lib" / "deployed.py").write_text("old dev code")
+
+        ensure_clone(omd.site_root)
+
+        assert not stale.exists()
+        assert (omd.clone / "bin" / "cmc").read_text() == "binary"
+        assert os.readlink(omd.version_link) == str(omd.clone)
+
+    def test_stale_clone_is_discarded_even_when_current_clone_exists(self, omd: FakeOmd) -> None:
         stale = omd.dev_versions / "v260" / "2.5.0-old"
         stale.mkdir(parents=True)
+        omd.clone.mkdir(parents=True)
 
-        with pytest.raises(CloneError, match="stale clone") as excinfo:
+        ensure_clone(omd.site_root)
+
+        assert not stale.exists()
+        assert os.readlink(omd.version_link) == str(omd.clone)
+        assert omd.state_resets == [omd.site_root]  # state may describe the discarded clone
+
+    def test_stale_clone_with_read_only_dirs_is_discarded(self, omd: FakeOmd) -> None:
+        ro_dir = omd.dev_versions / "v260" / "2.5.0-old" / "locked"
+        ro_dir.mkdir(parents=True)
+        (ro_dir / "file").write_text("x")
+        ro_dir.chmod(0o555)
+
+        ensure_clone(omd.site_root)
+
+        assert not (omd.dev_versions / "v260" / "2.5.0-old").exists()
+
+    def test_unremovable_stale_clone_fails_before_activation(
+        self, omd: FakeOmd, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        stale = omd.dev_versions / "v260" / "2.5.0-old"
+        stale.mkdir(parents=True)
+        real_rmtree = version_clone._rmtree  # noqa: SLF001
+
+        def failing_rmtree(path: Path, *, ignore_errors: bool = False) -> None:
+            if path == stale:
+                raise OSError("Device or resource busy")
+            real_rmtree(path, ignore_errors=ignore_errors)
+
+        monkeypatch.setattr(version_clone, "_rmtree", failing_rmtree)
+
+        with pytest.raises(CloneError, match="stale clone"):
             ensure_clone(omd.site_root)
-        assert "--purge" in str(excinfo.value)
         assert os.readlink(omd.version_link) == f"../../versions/{_VERSION}"  # untouched
 
     def test_unexpected_symlink_target_fails(self, omd: FakeOmd, tmp_path: Path) -> None:
@@ -220,6 +266,76 @@ class TestEnsureClone:
 
         assert not partial.exists()
         assert (omd.clone / "bin" / "cmc").read_text() == "binary"
+
+
+# ---------------------------------------------------------------------------
+# Parent directory permissions
+# ---------------------------------------------------------------------------
+
+
+class TestParentDirPermissions:
+    """The site user resolves its ``version`` symlink through the clone's
+    parent directories, so they must stay group/other-traversable no
+    matter which umask they were created under."""
+
+    def test_restrictive_umask_yields_traversable_parent_dirs(self, omd: FakeOmd) -> None:
+        old_umask = os.umask(0o077)
+        try:
+            ensure_clone(omd.site_root)
+        finally:
+            os.umask(old_umask)
+
+        for parent in (omd.dev_versions, omd.clone.parent):
+            assert parent.stat().st_mode & 0o055 == 0o055
+
+    def test_heals_restrictive_parent_dirs_of_active_clone(self, omd: FakeOmd) -> None:
+        """Dirs created by earlier tool versions under umask 027/077 are
+        repaired on the next run, even when the clone itself is a no-op."""
+        ensure_clone(omd.site_root)
+        omd.dev_versions.chmod(0o700)
+        omd.clone.parent.chmod(0o700)
+
+        ensure_clone(omd.site_root)
+
+        for parent in (omd.dev_versions, omd.clone.parent):
+            assert parent.stat().st_mode & 0o055 == 0o055
+
+
+# ---------------------------------------------------------------------------
+# Incremental deploy state resets
+# ---------------------------------------------------------------------------
+
+
+class TestDeployStateReset:
+    """The state must not outlive the tree the recorded deploys went into."""
+
+    def test_fresh_build_resets_state(self, omd: FakeOmd) -> None:
+        ensure_clone(omd.site_root)
+
+        assert omd.state_resets == [omd.site_root]
+
+    def test_active_clone_keeps_state(self, omd: FakeOmd) -> None:
+        ensure_clone(omd.site_root)
+        omd.state_resets.clear()
+
+        ensure_clone(omd.site_root)
+
+        assert omd.state_resets == []
+
+    def test_reused_clone_keeps_state(self, omd: FakeOmd) -> None:
+        omd.clone.mkdir(parents=True)
+
+        ensure_clone(omd.site_root)
+
+        assert omd.state_resets == []
+
+    def test_dangling_symlink_rebuild_resets_state(self, omd: FakeOmd) -> None:
+        omd.version_link.unlink()
+        omd.version_link.symlink_to(omd.clone)  # clone dir does not exist
+
+        ensure_clone(omd.site_root)
+
+        assert omd.state_resets == [omd.site_root]
 
 
 # ---------------------------------------------------------------------------

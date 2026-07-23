@@ -379,10 +379,7 @@ def check_host_states(
     num_success = len(success)
     num_failed = len(failed)
 
-    if states:
-        max_state = max(state for state, _output in states.values())
-    else:
-        max_state = 0
+    max_state = max(state for state, _output in states.values()) if states else 0
 
     if levels:
         warn, crit = levels

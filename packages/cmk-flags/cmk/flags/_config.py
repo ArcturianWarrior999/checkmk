@@ -15,7 +15,7 @@ The tests enforce that flags are removed before their deadline.
 """
 
 from pathlib import Path
-from typing import Annotated, cast, Final
+from typing import cast, Final
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.fields import FieldInfo
@@ -61,19 +61,6 @@ class ReleaseFlagConfig(BaseModel):
     """
 
     model_config = ConfigDict(frozen=True, extra="ignore")
-
-    exp_add_windows_relay: Annotated[
-        bool,
-        release_field(
-            description=(
-                "Show the OS selector in the create-relay wizard so a Windows relay can be "
-                "registered. Windows relay support is not yet complete."
-            ),
-            remove_ticket="CMK-36616",
-            remove_after="3.0.0",
-            owner="jose.naranjo@checkmk.com",
-        ),
-    ] = False
 
 
 def load_release_flags(config_dir: Path) -> ReleaseFlagConfig:

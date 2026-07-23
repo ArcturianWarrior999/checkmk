@@ -65,6 +65,21 @@ def is_replication_enabled(site_config: SiteConfiguration) -> bool:
     return bool(site_config.get("replication"))
 
 
+def all_activation_sites(site_configs: SiteConfigurations) -> SiteConfigurations:
+    """All sites that are affected by Setup changes, regardless of user authorization
+
+    Use this in unattended contexts (CLI commands, background jobs) which act without a
+    GUI user. User facing code paths use `cmk.gui.user_sites.activation_sites` instead,
+    which additionally applies the user's site authorization."""
+    return SiteConfigurations(
+        {
+            site_id: site
+            for site_id, site in site_configs.items()
+            if site_is_local(site) or is_replication_enabled(site)
+        }
+    )
+
+
 def distributed_setup_remote_sites(site_configs: SiteConfigurations) -> SiteConfigurations:
     return SiteConfigurations(
         {site_id: s for site_id, s in site_configs.items() if is_replication_enabled(s)}

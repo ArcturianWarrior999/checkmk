@@ -65,9 +65,13 @@ class EvaluationContext:
 class EvaluatedQuantity:
     value: float | None
     time_series: TimeSeries
-    # Per-series label carried by a fan-out leaf's results: it tells the fanned curves apart, folded
-    # into the title.
-    label: str = ""
+    # Per-series title macros carried by a fan-out leaf's results: substituted into the curve title
+    # to tell the fanned curves apart. Empty for a single, non-fanned quantity.
+    label_macros: Mapping[str, str] = field(default_factory=dict)
+
+
+def first_value(results: Sequence[EvaluatedQuantity]) -> float | None:
+    return results[0].value if results else None
 
 
 class Quantity(Protocol):
@@ -210,13 +214,13 @@ class Constant:
 
 @dataclass(frozen=True, kw_only=True)
 class RRDMetric:
+    # The monitoring site the service lives on. None until resolved during the fetch; once known it
+    # is part of the metric's identity, so the same host/service on two sites are distinct curves.
+    site_id: SiteID | None = None
     host_name: HostName
     service_name: ServiceName
     metric_name: MetricName
     consolidation_function: ConsolidationFunction | None = None
-    # The monitoring site the service lives on. None until resolved during the fetch; once known it
-    # is part of the metric's identity, so the same host/service on two sites are distinct curves.
-    site_id: SiteID | None = None
 
     def kind(self) -> str:
         return "rrd_metric"

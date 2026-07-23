@@ -78,17 +78,25 @@ def test_connect_with_wrong_secret_returns_json_401(client: FlaskClient) -> None
 
 
 def test_reserve_tops_up_to_the_maximum(client: FlaskClient) -> None:
-    # With 3 IDs held locally, the server hands out the remaining 10 - 3 = 7,
+    # With 3 IDs held locally, the server hands out the remaining 11 - 3 = 8,
     # starting right after the seeded counter value.
     response = client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 3})
     assert response.status_code == 200
     reserved = response.get_json()["reserved_werk_ids"]
-    assert reserved == list(range(_START + 1, _START + 8))
-    assert len(reserved) == 7
+    assert reserved == list(range(_START + 1, _START + 9))
+    assert len(reserved) == 8
+
+
+def test_reserve_keeps_ten_after_one_is_consumed(client: FlaskClient) -> None:
+    # A client already holding 10 still receives exactly 1 more, so `werk new`
+    # can consume one and remain at 10.
+    response = client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 10})
+    assert response.status_code == 200
+    assert len(response.get_json()["reserved_werk_ids"]) == 1
 
 
 def test_reserve_when_already_at_max_returns_empty(client: FlaskClient) -> None:
-    response = client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 10})
+    response = client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 11})
     assert response.status_code == 200
     assert response.get_json() == {"reserved_werk_ids": []}
 
@@ -102,7 +110,7 @@ def test_reserve_when_above_max_returns_empty(client: FlaskClient) -> None:
 def test_reserve_does_not_consume_when_returning_empty(client: FlaskClient) -> None:
     # A no-op top-up must not advance the counter: the next real reservation
     # still starts right after the seeded value.
-    client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 10})
+    client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 11})
     response = client.post("/v1/reserve", headers=_auth(), json={"local_werk_ids_count": 0})
     assert response.get_json()["reserved_werk_ids"][0] == _START + 1
 

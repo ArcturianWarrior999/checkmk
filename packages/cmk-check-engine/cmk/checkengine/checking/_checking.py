@@ -5,6 +5,7 @@
 """Performing the actual checks."""
 
 import itertools
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Container, Iterable, Mapping, Sequence
 from pathlib import Path
@@ -41,7 +42,6 @@ from cmk.inventory.structured_data import (
     InventoryStore,
 )
 from cmk.utils.everythingtype import EVERYTHING
-from cmk.utils.log import console
 from cmk.utils.servicename import ServiceName
 from cmk.utils.timeperiod import TimeperiodName
 
@@ -51,6 +51,7 @@ __all__ = [
     "check_plugins_missing_data",
     "ABCCheckingConfig",
 ]
+logger = logging.getLogger(__name__)
 
 type _Labels = Mapping[str, str]
 
@@ -244,7 +245,13 @@ def _service_inside_check_period(
         # No need to look this one up. Might save us a livestatus query.
         return True
     if timeperiods_active.get(period, True):
-        console.debug(f"Service {description}: time period {period} is currently active.")
+        logger.debug(
+            "Service %(description)s: time period %(period)s is currently active.",
+            {"description": description, "period": period},
+        )
         return True
-    console.verbose(f"Skipping service {description}: currently not in time period {period}.")
+    logger.debug(
+        "Skipping service %(description)s: currently not in time period %(period)s.",
+        {"description": description, "period": period},
+    )
     return False

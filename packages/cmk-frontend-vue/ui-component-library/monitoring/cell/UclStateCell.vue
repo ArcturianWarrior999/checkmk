@@ -6,25 +6,51 @@ conditions defined in the file COPYING, which is part of this source code packag
 <script lang="ts">
 import { type Options, type PanelConfig } from '@ucl/_ucl/components/detail-page'
 
-import type { HostState } from '@/monitoring/shared/api/types.ts'
+import type { HostState, ServiceState } from '@/monitoring/shared/api/types.ts'
 
 import codeExample from './UclStateCellCodeExample.vue?raw'
 
-type StateName = HostState
+type Kind = 'host' | 'service'
 
-const STATE_OPTIONS: Options<StateName>[] = [
+const KIND_OPTIONS: Options<Kind>[] = [
+  { title: 'host', name: 'host' },
+  { title: 'service', name: 'service' }
+]
+
+const HOST_STATE_OPTIONS: Options<HostState>[] = [
   { title: 'UP', name: 'UP' },
   { title: 'DOWN', name: 'DOWN' },
   { title: 'UNREACHABLE', name: 'UNREACHABLE' }
 ]
 
+const SERVICE_STATE_OPTIONS: Options<ServiceState>[] = [
+  { title: 'OK', name: 'OK' },
+  { title: 'WARN', name: 'WARN' },
+  { title: 'CRIT', name: 'CRIT' },
+  { title: 'UNKNOWN', name: 'UNKNOWN' }
+]
+
 export const panelConfig = {
-  state: {
+  kind: {
     type: 'list' as const,
-    title: 'state',
-    options: STATE_OPTIONS,
-    initialState: 'UNREACHABLE' as StateName,
-    help: 'The host state rendered by the cell.'
+    title: 'kind',
+    options: KIND_OPTIONS,
+    initialState: 'host' as Kind,
+    help: 'Whether the cell renders a host or a service state.'
+  },
+  hostState: {
+    type: 'list' as const,
+    title: 'host state',
+    options: HOST_STATE_OPTIONS,
+    initialState: 'UNREACHABLE' as HostState,
+    help: 'The host state rendered when kind is "host".'
+  },
+  serviceState: {
+    type: 'list' as const,
+    title: 'service state',
+    options: SERVICE_STATE_OPTIONS,
+    initialState: 'CRIT' as ServiceState,
+    help: 'The service state rendered when kind is "service".'
   },
   stale: {
     type: 'boolean' as const,
@@ -76,7 +102,8 @@ const propState = ref(
   ) as InferPanelState<typeof panelConfig>
 )
 
-const state = computed<HostState>(() => propState.value.state)
+const hostState = computed<HostState>(() => propState.value.hostState)
+const serviceState = computed<ServiceState>(() => propState.value.serviceState)
 const justify = computed<ColumnJustify>(() => propState.value.justify as ColumnJustify)
 
 const SLIDER_MIN = 50
@@ -157,8 +184,17 @@ const currentWidth = computed(() => `${effectiveWidth.value} px`)
           >
             <template #row>
               <StateCell
+                v-if="propState.kind === 'service'"
                 column-id="cell"
-                :state="state"
+                kind="service"
+                :state="serviceState"
+                :stale="propState.stale"
+                :pending="propState.pending"
+              />
+              <StateCell
+                v-else
+                column-id="cell"
+                :state="hostState"
                 :stale="propState.stale"
                 :pending="propState.pending"
               />

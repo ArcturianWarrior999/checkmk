@@ -6,21 +6,21 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from typing import Protocol
 
 from cmk.ccc.plugin_registry import Registry
 from cmk.graphing_engine import ConsolidationFunction, EvaluatedGraph, Graph, TimeRange
 
 from ._engine_rrd import FetchDiagnostics
-from ._engine_serialization import consolidation_function_of, ensure_type, Json, time_range_of
-
-
-@dataclass(frozen=True, kw_only=True)
-class GraphDataRequest:
-    graph_type: str
-    graphs: Mapping[str, object]
-    options: Mapping[str, object] = field(default_factory=dict)
+from ._engine_serialization import (
+    consolidation_function_of,
+    ensure_type,
+    GraphCodec,
+    Json,
+    time_range_of,
+)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -46,31 +46,56 @@ class EvaluatedGraphs:
     diagnostics: FetchDiagnostics
 
 
+class DispatchedEvaluate(Protocol):
+    # A graph type's evaluation. It receives the dispatcher's own codec to deserialize the graph, so
+    # the graph type names its codec once (on the dispatcher) instead of reconstructing it here.
+    def __call__(
+        self,
+        *,
+        codec: GraphCodec,
+        graph: Mapping[str, object],
+        options: Mapping[str, object],
+    ) -> EvaluatedGraphs: ...
+
+
 @dataclass(frozen=True)
 class EngineGraphDispatcher:
-    graph_type: str
-    serialize: Callable[[Sequence[Graph]], Json]
-    evaluate: Callable[[GraphDataRequest], EvaluatedGraphs]
+    kind: str
+    codec: GraphCodec
+    evaluate: DispatchedEvaluate
+
+    def serialize(self, graph: Graph) -> Json:
+        return self.codec.serialize_graph(graph)
 
 
 class EngineGraphDispatcherRegistry(Registry[EngineGraphDispatcher]):
     def plugin_name(self, instance: EngineGraphDispatcher) -> str:
-        return instance.graph_type
+        return instance.kind
 
 
 engine_graph_dispatcher_registry = EngineGraphDispatcherRegistry()
 
 
 def serialize_graphs(graphs: Sequence[Graph]) -> Json:
-    by_graph_type: dict[str, list[Graph]] = {}
+    return {
+        "graphs": [
+            engine_graph_dispatcher_registry[graph.kind].serialize(graph) for graph in graphs
+        ]
+    }
+
+
+def evaluate_graphs(
+    graphs: Sequence[Mapping[str, object]],
+    options: Mapping[str, object],
+) -> EvaluatedGraphs:
+    # The graphs may be of different kinds, but they share one common options object; each dispatcher
+    # reads the common options plus whatever special options its graph type needs.
+    evaluated_graphs: list[EvaluatedGraph] = []
+    diagnostics = FetchDiagnostics()
     for graph in graphs:
-        by_graph_type.setdefault(graph.graph_type, []).append(graph)
-    serialized: list[object] = []
-    for graph_type, batch in by_graph_type.items():
-        dispatcher = engine_graph_dispatcher_registry[graph_type]
-        serialized.extend(ensure_type(dispatcher.serialize(batch)["graphs"], list))
-    return {"graphs": serialized}
-
-
-def evaluate_graphs(request: GraphDataRequest) -> EvaluatedGraphs:
-    return engine_graph_dispatcher_registry[request.graph_type].evaluate(request)
+        dispatcher = engine_graph_dispatcher_registry[ensure_type(graph["kind"], str)]
+        evaluated = dispatcher.evaluate(codec=dispatcher.codec, graph=graph, options=options)
+        evaluated_graphs.extend(evaluated.graphs)
+        diagnostics.limits_reached.extend(evaluated.diagnostics.limits_reached)
+        diagnostics.errors.extend(evaluated.diagnostics.errors)
+    return EvaluatedGraphs(graphs=evaluated_graphs, diagnostics=diagnostics)

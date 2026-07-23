@@ -42,10 +42,7 @@ DISCOVER_NOTHING = {"descriptions": ["~$^"]}
 
 def _get_parts_of_descr(descr: str) -> tuple[str, str, str, str | None]:
     svc_attrs = descr.split(":")
-    if len(svc_attrs) == 3:
-        svc_instance = svc_attrs[-1]
-    else:
-        svc_instance = None
+    svc_instance = svc_attrs[-1] if len(svc_attrs) == 3 else None
     svc_category, svc_name = svc_attrs[1].rsplit("/", 1)
     return svc_attrs[0], svc_category, svc_name, svc_instance
 

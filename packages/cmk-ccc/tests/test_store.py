@@ -270,6 +270,24 @@ def test_save_to_mk_file_list(tmp_path: Path) -> None:
     assert actual == {"x": ["c", "a", "b"]}
 
 
+def test_save_to_mk_file_dict_loads_without_preseeding(tmp_path: Path) -> None:
+    path = tmp_path / "huhu"
+    store.save_to_mk_file(path, key="x", value={"a": 1})
+
+    actual = store.load_mk_file(path, default={}, lock=False)
+
+    assert actual == {"x": {"a": 1}}
+
+
+def test_save_to_mk_file_list_loads_without_preseeding(tmp_path: Path) -> None:
+    path = tmp_path / "huhu"
+    store.save_to_mk_file(path, key="x", value=[1, 2, 3])
+
+    actual = store.load_mk_file(path, default={}, lock=False)
+
+    assert actual == {"x": [1, 2, 3]}
+
+
 def test_acquire_lock_not_existing(tmp_path: Path) -> None:
     assert store.acquire_lock(tmp_path / "asd") is True
 

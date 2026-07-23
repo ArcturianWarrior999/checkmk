@@ -7,6 +7,7 @@ from logging import Logger
 
 from cmk.ccc.site import SiteId
 from cmk.gui.config import active_config
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.post_rename_site.internal import (
     Name,
@@ -61,6 +62,7 @@ def update_site_config(old_site_id: SiteId, new_site_id: SiteId, logger: Logger)
 
     if changed:
         site_mgmt.save_sites(
+            make_folder_tree(active_config),
             all_sites,
             activate=True,
             pprint_value=active_config.wato_pprint_config,

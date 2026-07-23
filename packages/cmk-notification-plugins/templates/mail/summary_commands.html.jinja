@@ -64,12 +64,8 @@
                     </tr>
                 {% endif %}
                 <tr>
-                    <td {{ macros.td_first_child(width='80px', padding='8px') }}>
-                        Host:
-                    </td>
-                    <td {{ macros.td_last_child() }}>
-                        {{ data.HOSTNAME_AND_ALIAS_HTML | safe }}
-                    </td>
+                    <td {{ macros.td_first_child(width='80px', padding='8px') }}>Host:</td>
+                    <td {{ macros.td_last_child() }}>{{ data.HOSTNAME_AND_ALIAS_HTML | safe }}</td>
                 </tr>
             </table>
         </td>

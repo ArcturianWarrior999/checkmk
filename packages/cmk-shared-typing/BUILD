@@ -56,6 +56,7 @@ SOURCES_SPECIAL_DATACLASSES = [
     "attribute_filter.json",
     "cmk_time_series_graph.json",
     "graph_designer.json",
+    "profiling_flamegraph.json",
     "service_graphs.json",
     "unit_format.json",
 ]
@@ -257,6 +258,7 @@ py_library(
         "//non-free/packages/cmk-metric-backend:__pkg__",
         "//non-free/packages/cmk-robotmk:__pkg__",
         "//non-free/packages/cmk-telemetry:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//tests:__subpackages__",
     ],
 )

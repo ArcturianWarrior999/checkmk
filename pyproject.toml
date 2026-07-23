@@ -53,6 +53,7 @@ select = [
   "SIM101", # flake8-simplify: duplicate-isinstance-call
   "SIM103", # flake8-simplify: needless-bool
   "SIM105", # flake8-simplify: suppressible-exception
+  "SIM108", # flake8-simplify: if-else-block-instead-of-if-exp
   "SIM110", # flake8-simplify: reimplemented-builtin
   "SIM113", # flake8-simplify: enumerate-for-loop
   "SIM114", # flake8-simplify: if-with-same-arms
@@ -130,11 +131,23 @@ ignore = [
   "ARG003",
   "ARG004",
   "ARG005",
+  "SIM108",
   "SLF001",
 ]
-"packages/cmk-ec/*" = ["ARG001", "ARG002"]
+"packages/cmk-profiling/*" = [
+  "A001",
+  "A002",
+  "A004",
+  "ARG001",
+  "ARG002",
+  "ARG003",
+  "ARG004",
+  "ARG005",
+  "SLF001",
+]
+"packages/cmk-ec/*" = ["ARG001", "ARG002", "SIM108"]
 "packages/cmk-logwatch/tests/*" = ["ARG001", "ARG002"]
-"packages/cmk-plugins/*" = ["ARG001", "ARG002"]
+"packages/cmk-plugins/*" = ["ARG001", "ARG002", "SIM108"]
 "packages/cmk-plugin-apis/*" = ["ARG002"]
 "non-free/packages/cmk-dcd/*" = ["ARG001", "ARG002", "ARG003", "SLF001"]
 "non-free/packages/cmk-mcp/tests/*" = ["SLF001"]
@@ -147,7 +160,16 @@ ignore = [
 # every bakelet uses all three.
 "non-free/packages/cmk-bakery/cmk/plugins/checkmk/bakery/*" = ["ARG001"]
 "non-free/packages/cmk-robotmk/cmk/robotmk/bakery/core_bakelets/*" = ["ARG001"]
-"tests/*" = ["ARG001", "ARG002", "ARG003", "ARG004", "ARG005", "SLF001", "T20"]
+"tests/*" = [
+  "ARG001",
+  "ARG002",
+  "ARG003",
+  "ARG004",
+  "ARG005",
+  "SIM108",
+  "SLF001",
+  "T20",
+]
 "buildscripts/*" = ["T20"]
 "scripts/*" = ["T20"]
 "omd/packages/nagvis/update_nagvis.py" = ["T20"]
@@ -188,6 +210,21 @@ ignore = [
   "UP035",  # PEP 585 (Type Hinting Generics In Standard Collections) is a Python 3.9 feature
   "UP045",  # PEP 604 (Allow writing union types as X | Y) is a Python 3.10 feature
 ]
+
+# SIM108 incremental rollout
+"cmk/gui/**" = ["SIM108"]
+"cmk/base/**" = ["SIM108"]
+"cmk/bi/**" = ["SIM108"]
+"cmk/rrd/**" = ["SIM108"]
+"cmk/legacy_checks/**" = ["SIM108"]
+"cmk/legacy_includes/**" = ["SIM108"]
+"packages/cmk-dev-deploy/**" = ["SIM108"]
+"packages/cmk-check-engine/**" = ["SIM108"]
+"packages/cmk-werks/**" = ["SIM108"]
+"packages/cmk-livestatus-client/**" = ["SIM108"]
+"packages/cmk-notification-plugins/**" = ["SIM108"]
+"omd/packages/omd/**" = ["SIM108"]
+"non-free/**" = ["SIM108"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 64 # TODO: This is far too much, we need to lower this!

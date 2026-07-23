@@ -57,10 +57,7 @@ def parse_postgres_stat_database(string_table: StringTable) -> Section:
         row["datid"] = line[0]
         # https://www.postgresql.org/message-id/CABUevEzMHzdAQjvpWO6eGSZeg8FKmLLPhdwVoqaOXR8VWnyd8w%40mail.gmail.com
         datname = line[1] if line[1] else "access_to_shared_objects"
-        if instance_name:
-            db_name = f"{instance_name}/{datname}"
-        else:
-            db_name = datname
+        db_name = f"{instance_name}/{datname}" if instance_name else datname
 
         parsed[db_name] = row
 

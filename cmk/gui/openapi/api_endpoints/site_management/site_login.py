@@ -24,6 +24,7 @@ from cmk.gui.openapi.framework.versioned_endpoint import (
 )
 from cmk.gui.openapi.restful_objects.constructors import object_action_href
 from cmk.gui.openapi.utils import RestAPIRequestGeneralException
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.site_management import (
     LoginException,
     SitesApiMgr,
@@ -65,6 +66,7 @@ def site_connection_login_v1(
     user.need_permission("wato.users")
     try:
         SitesApiMgr().login_to_site(
+            make_folder_tree(api_context.config),
             site_id=site_id,
             username=body.username,
             password=body.password,

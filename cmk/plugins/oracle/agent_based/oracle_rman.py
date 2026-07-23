@@ -92,10 +92,7 @@ def parse_oracle_rman(
                 backupage_str,
                 backupscn_str,
             ) = line
-            if backupscn_str == "":
-                backupscn = -1
-            else:
-                backupscn = int(backupscn_str)
+            backupscn = -1 if backupscn_str == "" else int(backupscn_str)
 
             if backuptype == "DB_INCR":
                 if inventory_oracle_rman_incremental_details:

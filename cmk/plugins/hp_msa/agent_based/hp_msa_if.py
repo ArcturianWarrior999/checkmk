@@ -118,10 +118,7 @@ def parse_hp_msa_if(
         except ValueError:
             speed = 0
 
-        if values["status"] == "Up":
-            status = "1"
-        else:
-            status = "2"
+        status = "1" if values["status"] == "Up" else "2"
 
         parsed.append(
             interfaces.InterfaceWithCounters(

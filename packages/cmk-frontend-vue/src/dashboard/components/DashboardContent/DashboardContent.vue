@@ -18,7 +18,9 @@ import DashboardContentTimeSeriesGraph from './DashboardContentTimeSeriesGraph.v
 import DashboardContentTopList from './DashboardContentTopList.vue'
 import DashboardContentUserMessages from './DashboardContentUserMessages.vue'
 import DashboardContentNetworkFlowDonut from './NetworkFlow/DashboardContentNetworkFlowDonut.vue'
+import DashboardContentNetworkFlowKpiStatCard from './NetworkFlow/DashboardContentNetworkFlowKpiStatCard.vue'
 import DashboardContentNetworkFlowTopTable from './NetworkFlow/DashboardContentNetworkFlowTopTable.vue'
+import DashboardContentNetworkFlowTrendChart from './NetworkFlow/DashboardContentNetworkFlowTrendChart.vue'
 import { CONTENT_FIGURE_TYPES, GRAPH_TYPES, NTOP_TYPES } from './types.ts'
 </script>
 
@@ -50,15 +52,23 @@ function contentTypeToComponent(contentType: string): Component {
       return DashboardContentNetworkFlowTopTable
     case contentType === 'network_flow_donut':
       return DashboardContentNetworkFlowDonut
+    case contentType === 'network_flow_kpi_stat_card':
+      return DashboardContentNetworkFlowKpiStatCard
+    case contentType === 'network_flow_trend_chart':
+      return DashboardContentNetworkFlowTrendChart
     case contentType === 'user_messages':
       return DashboardContentUserMessages
     case contentType === 'sidebar_element':
       return DashboardContentSidebarElement
-    // Performance, single-timeseries and combined graphs render client-side on the new graphing
-    // engine; the remaining GRAPH_TYPES still go through the legacy server-rendered graph
-    // component.
-    case ['performance_graph', 'single_timeseries', 'combined_graph'].includes(contentType) &&
-      cmkToken === undefined:
+    // These graph widgets render client-side on the new graphing engine; on token-authenticated
+    // (public) dashboards they fall through to their legacy components below, like the remaining
+    // GRAPH_TYPES.
+    case [
+      'performance_graph',
+      'single_timeseries',
+      'combined_graph',
+      'average_scatterplot'
+    ].includes(contentType) && cmkToken === undefined:
       return DashboardContentTimeSeriesGraph
     case CONTENT_FIGURE_TYPES.includes(contentType):
       return DashboardContentFigure

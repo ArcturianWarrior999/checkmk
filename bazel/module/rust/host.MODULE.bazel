@@ -10,6 +10,7 @@ host_crates.from_cargo(
     lockfile = "//:host.Cargo.lock.bazel",
     manifests = [
         "//:Cargo.toml",
+        "//agents/wnx/extensions/robotmk_ext:Cargo.toml",
         "//packages/cmk-agent-ctl:Cargo.toml",
         "//packages/mk-sql:Cargo.toml",
         "//packages/mk-oracle:Cargo.toml",
@@ -17,6 +18,7 @@ host_crates.from_cargo(
     supported_platform_triples = [
         "x86_64-unknown-linux-gnu",
         "aarch64-unknown-linux-gnu",
+        "x86_64-pc-windows-msvc",
     ],
 )
 use_repo(host_crates, "host_crates")
@@ -36,6 +38,20 @@ host_crates.annotation(
     crate = "mk-oracle",
     gen_build_script = "off",
     repositories = ["host_crates"],
+)
+
+# Pure-Rust RSA key generation is unusably slow without optimization; keep
+# these optimized even in fastbuild (mirrors the cargo profile override in
+# //:Cargo.toml).
+host_crates.annotation(
+    crate = "rsa",
+    repositories = ["host_crates"],
+    rustc_flags = ["-Copt-level=3"],
+)
+host_crates.annotation(
+    crate = "num-bigint-dig",
+    repositories = ["host_crates"],
+    rustc_flags = ["-Copt-level=3"],
 )
 host_crates.splicing_config(
     repositories = ["host_crates"],

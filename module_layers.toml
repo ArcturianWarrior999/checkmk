@@ -540,6 +540,7 @@ allows = [
   "cmk.logwatch",
   "cmk.piggyback",
   "cmk.product_usage",
+  "cmk.profiling.backend",
   "cmk.relay_fetcher_trigger",
   "cmk.rrd",
   "cmk.server_side_calls_backend",
@@ -658,7 +659,7 @@ allows = ["@ccc"]
 allows = []
 
 [components."cmk.diagnostics"]
-allows = ["cmk.ccc.site", "cmk.utils.paths"]
+allows = ["cmk.ccc.site"]
 
 [components."cmk.diskspace"]
 allows = ["@ccc", "cmk.utils.paths"]
@@ -705,7 +706,7 @@ allows = [
 ]
 
 [components."cmk.mcp"]
-allows = ["@ccc", "@livestatus_client", "@trace"]
+allows = ["@ccc", "@trace"]
 
 [components."cmk.messaging"]
 allows = ["@ccc"]
@@ -721,6 +722,9 @@ allows = [
   # metric_backend.license_usage provides a license usage counter plug-in
   "cmk.licensing.usage_counters",
 ]
+
+[components."cmk.metric_backend.adapters"]
+allows = ["@metric_backend", "cmk.shared_typing.attribute_filter"]
 
 [components."cmk.network_flow"]
 allows = ["@ccc"]
@@ -837,6 +841,10 @@ allows = [
   "cmk.otel_collector",
 ]
 
+# allow everything, don't get in the way of migrations.
+[components."cmk.gui.plugins.legacy_bakery_rulesets"]
+allows = ["cmk"]
+
 [components."cmk.gui.plugins"]
 allows = [
   "@ccc",
@@ -925,7 +933,7 @@ excludes = ["cmk.gui.nonfree.pro.plugins", "cmk.gui.plugins"]
 [components."cmk.gui.nonfree.ultimate"]
 allows = [
   "@ccc",
-  "@flags",
+  "@crypto",
   "@livestatus_client",
   "@metric_backend",
   "@plugin_apis",
@@ -1049,6 +1057,8 @@ allows = [
   "cmk.licensing",
   "cmk.piggyback",
   "cmk.product_usage",
+  "cmk.profiling.backend",
+  "cmk.profiling.gui",
   "cmk.server_side_calls_backend",
   "cmk.shared_typing",
   "cmk.backup",
@@ -1155,6 +1165,17 @@ allows = []
 
 [components."cmk.plugins"]
 allows = ["@plugin_apis"]
+
+[components."cmk.profiling.backend"]
+allows = ["cmk.ccc.store", "cmk.shared_typing.profiling_flamegraph"]
+
+[components."cmk.profiling.gui"]
+allows = [
+  "cmk.gui",
+  "cmk.profiling.backend",
+  "cmk.shared_typing.profiling_flamegraph",
+  "cmk.utils.paths",
+]
 
 [components."cmk.product_usage.cli"]
 allows = ["@ccc", "cmk.base", "cmk.product_usage", "cmk.utils.paths"]

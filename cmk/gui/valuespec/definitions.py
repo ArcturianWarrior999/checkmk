@@ -8416,46 +8416,6 @@ class _CAInput(ValueSpec[_CAInputModel]):
         return (address, port, content)
 
 
-def CertificateWithPrivateKey(
-    *,
-    title: str | None = None,
-    help: ValueSpecHelp | None = None,
-) -> Tuple:
-    """A single certificate with a matching private key."""
-
-    def _validate_private_key(value: str, varprefix: str) -> None:
-        if value.startswith("-----BEGIN ENCRYPTED PRIVATE KEY"):
-            raise MKUserError(varprefix, _("Encrypted private keys are not supported"))
-
-        try:
-            keys.PrivateKey.load_pem(keys.PlaintextPrivateKeyPEM(value))
-        except Exception:
-            raise MKUserError(varprefix, _("Invalid private key"))
-
-    def _validate_certificate(value: str, varprefix: str) -> None:
-        try:
-            certificate.Certificate.load_pem(certificate.CertificatePEM(value))
-        except Exception:
-            raise MKUserError(varprefix, _("Invalid certificate"))
-
-    return Tuple(
-        elements=[
-            TextAreaUnicode(
-                allow_empty=False,
-                title="Private key",
-                validate=_validate_private_key,
-            ),
-            TextAreaUnicode(
-                allow_empty=False,
-                title="Certificate",
-                validate=_validate_certificate,
-            ),
-        ],
-        title=title,
-        help=help,
-    )
-
-
 class _CAorCAChain(UploadOrPasteTextFile):
     def __init__(
         self,

@@ -11,6 +11,7 @@ import time
 from collections.abc import Iterable, Sequence
 
 from cmk.gui.breadcrumb import BreadcrumbItem
+from cmk.gui.config import active_config
 from cmk.gui.http import request
 from cmk.gui.i18n import _
 from cmk.gui.type_defs import DynamicIcon, IconNames, StaticIcon
@@ -57,6 +58,7 @@ def register(main_module_registry: MainModuleRegistry) -> None:
     main_module_registry.register(MainModuleAnalyzeConfig)
     main_module_registry.register(MainModuleCertificateOverview)
     main_module_registry.register(MainModuleDiagnostics)
+    main_module_registry.register(MainModulePerformanceProfiles)
     main_module_registry.register(MainModuleMonitoringRules)
     main_module_registry.register(MainModuleDiscoveryRules)
     main_module_registry.register(MainModuleEnforcedServices)
@@ -1099,6 +1101,44 @@ class MainModuleDiagnostics(ABCMainModule):
     @property
     def is_show_more(self) -> bool:
         return False
+
+
+class MainModulePerformanceProfiles(ABCMainModule):
+    @property
+    def mode_or_url(self) -> str:
+        return "performance_profiles"
+
+    @property
+    def topic(self) -> MainModuleTopic:
+        return MainModuleTopicMaintenance
+
+    @property
+    def title(self) -> str:
+        return _("Performance profiles")
+
+    @property
+    def icon(self) -> StaticIcon | DynamicIcon:
+        return StaticIcon(IconNames.diagnostics)
+
+    @property
+    def permission(self) -> None | str:
+        return "performance_profiles"
+
+    @property
+    def description(self) -> str:
+        return _("View stored performance profiles and flamegraphs for analysis.")
+
+    @property
+    def sort_index(self) -> int:
+        return 31
+
+    @property
+    def is_show_more(self) -> bool:
+        return True
+
+    @property
+    def enabled(self) -> bool:
+        return bool(active_config.profiling_options.get("enabled", False))
 
 
 class MainModuleMonitoringRules(ABCMainModule):

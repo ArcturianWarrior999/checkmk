@@ -1,0 +1,130 @@
+<!--
+Copyright (C) 2026 Checkmk GmbH - License: GNU General Public License v2
+This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
+conditions defined in the file COPYING, which is part of this source code package.
+-->
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+import usei18n from '@/lib/i18n'
+
+import CmkCollapsible from '@/components/CmkCollapsible'
+import CmkMultitoneIcon from '@/components/CmkIcon/CmkMultitoneIcon.vue'
+
+import ItemIdChip from '../../calculation/components/ItemIdChip.vue'
+import { collectDirectRefs } from '../../calculation/formula'
+import type { GraphItemsStore } from '../../composables/useGraphItems'
+import { useItemDescription } from '../../composables/useItemDescription'
+import { type DesignerItem, isComplete } from '../../drafts'
+import { type FormulaItem, isSingleLine } from '../../types'
+
+const { item, store } = defineProps<{
+  item: FormulaItem
+  store: GraphItemsStore
+}>()
+
+const { _t } = usei18n()
+const { describeItem } = useItemDescription()
+
+const open = ref(false)
+
+/** The sources the formula references directly, resolved to their table rows. */
+const referencedItems = computed<DesignerItem[]>(() => {
+  const byId = new Map(store.items.value.map((candidate) => [candidate.id, candidate]))
+  return collectDirectRefs(item.ast)
+    .map((id) => byId.get(id))
+    .filter((candidate): candidate is DesignerItem => candidate !== undefined)
+})
+
+function chipColor(referenced: DesignerItem): string | undefined {
+  return isSingleLine(referenced) ? referenced.color : undefined
+}
+</script>
+
+<template>
+  <div class="graphing-formula-form">
+    <button
+      type="button"
+      class="graphing-formula-form__trigger"
+      :aria-expanded="open"
+      @click="open = !open"
+    >
+      <CmkMultitoneIcon
+        :name="open ? 'chevron-down' : 'chevron-right'"
+        primary-color="font"
+        size="small"
+        aria-hidden="true"
+      />
+      <span class="graphing-formula-form__value">{{ describeItem(item) }}</span>
+    </button>
+
+    <CmkCollapsible :open="open">
+      <div class="graphing-formula-form__listing">
+        <template v-if="referencedItems.length > 0">
+          <template v-for="referenced in referencedItems" :key="referenced.id">
+            <ItemIdChip :id="referenced.id" :color="chipColor(referenced)" />
+            <span class="graphing-formula-form__desc">{{
+              isComplete(referenced) ? describeItem(referenced) : _t('incomplete source')
+            }}</span>
+          </template>
+        </template>
+        <span v-else class="graphing-formula-form__empty">
+          {{ _t('This formula references no sources.') }}
+        </span>
+      </div>
+    </CmkCollapsible>
+  </div>
+</template>
+
+<style scoped>
+.graphing-formula-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dimension-4);
+  padding-left: var(--dimension-4);
+
+  --graphing-formula-form-border: var(--color-mid-grey-10);
+}
+
+body[data-theme='modern-dark'] .graphing-formula-form {
+  --graphing-formula-form-border: var(--color-mid-grey-90);
+}
+
+.graphing-formula-form__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dimension-3);
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--font-color);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: revert;
+  }
+}
+
+.graphing-formula-form__listing {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--dimension-4) var(--dimension-5);
+  align-items: center;
+  padding: var(--dimension-7);
+  border: 1px solid var(--graphing-formula-form-border);
+  border-radius: var(--border-radius);
+}
+
+.graphing-formula-form__desc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.graphing-formula-form__empty {
+  opacity: 0.6;
+  font-style: italic;
+}
+</style>

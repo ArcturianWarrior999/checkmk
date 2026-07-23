@@ -17,62 +17,28 @@ from cmk.gui.valuespec import (
     TextInput,
     Transform,
 )
+from cmk.plugins.docker.sections import CONTAINER_SECTIONS, NODE_SECTIONS
 from cmk.ruleset_matcher.definition import RuleGroup
 
 
+# Note: this ruleset is used to store *skipped* sections, but when presenting the
+# configured values we always invert them to present the selected sections to the user.
+# The new API does not allow this hack. Upon migration, simply make the 'node' and
+# 'container' elements optional, and display the skipped sections directly.
 def _agent_config_mk_docker_invert_choices_node(selected: list[str]) -> list[str]:
-    return [key for key, _label in _agent_config_mk_docker_choices_node() if key not in selected]
+    return [key for key in NODE_SECTIONS if key not in selected]
 
 
 def _agent_config_mk_docker_choices_cont() -> list[tuple[str, str]]:
-    return [
-        ("docker_container_node_name", _("Node name: Inventorize the nodes' name")),
-        (
-            "docker_container_status",
-            "Status: %s" % _("Create status and (if configured) health services"),
-        ),
-        ("docker_container_labels", "Labels: %s" % _("Inventorize the labels")),
-        (
-            "docker_container_network",
-            "Network: %s" % _("Inventorize network configuration information"),
-        ),
-        (
-            "docker_container_agent",
-            _("Checkmk agent: execute the Checkmk agent within running containers"),
-        ),
-        ("docker_container_mem", _("Check containers memory usage")),
-        ("docker_container_cpu", _("Check containers CPU utilization")),
-        ("docker_container_diskstat", _("Check containers disk status")),
-    ]
+    return [(k, v.localize(_)) for k, v in CONTAINER_SECTIONS.items()]
 
 
 def _agent_config_mk_docker_choices_node() -> list[tuple[str, str]]:
-    return [
-        (
-            "docker_node_info",
-            "Info: %s" % _("Daemon state and summarized count of containers and their states"),
-        ),
-        (
-            "docker_node_disk_usage",
-            "Disk usage: %s" % _("Information similar to 'docker system df' output"),
-        ),
-        (
-            "docker_node_images",
-            "Images: %s"
-            % _(
-                "Inventorize image information such as creation time, size,"
-                " labels and the amount of containers running them."
-            ),
-        ),
-        (
-            "docker_node_network",
-            "Network: %s" % _("Inventorize containers' network configuration"),
-        ),
-    ]
+    return [(k, v.localize(_)) for k, v in NODE_SECTIONS.items()]
 
 
 def _agent_config_mk_docker_invert_choices_cont(selected: list[str]) -> list[str]:
-    return [key for key, _label in _agent_config_mk_docker_choices_cont() if key not in selected]
+    return [key for key in CONTAINER_SECTIONS if key not in selected]
 
 
 def _valuespec_agent_config_mk_docker() -> Alternative:

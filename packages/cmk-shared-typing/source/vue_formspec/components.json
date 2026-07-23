@@ -815,6 +815,9 @@
               "title": "StaticTextStyle",
               "enum": ["text", "preformatted", "alert_info", "alert_warning", "alert_error"],
               "default": "text"
+            },
+            "placeholder": {
+              "type": ["string", "null"]
             }
           },
           "required": ["type", "value", "style"]
@@ -1031,6 +1034,9 @@
             "data_point_attributes": {
               "$ref": "#/$defs/metric_backend_attributes"
             },
+            "attribute_filter": {
+              "$ref": "../attribute_filter.json"
+            },
             "aggregation_lookback": {
               "type": "number"
             },
@@ -1075,6 +1081,9 @@
             },
             "data_point_attributes": {
               "$ref": "#/$defs/metric_backend_attributes"
+            },
+            "attribute_filter": {
+              "$ref": "../attribute_filter.json"
             }
           },
           "required": ["type", "resource_attributes", "scope_attributes", "data_point_attributes"]

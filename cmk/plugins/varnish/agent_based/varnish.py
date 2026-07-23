@@ -39,10 +39,7 @@ def parse_varnish(string_table: StringTable) -> Section:
             value = int(line[1])
         except ValueError:
             value = None
-        if line[3].lower() in line[0]:
-            descr = " ".join(line[4:])
-        else:
-            descr = " ".join(line[3:])
+        descr = " ".join(line[4:]) if line[3].lower() in line[0] else " ".join(line[3:])
         perf_var_name = "varnish_%s_rate" % parsed_path[-1]
         if perf_var_name.startswith("varnish_n_wrk"):
             perf_var_name = perf_var_name.replace("n_wrk", "worker")

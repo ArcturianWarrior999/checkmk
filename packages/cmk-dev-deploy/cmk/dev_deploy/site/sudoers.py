@@ -117,8 +117,7 @@ def admin_setup_commands(site_name: str) -> str:
         f'sudo visudo -cf "$rule"\n'
         f'sudo install -m 0440 -o root -g root "$rule" {drop_in_path(site_name)}\n'
         f'rm "$rule"\n'
-        f"sudo mkdir -p {DEV_VERSIONS_DIR}\n"
-        f"sudo chown {user} {DEV_VERSIONS_DIR}"
+        f"sudo install -d -m 0755 -o {user} {DEV_VERSIONS_DIR}"
     )
 
 
@@ -206,8 +205,10 @@ def _install_rule(rule: str, path: Path, site_name: str) -> None:
 def ensure_dev_versions_dir() -> None:
     """Ensure the deploy-user-owned clone base directory exists.
 
-    Creating a directory under ``/omd`` requires root, so this may prompt
-    for the sudo password — once per machine, ever.
+    Created 0755: the site user resolves its ``version`` symlink through
+    this directory, so it must stay world-traversable regardless of the
+    admin's umask.  Creating a directory under ``/omd`` requires root, so
+    this may prompt for the sudo password — once per machine, ever.
 
     Raises:
         SudoersError: If the directory cannot be created.
@@ -217,17 +218,15 @@ def ensure_dev_versions_dir() -> None:
     user = get_real_user()
     output.info(f"Creating {DEV_VERSIONS_DIR} (owned by {user}) requires sudo")
     _authenticate_sudo()
-    for cmd in (["mkdir", "-p", str(DEV_VERSIONS_DIR)], ["chown", user, str(DEV_VERSIONS_DIR)]):
-        result = _run_root(cmd)
-        if result.returncode != 0:
-            raise SudoersError(
-                f"Failed to prepare {DEV_VERSIONS_DIR}: {result.stderr.strip()}",
-                recovery=(
-                    "Ask an administrator to run:\n"
-                    f"    sudo mkdir -p {DEV_VERSIONS_DIR}\n"
-                    f"    sudo chown {user} {DEV_VERSIONS_DIR}"
-                ),
-            )
+    result = _run_root(["install", "-d", "-m", "0755", "-o", user, str(DEV_VERSIONS_DIR)])
+    if result.returncode != 0:
+        raise SudoersError(
+            f"Failed to prepare {DEV_VERSIONS_DIR}: {result.stderr.strip()}",
+            recovery=(
+                "Ask an administrator to run:\n"
+                f"    sudo install -d -m 0755 -o {user} {DEV_VERSIONS_DIR}"
+            ),
+        )
 
 
 def print_setup(site_name: str) -> None:

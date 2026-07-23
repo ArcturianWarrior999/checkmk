@@ -20,6 +20,7 @@ from cmk.base.core.nagios import HostCheckConfig
 from cmk.base.modes.check_mk import run_checking
 from cmk.ccc.config_path import detect_latest_config_path
 from cmk.ccc.hostaddress import HostAddress, HostName
+from cmk.checkengine.checker_helper_config import load_packed_config
 from cmk.checkengine.fetcher_utils.secrets import StoredSecrets
 from cmk.checkengine.plugin_backend import (
     load_selected_plugins,
@@ -97,14 +98,16 @@ def main() -> int:
         plugins = load_selected_plugins(CONFIG.locations, sections, checks, validate=debug)
 
         app = make_app(cmk_version.edition(omd_root))
-        raw_config = config.load_packed_config(active_config_path)
-        # The precompiled host check resolves the addresses dynamically at
-        # config-generation time (potentially via DNS) and ships them in the
-        # template. CONFIG.ip{,v6}addresses is populated not only with the
-        # values that would be loaded here anyway, but additionally with some
-        # looked up addresses.
-        raw_config["ipaddresses"] = CONFIG.ipaddresses
-        raw_config["ipv6addresses"] = CONFIG.ipv6addresses
+        raw_config = {
+            **load_packed_config(active_config_path),
+            # The precompiled host check resolves the addresses dynamically at
+            # config-generation time (potentially via DNS) and ships them in the
+            # template. CONFIG.ip{,v6}addresses is populated not only with the
+            # values that would be loaded here anyway, but additionally with some
+            # looked up addresses.
+            "ipaddresses": CONFIG.ipaddresses,
+            "ipv6addresses": CONFIG.ipv6addresses,
+        }
         loading_result = config.perform_post_config_loading_actions(
             raw_config,
             edition=app.edition,

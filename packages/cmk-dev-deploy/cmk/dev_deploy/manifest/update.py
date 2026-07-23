@@ -230,6 +230,15 @@ def _validate_manual_specs(manual: dict[str, Any], repo_root: Path) -> None:
 # Auto-discovery: config specs from deps_packages packaging targets
 # ---------------------------------------------------------------------------
 
+# Top-level directories of an OMD version tree.  Auto-discovered config
+# specs deploy relative to the version root, so every derived site_dest
+# must start with one of these.  A dest outside them means the packaging
+# target composes its in-archive path from an enclosing pkg_tar
+# package_dir, which PackageFilesInfo cannot see -- the deploy would
+# land in a directory nothing reads.  Spell the full site-relative path
+# out on the pkg_files itself instead (see e624484b8b1 for the pattern).
+_VERSION_ROOT_DIRS: frozenset[str] = frozenset({"bin", "include", "lib", "share", "skel"})
+
 
 def _classify_config_method(source_prefix: str, package_target: str) -> str:
     """Auto-classify a config spec's deploy method from its source path.
@@ -274,6 +283,10 @@ def _discover_config_specs(
 
     Returns:
         List of config spec dicts, enriched with Bazel-derived data.
+
+    Raises:
+        RuntimeError: If a derived site_dest lies outside the version-tree
+            roots (deploying it would write to a location nothing reads).
     """
     # We need to identify which packaging targets are config targets
     # (not install targets for compiled artifacts).  Config targets are
@@ -284,6 +297,7 @@ def _discover_config_specs(
     # separately, so any pkg_data target NOT in install_specs is a config target.
 
     config_specs: list[dict[str, Any]] = []
+    dest_violations: list[str] = []
 
     for target_label, entries in sorted(pkg_data.items()):
         if not entries:
@@ -339,6 +353,13 @@ def _discover_config_specs(
                 )
                 continue
 
+            if common_dest.split("/", 1)[0] not in _VERSION_ROOT_DIRS:
+                dest_violations.append(
+                    f"  {target_label}: site_dest {common_dest!r}"
+                    f" (sources under {common_src or root!r})"
+                )
+                continue
+
             files: list[dict[str, Any]] = sorted(
                 [
                     {"src": src, "dest": dest, "mode": fmode, "generated": not is_source}
@@ -362,6 +383,19 @@ def _discover_config_specs(
                     "source_prefix": common_src,
                 }
             )
+
+    if dest_violations:
+        roots = ", ".join(sorted(_VERSION_ROOT_DIRS))
+        raise RuntimeError(
+            "Config spec destinations outside the version tree "
+            f"(expected a first path component of: {roots}):\n"
+            + "\n".join(dest_violations)
+            + "\nSpell out the full site-relative path on the pkg_files "
+            'itself (e.g. prefix = "share/check_mk/...").  A path composed '
+            "from an enclosing pkg_tar package_dir is invisible to "
+            "PackageFilesInfo and would deploy to a location nothing reads "
+            "(see e624484b8b1 for the pattern)."
+        )
 
     config_specs.sort(key=lambda s: s["name"])
     return config_specs

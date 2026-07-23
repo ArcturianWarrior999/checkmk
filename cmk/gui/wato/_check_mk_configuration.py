@@ -163,6 +163,7 @@ def register(
     config_variable_registry.register(ConfigVariableQuicksearchSearchOrder)
     config_variable_registry.register(ConfigVariableExperimentalFeatures)
     config_variable_registry.register(ConfigVariableInjectJsProfiling)
+    config_variable_registry.register(ConfigVariableProfilingOptions)
     config_variable_registry.register(ConfigVariableLoadFrontendVue)
     config_variable_registry.register(ConfigVariableTableRowLimit)
     config_variable_registry.register(ConfigVariableStartURL)
@@ -459,7 +460,7 @@ def _web_log_level_elements(edition: Edition) -> list[tuple[str, DropdownChoice]
             ),
         ),
         (
-            "cmk.web.automations",
+            "cmk.automations",
             _("Automation calls"),
             _(
                 "Communication between different components of Checkmk (e.g. GUI and check engine) "
@@ -570,14 +571,24 @@ def _valuespec_profile(context: GlobalSettingsContext) -> DropdownChoice:
         title=_("Profile requests"),
         help=_(
             "It is possible to profile the rendering process of graphical user interface (GUI) pages. This "
-            "is done using the Python module cProfile. When profiling is performed "
-            "three files are created in <tt>%(var_dir)s</tt>: <tt>multisite.profile</tt>, "
-            "<tt>multisite.cachegrind</tt> and <tt>multisite.py</tt>. By executing the latter "
-            "file you can get runtime statistics about the last processed page. When "
-            "enabled, by request the profiling mode is enabled by providing the HTTP "
+            "is done using the Python module cProfile. When profiling is performed, "
+            "each request's cProfile output is stored as a <tt>.profile</tt> file plus a "
+            "<tt>.json</tt> metadata sidecar in <tt>%(profiles_dir)s</tt>; flamegraphs are rendered on "
+            "demand in the GUI. "
+            "You can view stored profiles and flamegraphs under "
+            "<b>Setup > Maintenance > Performance profiles</b>. "
+            "Retention is controlled by the <b>Profiling options</b> setting in Developer Tools. "
+            "Profiles are also included in Support Diagnostics dumps when the "
+            "Performance Profiles option is selected. "
+            "In addition, <tt>multisite.profile</tt> and <tt>multisite.cachegrind</tt> "
+            "are written to <tt>%(var_dir)s</tt> for use with external tools like KCachegrind. "
+            "When enabled by request, the profiling mode is enabled by providing the HTTP "
             "variable <tt>_profile</tt> in the query parameters."
         )
-        % {"var_dir": context.site_neutral_var_dir},
+        % {
+            "profiles_dir": context.site_neutral_var_dir / "profiles",
+            "var_dir": context.site_neutral_var_dir,
+        },
         choices=[
             (False, _("Disable profiling")),
             ("enable_by_var", _("Enable profiling by request")),
@@ -778,6 +789,62 @@ ConfigVariableInjectJsProfiling = ConfigVariable(
     valuespec=lambda context: Checkbox(
         title=_("Inject JavaScript profiling code"),
         default_value=False,
+    ),
+)
+
+ConfigVariableProfilingOptions = ConfigVariable(
+    group=ConfigVariableGroupDeveloperTools,
+    primary_domain=ConfigDomainGUI,
+    ident="profiling_options",
+    valuespec=lambda context: Dictionary(
+        title=_("Performance profiles"),
+        help=_(
+            "Controls the performance-profile feature. When enabled, profiled GUI "
+            "requests and <tt>cmk --profile</tt> runs are stored under "
+            "<tt>var/check_mk/profiles</tt> and the <b>Setup > Maintenance > "
+            "Performance profiles</b> page becomes available with an interactive "
+            "flamegraph viewer. "
+            "<br><br>"
+            "Note: the upload endpoint deserialises user-supplied cProfile bytes "
+            "and is therefore restricted to administrators. Disable the feature "
+            "on hardened deployments if untrusted admin sessions are a concern."
+        ),
+        elements=[
+            (
+                "enabled",
+                Checkbox(
+                    title=_("Enable performance profiles"),
+                    label=_("Show the Performance profiles page and record profiled requests"),
+                    default_value=False,
+                ),
+            ),
+            (
+                "max_count",
+                Integer(
+                    title=_("Maximum number of stored profiles"),
+                    help=_(
+                        "When a new profile is saved and this count is exceeded, the "
+                        "oldest profiles are removed first."
+                    ),
+                    default_value=100,
+                    minvalue=1,
+                ),
+            ),
+            (
+                "max_age_days",
+                Integer(
+                    title=_("Maximum age of stored profiles"),
+                    help=_(
+                        "Profiles older than this are discarded on the next save or "
+                        "housekeeping run. Leave unset to keep profiles indefinitely "
+                        "(count-based cap still applies)."
+                    ),
+                    unit=_("days"),
+                    minvalue=1,
+                ),
+            ),
+        ],
+        optional_keys=["max_age_days"],
     ),
 )
 

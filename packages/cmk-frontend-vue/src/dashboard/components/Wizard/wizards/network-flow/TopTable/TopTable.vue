@@ -49,7 +49,8 @@ const accentOptions: Suggestions = {
     { name: 'magenta', title: _t('Magenta') },
     { name: 'yellow', title: _t('Yellow') },
     { name: 'orange', title: _t('Orange') },
-    { name: 'purple', title: _t('Purple') }
+    { name: 'purple', title: _t('Purple') },
+    { name: 'red', title: _t('Red') }
   ]
 }
 

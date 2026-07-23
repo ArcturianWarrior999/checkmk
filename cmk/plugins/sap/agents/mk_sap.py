@@ -218,10 +218,7 @@ def to_be_monitored(path, toplevel_match=False):
 
 
 def node_path(tree, node, path=""):
-    if path:
-        path = node["MTNAMESHRT"].rstrip() + SEPARATOR + path
-    else:
-        path = node["MTNAMESHRT"].rstrip()
+    path = node["MTNAMESHRT"].rstrip() + SEPARATOR + path if path else node["MTNAMESHRT"].rstrip()
 
     if node["ALPARINTRE"] > 0:
         parent_node = tree[node["ALPARINTRE"] - 1]

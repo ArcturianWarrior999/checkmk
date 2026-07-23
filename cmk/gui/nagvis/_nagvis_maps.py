@@ -8,6 +8,7 @@
 from collections.abc import Mapping
 from typing import Any
 
+from cmk.ccc.site import url_prefix
 from cmk.gui.breadcrumb import Breadcrumb
 from cmk.gui.config import Config
 from cmk.gui.exceptions import MKUserError
@@ -21,7 +22,18 @@ from cmk.gui.pages import PageContext
 from cmk.gui.sidebar import footnotelinks, PageHandlers, SidebarSnapin
 from cmk.gui.utils.urls import makeuri_contextless
 
+# Relative prefix used for the "Edit" footnote link (from check_mk/ to nagvis/).
 _NAGVIS_URL_PREFIX = "../nagvis/"
+
+
+def _is_nagvis_url(nagvis_url: str, site_url_prefix: str) -> bool:
+    """Only allow embedding of NagVis pages into the chrome wrapper.
+
+    The "Edit" link is a relative path (``../nagvis/``), while the map links
+    returned by the NagVis getMaps API are site-absolute paths
+    (``/<site>/nagvis/...``).
+    """
+    return nagvis_url.startswith((_NAGVIS_URL_PREFIX, f"{site_url_prefix}nagvis/"))
 
 
 def _nagvis_page_url(nagvis_url: str) -> str:
@@ -58,7 +70,7 @@ class NagVisMaps(SidebarSnapin):
     def _show_nagvis_page(self, ctx: PageContext) -> None:
         """Embed a NagVis page into the Checkmk chrome."""
         nagvis_url = ctx.request.get_url_input("url", _NAGVIS_URL_PREFIX)
-        if not nagvis_url.startswith(_NAGVIS_URL_PREFIX):
+        if not _is_nagvis_url(nagvis_url, url_prefix()):
             raise MKUserError("url", _("Not a NagVis URL"))
 
         make_header(

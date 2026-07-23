@@ -49,6 +49,9 @@ def test_hooks(site: Site) -> None:
     if not site.edition.is_community_edition():
         hooks += [
             "LIVEPROXYD",
+            "MCP_SERVER",
+            "MCP_TRACE_FORWARD_TOKEN",
+            "MCP_TRACE_FORWARD_URL",
         ]
 
     if not site.edition.is_cloud_edition():
@@ -64,17 +67,6 @@ def test_hooks(site: Site) -> None:
         hooks += [
             "OPENTELEMETRY_COLLECTOR",
             "OPENTELEMETRY_COLLECTOR_SELF_MONITORING_PORT",
-        ]
-
-    if (
-        site.edition.is_cloud_edition()
-        or site.edition.is_ultimate_edition()
-        or site.edition.is_ultimatemt_edition()
-    ):
-        hooks += [
-            "MCP_SERVER",
-            "MCP_TRACE_FORWARD_TOKEN",
-            "MCP_TRACE_FORWARD_URL",
         ]
 
     installed_hooks = os.listdir(site.root / "lib" / "omd" / "hooks")

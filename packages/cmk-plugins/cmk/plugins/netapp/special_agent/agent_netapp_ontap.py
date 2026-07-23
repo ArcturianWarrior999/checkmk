@@ -2,6 +2,12 @@
 # Copyright (C) 2024 Checkmk GmbH - License: GNU General Public License v2
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
+
+# netapp_ontap switched to a lazy loading scheme via apipkg which hides all useful
+# information from mypy. :-/ See
+# https://library.netapp.com/ecmdocs/ECMLP3364865/html/index.html#9181-library-updates
+# mypy: disable-error-code="attr-defined"
+
 """agent_netapp_ontap
 
 Checkmk special agent to monitor Netapp via ONTAP REST API.
@@ -300,7 +306,7 @@ def fetch_volumes_counters(
             id=volume_id,
             connection=connection,
             fields="counters",
-            max_records=None,  # type: ignore[arg-type]
+            max_records=None,
             **{"counters.name": "|".join(volumes_counters_field_query)},
         ):
             element_serialized = element.to_dict()
@@ -556,7 +562,7 @@ def fetch_interfaces_counters(
         id="*",
         connection=connection,
         fields="counters",
-        max_records=None,  # type: ignore[arg-type]
+        max_records=None,
         **{"counters.name": "|".join(interfaces_counters_field_query)},
     ):
         element_data = element.to_dict()
@@ -816,7 +822,7 @@ def fetch_vs_traffic_counters(
             key,
             connection=connection,
             fields="properties,counters",
-            max_records=None,  # type: ignore[arg-type]
+            max_records=None,
             **{"counters.name": "|".join(values)},
         ):
             element_data = element.to_dict()
@@ -856,7 +862,7 @@ def fetch_fc_interfaces_counters(
             key,
             connection=connection,
             fields="properties,counters",
-            max_records=None,  # type: ignore[arg-type]
+            max_records=None,
             **{"counters.name": "|".join(values)},
         ):
             element_data = element.to_dict()

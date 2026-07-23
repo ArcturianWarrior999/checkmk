@@ -24,9 +24,8 @@ from cmk.gui.i18n import _
 from cmk.gui.logged_in import LoggedInSuperUser
 from cmk.gui.session_context import SuperUserContext
 from cmk.gui.site_config import (
+    all_activation_sites,
     is_distributed_setup_remote_site,
-    is_replication_enabled,
-    site_is_local,
     sites_ready_for_remote_automation,
 )
 from cmk.gui.utils.roles import UserPermissionSerializableConfig
@@ -105,15 +104,7 @@ def execute_host_removal_job(config: Config) -> None:
         # Host removal runs unattended as a background job; act as the superuser explicitly
         # instead of swapping the request-global session user via SuperUserContext.
         acting_user = LoggedInSuperUser()
-        activation_site_configs = SiteConfigurations(
-            {
-                site_id: site
-                for site_id, site in acting_user.authorized_sites(
-                    unfiltered_sites=config.sites
-                ).items()
-                if site_is_local(site) or is_replication_enabled(site)
-            }
-        )
+        activation_site_configs = all_activation_sites(config.sites)
         for folder, hosts_in_folder in itertools.groupby(
             itertools.chain.from_iterable(hosts_to_be_removed.values()), _folder_of_host
         ):

@@ -101,10 +101,7 @@ def check_apc_netbotz_drycontact(item: str, section: Section) -> CheckResult:
         return
     state_readable, state = data.state
     loc = data.location
-    if loc:
-        loc_info = "[%s] " % loc
-    else:
-        loc_info = ""
+    loc_info = "[%s] " % loc if loc else ""
     yield Result(state=state, summary=f"{loc_info}{state_readable}")
 
 

@@ -23,6 +23,7 @@ def get_single_oid(
     section_name: SNMPSectionName | None = None,
     single_oid_cache: dict[OID, SNMPDecodedString | None],
     backend: SNMPBackend,
+    warn_on_empty_value: bool = True,
 ) -> SNMPDecodedString | None:
     # The OID can end with ".*". In that case we do a snmpgetnext and try to
     # find an OID with the prefix in question. The *cache* is working including
@@ -51,20 +52,22 @@ def get_single_oid(
             if value is not None:
                 break  # Use first received answer in case of multiple contextes
         except Exception:
+            logger.exception(
+                "Exception while getting OID %(oid)s from context %(context)s.",
+                {"oid": oid, "context": context},
+            )
             if cmk.ccc.debug.enabled():
                 raise
             value = None
 
     if value is not None:
-        logger.debug("Got OID %(oid): %(value)s", {"oid": oid, "value": value})
-    else:
-        logger.warning("Getting OID %(oid)s failed.", {"oid": oid})
-
-    if value is not None:
+        logger.debug("Got OID %(oid)s: %(value)s", {"oid": oid, "value": value})
         decoded_value: SNMPDecodedString | None = ensure_str(
             value, encoding=backend.config.character_encoding
         )  # used ensure_str function with different possible encoding arguments
     else:
+        log_func = logger.warning if warn_on_empty_value else logger.debug
+        log_func("Getting OID %(oid)s failed.", {"oid": oid})
         decoded_value = value
 
     single_oid_cache[oid] = decoded_value

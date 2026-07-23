@@ -49,9 +49,20 @@ test('allocates spreadsheet-style ids, wrapping past Z, and returns them', () =>
   expect(ids[27]).toBe('AB')
 })
 
-test('fills the smallest unused id around a seed', () => {
+test('continues after the highest seed id', () => {
   const store = useGraphItems(PALETTE, [rrdMetricItem('A', { color: PALETTE[0]! })])
   expect(store.addFormula(numberDraft(1))).toBe('B')
+})
+
+test('nextId follows the highest id in use, not backfilling removed ones', () => {
+  const store = useGraphItems(
+    PALETTE,
+    ['A', 'B', 'C', 'D'].map((id) => rrdMetricItem(id))
+  )
+  store.remove('C')
+  expect(store.nextId.value).toBe('E') // the gap at C is left alone
+  store.remove('D')
+  expect(store.nextId.value).toBe('C') // nothing above B remains, so C recurs
 })
 
 test('assigns distinct palette colours and cycles once exhausted', () => {

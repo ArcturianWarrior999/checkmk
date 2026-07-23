@@ -30,11 +30,8 @@ def parse_veeam_client(string_table: StringTable) -> Section:
     last_found: str = ""
     for line in string_table:
         if line[0] == "Status":
-            if len(line) == 2:
-                last_status = line[1]
-            else:
-                # Prevent empty entries
-                last_status = False
+            # Prevent empty entries
+            last_status = line[1] if len(line) == 2 else False
         elif line[0] == "JobName":
             if last_status:
                 last_found = line[1]

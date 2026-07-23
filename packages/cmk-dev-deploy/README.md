@@ -144,7 +144,7 @@ prompt returns on the next run.
 | Reboot             | nothing to do — the symlink persists, the site starts with the **deployed** code  |
 | `--full`           | delete + recreate clone, swap, restart (no sudo)                                  |
 | `--purge`          | revert symlink to the pristine version, delete clone (no sudo); site left stopped |
-| `omd update`       | detected via a symlink guard → refuses loudly, instructs `--purge` first          |
+| `omd update`       | stale clone discarded on the next deploy, incremental state reset (full deploy)   |
 
 **`--purge` reverts code only.** Site configuration (`etc/`) and runtime
 state (`var/`) are real directories that deploys never touch, so purging

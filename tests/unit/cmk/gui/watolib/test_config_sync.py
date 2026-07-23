@@ -382,3 +382,29 @@ def test_replication_path_serialize_deserialize_error() -> None:
 def test_populate_saml_site_endpoint_urls_leaves_all_shorthand_untouched() -> None:
     site_config = cast(SiteConfiguration, {"authentication_connections": "all"})
     assert config_sync.populate_saml_site_endpoint_urls(site_config) == site_config
+
+
+def test_populate_saml_site_endpoint_urls_marks_uncomputable_entries_with_dash() -> None:
+    """The sync path keeps the ``-`` placeholder that remote sites treat as
+    "no per-site override" at runtime."""
+    site_config = cast(
+        SiteConfiguration,
+        {"authentication_connections": [("saml", {"connection_id": ""})]},
+    )
+    populated = config_sync.populate_saml_site_endpoint_urls(site_config)
+    assert populated["authentication_connections"] == [
+        ("saml", {"connection_id": "", "metadata_endpoint": "-", "acs_endpoint": "-"})
+    ]
+
+
+def test_populate_saml_site_endpoint_urls_supports_empty_marker_for_form_display() -> None:
+    """The site-edit form passes ``empty_marker=""`` so the endpoint widgets
+    render their placeholder alert instead of a bare dash."""
+    site_config = cast(
+        SiteConfiguration,
+        {"authentication_connections": [("saml", {"connection_id": ""})]},
+    )
+    populated = config_sync.populate_saml_site_endpoint_urls(site_config, empty_marker="")
+    assert populated["authentication_connections"] == [
+        ("saml", {"connection_id": "", "metadata_endpoint": "", "acs_endpoint": ""})
+    ]

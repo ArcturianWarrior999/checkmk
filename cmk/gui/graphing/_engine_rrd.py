@@ -87,7 +87,7 @@ def _forward_fill(time_series: TimeSeries, time_range: TimeRange) -> Sequence[fl
     ]
 
 
-def resample(
+def _resample(
     time_series: TimeSeries,
     time_range: TimeRange,
     consolidation_function: ConsolidationFunction,
@@ -104,7 +104,7 @@ def resample(
     return TimeSeries(time_range=time_range, values=values)
 
 
-def scaled_series(time_series: TimeSeries, scale: float) -> TimeSeries:
+def _scaled_series(time_series: TimeSeries, scale: float) -> TimeSeries:
     if scale == 1.0:
         return time_series
     return TimeSeries(
@@ -113,7 +113,7 @@ def scaled_series(time_series: TimeSeries, scale: float) -> TimeSeries:
     )
 
 
-def merge_series(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeries:
+def _merge_series(time_series: Sequence[TimeSeries], time_range: TimeRange) -> TimeSeries:
     return TimeSeries(
         time_range=time_range,
         values=[
@@ -148,12 +148,12 @@ type _TranslationSpec = (
 
 
 @dataclass(frozen=True, kw_only=True)
-class RRDOriginal:
+class _RRDOriginal:
     metric_name: MetricName
     scale: float
 
 
-def normalize_check_command(
+def _normalize_check_command(
     check_command: (
         translations_v1.PassiveCheck
         | translations_v1.ActiveCheck
@@ -192,7 +192,7 @@ def _specs_for_command(
     def _matches(candidate: str) -> Mapping[str, _TranslationSpec]:
         merged: dict[str, _TranslationSpec] = {}
         for translation in registered_translations:
-            if candidate in (normalize_check_command(cmd) for cmd in translation.check_commands):
+            if candidate in (_normalize_check_command(cmd) for cmd in translation.check_commands):
                 merged.update(translation.translations)
         return merged
 
@@ -252,26 +252,26 @@ def _deprecated_originals(
     metric_name: MetricName,
     specs: Mapping[str, _TranslationSpec],
     present: Collection[MetricName],
-) -> Iterator[RRDOriginal]:
+) -> Iterator[_RRDOriginal]:
     prefix, bare_name = _split_predict_prefix(metric_name)
     for old_name, scale in _reverse_names(MetricName(bare_name), specs).items():
         if (column := MetricName(f"{prefix}{old_name}")) not in present:
-            yield RRDOriginal(metric_name=column, scale=scale)
+            yield _RRDOriginal(metric_name=column, scale=scale)
 
 
-def originals_for_metric_name(
+def _originals_for_metric_name(
     metric_name: MetricName,
     check_command: str,
     registered_translations: Sequence[translations_v1.Translation],
-) -> Sequence[RRDOriginal]:
+) -> Sequence[_RRDOriginal]:
     specs = _specs_for_command(check_command, registered_translations)
     return [
-        RRDOriginal(metric_name=metric_name, scale=1.0),
+        _RRDOriginal(metric_name=metric_name, scale=1.0),
         *_deprecated_originals(metric_name, specs, {metric_name}),
     ]
 
 
-def translate_metric_names(
+def _translate_metric_names(
     check_command: str,
     raw_metric_names: Sequence[MetricName],
     registered_translations: Sequence[translations_v1.Translation],
@@ -289,7 +289,7 @@ def _scaled(value: float | None, scale: float) -> float | None:
     return None if value is None else value * scale
 
 
-def translate_performance_data(
+def _translate_performance_data(
     check_command: str,
     raw_values: Mapping[MetricName, RawPerformanceValue],
     registered_translations: Sequence[translations_v1.Translation],
@@ -449,7 +449,6 @@ def parse_performance_data(
 
 @dataclass(frozen=True)
 class EngineRRDFetchMetricNames:
-    site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
 
@@ -461,9 +460,15 @@ class EngineRRDFetchMetricNames:
             "GET services\nColumns: host_name description perf_data metrics check_command\n"
             + _service_or_filter(unique)
         )
+        # prepend_site tags each row with the site its data lives on (as the legacy fetch does), so
+        # each resolved service carries its real site - the site scope, if any, is the caller's
+        # (an only_sites context). The graph built from these services thereby carries the site on
+        # its metrics (for per-site fetching and tuning scoping), and a same host/service on two
+        # sites is kept apart as two entries.
         result: dict[Service, frozenset[MetricName]] = {}
-        with sites.only_sites(self.site_id):
+        with sites.prepend_site():
             for (
+                row_site,
                 host_name,
                 description,
                 perf_data_string,
@@ -473,12 +478,13 @@ class EngineRRDFetchMetricNames:
                 raw = parse_performance_data(
                     perf_data_string, check_command, rrd_metrics, debug=self.debug
                 )
-                result[Service(host_name=host_name, service_name=description)] = (
-                    translate_metric_names(
-                        raw.check_command, list(raw.values), self.registered_translations
-                    )
+                service = Service(
+                    site_id=SiteID(str(row_site)), host_name=host_name, service_name=description
                 )
-        return {service: result[service] for service in unique if service in result}
+                result[service] = _translate_metric_names(
+                    raw.check_command, list(raw.values), self.registered_translations
+                )
+        return result
 
 
 def _chop_last_empty_step(
@@ -524,7 +530,6 @@ class FetchDiagnostics:
 
 @dataclass(frozen=True)
 class EngineRRDFetchData:
-    site_id: SiteId | None
     debug: bool
     registered_translations: Sequence[translations_v1.Translation] = ()
     # An optional RRDtool cap on the number of data points a time-series query returns, appended to
@@ -565,7 +570,7 @@ class EngineRRDFetchData:
         raw_performance_data: Mapping[tuple[SiteID | None, Service], RawPerformanceData],
     ) -> Mapping[RRDMetric, PerformanceData]:
         translated = {
-            location: translate_performance_data(
+            location: _translate_performance_data(
                 raw.check_command, raw.values, self.registered_translations
             )
             for location, raw in raw_performance_data.items()
@@ -607,14 +612,14 @@ class EngineRRDFetchData:
                 [
                     (
                         RRDMetric(
+                            site_id=site_id,
                             host_name=metric.host_name,
                             service_name=metric.service_name,
                             metric_name=original.metric_name,
-                            site_id=site_id,
                         ),
                         original.scale,
                     )
-                    for original in originals_for_metric_name(
+                    for original in _originals_for_metric_name(
                         metric.metric_name, raw.check_command, self.registered_translations
                     )
                 ],
@@ -654,12 +659,12 @@ class EngineRRDFetchData:
         time_series: dict[RRDMetric, EngineTimeSeries] = {}
         for metric, (function, originals) in originals_by_metric.items():
             scaled = [
-                scaled_series(resample(ts, reference, function), scale)
+                _scaled_series(_resample(ts, reference, function), scale)
                 for rrd_metric, scale in originals
                 if (ts := raw_by_function[function].get(rrd_metric)) is not None
             ]
             if scaled:
-                time_series[metric] = merge_series(scaled, reference)
+                time_series[metric] = _merge_series(scaled, reference)
         return _chop_last_empty_step(time_series, reference.end)
 
     def _group_by_site(
@@ -673,9 +678,9 @@ class EngineRRDFetchData:
         return groups
 
     def _only_sites(self, site: SiteID | None) -> SiteId | None:
-        # Scope a livestatus query to the metric's site when known, else to the source's own filter
-        # (None = all sites).
-        return SiteId(site) if site is not None else self.site_id
+        # Scope a livestatus query to the metric's site when known (None = all sites, resolved by the
+        # prepending fetch below).
+        return SiteId(site) if site is not None else None
 
     def _fetch_performance_data(
         self, rrd_metrics: Sequence[RRDMetric]

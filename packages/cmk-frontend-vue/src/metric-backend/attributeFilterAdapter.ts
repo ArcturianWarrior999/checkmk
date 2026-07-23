@@ -3,13 +3,87 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type {
+  AttributeFilter,
+  AttributeFilterEquals as SharedAttributeFilterEquals,
+  AttributeFilterExists as SharedAttributeFilterExists
+} from 'cmk-shared-typing/typescript/attribute_filter'
 import type { GraphLineQueryAttributes } from 'cmk-shared-typing/typescript/graph_designer'
 
-import type { AttributeFilterModel, AttributeKind, Condition } from './attribute-filter/types'
+import {
+  type AttributeFilterModel,
+  type AttributeKind,
+  type Condition,
+  isConditionValid
+} from './attribute-filter/types'
 
+// Pill kinds match the shared model's kinds verbatim, so a condition's kind crosses unchanged.
 export type AttributeKindKey = Exclude<AttributeKind, null>
 
 export const ATTRIBUTE_KIND_ORDER: AttributeKindKey[] = ['resource', 'scope', 'data_point']
+
+type SharedLeaf = SharedAttributeFilterEquals | SharedAttributeFilterExists
+
+function assertLeaf(filter: AttributeFilter): SharedLeaf {
+  // The pill UI only represents an OR of ANDs; deeper nesting has no pill form.
+  if (filter.type !== 'equals' && filter.type !== 'exists') {
+    throw new Error(`attribute filter is not in disjunctive normal form: ${filter.type}`)
+  }
+  return filter
+}
+
+function conditionToLeaf(condition: Condition): SharedLeaf {
+  if (condition.attributeKind === null || !condition.key) {
+    throw new Error('cannot encode an incomplete attribute-filter condition')
+  }
+  const key = { kind: condition.attributeKind, name: condition.key }
+  switch (condition.operator) {
+    case 'eq':
+      return { type: 'equals', key, value: condition.value }
+    case 'exists':
+      return { type: 'exists', key }
+    default:
+      throw new Error(
+        `attribute-filter operator '${condition.operator}' has no backend representation`
+      )
+  }
+}
+
+// An empty model becomes an empty AND, which the backend treats as "match everything".
+export function toAttributeFilter(model: AttributeFilterModel): AttributeFilter {
+  const disjuncts: AttributeFilter[] = model
+    .map((group) => group.conditions.filter(isConditionValid).map(conditionToLeaf))
+    .filter((conjuncts) => conjuncts.length > 0)
+    .map((conjuncts) => (conjuncts.length === 1 ? conjuncts[0]! : { type: 'and', conjuncts }))
+  if (disjuncts.length === 0) {
+    return { type: 'and', conjuncts: [] }
+  }
+  return disjuncts.length === 1 ? disjuncts[0]! : { type: 'or', disjuncts }
+}
+
+function leafToCondition(leaf: SharedLeaf, newId: () => string): Condition {
+  return {
+    id: newId(),
+    attributeKind: leaf.key.kind,
+    key: leaf.key.name,
+    operator: leaf.type === 'equals' ? 'eq' : 'exists',
+    value: leaf.type === 'equals' ? leaf.value : ''
+  }
+}
+
+export function fromAttributeFilter(
+  filter: AttributeFilter,
+  newId: () => string
+): AttributeFilterModel {
+  const disjuncts = filter.type === 'or' ? filter.disjuncts : [filter]
+  return disjuncts
+    .map((disjunct) => {
+      const leaves =
+        disjunct.type === 'and' ? disjunct.conjuncts.map(assertLeaf) : [assertLeaf(disjunct)]
+      return { id: newId(), conditions: leaves.map((leaf) => leafToCondition(leaf, newId)) }
+    })
+    .filter((group) => group.conditions.length > 0)
+}
 
 export const KEY_IDENTS: Record<AttributeKindKey, string> = {
   resource: 'monitored_resource_attributes_keys_backend',

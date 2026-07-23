@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import enum
 import ipaddress
+import logging
 import socket
 from collections.abc import (
     Callable,
@@ -29,8 +30,8 @@ from cmk.ccc import store
 from cmk.ccc.exceptions import MKIPAddressLookupError, MKTerminate, MKTimeout
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.utils.caching import cache_manager
-from cmk.utils.log import console
 
+logger = logging.getLogger(__name__)
 SupportedAddressFamily = Literal[socket.AddressFamily.AF_INET, socket.AddressFamily.AF_INET6]
 IPLookupCacheId = tuple[HostName | HostAddress, SupportedAddressFamily]
 
@@ -340,7 +341,10 @@ def _file_cached_dns_lookup(
 
     if ipa != cached_ip:
         family_str = FAMILY_NAMES[family]
-        console.verbose(f"Updating {family_str} DNS cache for {hostname}: {ipa}")
+        logger.info(
+            "Updating %(family_str)s DNS cache for %(hostname)s: %(ipa)s",
+            {"family_str": family_str, "hostname": hostname, "ipa": ipa},
+        )
         ip_lookup_cache[cache_id] = ipa
 
     return ipa
@@ -509,16 +513,18 @@ def update_dns_cache(
     ip_lookup_cache = _get_ip_lookup_cache()
 
     with ip_lookup_cache.persisting_disabled():
-        console.verbose("Cleaning up existing DNS cache...")
+        logger.debug("Cleaning up existing DNS cache...")
         ip_lookup_cache.clear()
 
-        console.verbose("Updating DNS cache...")
+        logger.debug("Updating DNS cache...")
         # `_annotate_family()` handles DUAL_STACK and NO_IP
         for host_name, family in _annotate_family(hosts, get_ip_stack_config):
-            console.verbose_no_lf(f"{host_name} ({family})...")
             try:
                 ip = lookup_ip_address(host_name, family)
-                console.verbose(f"{ip}")
+                logger.debug(
+                    "%(host_name)s (%(family)s): %(ip)s",
+                    {"host_name": host_name, "family": family, "ip": ip},
+                )
 
             except (MKTerminate, MKTimeout):
                 # We should be more specific with the exception handler below, then we
@@ -526,11 +532,11 @@ def update_dns_cache(
                 raise
             except MKIPAddressLookupError as e:
                 failed.append(host_name)
-                console.verbose(f"lookup failed: {e}")
+                logger.error("IP lookup failed: %(e)s", {"e": e})  # noqa: TRY400
                 continue
-            except Exception as e:
+            except Exception:
                 failed.append(host_name)
-                console.verbose(f"lookup failed: {e}")
+                logger.exception("IP lookup failed")
                 if cmk.ccc.debug.enabled():
                     raise
                 continue

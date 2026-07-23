@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 
+import functools
 from collections.abc import Callable
 
 from cmk.ccc.version import Edition
@@ -14,6 +15,10 @@ from cmk.gui.painter.v0 import PainterRegistry
 from cmk.gui.permissions import PermissionRegistry, PermissionSectionRegistry
 from cmk.gui.quick_setup.v0_unstable._registry import QuickSetupRegistry
 from cmk.gui.search.matchers import MatchItemGeneratorRegistry
+from cmk.gui.search.permissions import (
+    search_permissions_handler_registry,
+    SearchPermissionsHandlerFactory,
+)
 from cmk.gui.sidebar import SnapinRegistry
 from cmk.gui.utils.roles import UserPermissions
 from cmk.gui.views.icon import IconRegistry
@@ -36,6 +41,7 @@ from cmk.gui.watolib.mode import ModeRegistry
 from cmk.gui.watolib.notification_parameter import NotificationParameterRegistry
 from cmk.gui.watolib.rulespecs import RulespecGroupRegistry
 from cmk.shared_typing.main_menu import NavItemTopic
+from cmk.shared_typing.unified_search import ProviderName
 
 from . import (
     _ac_tests,
@@ -53,6 +59,7 @@ from . import pages as wato_pages
 from ._main_modules import register as register_main_modules
 from ._main_modules import register_agent_download_pages, register_multisite_modules
 from ._notification_parameter import registration as _notification_parameter_registration
+from ._search_permissions import SetupPermissionsHandler
 from ._virtual_host_tree import VirtualHostTree
 from .icons import DownloadAgentOutputIcon, DownloadSnmpWalkIcon, WatoIcon
 from .pages._rule_conditions import PageAjaxDictHostTagConditionGetChoice
@@ -147,6 +154,12 @@ def register(
     _notification_parameter_registration.register(edition, notification_parameter_registry)
     snapin_registry.register(VirtualHostTree)
     piggyback_hub.register(config_variable_registry)
+    search_permissions_handler_registry.register(
+        SearchPermissionsHandlerFactory(
+            provider=ProviderName.setup,
+            build=functools.partial(SetupPermissionsHandler, edition),
+        )
+    )
 
 
 __all__ = [

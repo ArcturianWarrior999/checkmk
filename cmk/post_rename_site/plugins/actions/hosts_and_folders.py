@@ -9,7 +9,7 @@ from logging import Logger
 from cmk.ccc.site import omd_site, SiteId
 from cmk.gui.config import active_config
 from cmk.gui.logged_in import user
-from cmk.gui.user_sites import activation_sites
+from cmk.gui.site_config import all_activation_sites
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import (
@@ -34,7 +34,7 @@ def update_hosts_and_folders(old_site_id: SiteId, new_site_id: SiteId, logger: L
     - `site` host_tags entries in the hosts.mk files are updated
     """
     pending_changes = PendingChanges(
-        activation_sites=activation_sites(active_config.sites),
+        activation_sites=all_activation_sites(active_config.sites),
         local_site=omd_site(),
         acting_user=user.id,
         store=PendingChangesStore(),

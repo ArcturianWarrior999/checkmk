@@ -2,7 +2,9 @@ load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@cmk_requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 load("//bazel/rules:package_wheel.bzl", "package_wheel")
+load("//bazel/rules:py_requirements_test.bzl", "py_requirements_test")
 
 exports_files([
     "pyproject.toml",
@@ -59,6 +61,7 @@ py_library(
         "//packages/cmk-ccc:version",
         "//packages/cmk-crypto",
         "//packages/cmk-livestatus-client",
+        "//packages/cmk-profiling:gui",
         "//packages/cmk-trace",
         requirement("apispec"),
         requirement("flask"),
@@ -70,6 +73,12 @@ py_library(
         requirement("pyyaml"),
         requirement("werkzeug"),
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":cmk-wsgi"],
 )
 
 py_wheel(
@@ -102,4 +111,13 @@ sh_library(
     srcs = [
         "cmk/gui/wsgi/.f12",
     ],
+)
+
+py_requirements_test(
+    name = "requirements-test",
+    known_unused = ["pyyaml"],  # needed transitively by apispec.yaml_utils;
+    libs = [
+        ":cmk-wsgi",
+    ],
+    requirements_in = "requirements.in",
 )

@@ -11,7 +11,11 @@ from typing import override, TypeVar
 from playwright.sync_api import expect, Locator, Page
 
 from tests.gui_e2e.testlib.playwright.dropdown import DropdownHelper, DropdownOptions
-from tests.gui_e2e.testlib.playwright.helpers import CmkCredentials, DropdownListNameToID
+from tests.gui_e2e.testlib.playwright.helpers import (
+    CmkCredentials,
+    DropdownListNameToID,
+    url_suffix_regex,
+)
 from tests.gui_e2e.testlib.playwright.pom.page import CmkPage
 from tests.testlib.site import Site
 
@@ -45,8 +49,10 @@ class DistributedMonitoring(CmkPage):
         """Instructions to navigate to `Setup -> General -> Distributed monitoring` page."""
         logger.info("Navigate to '%s' page", self.page_title)
         self.main_menu.setup_menu(self.page_title).click()
-        _url_pattern: str = re.escape("wato.py?mode=sites")
-        self.page.wait_for_url(url=re.compile(_url_pattern), wait_until="load")
+        # Distributed mixed-version tests reach this page on an older central/remote
+        # site that still wraps it in the main iframe, so the URL is percent-encoded.
+        # url_suffix_regex matches both the new and old forms.
+        self.page.wait_for_url(url=url_suffix_regex("wato.py?mode=sites"), wait_until="load")
         self.validate_page()
 
     @override
@@ -213,8 +219,9 @@ class AddSiteConnection(CmkPage):
         logger.info("Navigate to '%s' page", self.page_title)
         _distributed_monitoring = DistributedMonitoring(self.page)
         _distributed_monitoring.add_connection_button.click()
-        _url_pattern: str = re.escape("wato.py?mode=edit_site")
-        self.page.wait_for_url(url=re.compile(_url_pattern), wait_until="load")
+        # An older site still wraps this page in the main iframe, so the URL is
+        # percent-encoded. url_suffix_regex matches both the new and old forms.
+        self.page.wait_for_url(url=url_suffix_regex("wato.py?mode=edit_site"), wait_until="load")
         self.validate_page()
 
     @override

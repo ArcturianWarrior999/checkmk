@@ -15,11 +15,11 @@
 {% macro replace_statemarker(data) %}
     {% set default_style = "margin-left: 2px; padding: 1px 3px; border-radius: 4px; font-size: 7pt; border: 1px solid #666; position: relative; top: -1px;" %}
     {{ data
-    | replace('(.)','<b style="'+default_style+'background-color: #13D389; color: #000000">OK</b>') 
-    | replace('(!)', '<b style="'+default_style+'background-color: #FFD703; color: #000000">WARN</b>')
-    | replace('(!!)', '<b style="'+default_style+'background-color: #C83232; color: #ffffff">CRIT</b>')
-    | replace('(?)', '<b style="'+default_style+'background-color: #ff8800; color: #ffffff">UNKN</b>')
-    | safe }}
+        | replace('(.)','<b style="'+default_style+'background-color: #13D389; color: #000000">OK</b>')
+        | replace('(!)', '<b style="'+default_style+'background-color: #FFD703; color: #000000">WARN</b>')
+        | replace('(!!)', '<b style="'+default_style+'background-color: #C83232; color: #ffffff">CRIT</b>')
+        | replace('(?)', '<b style="'+default_style+'background-color: #ff8800; color: #ffffff">UNKN</b>')
+        | safe }}
 {% endmacro %}
 {% macro view_issue_button(href) %}
     <table role="button"

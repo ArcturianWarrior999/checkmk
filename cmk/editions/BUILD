@@ -1,5 +1,4 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
-load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "community",
@@ -100,19 +99,5 @@ py_library(
         "//packages/cmk-shared-typing:cmk_shared_typing_py",
         "//packages/cmk-trace",
         "//packages/cmk-werks:tool",
-    ],
-)
-
-py_doc_test(
-    name = "doctest",
-    srcs = [
-        ":community",
-    ],
-    env = {
-        "PYTHONWARNINGS": "ignore",
-    },
-    tags = [
-        "doctest",
-        "no-mypy",
     ],
 )

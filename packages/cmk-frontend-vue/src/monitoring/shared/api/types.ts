@@ -24,6 +24,8 @@ export interface HostRef {
 
 export type HostState = components['schemas']['HostState']
 
+export type ServiceState = 'OK' | 'WARN' | 'CRIT' | 'UNKNOWN'
+
 export type HostsPageMeta = components['schemas']['HostsPageMeta']
 
 export type FilterNode = components['schemas']['FilterNode']

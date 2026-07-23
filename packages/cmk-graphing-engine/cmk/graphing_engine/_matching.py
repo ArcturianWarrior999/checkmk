@@ -14,12 +14,13 @@ from ._from_api import (
     _SINGLE_QUANTITY_BUILDER,
     build_curve,
     drawn_metric_names_of_graph,
+    drawn_quantity,
     parse_graph_from_api,
     QuantityBuilder,
 )
 from ._graph import Graph, Line, Rule, Stack
 from ._perfdata import MetricName, Service
-from ._quantities import Quantity, RRDMetric, ScalarKind, ScalarOf
+from ._quantities import RRDMetric, ScalarKind, ScalarOf
 from ._source import RRDFetchMetricNames
 
 _PREDICT_PREFIX = "predict_"
@@ -100,6 +101,7 @@ def _add_predictive_lines(
                     Line(
                         curve=build_curve(
                             RRDMetric(
+                                site_id=service.site_id,
                                 host_name=service.host_name,
                                 service_name=service.service_name,
                                 metric_name=predictive,
@@ -117,7 +119,7 @@ def _add_predictive_lines(
         Graph(
             name=graph.name,
             title=graph.title,
-            graph_type=graph.graph_type,
+            kind=graph.kind,
             vertical_range=graph.vertical_range,
             stacks=graph.stacks,
             lines=[*graph.lines, *added],
@@ -148,32 +150,23 @@ def build_matched_graphs(
     services: Sequence[Service],
     localizer: Callable[[str], str],
     fetch_metric_names: RRDFetchMetricNames,
-    graph_type: str,
+    kind: str,
     registered_graphs: Sequence[_GraphPlugin],
     registered_metrics: Mapping[str, metrics_v1.Metric],
     quantity_builder: QuantityBuilder = _SINGLE_QUANTITY_BUILDER,
 ) -> Sequence[Graph]:
     names_by_service = fetch_metric_names(services)
+    # The metric-name fetch returns the services tagged with their resolved site; build from those so
+    # the metrics carry it.
+    resolved = list(names_by_service)
     available: frozenset[MetricName] = (
         frozenset[MetricName]().union(*names_by_service.values())
         if names_by_service
         else frozenset()
     )
-    single_service = services[0] if len(services) == 1 else None
+    single_service = resolved[0] if len(resolved) == 1 else None
     matched_graphs: list[Graph] = []
     claimed: set[MetricName] = set()
-
-    def _drawn(name: MetricName) -> Quantity:
-        return quantity_builder(
-            [
-                RRDMetric(
-                    host_name=service.host_name,
-                    service_name=service.service_name,
-                    metric_name=name,
-                )
-                for service in services
-            ]
-        )
 
     def _collect(base: Graph) -> None:
         # Rules and predictive lines are single-service concepts; a graph over multiple services
@@ -183,7 +176,7 @@ def build_matched_graphs(
                 Graph(
                     name=base.name,
                     title=base.title,
-                    graph_type=base.graph_type,
+                    kind=base.kind,
                     vertical_range=base.vertical_range,
                     stacks=base.stacks,
                     lines=base.lines,
@@ -200,6 +193,7 @@ def build_matched_graphs(
         if single_service is None:
             return []
         metric = RRDMetric(
+            site_id=single_service.site_id,
             host_name=single_service.host_name,
             service_name=single_service.service_name,
             metric_name=name,
@@ -222,10 +216,10 @@ def build_matched_graphs(
         _collect(
             parse_graph_from_api(
                 plugin,
-                services,
+                resolved,
                 localizer,
                 registered_metrics,
-                graph_type=graph_type,
+                kind=kind,
                 quantity_builder=quantity_builder,
             )
         )
@@ -237,10 +231,16 @@ def build_matched_graphs(
             Graph(
                 name=name,
                 title=name,
-                graph_type=graph_type,
+                kind=kind,
                 stacks=[
                     Stack(
-                        members=[build_curve(_drawn(name), localizer, registered_metrics)],
+                        members=[
+                            build_curve(
+                                drawn_quantity(name, resolved, quantity_builder),
+                                localizer,
+                                registered_metrics,
+                            )
+                        ],
                         inverse=False,
                     )
                 ],

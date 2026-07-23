@@ -16,12 +16,12 @@ from pytest import MonkeyPatch
 from pytest_mock import MockerFixture
 from redis import Redis
 
-import cmk.gui.search.engines.redis
+import cmk.gui.search._engines._redis
 from cmk.automations.results import GetConfigurationResult
 from cmk.gui.config import Config
 from cmk.gui.i18n import localize
 from cmk.gui.logged_in import LoggedInNobody
-from cmk.gui.search.engines.redis import (
+from cmk.gui.search._engines._redis import (
     _SearchResultWithVisibilityCheck,
     IndexBuilder,
     IndexNotFoundException,
@@ -174,7 +174,7 @@ class MatchItemGeneratorChangeDep(ABCMatchItemGenerator):
 @pytest.fixture(name="get_languages", scope="function", autouse=True)
 def fixture_get_languages(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(
-        cmk.gui.search.engines.redis,
+        cmk.gui.search._engines._redis,
         "get_languages",
         lambda: [
             ("en", "English"),
@@ -254,12 +254,12 @@ class TestIndexBuilder:
             localize(lang)
 
         monkeypatch.setattr(
-            cmk.gui.search.engines.redis,
+            cmk.gui.search._engines._redis,
             "localize",
             localize_with_memory,
         )
         monkeypatch.setattr(
-            cmk.gui.search.engines.redis,
+            cmk.gui.search._engines._redis,
             "get_current_language",
             lambda: current_lang,
         )
@@ -543,7 +543,7 @@ class TestRealisticSearch:
             yield
 
         monkeypatch.setattr(
-            cmk.gui.search.engines.redis,
+            cmk.gui.search._engines._redis,
             "SuperUserContext",
             SuperUserContext,
         )

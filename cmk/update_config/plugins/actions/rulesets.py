@@ -14,7 +14,7 @@ from cmk.gui.config import active_config
 from cmk.gui.crash_handler import create_gui_crash_report
 from cmk.gui.exceptions import MKUserError
 from cmk.gui.form_specs import get_visitor, RawDiskData, VisitorOptions
-from cmk.gui.user_sites import activation_sites
+from cmk.gui.site_config import all_activation_sites
 from cmk.gui.watolib.hosts_and_folders import Folder
 from cmk.gui.watolib.pending_changes import (
     NoopPendingChangesStore,
@@ -35,7 +35,7 @@ class UpdateRulesets(UpdateAction):
             edition=omd_edition,
         )
         pending_changes = PendingChanges(
-            activation_sites=activation_sites(active_config.sites),
+            activation_sites=all_activation_sites(active_config.sites),
             local_site=omd_site(),
             acting_user=None,
             store=NoopPendingChangesStore(),

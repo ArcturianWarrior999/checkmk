@@ -32,15 +32,17 @@ watch(
   { immediate: true }
 )
 
-const data = defineModel<unknown>('data', { required: true })
-const legacyDOM = ref<HTMLFormElement>()
-
-const inputHtml = ref('')
-
 interface PreRenderedHtml {
   input_html: string
   readonly_html: string
+  input_context: unknown
+  varprefix: string
 }
+
+const data = defineModel<PreRenderedHtml>('data', { required: true })
+const legacyDOM = ref<HTMLFormElement>()
+
+const inputHtml = ref('')
 
 function executeInlineScripts() {
   legacyDOM.value!.querySelectorAll('script').forEach((element) => {
@@ -88,7 +90,7 @@ function executeInlineScripts() {
 }
 
 onMounted(() => {
-  inputHtml.value = (data.value as PreRenderedHtml).input_html
+  inputHtml.value = data.value.input_html
   // @ts-expect-error comes from different javascript file
   window['cmk'].forms.enable_dynamic_form_elements(legacyDOM.value!)
   // @ts-expect-error comes from different javascript file
@@ -141,6 +143,7 @@ function updateEventListeners() {
 function collectData() {
   const result = Object.fromEntries(new FormData(legacyDOM.value))
   data.value = {
+    ...data.value,
     input_context: result,
     varprefix: props.spec.varprefix
   }

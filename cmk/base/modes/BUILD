@@ -55,6 +55,7 @@ py_library(
         "//packages/cmk-ccc:timeout",
         "//packages/cmk-ccc:tty",
         "//packages/cmk-ccc:version",
+        "//packages/cmk-check-engine:checker-helper-config",
         "//packages/cmk-check-engine:fetcher-protocol",
         "//packages/cmk-check-engine:fetchers",
         "//packages/cmk-check-engine:helper-interface",

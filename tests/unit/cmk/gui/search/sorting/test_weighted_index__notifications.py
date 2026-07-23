@@ -5,7 +5,7 @@
 
 import functools
 
-from cmk.gui.search.sorting import get_sorter
+from cmk.gui.search._sorting import get_sorter
 from cmk.shared_typing.unified_search import (
     ProviderName,
     SortType,

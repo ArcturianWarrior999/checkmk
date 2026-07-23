@@ -41,10 +41,7 @@ if __name__ == "__main__":
     dom = minidom.parse(xml)
     for item in dom.getElementsByTagName("SecureSyncStatus"):
         application_node = item.getElementsByTagName("Application")
-        if application_node:
-            application = application_node[0].attributes["Name"].value
-        else:
-            application = "N/A"
+        application = application_node[0].attributes["Name"].value if application_node else "N/A"
         result = _get_text(item.getElementsByTagName("Result"))
         completed = _get_text(item.getElementsByTagName("Complete"))
         targetname = _get_text(item.getElementsByTagName("TargetName"))

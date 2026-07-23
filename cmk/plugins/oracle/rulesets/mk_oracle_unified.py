@@ -281,7 +281,7 @@ def _auth_options(is_default_options: bool = True) -> Dictionary:
                         ),
                         "role": DictElement(
                             parameter_form=SingleChoice(
-                                title=Title("ASM Role"),
+                                title=Title("ASM role"),
                                 help_text=Help(
                                     "Specifies the database privilege role used when connecting to Oracle."
                                 ),

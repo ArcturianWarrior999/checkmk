@@ -766,25 +766,25 @@ def _compatible_with_central_site(
 
     C*E != CME is not allowed
 
-    >>> str(c("2.2.0p1", "cce", LicenseState.LICENSED, "2.2.0p1", "cce", LicenseState.FREE))
+    >>> str(c("2.2.0p1", "cce", LicenseState.LICENSED, "2.2.0p1", "cce", LicenseState.FREE, True))
     'Remote site in license state free is not allowed'
     >>> str(
-    ...    c("2.0.0p3", "cee", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED)
+    ...    c("2.0.0p3", "cee", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED, True)
     ... )  # doctest: +SKIP
     'Mix of CME and non-CME is not allowed.'
     >>> str(
-    ...    c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cee", LicenseState.LICENSED)
+    ...    c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cee", LicenseState.LICENSED, True)
     ... )  # doctest: +SKIP
     'Mix of CME and non-CME is not allowed.'
     >>> str(
-    ...    c("2.0.0p3", "cre", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED)
+    ...    c("2.0.0p3", "cre", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED, True)
     ... )  # doctest: +SKIP
     'Mix of CME and non-CME is not allowed.'
     >>> str(
-    ...   c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cre", LicenseState.LICENSED)
+    ...   c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cre", LicenseState.LICENSED, True)
     ... )  # doctest: +SKIP
     'Mix of CME and non-CME is not allowed.'
-    >>> isinstance(c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED), cmk_version.VersionsCompatible)
+    >>> isinstance(c("2.0.0p3", "cme", LicenseState.LICENSED, "2.0.0p3", "cme", LicenseState.LICENSED, True), cmk_version.VersionsCompatible)
     True
     """
 

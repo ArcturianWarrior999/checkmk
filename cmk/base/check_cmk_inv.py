@@ -4,6 +4,7 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import argparse
+import logging
 import sys
 from collections.abc import Sequence
 from contextlib import suppress
@@ -50,7 +51,8 @@ from cmk.utils.ip_lookup import (
     make_lookup_ip_address,
     make_lookup_mgmt_board_ip_address,
 )
-from cmk.utils.log import console
+
+logger = logging.getLogger(__name__)
 
 
 def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
@@ -160,6 +162,7 @@ def _inventory_as_check(
         ),
         service_name_config,
         plugins.check_plugins,
+        label_manager.labels_of_service,
     )
 
     ip_lookup_config = config_cache.ip_lookup_config()
@@ -251,7 +254,7 @@ def _inventory_as_check(
     )
     check_results: Sequence[ActiveCheckResult] = []
     with error_handler:
-        with CPUTracker(console.debug) as tracker:
+        with CPUTracker(logger.debug) as tracker:
             check_results = execute_active_check_inventory(
                 hostname,
                 hosts_config=hosts_config,
@@ -288,9 +291,8 @@ def _inventory_as_check(
 
 def load_checks() -> AgentBasedPlugins:
     plugins = config.load_all_plugins()
-    if sys.stderr.isatty():
-        for error_msg in plugins.errors:
-            console.error(error_msg, file=sys.stderr)
+    for error_msg in plugins.errors:
+        logger.error(error_msg)
     return plugins
 
 

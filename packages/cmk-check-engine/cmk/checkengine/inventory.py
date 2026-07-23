@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import contextlib
 import itertools
+import logging
 import time
 from collections.abc import (
     Callable,
@@ -25,7 +26,6 @@ from typing import Any, assert_never
 
 import cmk.ccc.debug
 from cmk.agent_based.v1 import Attributes, TableRow
-from cmk.ccc import tty
 from cmk.ccc.hostaddress import HostName
 from cmk.checkengine.fetcher_abc import FetcherFunction
 from cmk.checkengine.helper_interface import HostKey, SourceType
@@ -48,7 +48,6 @@ from cmk.inventory.structured_data import (
     SDRetentionFilterChoices,
     SDValue,
 )
-from cmk.utils.log import console, section
 
 from .parser import group_by_host, HostSections, ParserFunction
 from .sectionparser import (
@@ -67,6 +66,7 @@ __all__ = [
     "inventorize_host",
     "inventorize_status_data_of_real_host",
 ]
+logger = logging.getLogger(__name__)
 
 
 _SDPATH_HARDWARE = (SDNodeName("hardware"),)
@@ -256,11 +256,11 @@ def _inventorize_real_host(
     raw_intervals_from_config: Sequence[RawIntervalFromConfig],
     previous_tree: ImmutableTree,
 ) -> MutableTrees:
-    section.section_step("Create inventory or status data tree")
+    logger.info("Create inventory or status data tree")
 
     trees = _create_trees_from_inventory_plugin_items(items_of_inventory_plugins)
 
-    section.section_step("May update inventory tree")
+    logger.info("May update inventory tree")
 
     _may_update(
         now=now,
@@ -312,7 +312,7 @@ def _collect_inventory_plugin_items(
     inventory_plugins: Mapping[InventoryPluginName, InventoryPlugin],
     run_plugin_names: Container[InventoryPluginName],
 ) -> Iterator[ItemsOfInventoryPlugin]:
-    section.section_step("Executing inventory plugins")
+    logger.info("Executing inventory plugins")
 
     class_mutex: dict[tuple[str, ...], str] = {}
     for plugin_name, inventory_plugin in inventory_plugins.items():
@@ -325,9 +325,7 @@ def _collect_inventory_plugin_items(
                     providers, HostKey(host_name, source_type), inventory_plugin.sections
                 )
             ):
-                console.debug(
-                    f" {tty.yellow}{tty.bold}{plugin_name}{tty.normal}: skipped (no data)"
-                )
+                logger.debug("%(plugin_name)s: skipped (no data)", {"plugin_name": plugin_name})
                 continue
 
             # Inventory functions can optionally have a second argument: parameters.
@@ -346,15 +344,13 @@ def _collect_inventory_plugin_items(
                     )
                     for item in inventory_plugin.function(**kwargs)
                 ]
-            except Exception as exception:
+            except Exception:
                 # TODO(ml): What is the `if cmk.ccc.debug.enabled()` actually good for?
                 if cmk.ccc.debug.enabled():
                     raise
 
-                console.warning(
-                    tty.format_warning(
-                        f" {tty.red}{tty.bold}{plugin_name}{tty.normal}: failed: {exception}"
-                    )
+                logger.warning(
+                    "%(plugin_name)s: failed", {"plugin_name": plugin_name}, exc_info=True
                 )
                 continue
 
@@ -379,7 +375,7 @@ def _collect_inventory_plugin_items(
                 ),
             )
 
-            console.verbose(f" {tty.green}{tty.bold}{plugin_name}{tty.normal}: ok")
+            logger.debug("%(plugin_name)s: ok", {"plugin_name": plugin_name})
 
 
 def _parse_inventory_plugin_item[TV: Attributes | TableRow](

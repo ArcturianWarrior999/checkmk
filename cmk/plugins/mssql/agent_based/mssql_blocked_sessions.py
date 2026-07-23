@@ -119,10 +119,7 @@ def check_mssql_blocked_sessions(
         blocked_sessions_counter[db_inst.session_id] += 1
 
     if blocked_sessions_counter:
-        if check_type == CheckType.COUNT:
-            state = State(params["state"])
-        else:
-            state = State.OK
+        state = State(params["state"]) if check_type == CheckType.COUNT else State.OK
 
         yield Result(
             state=state,

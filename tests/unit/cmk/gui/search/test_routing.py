@@ -9,12 +9,12 @@ from typing import get_args
 
 import pytest
 
+from cmk.gui.search._routing import CompositePermissionsHandler
 from cmk.gui.search.matchers import (
     ABCMatchItemGenerator,
     MatchItemGeneratorRegistry,
     MatchItems,
 )
-from cmk.gui.search.routing import CompositePermissionsHandler
 from cmk.gui.utils.roles import UserPermissions
 from cmk.shared_typing.unified_search import ProviderName
 

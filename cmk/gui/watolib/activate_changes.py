@@ -94,11 +94,10 @@ from cmk.gui.type_defs import GlobalSettings, Users
 from cmk.gui.user_sites import activation_sites
 from cmk.gui.userdb import (
     effective_authentication_connections,
+    effective_user_attribute_sync_connections,
     get_user_attributes,
     load_users,
-    user_sync_default_config,
     UserAttribute,
-    UserSyncConfig,
 )
 from cmk.gui.userdb.htpasswd import HtpasswdUserConnector
 from cmk.gui.userdb.store import load_users_uncached, save_users
@@ -3831,7 +3830,6 @@ class AutomationReceiveConfigSync(AutomationCommand[ReceiveConfigSyncRequest]):
             self._update_config_on_remote_site(
                 api_request.sync_archive,
                 api_request.to_delete,
-                api_request.site_id,
                 api_request.site_config,
                 api_request.user_attributes,
             )
@@ -3852,7 +3850,6 @@ class AutomationReceiveConfigSync(AutomationCommand[ReceiveConfigSyncRequest]):
         self,
         sync_archive: bytes,
         to_delete: list[str],
-        site_id: SiteId,
         site_config: SiteConfiguration,
         user_attributes: Sequence[tuple[str, UserAttribute]],
     ) -> None:
@@ -3860,10 +3857,7 @@ class AutomationReceiveConfigSync(AutomationCommand[ReceiveConfigSyncRequest]):
         base_dir = cmk.utils.paths.omd_root
         base_folder_path = str(cmk.utils.paths.check_mk_config_dir / "wato")
 
-        active_connectors = _active_connectors_for_user_preservation(
-            site_config,
-            user_sync_default_config(site_config, site_id),
-        )
+        active_connectors = _active_connectors_for_user_preservation(site_config)
         current_users: Users = {}
         keep_local_users = bool(active_connectors)
         if keep_local_users:
@@ -3897,44 +3891,13 @@ class AutomationReceiveConfigSync(AutomationCommand[ReceiveConfigSyncRequest]):
                 _reintegrate_site_local_users(current_users, active_connectors, user_attributes)
 
 
-def _active_connectors_for_user_preservation(
-    site_config: SiteConfiguration,
-    default_sync_config: UserSyncConfig,
-) -> list[str]:
-    """The set of connector IDs whose users on a remote site must survive a config push.
-
-    Returned as the union of two contributions:
-
-    **Attribute-sync contribution** — resolved as follows:
-        1. ``site_config["user_attribute_sync_connections"]`` if the key is
-           present; otherwise ``active_config.user_attribute_sync_connections``
-           (the global, propagated to a remote via ``get_site_globals()``
-           since ``sites.mk`` is not synchronized).
-        2. Only an explicit ``list[str]`` of connection IDs contributes
-           here: ``"all"`` is intentionally not expanded because for
-           periodic attribute sync the central site is authoritative and
-           those users arrive via the snapshot anyway. Falls through to
-           ``default_sync_config`` when neither produces a list.
-
-    **Authentication contribution** — ``effective_authentication_connections``
-       resolves the per-site override / propagated-global precedence (and
-       expands a per-site ``"all"``). Each entry contributes one ID:
-       ``("ldap", conn_id)`` and ``("saml", {connection_id: ...})`` are
-       flattened.
-    """
+def _active_connectors_for_user_preservation(site_config: SiteConfiguration) -> list[str]:
+    """The set of connector IDs whose users on a remote site must survive a config push."""
     result: set[str] = set()
 
-    # Treat a legacy `None` value the same as an absent key: fall through
-    # to the propagated global. The new types disallow `None`, but
-    # `sitespecific.mk` files written before the refactor may still carry
-    # it.
-    attr_sync_cfg = site_config.get("user_attribute_sync_connections")
-    if attr_sync_cfg is None:
-        attr_sync_cfg = active_config.user_attribute_sync_connections
+    attr_sync_cfg = effective_user_attribute_sync_connections()
     if isinstance(attr_sync_cfg, list):
         result.update(attr_sync_cfg)
-    elif isinstance(default_sync_config, tuple) and default_sync_config[0] == "list":
-        result.update(default_sync_config[1])
 
     for entry in effective_authentication_connections(site_config):
         if entry[0] == "ldap":

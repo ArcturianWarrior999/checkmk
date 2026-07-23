@@ -3,24 +3,22 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from cmk.ccc.version import Edition
 from cmk.gui import hooks
 from cmk.gui.background_job.job import BackgroundJobRegistry
 from cmk.gui.pages import PageEndpoint, PageRegistry
 
-from .engines import livestatus as livestatus_engine
-from .engines.redis import launch_requests_processing_background, SearchIndexBackgroundJob
+from ._engines import _livestatus as livestatus_engine
+from ._engines._redis import launch_requests_processing_background, SearchIndexBackgroundJob
+from ._pages import PageUnifiedSearch
 from .matchers import MatchPluginRegistry
-from .pages import PageUnifiedSearch
 
 
 def register(
-    edition: Edition,
     page_registry: PageRegistry,
     job_registry: BackgroundJobRegistry,
     match_plugin_registry: MatchPluginRegistry,
 ) -> None:
-    page_registry.register(PageEndpoint("ajax_unified_search", PageUnifiedSearch(edition)))
+    page_registry.register(PageEndpoint("ajax_unified_search", PageUnifiedSearch()))
     hooks.register_builtin("request-start", launch_requests_processing_background)
     job_registry.register(SearchIndexBackgroundJob)
     livestatus_engine.register(match_plugin_registry)

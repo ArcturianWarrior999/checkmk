@@ -25,13 +25,15 @@ The relay sub-app is only active on editions that support relays.
 ### mTLS client certificate extraction
 
 Agent and relay endpoints require mTLS authentication.
-The custom `ClientCertWorker` (in `worker.py`) extends the Uvicorn worker to intercept H11 protocol frames during the TLS handshake, extract the client certificate's CN, and inject it as a `verified-uuid` HTTP header.
-FastAPI endpoint dependencies then validate this header against the UUID in the URL path, preventing application-layer spoofing.
+The custom `ClientCertWorker` (in `worker.py`) extends the Uvicorn worker to intercept H11 protocol frames during the TLS handshake, extract the client certificate's subject and issuer CN, and inject them as `verified-uuid` and `verified-issuer-cn` HTTP headers.
+FastAPI endpoint dependencies (`mtls_authorization_dependency`, in `lib/mtls_auth_validator.py`) then validate the subject CN against the UUID in the URL path, preventing application-layer spoofing.
+Since Gunicorn is configured with one combined trust store (agent CA + relay CA + site CA) for the mTLS handshake itself, a certificate issued to one identity space (e.g. an agent) would otherwise also authenticate against endpoints for another (e.g. a relay) sharing the same UUID.
+`mtls_authorization_dependency` closes this by additionally requiring the issuer CN to match the specific CA declared for that endpoint (`ExpectedCA.AGENT` or `ExpectedCA.RELAY`).
 
 ## API
 
 The **agent-receiver** sub-app covers agent registration (including async approval workflows and legacy pairing), certificate renewal, monitoring-data upload, and registration status queries.
-All endpoints that operate on a specific agent UUID require mTLS — the client certificate CN is validated against the UUID in the URL path.
+All endpoints that operate on a specific agent UUID require mTLS — the client certificate CN is validated against the UUID in the URL path, and the certificate must have been issued by the agent CA.
 
 The **relay** sub-app covers relay registration, certificate exchange, task management (create / fetch / update), config activation, and forwarding of monitoring data to CMC.
 Relay tasks are stored in-memory with a configurable TTL and a bounded per-relay queue depth.
@@ -55,7 +57,7 @@ The environment variables `OMD_ROOT` and `OMD_SITE` must be set (provided automa
 
 The component tests have two ways to start the agent receiver: use the real process if you are verifying TLS authorization.
 The `TestClient` fixture (default in `conftest.py`) wraps the FastAPI app in-process using Starlette's test client — fast and suitable for most endpoint logic.
-`AgentReceiverRunner` spawns a real Gunicorn process with the `ClientCertWorker`, enabling genuine mTLS handshakes and `verified-uuid` header injection; use it when testing certificate extraction or TLS-gated endpoints.
+`AgentReceiverRunner` spawns a real Gunicorn process with the `ClientCertWorker`, enabling genuine mTLS handshakes and `verified-uuid`/`verified-issuer-cn` header injection; use it when testing certificate extraction or TLS-gated endpoints.
 
 ## Development
 

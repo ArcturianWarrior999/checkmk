@@ -4,15 +4,27 @@ This file is part of Checkmk (https://checkmk.com). It is subject to the terms a
 conditions defined in the file COPYING, which is part of this source code package.
 -->
 <script lang="ts">
-import { type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
+import { type Options, type PanelConfigFor } from '@ucl/_ucl/components/detail-page'
+
+import { type ChartColor } from '@/network-flow/CmkRankedTable'
 
 import codeExample from './UclCmkRankedTableCodeExample.vue?raw'
 
 export const panelConfig = {
   barColor: {
-    type: 'string' as const,
+    type: 'list' as const,
     title: 'Bar color',
-    initialState: 'var(--color-corporate-green-50)'
+    options: [
+      { title: 'Blue', name: 'blue' },
+      { title: 'Green', name: 'green' },
+      { title: 'Grey', name: 'grey' },
+      { title: 'Magenta', name: 'magenta' },
+      { title: 'Orange', name: 'orange' },
+      { title: 'Purple', name: 'purple' },
+      { title: 'Red', name: 'red' },
+      { title: 'Yellow', name: 'yellow' }
+    ] satisfies Options<ChartColor>[],
+    initialState: 'green' as const
   }
 } satisfies PanelConfigFor<typeof CmkRankedTable, 'rows' | 'columns'>
 </script>

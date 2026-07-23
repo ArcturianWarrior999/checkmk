@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-import sys
+import logging
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 
@@ -21,7 +21,6 @@ from cmk.checkengine.sectionparser import Provider, ResolvedResult
 from cmk.checkengine.specs.parameters import Parameters
 from cmk.ruleset_matcher.labels import HostLabel as _HostLabel
 from cmk.ruleset_matcher.labels import merge_cluster_labels
-from cmk.utils.log import console
 
 __all__ = [
     "analyse_cluster_labels",
@@ -29,6 +28,7 @@ __all__ = [
     "HostLabel",
     "HostLabelPlugin",
 ]
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -132,7 +132,7 @@ def _discover_host_labels_for_source_type(
         parsed_results = _all_parsing_results(host_key, providers)
 
         names = ", ".join(str(r.section_name) for r in parsed_results)
-        console.debug(f"Trying host label discovery with: {names}")
+        logger.debug("Trying host label discovery with: %(names)s", {"names": names})
         for section_name, section_data, _cache_info in _sort_sections_by_label_priority(
             parsed_results
         ):
@@ -145,17 +145,20 @@ def _discover_host_labels_for_source_type(
 
             try:
                 for label in host_label_plugin.function(**kwargs):
-                    console.debug(f"  {label.name}: {label.value} ({section_name})")
+                    logger.debug(
+                        "%(name)s: %(value)s (%(section_name)s)",
+                        {"name": label.name, "value": label.value, "section_name": section_name},
+                    )
                     host_labels[label.name] = _HostLabel(label.name, label.value, section_name)
             except (KeyboardInterrupt, MKTimeout):
                 raise
-            except Exception as exc:
+            except Exception:
                 if on_error is OnError.RAISE:
                     raise
                 if on_error is OnError.WARN:
-                    console.error(
-                        f"Host label discovery of '{section_name}' failed: {exc}",
-                        file=sys.stderr,
+                    logger.exception(
+                        "Host label discovery of '%(section_name)s' failed",
+                        {"section_name": section_name},
                     )
 
     except KeyboardInterrupt:

@@ -41,7 +41,7 @@ def _comprehensive_graph() -> Graph:
     return Graph(
         name="g",
         title="Title %(x)s",
-        graph_type="template",
+        kind="template",
         vertical_range=FixedRange(
             lower=0, upper=ScalarOf(metric=rrd, scalar_kind=ScalarKind.MAXIMUM, color="#mx")
         ),

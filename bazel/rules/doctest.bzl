@@ -1,7 +1,7 @@
 # Adapted from https://github.com/1e100/bazel_doctest/tree/master
 """Implements Python doctest support for Bazel."""
 
-load("@rules_python//python:defs.bzl", "py_test")
+load("@rules_python//python:defs.bzl", "PyInfo", "py_test")
 
 DOCTEST_TPL = r"""
 import sys, doctest
@@ -31,20 +31,37 @@ ADD_TESTS_TPL = r"""
         sys.exit(1)
 """
 
-def _file_to_module(file):
+def _import_roots(src, workspace_name):
+    roots = []
+    for imp in src[PyInfo].imports.to_list():
+        if imp == workspace_name:
+            roots.append("")
+        elif imp.startswith(workspace_name + "/"):
+            roots.append(imp[len(workspace_name) + 1:])
+    return roots
+
+def _file_to_module(file, import_roots):
     if file.basename == "__init__.py":
         path = file.dirname
     else:
         path = file.path[:-len(file.extension) - 1]
+
+    best_root = None
+    for root in import_roots:
+        if (root == "" or path.startswith(root + "/")) and (best_root == None or len(root) > len(best_root)):
+            best_root = root
+    if best_root:
+        path = path[len(best_root) + 1:]
     return path.replace("/", ".")
 
 def _impl(ctx):
     modules = []
     for src in ctx.attr.srcs:
+        import_roots = _import_roots(src, ctx.workspace_name)
         modules.extend([
-            ADD_TESTS_TPL.format(test = _file_to_module(file))
+            ADD_TESTS_TPL.format(test = _file_to_module(file, import_roots))
             for file in src.files.to_list()
-            if file.is_source
+            if file.is_source and file.extension == "py"
         ])
     runner = ctx.actions.declare_file(ctx.attr.name)
     content = DOCTEST_TPL.format("\n".join(modules))
@@ -61,7 +78,7 @@ _runner = rule(
     attrs = {
         "srcs": attr.label_list(
             mandatory = True,
-            providers = [DefaultInfo],
+            providers = [DefaultInfo, PyInfo],
             doc = "List of Python targets potentially containing doctests.",
         ),
     },
@@ -69,7 +86,7 @@ _runner = rule(
 
 # Deliberately using the required _test convention
 # so that this is easy to search for.
-def py_doc_test(name, srcs, deps = [], **kwargs):
+def py_doc_test(name, srcs, deps = [], tags = [], **kwargs):
     runner_py = name + "-doctest-runner.py"
     _runner(
         name = runner_py,
@@ -82,5 +99,8 @@ def py_doc_test(name, srcs, deps = [], **kwargs):
         deps = srcs + deps,
         main = runner_py,
         legacy_create_init = False,
+        # "doctest" allows running all doctests via --test_tag_filters;
+        # the generated runner is not worth type checking.
+        tags = tags + ["doctest", "no-mypy"],
         **kwargs
     )

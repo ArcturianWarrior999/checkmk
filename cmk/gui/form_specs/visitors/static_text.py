@@ -9,7 +9,7 @@ from cmk.shared_typing import vue_formspec_components as shared_type_defs
 
 from ._base import FormSpecVisitor
 from ._type_defs import DefaultValue, IncomingData, InvalidValue
-from ._utils import get_title_and_help
+from ._utils import get_title_and_help, localize
 
 _ParsedValueModel = str
 _FallbackModel = str
@@ -43,6 +43,7 @@ class StaticTextVisitor(FormSpecVisitor[StaticText, _ParsedValueModel, _Fallback
                 validators=[],
                 value=value,
                 style=shared_type_defs.StaticTextStyle(self.form_spec.style),
+                placeholder=localize(self.form_spec.placeholder) or None,
             ),
             value,
         )

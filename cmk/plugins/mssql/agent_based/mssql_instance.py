@@ -48,11 +48,8 @@ def parse_mssql_instance(string_table: StringTable) -> Section:
         ):
             continue
 
-        if line[0][:6] == "MSSQL_":
-            # Remove the MSSQL_ prefix from the ID for this check
-            instance_id = line[0][6:]
-        else:
-            instance_id = line[0]
+        # Remove the MSSQL_ prefix from the ID for this check
+        instance_id = line[0][6:] if line[0][:6] == "MSSQL_" else line[0]
 
         instance = parsed.setdefault(
             instance_id,

@@ -129,8 +129,11 @@ pkg_files(
 py_doc_test(
     name = "doctest",
     size = "small",
-    srcs = ["cmk-livestatus-client"],
-    tags = ["no-mypy"],
+    srcs = [
+        "cmk-livestatus-client",
+        "livestatus-api",
+        "livestatus-connection",
+    ],
 )
 
 py_cmk_test(

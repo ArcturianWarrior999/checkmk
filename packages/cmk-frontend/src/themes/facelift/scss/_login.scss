@@ -18,18 +18,26 @@
 '-------------------------------------------------------------------------*/
 
 body.login {
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
   text-align: center;
   vertical-align: middle;
 
+  /* stylelint-disable-next-line selector-id-pattern */
+  div#main_page_content {
+    display: flex;
+
+    .simplebar-content {
+      display: flex;
+      min-height: 100%;
+    }
+  }
+
   div#login {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
-    left: 0;
+    position: relative;
     width: 770px;
-    height: 605px;
+    padding: 20px 0;
     margin: auto;
     color: $font-color;
     background: transparent;
@@ -37,12 +45,9 @@ body.login {
 
   /* stylelint-disable-next-line selector-id-pattern */
   #login_window {
-    position: relative;
-    top: 187px;
-    left: 10px;
     width: 370px;
     height: auto;
-    margin: -30px auto 10px;
+    margin: 0 auto 10px;
     background: $navigation-bg-color;
     border-radius: 8px;
     /* stylelint-disable-next-line declaration-property-value-no-unknown */
@@ -230,9 +235,6 @@ body.login {
   }
 
   #foot {
-    position: relative;
-    top: 187px;
-    left: 10px;
     width: 350px;
     margin: 0 auto 10px;
     color: $font-color-dimmed;

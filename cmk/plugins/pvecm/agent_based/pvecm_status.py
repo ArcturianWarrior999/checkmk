@@ -72,10 +72,7 @@ def parse_pvecm_status(string_table: StringTable) -> Section:
         if len(line) < 2:
             continue
         k = line[0].strip().lower()
-        if k == "date":
-            v = ":".join(line[1:]).strip()
-        else:
-            v = " ".join(line[1:]).strip()
+        v = ":".join(line[1:]).strip() if k == "date" else " ".join(line[1:]).strip()
         parsed.setdefault(k, v)
     return parsed
 

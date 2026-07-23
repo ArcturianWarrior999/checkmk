@@ -13,6 +13,7 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import CmkAlertBox from '@/components/CmkAlertBox.vue'
 import CmkBreadcrumb, { type BreadcrumbItem } from '@/components/CmkBreadcrumb'
 import CmkIcon from '@/components/CmkIcon'
+import { useProvideFilterDefinitions } from '@/components/filter'
 
 import { GlobalRefreshControl, useGlobalRefresh } from '../GlobalRefreshControl'
 import { rollingRange, useGlobalTimeRange } from '../GlobalTimePicker'
@@ -40,6 +41,10 @@ const mode = ref<CustomGraphDesignerMode>('view')
 const isLoading = ref(false)
 const loadError = ref<string | null>(null)
 const loadCounter = ref(0)
+
+const { loadFilterDefinitions } = useProvideFilterDefinitions()
+const filtersReady = ref(false)
+const filtersError = ref<string | null>(null)
 
 const ownerParam = computed(() =>
   current.value.owner === props.logged_in_user ? undefined : current.value.owner
@@ -111,6 +116,13 @@ const onPopState = (): void => window.location.reload()
 onMounted(() => {
   setRefreshPaused(false)
   window.addEventListener('popstate', onPopState)
+  void loadFilterDefinitions()
+    .then(() => {
+      filtersReady.value = true
+    })
+    .catch((e: unknown) => {
+      filtersError.value = e instanceof Error ? e.message : String(e)
+    })
   void load(props.mode)
 })
 
@@ -171,10 +183,14 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
     </header>
 
     <div class="graphing-custom-graph-designer-app__content">
-      <CmkAlertBox v-if="loadError !== null" variant="error">
-        {{ loadError }}
+      <CmkAlertBox v-if="loadError !== null || filtersError !== null" variant="error">
+        {{ loadError ?? filtersError }}
       </CmkAlertBox>
-      <CmkIcon v-else-if="isLoading || graph === null" name="load-graph" size="xxlarge" />
+      <CmkIcon
+        v-else-if="isLoading || graph === null || !filtersReady"
+        name="load-graph"
+        size="xxlarge"
+      />
       <DesignerBody
         v-else
         :key="`${current.owner}/${current.name}/${loadCounter}`"
@@ -186,6 +202,8 @@ function onSaved(savedGraph: CustomGraphObject, savedEtag: string | null): void 
         :mode="mode"
         :palette="palette"
         :thresholds="{ warning: warning_color, critical: critical_color }"
+        :metric-backend-available="metric_backend_available"
+        :title-macro-help="title_macro_help"
         @saved="onSaved"
       />
     </div>

@@ -1678,7 +1678,11 @@ def init_action(
     with contextlib.chdir(site_home):
         if command == "status":
             return check_status(
-                site_home, global_opts.verbose, display=True, daemon=daemon, bare="bare" in options
+                site_home,
+                verbose=global_opts.verbose,
+                display=True,
+                daemon=daemon,
+                bare="bare" in options,
             )
         return call_init_scripts(site_home, command, daemon)
 

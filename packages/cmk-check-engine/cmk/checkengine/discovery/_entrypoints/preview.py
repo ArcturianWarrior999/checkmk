@@ -4,13 +4,13 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import itertools
+import logging
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
 from cmk import trace
-from cmk.ccc import tty
 from cmk.ccc.exceptions import OnError
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.checkengine.checkerplugin import CheckerPlugin, ConfiguredService
@@ -52,13 +52,13 @@ from cmk.checkengine.specs.parameters import (
 )
 from cmk.checkengine.summarize import SummarizerFunction
 from cmk.ruleset_matcher.labels import DiscoveredHostLabelsStore, HostLabel
-from cmk.utils.log import console
 from cmk.utils.metrics import MetricTuple
 from cmk.utils.servicename import Item
 
 __all__ = ["CheckPreview", "CheckPreviewEntry", "get_check_preview"]
 
 
+logger = logging.getLogger(__name__)
 tracer = trace.get_tracer()
 
 
@@ -168,7 +168,7 @@ def get_check_preview(
         resolver.parsing_errors() for resolver in providers.values()
     ):
         for line in result.details:
-            console.warning(tty.format_warning(f"{line}"))
+            logger.warning(line)
 
     with tracer.span("preview.discover_services", attributes={"cmk.host_name": host_name}):
         discovered_services = discovery_by_host(

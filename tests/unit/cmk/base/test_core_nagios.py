@@ -640,10 +640,11 @@ def test_create_nagios_servicedefs_active_check(
     monkeypatch.setattr(config, config.load_resource_cfg_macros.__name__, lambda *a: {})
 
     hostname = HostName("my_host")
+    hosts_config = config.make_hosts_config(EMPTY_CONFIG)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
         make_app().edition,
-        config.make_hosts_config(EMPTY_CONFIG),
+        hosts_config,
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
@@ -667,7 +668,7 @@ def test_create_nagios_servicedefs_active_check(
     license_counter = Counter("services")
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,
@@ -709,7 +710,9 @@ def test_create_nagios_servicedefs_service_period(monkeypatch: MonkeyPatch) -> N
         },
     )
 
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
+    config_cache = loading_result.config_cache
+    hosts_config = loading_result.hosts_config
 
     host_attrs = config_cache.get_host_attributes(
         hostname, socket.AddressFamily.AF_INET, ip_address_of_return_local
@@ -719,7 +722,7 @@ def test_create_nagios_servicedefs_service_period(monkeypatch: MonkeyPatch) -> N
     license_counter = Counter("services")
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,
@@ -841,10 +844,11 @@ def test_create_nagios_servicedefs_with_warnings(
     _patch_plugin_loading(monkeypatch, loaded_active_checks)
     monkeypatch.setattr(config, config.load_resource_cfg_macros.__name__, lambda *a: {})
 
+    hosts_config = config.make_hosts_config(EMPTY_CONFIG)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
         make_app().edition,
-        config.make_hosts_config(EMPTY_CONFIG),
+        hosts_config,
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
@@ -862,7 +866,7 @@ def test_create_nagios_servicedefs_with_warnings(
     license_counter = Counter("services")
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,
@@ -930,10 +934,11 @@ def test_create_nagios_servicedefs_omit_service(
     _patch_plugin_loading(monkeypatch, loaded_active_checks)
     monkeypatch.setattr(config, config.load_resource_cfg_macros.__name__, lambda *a: {})
 
+    hosts_config = config.make_hosts_config(EMPTY_CONFIG)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
         make_app().edition,
-        config.make_hosts_config(EMPTY_CONFIG),
+        hosts_config,
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
@@ -948,7 +953,7 @@ def test_create_nagios_servicedefs_omit_service(
     license_counter = Counter("services")
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,
@@ -1014,10 +1019,11 @@ def test_create_nagios_servicedefs_invalid_args(
 ) -> None:
     _patch_plugin_loading(monkeypatch, loaded_active_checks)
 
+    hosts_config = config.make_hosts_config(EMPTY_CONFIG)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
         make_app().edition,
-        config.make_hosts_config(EMPTY_CONFIG),
+        hosts_config,
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
@@ -1034,7 +1040,7 @@ def test_create_nagios_servicedefs_invalid_args(
 
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,
@@ -1119,10 +1125,11 @@ def test_create_nagios_config_commands(
     )
     monkeypatch.setattr(config, config.load_resource_cfg_macros.__name__, lambda *a: {})
 
+    hosts_config = config.make_hosts_config(EMPTY_CONFIG)
     config_cache = config.ConfigCache(
         EMPTY_CONFIG,
         make_app().edition,
-        config.make_hosts_config(EMPTY_CONFIG),
+        hosts_config,
         config.make_host_tags(EMPTY_CONFIG, config.make_hosts_config(EMPTY_CONFIG)),
         autochecks_dir=cmk.utils.paths.autochecks_dir,
         discovered_host_labels_dir=cmk.utils.paths.discovered_host_labels_dir,
@@ -1139,7 +1146,7 @@ def test_create_nagios_config_commands(
     license_counter = Counter("services")
     create_nagios_servicedefs(
         cfg,
-        config.make_hosts_config(config_cache.base_config),
+        hosts_config,
         config_cache,
         _make_core_objects_config(config_cache),
         EMPTY_NAGIOS_CORE_CONFIG,

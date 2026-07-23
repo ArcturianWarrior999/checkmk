@@ -43,12 +43,28 @@ export function buildConsolidationFunction(
       return { type: 'sum', function: 'sum_rate', lookback_seconds: lookbackSeconds }
     case 'sum_last_raw':
       return { type: 'sum', function: 'sum_last_raw', lookback_seconds: lookbackSeconds }
+    case 'sum_delta':
+      return { type: 'sum', function: 'sum_delta', lookback_seconds: lookbackSeconds }
     case 'histogram_quantile':
       return {
         type: 'histogram',
         function: 'histogram_quantile',
         lookback_seconds: lookbackSeconds,
         percentile
+      }
+    case 'histogram_count_delta':
+      return {
+        type: 'histogram',
+        function: 'histogram_count_delta',
+        lookback_seconds: lookbackSeconds,
+        percentile: 0
+      }
+    case 'histogram_count_rate':
+      return {
+        type: 'histogram',
+        function: 'histogram_count_rate',
+        lookback_seconds: lookbackSeconds,
+        percentile: 0
       }
     case 'gauge_last':
     default:

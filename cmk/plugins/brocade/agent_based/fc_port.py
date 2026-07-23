@@ -200,14 +200,9 @@ def check_fc_port(item: str, params: Mapping[str, Any], section: StringTable) ->
         warn_bytes, crit_bytes = None, None
     else:
         warn, crit = bw_thresh
-        if isinstance(warn, float):
-            warn_bytes = wirespeed * warn / 100.0
-        else:  # in MB
-            warn_bytes = warn * 1048576.0
-        if isinstance(crit, float):
-            crit_bytes = wirespeed * crit / 100.0
-        else:  # in MB
-            crit_bytes = crit * 1048576.0
+        # non-float thresholds are already in MB
+        warn_bytes = wirespeed * warn / 100.0 if isinstance(warn, float) else warn * 1048576.0
+        crit_bytes = wirespeed * crit / 100.0 if isinstance(crit, float) else crit * 1048576.0
 
     bw_levels = _make_levels(warn_bytes, crit_bytes)
 
@@ -294,10 +289,8 @@ def check_fc_port(item: str, params: Mapping[str, Any], section: StringTable) ->
             yield Metric(f"{counter}_avg", per_sec_avg)
 
         # compute error rate (errors in relation to number of frames) (from 0.0 to 1.0)
-        if ref > 0 or per_sec > 0:
-            rate = per_sec / (ref + per_sec)  # fixed: true-division
-        else:
-            rate = 0
+        # fixed: true-division
+        rate = per_sec / (ref + per_sec) if ref > 0 or per_sec > 0 else 0
         text = f"{descr}: {rate * 100.0:.2f}%"
 
         # Honor averaging of error rate

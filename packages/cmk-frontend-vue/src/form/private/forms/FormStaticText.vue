@@ -33,11 +33,20 @@ const ALERT_VARIANTS = {
 const alertVariant = computed(
   () => ALERT_VARIANTS[props.spec.style as keyof typeof ALERT_VARIANTS] ?? null
 )
+
+const placeholder = computed(() => (display.value === '' ? (props.spec.placeholder ?? null) : null))
 </script>
 
 <template>
   <CmkAlertBox
-    v-if="alertVariant"
+    v-if="placeholder !== null"
+    size="small"
+    variant="info"
+    class="form-static-text__alert"
+    >{{ placeholder }}</CmkAlertBox
+  >
+  <CmkAlertBox
+    v-else-if="alertVariant"
     size="small"
     :variant="alertVariant"
     class="form-static-text__alert"

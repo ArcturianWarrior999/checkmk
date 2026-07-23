@@ -6,4 +6,5 @@
 import CmkDonutChart from './CmkDonutChart.vue'
 
 export default CmkDonutChart
+export type { ChartColor } from '../colors'
 export type { CmkDonutChartProps, DonutSlice } from './types'

@@ -18,6 +18,8 @@ declare module '@tanstack/vue-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
     headerTitle?: TranslatedString
+    /** Markup-capable help shown via CmkHelpText next to the header label. */
+    headerHelp?: TranslatedString
     justify?: ColumnJustify
     filter?: ColumnFilterDefinition
     selectColumn?: boolean

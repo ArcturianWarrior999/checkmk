@@ -1,7 +1,8 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@host_crates//:defs.bzl", "aliases", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc", "rust_library", "rust_test", "rust_test_suite")
+load("@rules_rust//rust:defs.bzl", "rust_doc", "rust_library", "rust_test", "rust_test_suite")
 load("//bazel/rules:file_from_flag.bzl", "file_from_flag")
+load("//bazel/rules:xcomp/rust.bzl", "rust_binary")
 
 file_from_flag(
     name = "version.rs",
@@ -99,9 +100,11 @@ rust_binary(
     aliases = aliases(),
     crate_name = "mk_oracle",
     edition = "2021",
+    opt = True,
     proc_macro_deps = all_crate_deps(
         proc_macro = True,
     ),
+    strip = True,
     visibility = ["//visibility:public"],
     deps = all_crate_deps() + [":mk-oracle-lib"],
 )
@@ -179,6 +182,9 @@ rust_test_suite(
         "references/output-xe-no-tnsalias.cfg",
     ],
     env_inherit = [
+        # Optional local-database endpoint; without it the local-connection
+        # tests skip themselves.
+        "CI_ORA1_DB_TEST",
         "CI_ORA2_DB_TEST",
         "LD_LIBRARY_PATH",
         "MK_CONFDIR",
@@ -205,11 +211,15 @@ sh_library(
     srcs = [
         ".f12",
         "cargo_run",
+        "db-endpoint.sh",
+        "permissions-check-run",
         "references/mk_oracle",
         "run",
+        "run-pytests",
         "ssh-run",
         "ssh-run.conf",
         "ssh-run-ci",
+        "test-db-endpoints.conf",
         "tests/files/docker/run-db.sh",
         "tests/test_cmd_line.sh",
         "tools/call-ora",
@@ -219,9 +229,19 @@ sh_library(
 filegroup(
     name = "windows_ci_scripts",
     srcs = [
+        "permissions-check-run.ps1",
         "references/mk_oracle.ps1",
         "run.ps1",
         "tests/files/ci-scripts/manage-test-registry-set.ps1",
+    ],
+    tags = ["lint-with-psscriptanalyzer"],
+)
+
+filegroup(
+    name = "test_reference_scripts",
+    srcs = [
+        "references/output-multiple.ps1",
+        "references/output-optional.ps1",
     ],
     tags = ["lint-with-psscriptanalyzer"],
 )

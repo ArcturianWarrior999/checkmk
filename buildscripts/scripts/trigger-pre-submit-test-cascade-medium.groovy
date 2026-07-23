@@ -5,11 +5,16 @@
 // @NonCPS: runs outside Jenkins CPS so HttpURLConnection (non-Serializable) is safe to hold.
 // Uses POST /a/changes/{id}/rebase:chain which rebases the full ancestor chain in one call
 // (Gerrit 3.9+). Returns [status: int, body: String].
+// on_behalf_of_uploader keeps the original patch owner as uploader/committer
 @NonCPS
 Map gerritRebaseChain(String patchset_revision, String auth_header) {
     def conn = new URL("https://review.lan.tribe29.com/a/changes/${patchset_revision}/rebase:chain?o=CURRENT_REVISION").openConnection();
     conn.setRequestMethod("POST");
     conn.setRequestProperty("Authorization", auth_header);
+    conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+    conn.setDoOutput(true);
+    conn.outputStream.write('{"on_behalf_of_uploader": true}'.getBytes("UTF-8"));
+    conn.outputStream.close();
     def http_status = conn.responseCode;
     def body = (http_status >= 200 && http_status < 300) ? conn.inputStream.text : (conn.errorStream?.text ?: "");
     return [status: http_status, body: body];

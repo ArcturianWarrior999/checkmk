@@ -46,7 +46,7 @@ class LoggingManager:
         """
         handler = logging.StreamHandler(stream=stream)
         handler.setLevel(log_level)
-        handler.setFormatter(logging.Formatter("%(message)s"))
+        handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
         self._logger.addHandler(handler)
         yield
         self._logger.removeHandler(handler)
@@ -61,7 +61,9 @@ class LoggingManager:
         path.parent.mkdir(parents=True, exist_ok=True)
         handler = WatchedFileHandler(filename=path, encoding="utf-8")
         handler.setLevel(log_level)
-        handler.setFormatter(logging.Formatter("%(asctime)s [%(levelno)s] [%(name)s] %(message)s"))
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(levelname)s] [%(name)s] %(message)s")
+        )
         self._logger.addHandler(handler)
         yield
         self._logger.removeHandler(handler)

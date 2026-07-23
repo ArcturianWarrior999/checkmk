@@ -130,8 +130,8 @@ fi
 # runfiles tree, not in this directory.
 COVERAGE_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report.dat"
 COVERAGE_FILTERED_DAT="$REPO_PATH/bazel-out/_coverage/_coverage_report_filtered.dat"
-COVERAGE_HTML_DIR="$REPO_PATH/results/coverage"
-RESULT_CSV="$COVERAGE_HTML_DIR/coverage.csv"
+COVERAGE_HTML_DIR="$REPO_PATH/results/test_coverage_html"
+RESULT_CSV="$REPO_PATH/results/test_coverage.csv"
 PY_TEST_TARGETS="/tmp/py_test_targets.txt"
 
 if [[ "$RUN" == true ]]; then
@@ -190,6 +190,9 @@ if [[ "$RUN" == true ]]; then
         RESOURCE_FLAGS+=("--local_resources=memory=HOST_RAM*.67")
     echo "Resource flags: ${RESOURCE_FLAGS[*]:-(none, all configured via rc files)}"
 
+    # --test_tag_filters must re-exclude manual tests: they are excluded from
+    # wildcard builds for a reason (e.g. benchmarks), but the explicit target
+    # list from the query above would override the manual tag.
     # --skip_incompatible_explicit_targets: the query is configuration-less, so
     # it also lists edition-gated tests (e.g. //cmk:requirements-test-community)
     # that are platform-incompatible under the edition set above. Without the
@@ -199,7 +202,7 @@ if [[ "$RUN" == true ]]; then
         "$EDITION_FLAG" \
         "${RESOURCE_FLAGS[@]}" \
         --skip_incompatible_explicit_targets \
-        --test_tag_filters=-cpp,-requires-git \
+        --test_tag_filters=-manual \
         --keep_going \
         --build_tests_only \
         --combined_report=lcov \
@@ -278,7 +281,7 @@ if [[ "$DO_UPLOAD" == true ]]; then
         exit 1
     fi
 
-    mkdir -p "$COVERAGE_HTML_DIR"
+    mkdir -p "$(dirname "$RESULT_CSV")"
     bazel run "$PKG:summary" "$EDITION_FLAG" -- \
         -i "$COVERAGE_FILTERED_DAT" -o "$RESULT_CSV"
     if [ ! -f "$RESULT_CSV" ]; then

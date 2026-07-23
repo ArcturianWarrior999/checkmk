@@ -26,7 +26,7 @@ import cmk.gui.site_config
 from cmk.ccc.site import omd_site, SiteId
 from cmk.crypto.certificate import Certificate, CertificatePEM
 from cmk.gui.config import load_config
-from cmk.gui.user_sites import activation_sites
+from cmk.gui.site_config import all_activation_sites
 from cmk.gui.wato._check_mk_configuration import ConfigVariableTrustedCertificateAuthorities
 from cmk.gui.watolib.activate_changes import ActivateChanges
 from cmk.gui.watolib.audit_log import make_audit_log_change_hook
@@ -183,7 +183,7 @@ def start_rotate_site_ca_certificate(
         )
 
         PendingChanges(
-            activation_sites=activation_sites(config.sites),
+            activation_sites=all_activation_sites(config.sites),
             local_site=omd_site(),
             acting_user=None,
             store=PendingChangesStore(),

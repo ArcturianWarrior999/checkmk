@@ -13,18 +13,10 @@ exports_files([
 ])
 
 py_library(
-    name = "_init",
-    srcs = ["cmk/ccc/__init__.py"],
-    data = [":py_typed"],
-    imports = ["."],
-)
-
-py_library(
     name = "cleanup",
     srcs = ["cmk/ccc/cleanup.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -32,7 +24,6 @@ py_library(
     srcs = ["cmk/ccc/inotify.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -40,7 +31,6 @@ py_library(
     srcs = ["cmk/ccc/resulttype.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -66,7 +56,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "exceptions",
         "store",
     ],
@@ -77,7 +66,6 @@ py_library(
     srcs = ["cmk/ccc/debug.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -85,7 +73,6 @@ py_library(
     srcs = ["cmk/ccc/exceptions.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -93,7 +80,6 @@ py_library(
     srcs = ["cmk/ccc/hostaddress.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -101,7 +87,6 @@ py_library(
     srcs = ["cmk/ccc/i18n.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -109,7 +94,6 @@ py_library(
     srcs = ["cmk/ccc/observer.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -117,7 +101,6 @@ py_library(
     srcs = ["cmk/ccc/plugin_registry.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -125,7 +108,6 @@ py_library(
     srcs = ["cmk/ccc/profile.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -134,7 +116,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "exceptions",
         "i18n",
     ],
@@ -146,7 +127,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "i18n",
     ],
 )
@@ -161,7 +141,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "debug",
         "exceptions",
         "i18n",
@@ -175,7 +154,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "regex",
     ],
 )
@@ -185,7 +163,6 @@ py_library(
     srcs = ["cmk/ccc/user.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -193,7 +170,6 @@ py_library(
     srcs = ["cmk/ccc/archive.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -205,7 +181,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "site",
         "version-info",
     ],
@@ -216,7 +191,6 @@ py_library(
     srcs = ["cmk/ccc/version_info.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 py_library(
@@ -225,7 +199,6 @@ py_library(
     imports = ["."],
     visibility = ["//visibility:public"],
     deps = [
-        "_init",
         "exceptions",
     ],
 )
@@ -235,7 +208,6 @@ py_library(
     srcs = ["cmk/ccc/tty.py"],
     imports = ["."],
     visibility = ["//visibility:public"],
-    deps = ["_init"],
 )
 
 _ALL = [
@@ -268,7 +240,6 @@ py_doc_test(
     name = "doctest",
     size = "small",
     srcs = _ALL,
-    tags = ["no-mypy"],
 )
 
 py_cmk_test(
@@ -406,6 +377,13 @@ py_cmk_test(
     ],
 )
 
+py_library(
+    name = "wheel_only_files",
+    srcs = ["cmk/ccc/__init__.py"],
+    data = ["cmk/ccc/py.typed"],
+    imports = ["."],
+)
+
 py_wheel(
     name = "wheel",
     distribution = "cmk-ccc",
@@ -413,19 +391,12 @@ py_wheel(
     # TODO: Duplicated from pyproject.toml
     version = "1.0.0",
     visibility = ["//visibility:public"],
-    deps = _ALL + [
-        ":py_typed",
-    ],
+    deps = _ALL + [":wheel_only_files"],
 )
 
 build_test(
     name = "build_test",
     targets = ["wheel"],
-)
-
-filegroup(
-    name = "py_typed",
-    srcs = ["cmk/ccc/py.typed"],
 )
 
 package_wheel(

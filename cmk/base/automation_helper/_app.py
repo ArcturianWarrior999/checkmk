@@ -297,10 +297,14 @@ def _execute_automation_endpoint(
                 "cmk.automation.args": payload.args,
             },
         ),
+        # Both redirects should be obsolete.
+        # All direct write access to STDOUT and STDERR should be replace with logging
+        # TODO: Remove the redirects.
         redirect_stdout(buffer_stdout),
         redirect_stderr(buffer_stderr),
         _redirect_stdin(io.StringIO(payload.stdin)),
         log_manager.temporary_log_level(payload.log_level),
+        log_manager.stream_logging(stream=buffer_stderr, log_level=logging.ERROR),
     ):
         if state.loading_result:
             clear_caches_before_each_call(

@@ -10,7 +10,7 @@ import pytest
 
 from cmk.ccc.site import omd_site
 from cmk.gui.config import active_config
-from cmk.gui.user_sites import activation_sites
+from cmk.gui.site_config import all_activation_sites
 from cmk.gui.valuespec import Dictionary
 from cmk.gui.watolib.hosts_and_folders import folder_tree
 from cmk.gui.watolib.pending_changes import NoopPendingChangesStore, PendingChanges
@@ -43,7 +43,7 @@ def _make_ruleset(name: RulesetName, rule_values: Sequence[object]) -> Ruleset:
 
 def _make_pending_changes() -> PendingChanges:
     return PendingChanges(
-        activation_sites=activation_sites(active_config.sites),
+        activation_sites=all_activation_sites(active_config.sites),
         local_site=omd_site(),
         acting_user=None,
         store=NoopPendingChangesStore(),

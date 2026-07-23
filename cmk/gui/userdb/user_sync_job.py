@@ -24,7 +24,6 @@ from cmk.gui.log import logger as gui_logger
 from cmk.gui.logged_in import user
 from cmk.gui.pages import PageContext
 from cmk.gui.permissions import permission_registry
-from cmk.gui.site_config import is_distributed_setup_remote_site
 from cmk.gui.type_defs import (
     CustomUserAttrSpec,
     Users,
@@ -33,7 +32,6 @@ from cmk.gui.type_defs import (
 from cmk.gui.user_connection_config_types import UserConnectionConfig
 from cmk.gui.utils.roles import UserPermissions, UserPermissionSerializableConfig
 from cmk.gui.utils.urls import makeuri_contextless
-from cmk.livestatus_client import SiteConfigurations
 
 from ._connections import active_connections
 from ._user_attribute import get_user_attributes, UserAttribute
@@ -45,7 +43,8 @@ def execute_userdb_job(config: Config) -> None:
     """This function is called by the GUI cron job once a minute.
 
     Errors are logged to var/log/web.log."""
-    if not _userdb_sync_job_enabled(config.sites):
+    if user_sync_config() is None:
+        # Automatic user attribute synchronization is disabled for this site.
         return
 
     job = UserSyncBackgroundJob()
@@ -92,13 +91,6 @@ def sync_entry_point(job_interface: BackgroundProcessInterface, args: UserSyncAr
         args,
         load_users_func=load_users,
         save_users_func=save_users,
-    )
-
-
-def _userdb_sync_job_enabled(site_configs: SiteConfigurations) -> bool:
-    cfg = user_sync_config()
-    return cfg is not None and (
-        cfg != "master" or not is_distributed_setup_remote_site(site_configs)
     )
 
 

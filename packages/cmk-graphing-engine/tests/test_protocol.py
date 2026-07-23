@@ -79,7 +79,7 @@ class Negated:
                     time_range=context.time_range,
                     values=[None if v is None else -v for v in evaluated.time_series.values],
                 ),
-                label=evaluated.label,
+                label_macros=evaluated.label_macros,
             )
             for evaluated in self.operand.evaluate(context)
         ]
@@ -112,7 +112,7 @@ class _FanOut:
             EvaluatedQuantity(
                 value=float(index),
                 time_series=TimeSeries(time_range=context.time_range, values=[float(index)] * 3),
-                label=label,
+                label_macros={"$SERIES_ID$": label},
             )
             for index, label in enumerate(self.labels)
         ]
@@ -123,7 +123,7 @@ def test_engine_fans_out_a_quantity_into_labelled_curves() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(
                 curve=Curve(quantity=_FanOut(labels=["a", "b"]), attributes=attributes),
@@ -145,7 +145,7 @@ def test_engine_rejects_a_fan_out_quantity_as_an_operation_operand() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(
                 curve=Curve(
@@ -173,7 +173,7 @@ def test_engine_evaluates_a_custom_quantity_without_engine_changes() -> None:
     graph = Graph(
         name="g",
         title="g",
-        graph_type="test",
+        kind="test",
         lines=[
             Line(curve=Curve(quantity=Negated(operand=a), attributes=attributes), inverse=False)
         ],

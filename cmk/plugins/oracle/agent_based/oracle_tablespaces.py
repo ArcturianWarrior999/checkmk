@@ -108,11 +108,8 @@ def parse_oracle_tablespaces(string_table: StringTable) -> oracle.SectionTableSp
 
         db_version = 0
 
-        if len(line) >= 14:
-            ts_type = line[13]
-        else:
-            # old behavior is all Tablespaces are treated as PERMANENT
-            ts_type = "PERMANENT"
+        # old behavior is all Tablespaces are treated as PERMANENT
+        ts_type = line[13] if len(line) >= 14 else "PERMANENT"
 
         if len(line) == 15:
             db_version = int(line[14].split(".")[0])
@@ -279,6 +276,10 @@ def check_oracle_tablespaces(
             yield Metric(
                 name="max_size",
                 value=stats.max_size,
+            )
+            yield Metric(
+                name="used_perc",
+                value=100.0 * stats.used_size / stats.max_size,
             )
 
             # Check increment size, should not be set to default (1)

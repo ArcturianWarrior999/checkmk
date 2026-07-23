@@ -19,6 +19,12 @@ import StateCell from '@/monitoring/shared/components/cell/StateCell.vue'
       <tr>
         <StateCell :state="'UNREACHABLE'" :stale="true" />
       </tr>
+      <tr>
+        <StateCell kind="service" :state="'OK'" />
+      </tr>
+      <tr>
+        <StateCell kind="service" :state="'CRIT'" :stale="true" />
+      </tr>
     </tbody>
   </table>
 </template>

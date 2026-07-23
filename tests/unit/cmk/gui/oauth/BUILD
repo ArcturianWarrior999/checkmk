@@ -16,7 +16,9 @@ py_cmk_test(
         "//cmk/gui/oauth",
         "//tests/unit:conftest",
         "//tests/unit/cmk/gui:conftest",
+        requirement("fakeredis"),
         requirement("flask"),
+        requirement("pytest-mock"),
         requirement("werkzeug"),
     ],
 )

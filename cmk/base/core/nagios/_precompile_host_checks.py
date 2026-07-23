@@ -26,7 +26,7 @@ from typing import assert_never
 
 import cmk.ccc.debug
 import cmk.checkengine.plugin_backend as agent_based_register
-from cmk.base.config import ConfigCache, FilterMode, save_packed_config
+from cmk.base.config import ConfigCache, FilterMode
 from cmk.ccc import store, tty
 from cmk.ccc.exceptions import MKIPAddressLookupError
 from cmk.ccc.hostaddress import HostAddress, HostName, Hosts
@@ -118,10 +118,6 @@ def precompile_hostchecks(
     *,
     precompile_mode: PrecompileMode,
 ) -> None:
-    console.verbose("Creating precompiled host check config...")
-
-    save_packed_config(config_path, config_cache, hosts_config)
-
     console.verbose("Precompiling host checks...")
 
     host_check_store = HostCheckStore()

@@ -37,6 +37,8 @@ import AllHostsApp from './monitoring/all-hosts/AllHostsApp.vue'
 import MonitoringPageLinkButton from './monitoring/shared/components/MonitoringPageLinkButton.vue'
 import NotificationOverview from './notification/NotificationOverviewApp.vue'
 import ProductUsageAnalyticsApp from './product-usage-analytics/ProductUsageAnalyticsApp.vue'
+import ProfilingFlamegraphApp from './profiling/ProfilingFlamegraphApp.vue'
+import ProfilingProfilesListApp from './profiling/ProfilingProfilesListApp.vue'
 import QuickSetup from './quick-setup/QuickSetupApp.vue'
 import AgentDownload from './setup/AgentDownloadApp.vue'
 import TwoFactorAuthApp from './two-factor-auth/TwoFactorAuthApp.vue'
@@ -83,3 +85,5 @@ defineCmkComponent('cmk-date-time-picker', DateTimePickerApp)
 defineCmkComponent('cmk-global-time-picker', GlobalTimePickerApp)
 defineCmkComponent('cmk-graph-group', GraphGroup)
 defineCmkComponent('cmk-custom-graph-designer', CustomGraphDesignerApp)
+defineCmkComponent('cmk-profiling-flamegraph', ProfilingFlamegraphApp)
+defineCmkComponent('cmk-profiling-profiles-list', ProfilingProfilesListApp)

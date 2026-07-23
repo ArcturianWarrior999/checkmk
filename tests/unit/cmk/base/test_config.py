@@ -14,7 +14,7 @@ import shutil
 import socket
 import time
 from collections.abc import Iterable, Iterator, Mapping, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, fields, replace
 from pathlib import Path
 from typing import Any, Literal, NoReturn
 
@@ -53,6 +53,7 @@ from cmk.ccc.exceptions import MKGeneralException
 from cmk.ccc.hostaddress import HostAddress, HostName
 from cmk.ccc.version import Edition
 from cmk.checkengine import agent_protocol
+from cmk.checkengine.checker_helper_config import make_packed_config_writer
 from cmk.checkengine.checkerplugin import ConfiguredService
 from cmk.checkengine.discovery import (
     DiscoveryCheckParameters,
@@ -1484,6 +1485,7 @@ def test_host_config_static_checks(
                 pn: make_plugin(pn)
                 for pn in (CheckPluginName("checktype1"), CheckPluginName("checktype2"))
             },
+            config_cache.label_manager.labels_of_service,
         )(hostname)
         == result
     )
@@ -1827,12 +1829,11 @@ def test_resolve_service_dependencies_cyclic(
         )
 
 
+# TODO(igor): In this and maybe other tests: Construct HostTags directly, drop Scenario
 def test_service_depends_on_unknown_host(monkeypatch: MonkeyPatch) -> None:
-    config_cache = Scenario().apply(monkeypatch).config_cache
+    loading_result = Scenario().apply(monkeypatch)
     service_depends_on = config.ServiceDependsOn(
-        tag_list=config.make_host_tags(
-            config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-        ).tag_list,
+        tag_list=loading_result.host_tags.tag_list,
         service_dependencies=(),
     )
     assert not service_depends_on(HostName("test-host"), "svc")
@@ -1842,12 +1843,10 @@ def test_service_depends_on(monkeypatch: MonkeyPatch) -> None:
     test_host = HostName("test-host")
     ts = Scenario()
     ts.add_host(test_host)
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
 
     service_depends_on = config.ServiceDependsOn(
-        tag_list=config.make_host_tags(
-            config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-        ).tag_list,
+        tag_list=loading_result.host_tags.tag_list,
         service_dependencies=[
             ("dep1", [], config.ALL_HOSTS, ["svc1"], {}),
             ("dep2-%s", [], config.ALL_HOSTS, ["svc1-(.*)"], {}),
@@ -1906,19 +1905,18 @@ def test_host_config_parents(cluster_config: ConfigCache) -> None:
     assert not list(cluster_config.parents(HostName("cluster1")))
 
 
+# TODO(igor):
+# Carefully check what this and the next 2 tests actually tests and rewrite without Scenario.
+# Make sure the location of created tests mirror the location of the covered production code.
 def test_config_cache_tag_list_of_host(monkeypatch: MonkeyPatch) -> None:
     ts = Scenario()
     test_host = HostName("test-host")
     xyz_host = HostName("xyz")
     ts.add_host(test_host, tags={TagGroupID("agent"): TagID("no-agent")})
     ts.add_host(xyz_host)
+    host_tags = ts.apply(monkeypatch).host_tags
 
-    config_cache = ts.apply(monkeypatch).config_cache
-    assert set(
-        config.make_host_tags(
-            config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-        ).tag_list(xyz_host)
-    ) == {
+    assert set(host_tags.tag_list(xyz_host)) == {
         TagID("/wato/"),
         TagID("lan"),
         TagID("ip-v4"),
@@ -1934,12 +1932,8 @@ def test_config_cache_tag_list_of_host(monkeypatch: MonkeyPatch) -> None:
 
 
 def test_config_cache_tag_list_of_host_not_existing(monkeypatch: MonkeyPatch) -> None:
-    config_cache = Scenario().apply(monkeypatch).config_cache
-    assert set(
-        config.make_host_tags(
-            config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-        ).tag_list(HostName("not-existing"))
-    ) == {
+    host_tags = Scenario().apply(monkeypatch).host_tags
+    assert set(host_tags.tag_list(HostName("not-existing"))) == {
         TagID("/"),
         TagID("lan"),
         TagID("cmk-agent"),
@@ -1958,10 +1952,8 @@ def test_host_tags_of_host(monkeypatch: MonkeyPatch) -> None:
     ts.add_host(test_host, tags={TagGroupID("agent"): TagID("no-agent")})
     ts.add_host(xyz_host)
 
-    config_cache = ts.apply(monkeypatch).config_cache
-    assert config.make_host_tags(
-        config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-    ).tags(xyz_host) == {
+    host_tags = ts.apply(monkeypatch).host_tags
+    assert host_tags.tags(xyz_host) == {
         "address_family": "ip-v4-only",
         "agent": "cmk-agent",
         "criticality": "prod",
@@ -1973,9 +1965,7 @@ def test_host_tags_of_host(monkeypatch: MonkeyPatch) -> None:
         "tcp": "tcp",
         "checkmk-agent": "checkmk-agent",
     }
-    assert config.make_host_tags(
-        config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-    ).tags(test_host) == {
+    assert host_tags.tags(test_host) == {
         "address_family": "ip-v4-only",
         "agent": "no-agent",
         "criticality": "prod",
@@ -2008,11 +1998,9 @@ def test_tags_of_service(monkeypatch: MonkeyPatch) -> None:
         ],
     )
 
-    config_cache = ts.apply(monkeypatch).config_cache
+    loading_result = ts.apply(monkeypatch)
 
-    assert config.make_host_tags(
-        config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-    ).tags(xyz_host) == {
+    assert loading_result.host_tags.tags(xyz_host) == {
         "address_family": "ip-v4-only",
         "agent": "cmk-agent",
         "criticality": "prod",
@@ -2024,11 +2012,14 @@ def test_tags_of_service(monkeypatch: MonkeyPatch) -> None:
         "tcp": "tcp",
         "checkmk-agent": "checkmk-agent",
     }
-    assert _make_core_objects_config(config_cache).tags_of_service(xyz_host, "CPU load", {}) == {}
+    assert (
+        _make_core_objects_config(loading_result.config_cache).tags_of_service(
+            xyz_host, "CPU load", {}
+        )
+        == {}
+    )
 
-    assert config.make_host_tags(
-        config_cache.base_config, config.make_hosts_config(config_cache.base_config)
-    ).tags(test_host) == {
+    assert loading_result.host_tags.tags(test_host) == {
         "address_family": "ip-v4-only",
         "agent": "no-agent",
         "criticality": "prod",
@@ -2038,9 +2029,9 @@ def test_tags_of_service(monkeypatch: MonkeyPatch) -> None:
         "site": "unit",
         "snmp_ds": "no-snmp",
     }
-    assert _make_core_objects_config(config_cache).tags_of_service(test_host, "CPU load", {}) == {
-        "criticality": "prod"
-    }
+    assert _make_core_objects_config(loading_result.config_cache).tags_of_service(
+        test_host, "CPU load", {}
+    ) == {"criticality": "prod"}
 
 
 def test_labels(monkeypatch: MonkeyPatch) -> None:
@@ -2972,33 +2963,20 @@ def test_save_packed_config(monkeypatch: MonkeyPatch, config_path: Path) -> None
     ts = Scenario()
     ts.add_host(HostName("bla1"))
     loading_result = ts.apply(monkeypatch)
+    loaded_config = loading_result.loaded_config
     config_cache = loading_result.config_cache
     precompiled_check_config = config_path / "precompiled_check_config.mk"
 
     assert not precompiled_check_config.exists()
 
-    config.save_packed_config(config_path, config_cache, loading_result.hosts_config)
+    make_packed_config_writer(
+        {f.name: getattr(loaded_config, f.name) for f in fields(loaded_config)},
+        loading_result.hosts_config,
+        is_online=config_cache.is_online,
+        is_active=config_cache.is_active,
+    )(config_path)
 
     assert precompiled_check_config.exists()
-
-
-class TestPackedConfigStore:
-    @pytest.fixture()
-    def store(self, config_path: Path) -> config.PackedConfigStore:
-        return config.PackedConfigStore.from_serial(config_path)
-
-    def test_read_not_existing_file(self, store: config.PackedConfigStore) -> None:
-        with pytest.raises(FileNotFoundError):
-            store.read()
-
-    def test_write(self, store: config.PackedConfigStore, config_path: Path) -> None:
-        precompiled_check_config = config_path / "precompiled_check_config.mk"
-        assert not precompiled_check_config.exists()
-
-        store.write({"abc": 1})
-
-        assert precompiled_check_config.exists()
-        assert store.read() == {"abc": 1}
 
 
 def test__extract_check_plugins(monkeypatch: MonkeyPatch) -> None:
@@ -3176,6 +3154,7 @@ def test_check_table_cluster_merging_enforced_and_discovered(
                 ),
                 service_name_config,
                 {},
+                config_cache.label_manager.labels_of_service,
             ),
         )
         == expected

@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 package(default_visibility = [
     "//cmk:__subpackages__",
@@ -177,4 +178,10 @@ sh_library(
         "vnx_quotas/libexec/agent_vnx_quotas",
         "zerto/libexec/agent_zerto",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":plugins"],
 )

@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@cmk_requirements//:requirements.bzl", "requirement")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 py_library(
     name = "config_infra",
@@ -210,6 +211,7 @@ py_library(
         "//non-free/packages:__subpackages__",
         "//omd/packages/check_mk:__pkg__",
         "//packages/cmk-backup:__pkg__",
+        "//packages/cmk-profiling:__pkg__",
         "//packages/cmk-wsgi:__pkg__",
         "//tests:__subpackages__",
     ],
@@ -287,4 +289,10 @@ py_library(
         requirement("setproctitle"),
         requirement("urllib3"),
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":watolib"],
 )

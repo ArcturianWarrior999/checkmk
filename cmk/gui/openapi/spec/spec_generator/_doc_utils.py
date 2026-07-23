@@ -223,63 +223,6 @@ def _permission_descriptions(
     perms: permissions.BasePerm,
     descriptions: Mapping[str, str] | None = None,
 ) -> str:
-    r"""Describe permissions human-readable
-
-    Args:
-        perms:
-        descriptions:
-
-    Examples:
-
-        >>> _permission_descriptions(
-        ...     permissions.Perm("wato.edit_folders"),
-        ...     {'wato.edit_folders': 'Allowed to cook the books.'},
-        ... )
-        'This endpoint requires the following permissions: \n * Modify existing folders (`wato.edit_folders`): Allowed to cook the books.\n'
-
-        >>> _permission_descriptions(
-        ...     permissions.AllPerm([permissions.Perm("wato.edit_folders")]),
-        ...     {'wato.edit_folders': 'Allowed to cook the books.'},
-        ... )
-        'This endpoint requires the following permissions: \n * Modify existing folders (`wato.edit_folders`): Allowed to cook the books.\n'
-
-        >>> _permission_descriptions(
-        ...     permissions.AllPerm([permissions.Perm("wato.edit_folders"),
-        ...                          permissions.Undocumented(permissions.Perm("wato.edit"))]),
-        ...     {'wato.edit_folders': 'Allowed to cook the books.'},
-        ... )
-        'This endpoint requires the following permissions: \n * Modify existing folders (`wato.edit_folders`): Allowed to cook the books.\n'
-
-        >>> _permission_descriptions(
-        ...     permissions.AnyPerm([permissions.Perm("wato.edit_folders"), permissions.Perm("wato.edit_folders")]),
-        ...     {'wato.edit_folders': 'Allowed to cook the books.'},
-        ... )
-        'This endpoint requires the following permissions: \n * Any of:\n   * Modify existing folders (`wato.edit_folders`): Allowed to cook the books.\n   * Modify existing folders (`wato.edit_folders`): Allowed to cook the books.\n'
-
-        The description will have a structure like this:
-
-            * Any of:
-               * a
-               * All of:
-                  * b
-                  * c
-
-        >>> _permission_descriptions(
-        ...     permissions.AnyPerm([
-        ...         permissions.Perm("wato.edit"),
-        ...         permissions.AllPerm([
-        ...              permissions.Perm("wato.manage_hosts"),
-        ...              permissions.Perm("wato.edit_folders"),
-        ...         ]),
-        ...     ]),
-        ...     {'wato.edit': 'a', 'wato.manage_hosts': 'b', 'wato.edit_folders':  'c'}
-        ... )
-        'This endpoint requires the following permissions: \n * Any of:\n   * Make changes, perform actions (`wato.edit`): a\n   * All of:\n     * Add & remove hosts (`wato.manage_hosts`): b\n     * Modify existing folders (`wato.edit_folders`): c\n'
-
-    Returns:
-        The description as a string.
-
-    """
     description_map: Mapping[str, str] = descriptions if descriptions is not None else {}
     _description: list[str] = ["This endpoint requires the following permissions: "]
 

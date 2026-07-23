@@ -34,6 +34,7 @@ import logging
 import pathlib
 import pstats
 import threading
+import time
 import typing
 import urllib.parse
 from wsgiref.types import StartResponse, WSGIApplication, WSGIEnvironment
@@ -45,6 +46,43 @@ from cmk.gui.utils.urls import is_truthy_query_value
 P = typing.ParamSpec("P")
 
 logger = logging.getLogger(__name__)
+
+_SENSITIVE_QUERY_PARAMS = frozenset(
+    {"_secret", "_password", "_username", "_transid", "_csrf_token", "password", "secret"}
+)
+
+# Requests against the performance-profile pages themselves should not be
+# saved to the store: every flamegraph view would otherwise recursively
+# record the data endpoint that computed it, flooding the list with
+# self-referential entries.
+_SKIP_SAVE_PATH_SUFFIXES = (
+    "/check_mk/profile_data.py",
+    "/check_mk/profile_download.py",
+)
+_SKIP_SAVE_WATO_MODES = ("performance_profiles", "profile_flamegraph")
+
+
+def _should_save_to_store(path_info: str, query_string: str) -> bool:
+    if path_info.endswith(_SKIP_SAVE_PATH_SUFFIXES):
+        return False
+    if path_info.endswith("/check_mk/wato.py"):
+        params = urllib.parse.parse_qs(query_string)
+        mode_values = params.get("mode", [])
+        if any(m in _SKIP_SAVE_WATO_MODES for m in mode_values):
+            return False
+    return True
+
+
+def _sanitize_query_string(query_string: str) -> str:
+    """Strip sensitive parameters before storing the request URL in profile metadata.
+
+    Related sensitive-parameter filtering lives in ``cmk.gui.page_menu._make_filtered_url``
+    (which reconstructs URLs from a ``Request`` object). Keep the two in sync.
+    """
+    params = urllib.parse.parse_qsl(query_string, keep_blank_values=True)
+    return urllib.parse.urlencode(
+        [(k, v) for k, v in params if k.lower() not in _SENSITIVE_QUERY_PARAMS]
+    )
 
 
 @dataclasses.dataclass
@@ -139,6 +177,7 @@ class ProfilingMiddleware(abc.ABC):
             self._reset_profiler()
 
             # ENABLE: Profiling
+            start_time = time.monotonic()
             self._profiler.enable()
 
             if self._wsgi_app is None:
@@ -149,7 +188,8 @@ class ProfilingMiddleware(abc.ABC):
             finally:
                 self._profiler.disable()
                 # DISABLE: Profiling
-                self._save_profile_data()
+                duration_ms = (time.monotonic() - start_time) * 1000
+                self._save_profile_data(environ, duration_ms)
 
             return response
 
@@ -175,11 +215,10 @@ class ProfilingMiddleware(abc.ABC):
         params = urllib.parse.parse_qs(environ.get("QUERY_STRING", ""))
         return any(is_truthy_query_value(value) for value in params.get("_profile", ()))
 
-    def _save_profile_data(self) -> None:
+    def _save_profile_data(self, environ: WSGIEnvironment, duration_ms: float) -> None:
         logger.debug("Saving profiling data")
 
         profile_file = self._profile_setting.profile_file
-        script_file = profile_file.with_suffix(".py")
 
         self._profiler.dump_stats(str(profile_file))
         stats = pstats.Stats(self._profiler)
@@ -187,16 +226,27 @@ class ProfilingMiddleware(abc.ABC):
         with open(self._profile_setting.cachegrind_file, "w") as grind:
             conv.output(grind)
 
-        # We don't want to overwrite manual changes to the script file, so we only create it.
-        if not script_file.exists():
-            with script_file.open("w", encoding="utf-8") as f:
-                f.write(
-                    "#!/usr/bin/env python3\n"
-                    "import pstats\n"
-                    f'stats = pstats.Stats("{profile_file}")\n'
-                    "stats.sort_stats('cumtime').print_stats()\n"
-                )
-            script_file.chmod(0o755)
+        # Also save to the multi-profile store so the request shows up in the GUI.
+        # Not gated by ``profiling_options.enabled``: cProfile already ran, so
+        # dropping the capture here would only lose data (the flag gates the reader
+        # side). ``active_config`` is not safely readable from middleware anyway.
+        from cmk.profiling.gui import (  # pylint: disable=import-outside-toplevel
+            ProfileStore,
+        )
+        from cmk.utils.paths import (  # pylint: disable=import-outside-toplevel
+            profiles_dir,
+        )
+
+        path_info = environ.get("PATH_INFO", "/")
+        query_string = environ.get("QUERY_STRING", "")
+        if not _should_save_to_store(path_info, query_string):
+            return
+
+        request_url = path_info
+        if query_string:
+            request_url = f"{request_url}?{_sanitize_query_string(query_string)}"
+
+        ProfileStore(profiles_dir).save_gui_request(stats, request_url, duration_ms)
 
 
 class DirectWrappingProfilingMiddleware(ProfilingMiddleware):

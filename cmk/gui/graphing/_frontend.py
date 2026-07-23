@@ -69,7 +69,7 @@ def to_cmk_time_series_graph(
             font_size_pt=font_size_pt,
         ),
         interaction=interaction,
-        graph_type=graph.graph_type,
+        graph_type=graph.kind,
         internal=json.dumps(serialize_graphs([graph])),
     )
 

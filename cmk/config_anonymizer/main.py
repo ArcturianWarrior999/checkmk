@@ -25,9 +25,6 @@ from cmk.gui import main_modules as main_modules
 from cmk.gui.config import active_config
 from cmk.gui.log import init_logging, logger
 from cmk.gui.session_context import SuperUserContext
-from cmk.gui.watolib.rulesets import (
-    RulesetCollection,
-)
 from cmk.gui.watolib.utils import ALL_HOSTS, ALL_SERVICES, NEGATE
 from cmk.gui.wsgi.app import gui_context
 from cmk.ruleset_matcher.labels import BuiltinHostLabelsStore
@@ -157,7 +154,6 @@ def main(argv: Sequence[str]) -> None:
                     "ALL_SERVICES": ALL_SERVICES,
                     "NEGATE": NEGATE,
                     "FOLDER_PATH": "",
-                    **RulesetCollection._prepare_empty_rulesets(),
                 },
                 lock=True,
             )

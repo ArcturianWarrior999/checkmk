@@ -106,6 +106,9 @@
         },
         "consolidation_function": {
           "$ref": "#/$defs/consolidation_function"
+        },
+        "attribute_filter": {
+          "$ref": "attribute_filter.json"
         }
       },
       "required": [
@@ -142,7 +145,7 @@
       "title": "consolidation_sum",
       "properties": {
         "type": { "type": "string", "enum": ["sum"] },
-        "function": { "type": "string", "enum": ["sum_rate", "sum_last_raw"] },
+        "function": { "type": "string", "enum": ["sum_rate", "sum_last_raw", "sum_delta"] },
         "lookback_seconds": { "type": "number" }
       },
       "required": ["type", "function", "lookback_seconds"]
@@ -152,7 +155,10 @@
       "title": "consolidation_histogram",
       "properties": {
         "type": { "type": "string", "enum": ["histogram"] },
-        "function": { "type": "string", "enum": ["histogram_quantile"] },
+        "function": {
+          "type": "string",
+          "enum": ["histogram_quantile", "histogram_count_delta", "histogram_count_rate"]
+        },
         "lookback_seconds": { "type": "number" },
         "percentile": { "type": "number" }
       },

@@ -3,6 +3,8 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
+from typing import NamedTuple
+
 from cmk.rulesets.v1 import Title
 from cmk.rulesets.v1.form_specs import (
     DefaultValue,
@@ -17,20 +19,33 @@ from cmk.rulesets.v1.form_specs import (
 from cmk.rulesets.v1.rule_specs import CheckParameters, HostCondition, Topic
 
 
+class AssertType(NamedTuple):
+    id: str
+    title: Title
+
+
+ASSERT_TYPES = [
+    AssertType("msg", Title("Message rate")),
+    AssertType("rollovers", Title("Rollovers rate")),
+    AssertType("regular", Title("Regular rate")),
+    AssertType("warning", Title("Warning rate")),
+    AssertType("user", Title("User rate")),
+]
+
+
 def _parameter_valuespec_mongodb_asserts() -> Dictionary:
     return Dictionary(
         elements={
-            "%s_assert_rate" % what: DictElement[SimpleLevelsConfigModel[float]](
+            "%s_assert_rate" % assert_type.id: DictElement[SimpleLevelsConfigModel[float]](
                 parameter_form=SimpleLevels[float](
-                    # astrein: disable=localization-named-placeholder
-                    title=Title("%s rate") % what.title(),
+                    title=assert_type.title,
                     level_direction=LevelDirection.UPPER,
                     prefill_fixed_levels=DefaultValue((1.0, 2.0)),
                     form_spec_template=Float(unit_symbol="Asserts per second"),
                     migrate=migrate_to_float_simple_levels,
                 )
             )
-            for what in ["msg", "rollovers", "regular", "warning", "user"]
+            for assert_type in ASSERT_TYPES
         }
     )
 

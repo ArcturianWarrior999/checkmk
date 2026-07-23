@@ -116,10 +116,10 @@ def test_active_check_macros(site: Site) -> None:
 
         for var, value in macros.items():
             description = descr(var)
-            logger.info(description)
+            logger.debug(description)
             site.schedule_check("test-host", description, 0)
 
-            logger.info("Get service row")
+            logger.debug("Get service row")
             row = site.live.query_row(
                 "GET services\n"
                 "Columns: host_name description state plugin_output has_been_checked\n"
@@ -127,7 +127,7 @@ def test_active_check_macros(site: Site) -> None:
                 "Filter: description = %s\n" % description
             )
 
-            logger.info(row)
+            logger.debug(row)
             name, description, state, plugin_output, has_been_checked = row
 
             assert name == "test-host"

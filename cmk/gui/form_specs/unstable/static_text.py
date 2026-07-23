@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
+from cmk.rulesets.v1 import Label
 from cmk.rulesets.v1.form_specs import FormSpec
 
 StaticTextStyle = Literal["text", "preformatted", "alert_info", "alert_warning", "alert_error"]
@@ -27,6 +28,10 @@ class StaticText(FormSpec[str]):
       ``<pre>`` block so an indented multi-line summary stays formatted.
     - ``"alert_info"`` / ``"alert_warning"`` / ``"alert_error"``: renders the
       string inside a small alert box of the matching severity.
+
+    ``placeholder`` is shown inside a small info alert box whenever the
+    string to display is empty.
     """
 
     style: StaticTextStyle = "text"
+    placeholder: Label | None = None

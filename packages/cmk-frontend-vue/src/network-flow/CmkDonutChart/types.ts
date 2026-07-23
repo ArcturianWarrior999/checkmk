@@ -3,6 +3,7 @@
  * This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
  * conditions defined in the file COPYING, which is part of this source code package.
  */
+import type { ChartColor } from '../colors'
 
 export interface DonutSlice {
   /** Stable key for the slice (used as the render key). */
@@ -11,8 +12,8 @@ export interface DonutSlice {
   label: string
   /** Numeric weight of the slice; percentages are derived from the sum of all values. */
   value: number
-  /** CSS color of the slice arc and its legend swatch. */
-  color: string
+  /** Named palette color of the slice arc and its legend swatch. */
+  color: ChartColor
 }
 
 export interface CmkDonutChartProps {

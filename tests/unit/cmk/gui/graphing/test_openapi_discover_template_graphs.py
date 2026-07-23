@@ -8,8 +8,8 @@ from collections.abc import Callable, Sequence
 
 import pytest
 
-from cmk.ccc.site import SiteId
 from cmk.graphing_engine import Graph, HostName, Service, ServiceName
+from cmk.gui.exceptions import MKMissingDataError
 from cmk.gui.graphing._engine_rrd import EngineRRDFetchMetricNames
 from cmk.gui.graphing.openapi import discover_template_graphs as discover_module
 from cmk.livestatus_client import MKLivestatusSocketError
@@ -29,7 +29,7 @@ def test_discover_template_graphs_emits_fetchable_graphs(
     monkeypatch.setattr(
         discover_module,
         "build_template_graphs",
-        _fake_build([Graph(name="g", title="t", graph_type="template")]),
+        _fake_build([Graph(name="g", title="t", kind="template")]),
     )
     resp = clients.Graph.discover_template_graphs(
         hostname="my-host", service_description="CPU load"
@@ -48,31 +48,22 @@ def test_discover_template_graphs_emits_fetchable_graphs(
     assert fetch_resp.json["metrics"] == []
 
 
-def test_discover_template_graphs_passes_service_and_site(
+def test_discover_template_graphs_passes_the_service_to_the_fetch(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured: dict[str, object] = {}
 
     def _build(**kwargs: object) -> Sequence[Graph]:
         captured.update(kwargs)
-        return [Graph(name="g", title="t", graph_type="template")]
+        return [Graph(name="g", title="t", kind="template")]
 
     monkeypatch.setattr(discover_module, "build_template_graphs", _build)
 
-    clients.Graph.discover_template_graphs(
-        hostname="my-host", service_description="CPU load", site="my_site"
-    )
+    clients.Graph.discover_template_graphs(hostname="my-host", service_description="CPU load")
     assert captured["service"] == Service(
         host_name=HostName("my-host"), service_name=ServiceName("CPU load")
     )
-    fetch_metric_names = captured["fetch_metric_names"]
-    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
-    assert fetch_metric_names.site_id == SiteId("my_site")
-
-    clients.Graph.discover_template_graphs(hostname="my-host", service_description="CPU load")
-    fetch_metric_names = captured["fetch_metric_names"]
-    assert isinstance(fetch_metric_names, EngineRRDFetchMetricNames)
-    assert fetch_metric_names.site_id is None
+    assert isinstance(captured["fetch_metric_names"], EngineRRDFetchMetricNames)
 
 
 def test_discover_template_graphs_filters_by_graph_id(
@@ -83,8 +74,8 @@ def test_discover_template_graphs_filters_by_graph_id(
         "build_template_graphs",
         _fake_build(
             [
-                Graph(name="cpu_load", title="CPU load", graph_type="template"),
-                Graph(name="active_sessions", title="Active sessions", graph_type="template"),
+                Graph(name="cpu_load", title="CPU load", kind="template"),
+                Graph(name="active_sessions", title="Active sessions", kind="template"),
             ]
         ),
     )
@@ -97,31 +88,46 @@ def test_discover_template_graphs_filters_by_graph_id(
         assert graph["title"] == "Active sessions"
 
 
-def test_discover_template_graphs_unknown_graph_id_is_404(
+def test_discover_template_graphs_unknown_graph_id_is_empty_state(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(
         discover_module,
         "build_template_graphs",
-        _fake_build([Graph(name="cpu_load", title="CPU load", graph_type="template")]),
+        _fake_build([Graph(name="cpu_load", title="CPU load", kind="template")]),
     )
     resp = clients.Graph.discover_template_graphs(
         hostname="my-host",
         service_description="CPU load",
         graph_id="does_not_exist",
-        expect_ok=False,
     )
-    assert resp.status_code == 404
+    assert resp.json["graphs"] == []
+    assert "no matching template graphs" in resp.json["no_data_message"]
 
 
-def test_discover_template_graphs_no_graphs_is_404(
+def test_discover_template_graphs_no_graphs_is_empty_state(
     clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(discover_module, "build_template_graphs", _fake_build([]))
     resp = clients.Graph.discover_template_graphs(
-        hostname="my-host", service_description="CPU load", expect_ok=False
+        hostname="my-host", service_description="CPU load"
     )
-    assert resp.status_code == 404
+    assert resp.json["graphs"] == []
+    assert "no matching template graphs" in resp.json["no_data_message"]
+
+
+def test_discover_template_graphs_missing_data_is_empty_state(
+    clients: ClientRegistry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def _raise(**_kwargs: object) -> Sequence[Graph]:
+        raise MKMissingDataError("As soon as you add your Checkmk server ...")
+
+    monkeypatch.setattr(discover_module, "build_template_graphs", _raise)
+    resp = clients.Graph.discover_template_graphs(
+        hostname="my-host", service_description="CPU load"
+    )
+    assert resp.json["graphs"] == []
+    assert resp.json["no_data_message"] == "As soon as you add your Checkmk server ..."
 
 
 def test_discover_template_graphs_livestatus_failure_is_503(

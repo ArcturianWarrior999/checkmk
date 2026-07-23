@@ -27,11 +27,12 @@ set cur_dir=%cd%
 set output_dir=%cur_dir%\..\..\..\..\artefacts
 set target=x86_64-pc-windows-msvc
 set exe_name=robotmk_ext.exe
-set exe=target\%target%\release\%exe_name%
+:: The crate is a member of the root Cargo workspace: build output lands
+:: in the workspace-level target directory.
+set exe=..\..\..\..\target\%target%\release\%exe_name%
 rustup toolchain list
-rustup default 1.72.0
-rustup target add %target%
-rustup update 1.72.0
+:: The toolchain comes from rust-toolchain.toml; rustup installs it on
+:: demand.
 
 :: Build
 powershell Write-Host "Building Rust executables" -Foreground White

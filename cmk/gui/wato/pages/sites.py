@@ -124,9 +124,10 @@ from cmk.gui.watolib.global_settings import (
 from cmk.gui.watolib.hosts_and_folders import (
     Folder,
     folder_preserving_link,
-    folder_tree,
     FolderSiteStats,
+    FolderTree,
     make_action_link,
+    make_folder_tree,
 )
 from cmk.gui.watolib.mode import mode_url, ModeRegistry, redirect, WatoMode
 from cmk.gui.watolib.pending_changes import (
@@ -407,6 +408,7 @@ class ModeEditSite(WatoMode):
 
     def save_site_changes(
         self,
+        tree: FolderTree,
         site_spec: SiteConfiguration,
         configured_sites: SiteConfigurations,
         *,
@@ -444,6 +446,7 @@ class ModeEditSite(WatoMode):
 
         self._site = configured_sites[self._site_id] = site_spec
         self._site_mgmt.save_sites(
+            tree,
             configured_sites,
             activate=True,
             pprint_value=pprint_value,
@@ -469,6 +472,7 @@ class ModeEditSite(WatoMode):
     def action(self, config: Config) -> ActionResult:
         site_spec = self._site_from_form_spec(config)
         return self.save_site_changes(
+            make_folder_tree(config),
             site_spec,
             self._configured_sites,
             pprint_value=config.wato_pprint_config,
@@ -510,7 +514,7 @@ class ModeEditSite(WatoMode):
         expects, and fills SAML endpoint URLs so the read-only display
         widgets show meaningful values.
         """
-        data: dict = dict(populate_saml_site_endpoint_urls(self._site))
+        data: dict = dict(populate_saml_site_endpoint_urls(self._site, empty_marker=""))
         if "status_host" in data:
             data["status_host"] = self._status_host_adapter.to_form_spec(data["status_host"])
         if "authentication_connections" in data:
@@ -1120,6 +1124,7 @@ class ModeDistributedMonitoring(WatoMode):
         delete_id = request.get_ascii_input("_delete")
         if delete_id and transactions.check_transaction():
             return self._action_delete(
+                make_folder_tree(config),
                 SiteId(delete_id),
                 pprint_value=config.wato_pprint_config,
                 pending_changes=_pending_changes(
@@ -1133,6 +1138,7 @@ class ModeDistributedMonitoring(WatoMode):
         delete_folders_id = request.get_ascii_input("_delete_folders")
         if delete_folders_id and transactions.check_transaction():
             return self._action_delete_folders(
+                make_folder_tree(config),
                 SiteId(delete_folders_id),
                 pending_changes=_pending_changes(
                     config.sites,
@@ -1158,6 +1164,7 @@ class ModeDistributedMonitoring(WatoMode):
         logout_id = request.get_ascii_input("_logout")
         if logout_id:
             return self._action_logout(
+                make_folder_tree(config),
                 SiteId(logout_id),
                 pprint_value=config.wato_pprint_config,
                 pending_changes=_pending_changes(
@@ -1171,6 +1178,7 @@ class ModeDistributedMonitoring(WatoMode):
         login_id = request.get_ascii_input("_login")
         if login_id:
             return self._action_login(
+                make_folder_tree(config),
                 SiteId(login_id),
                 debug=config.debug,
                 pprint_value=config.wato_pprint_config,
@@ -1193,7 +1201,12 @@ class ModeDistributedMonitoring(WatoMode):
         return redirect(mode_url("sites"))
 
     def _action_delete(
-        self, delete_id: SiteId, *, pprint_value: bool, pending_changes: PendingChanges
+        self,
+        tree: FolderTree,
+        delete_id: SiteId,
+        *,
+        pprint_value: bool,
+        pending_changes: PendingChanges,
     ) -> ActionResult:
         # TODO: Can we delete this ancient code? The site attribute is always available
         # these days and the following code does not seem to have any effect.
@@ -1210,7 +1223,7 @@ class ModeDistributedMonitoring(WatoMode):
             raise MKUserError(None, _("You cannot delete the connection to the local site."))
 
         # Make sure that site is not being used by hosts and folders
-        folder_site_stats = FolderSiteStats.build(folder_tree().root_folder())
+        folder_site_stats = FolderSiteStats.build(tree.root_folder())
 
         if delete_id in folder_site_stats.hosts:
             search_url = makeactionuri_contextless(
@@ -1269,6 +1282,7 @@ class ModeDistributedMonitoring(WatoMode):
             )
 
         self._site_mgmt.delete_site(
+            tree,
             delete_id,
             pprint_value=pprint_value,
             pending_changes=pending_changes,
@@ -1276,9 +1290,9 @@ class ModeDistributedMonitoring(WatoMode):
         return redirect(mode_url("sites"))
 
     def _action_delete_folders(
-        self, delete_id: SiteId, *, pending_changes: PendingChanges
+        self, tree: FolderTree, delete_id: SiteId, *, pending_changes: PendingChanges
     ) -> ActionResult:
-        folder_site_stats = FolderSiteStats.build(folder_tree().root_folder())
+        folder_site_stats = FolderSiteStats.build(tree.root_folder())
         folders_related_to_site = folder_site_stats.folders.get(delete_id, set())
         empty_folders = {folder for folder in folders_related_to_site if folder.is_empty()}
 
@@ -1316,13 +1330,19 @@ class ModeDistributedMonitoring(WatoMode):
         return redirect(mode_url("sites"))
 
     def _action_logout(
-        self, logout_id: SiteId, *, pprint_value: bool, pending_changes: PendingChanges
+        self,
+        tree: FolderTree,
+        logout_id: SiteId,
+        *,
+        pprint_value: bool,
+        pending_changes: PendingChanges,
     ) -> ActionResult:
         configured_sites = self._site_mgmt.load_sites()
         site = configured_sites[logout_id]
         if "secret" in site:
             del site["secret"]
         self._site_mgmt.save_sites(
+            tree,
             configured_sites,
             activate=True,
             pprint_value=pprint_value,
@@ -1340,7 +1360,7 @@ class ModeDistributedMonitoring(WatoMode):
         return redirect(mode_url("sites"))
 
     def _action_login(
-        self, login_id: SiteId, *, debug: bool, pprint_value: bool, use_git: bool
+        self, tree: FolderTree, login_id: SiteId, *, debug: bool, pprint_value: bool, use_git: bool
     ) -> ActionResult:
         configured_sites = self._site_mgmt.load_sites()
         if request.get_ascii_input("_cancel"):
@@ -1369,6 +1389,7 @@ class ModeDistributedMonitoring(WatoMode):
 
                 site["secret"] = secret
                 self._site_mgmt.save_sites(
+                    tree,
                     configured_sites,
                     activate=True,
                     pprint_value=pprint_value,
@@ -1975,6 +1996,7 @@ class ModeEditSiteGlobals(ABCGlobalSettingsMode):
 
         self._site.setdefault("globals", {})[varname] = self._current_settings[varname]
         self._site_mgmt.save_sites(
+            make_folder_tree(config),
             self._configured_sites,
             activate=False,
             pprint_value=config.wato_pprint_config,
@@ -2081,8 +2103,9 @@ class ModeEditSiteGlobalSetting(ABCEditGlobalSettingMode):
     def _affected_sites(self) -> list[SiteId]:
         return [self._site_id]
 
-    def _save(self, *, pprint_value: bool, use_git: bool) -> None:
+    def _save(self, tree: FolderTree, *, pprint_value: bool, use_git: bool) -> None:
         site_management_registry["site_management"].save_sites(
+            tree,
             self._configured_sites,
             activate=False,
             pprint_value=pprint_value,

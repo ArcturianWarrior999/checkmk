@@ -33,6 +33,7 @@ def test_default_config_from_plugins() -> None:
         "sidebar_update_interval",
         "sidebar_show_scrollbar",
         "sidebar_notify_interval",
+        "profiling_options",
         "quicksearch_dropdown_limit",
         "quicksearch_search_order",
         "failed_notification_horizon",

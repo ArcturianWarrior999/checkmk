@@ -454,11 +454,15 @@ class RulesetCollection:
             "FOLDER_PATH": folder.path(),
         }
 
+    # Remove this in 3.1
     @staticmethod
     def _prepare_empty_rulesets() -> Mapping[str, Sequence[object] | Mapping[str, object]]:
         """Prepare empty rulesets so that rules.mk has something to append to
 
         We need to initialize all variables here, even when only loading with only_varname.
+
+        UPDATE: The above was true for Checkmk < 3.0. Since 3.0, all rulesets are written
+        in a self-bootstrapping manner, such that we can remove this function in 3.1
         """
         default: Callable[[], Sequence[object] | Mapping[str, object]] = dict
         return dict(
@@ -958,12 +962,26 @@ class Ruleset:
     def format_raw_value(
         name: str, rule_specs: Iterable[RuleSpec], is_optional: bool, pprint_value: bool
     ) -> str:
+        """Format one ruleset as an exec-style .mk block.
+
+        Each block emits its own parent-dict bootstrap, so files with several
+        rulesets of the same family repeat the line. This is deliberate:
+        `setdefault` makes repetition a no-op, and it keeps every block
+        self-contained — loadable regardless of which file it lands in or
+        what precedes it.
+        """
         content = ""
 
         if ":" in name:
             dictname, subkey = name.split(":")
             varname = f"{dictname}[{subkey!r}]"
 
+            # Self-bootstrap the parent dict via the exec's locals (the
+            # `default` dict the loader passes in). Using locals(), not
+            # globals(), keeps each load call isolated: the cmk.ccc.store
+            # module globals would otherwise carry rules across calls and
+            # cause spurious accumulation.
+            content += f"\n{dictname} = locals().setdefault({dictname!r}, {{}})\n"
             content += f"\n{dictname}.setdefault({subkey!r}, [])\n"
         else:
             varname = name

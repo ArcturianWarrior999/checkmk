@@ -1,5 +1,6 @@
 load("@aspect_rules_py//py:defs.bzl", "py_library")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("//bazel/rules:doctest.bzl", "py_doc_test")
 
 # Materializes the directory in this target's runfiles tree without an __init__.py, so Python
 # treats it as an implicit namespace package.
@@ -48,4 +49,10 @@ py_library(
         "//cmk/gui/watolib:password_store",
         "//cmk/utils",
     ],
+)
+
+py_doc_test(
+    name = "doctest",
+    size = "small",
+    srcs = [":check_parameters"],
 )

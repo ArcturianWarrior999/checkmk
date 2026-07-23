@@ -6,7 +6,10 @@
 # mypy: disable-error-code="no-untyped-def"
 
 
+from dataclasses import dataclass
+
 from cmk.agent_based.legacy.v0_unstable import LegacyCheckDefinition
+from cmk.agent_based.v2 import StringTable
 from cmk.plugins.aws.lib import parse_aws
 
 check_info = {}
@@ -18,20 +21,34 @@ AWSELBHealthMap = {
 }
 
 
-def parse_aws_elb_health(string_table):
+@dataclass(frozen=True)
+class ElbHealth:
+    state: str
+    instance_id: str
+    reason_code: str | None = None
+    description: str | None = None
+
+
+def parse_aws_elb_health(string_table: StringTable) -> ElbHealth | None:
     try:
-        return parse_aws(string_table)[-1]
+        row = parse_aws(string_table)[-1]
     except IndexError:
-        return {}
+        return None
+    return ElbHealth(
+        state=row["State"],
+        instance_id=row["InstanceId"],
+        reason_code=row.get("ReasonCode"),
+        description=row.get("Description"),
+    )
 
 
-def discover_aws_elb_health(section):
-    if section:
+def discover_aws_elb_health(section: ElbHealth | None):
+    if section is not None:
         yield None, {}
 
 
-def check_aws_elb_health(item, params, parsed):
-    state_readable = AWSELBHealthMap[parsed["State"]]
+def check_aws_elb_health(item, params, parsed: ElbHealth):
+    state_readable = AWSELBHealthMap[parsed.state]
     if state_readable == "in service":
         state = 0
     elif state_readable == "out of service":
@@ -39,13 +56,13 @@ def check_aws_elb_health(item, params, parsed):
     else:
         state = 3
     yield state, "Status: %s" % state_readable
-    yield 0, "Instance: %s" % parsed["InstanceId"]
+    yield 0, "Instance: %s" % parsed.instance_id
 
-    reason_code = parsed["ReasonCode"]
+    reason_code = parsed.reason_code
     if reason_code not in [None, "", "N/A"]:
         yield 0, "Reason: %s" % reason_code
 
-    description = parsed["Description"]
+    description = parsed.description
     if description not in [None, "", "N/A"]:
         yield 0, "Description: %s" % description
 

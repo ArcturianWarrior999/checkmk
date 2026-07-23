@@ -3,9 +3,9 @@
 # This file is part of Checkmk (https://checkmk.com). It is subject to the terms and
 # conditions defined in the file COPYING, which is part of this source code package.
 
-from cmk.ccc.site import SiteId
 from cmk.graphing_engine import HostName, Service, ServiceName
 from cmk.gui.config import active_config
+from cmk.gui.exceptions import MKMissingDataError
 from cmk.gui.openapi.framework import (
     APIVersion,
     EndpointDoc,
@@ -25,18 +25,13 @@ from .._engine_plugins import registered_graphs, registered_metrics, registered_
 from .._engine_rrd import EngineRRDFetchMetricNames
 from .._engine_template_graphs import build_template_graphs, matches_graph_id
 from ._family import GRAPH_FAMILY
-from .models import ApiDiscoveredGraph
+from .models import ApiDiscoveredGraph, GraphsDiscoverResponse
 
 
 @api_model
 class TemplateGraphsDiscoverRequest:
     hostname: AnnotatedHostName = api_field(description="The host name.", example="my-host")
     service_description: str = api_field(description="The service description.", example="CPU load")
-    site: str | None = api_field(
-        description="The site to query. None queries all configured sites.",
-        example="my_site",
-        default=None,
-    )
     graph_id: str | None = api_field(
         description=(
             "Return only the graph with this id. A legacy 'METRIC_<name>' id matches the "
@@ -47,16 +42,9 @@ class TemplateGraphsDiscoverRequest:
     )
 
 
-@api_model
-class TemplateGraphsDiscoverResponse:
-    graphs: list[ApiDiscoveredGraph] = api_field(
-        description="The data-less graph definitions of the service.",
-    )
-
-
 def discover_template_graphs_v1(
     body: TemplateGraphsDiscoverRequest,
-) -> TemplateGraphsDiscoverResponse:
+) -> GraphsDiscoverResponse:
     """Discover the data-less template graph definitions of a service"""
     try:
         graphs = build_template_graphs(
@@ -67,11 +55,12 @@ def discover_template_graphs_v1(
             registered_graphs=registered_graphs(),
             registered_metrics=registered_metrics(),
             fetch_metric_names=EngineRRDFetchMetricNames(
-                site_id=SiteId(body.site) if body.site else None,
                 debug=active_config.debug,
                 registered_translations=registered_translations(),
             ),
         )
+    except MKMissingDataError as exc:
+        return GraphsDiscoverResponse(graphs=[], no_data_message=str(exc))
     except MKLivestatusException as exc:
         raise ProblemException(
             status=503,
@@ -88,16 +77,16 @@ def discover_template_graphs_v1(
     if body.graph_id is not None:
         graphs = [graph for graph in graphs if matches_graph_id(graph, body.graph_id)]
     if not graphs:
-        raise ProblemException(
-            status=404,
-            title="No graphs found",
-            detail=(
+        return GraphsDiscoverResponse(
+            graphs=[],
+            no_data_message=(
                 f"The service '{body.service_description}' of host '{body.hostname}' has no "
                 "matching template graphs."
             ),
         )
-    return TemplateGraphsDiscoverResponse(
-        graphs=[ApiDiscoveredGraph.from_graph(graph) for graph in graphs]
+    return GraphsDiscoverResponse(
+        graphs=[ApiDiscoveredGraph.from_graph(graph) for graph in graphs],
+        no_data_message=None,
     )
 
 
@@ -108,8 +97,8 @@ ENDPOINT_DISCOVER_TEMPLATE_GRAPHS = VersionedEndpoint(
         method="post",
     ),
     permissions=EndpointPermissions(
-        required=permissions.Undocumented(
-            permissions.AnyPerm(
+        required=permissions.Optional(
+            permissions.AllPerm(
                 [
                     permissions.Perm("general.see_all"),
                     permissions.OkayToIgnorePerm("bi.see_all"),

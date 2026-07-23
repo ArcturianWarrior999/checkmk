@@ -219,7 +219,7 @@ def match_expr_to_api(
     operator: Literal["one_of", "none_of"]
     entries: HostOrServiceConditionsSimple
     match data:
-        case None | []:
+        case None:
             return None
         case {"$nor": list() as entries}:
             operator = "none_of"
@@ -452,7 +452,9 @@ def _conditions_to_api(conditions: RuleConditions) -> RuleConditionsModel:
         host_label_groups=label_groups_to_api(conditions.host_label_groups),
         service_label_groups=label_groups_to_api(conditions.service_label_groups),
     )
-    # `match_expr_to_api` already returns `None` for absent (`None`/empty) conditions.
+    # `match_expr_to_api` returns `None` only for an absent (`None`) condition; an empty
+    # match_on list is a distinct, meaningful condition ("matches no host/service") and
+    # must not be conflated with "no condition set".
     if (host_name := match_expr_to_api(conditions.host_name, "adaptive")) is not None:
         model.host_name = host_name
     if (

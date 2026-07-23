@@ -36,6 +36,7 @@ from cmk.gui.userdb._connections import (
     ldap_authentication_entries_for_site,
     load_connection_config,
 )
+from cmk.gui.watolib.hosts_and_folders import make_folder_tree
 from cmk.gui.watolib.sites import site_management_registry
 from cmk.livestatus_client import AuthenticationConnectionEntry
 from cmk.update_config.lib import ExpiryVersion
@@ -109,6 +110,7 @@ class MigrateUserSyncToAuthConnections(UpdateAction):
 
         if migrated:
             site_mgmt.save_sites(
+                make_folder_tree(active_config),
                 configured_sites,
                 activate=False,
                 pprint_value=active_config.wato_pprint_config,

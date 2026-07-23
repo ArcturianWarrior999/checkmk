@@ -122,10 +122,7 @@ def _parse_version_gt_2(
 def _parse_version_gt_2_with_qdevice(
     line: Sequence[str], header: Sequence[str]
 ) -> tuple[str, Mapping[str, str]]:
-    if len(line) > 3:
-        name = " ".join(line[3:])
-    else:
-        name = line[2]  # QDevice
+    name = " ".join(line[3:]) if len(line) > 3 else line[2]  # QDevice
     return name, dict(zip(header[:3], line[:3]))
 
 

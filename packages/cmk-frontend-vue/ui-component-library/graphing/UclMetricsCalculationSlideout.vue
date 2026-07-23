@@ -109,8 +109,11 @@ const seed: GraphItem[] = [
     resource_attributes: [],
     scope_attributes: [],
     data_point_attributes: [],
-    aggregation_lookback: 300,
-    aggregation_histogram_percentile: 95
+    consolidation_function: {
+      type: 'histogram_quantile',
+      lookback_seconds: 300,
+      percentile: 95
+    }
   }
 ]
 

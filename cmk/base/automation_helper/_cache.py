@@ -4,15 +4,15 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import dataclasses
+import logging
 from collections.abc import Awaitable
 from typing import Final, Self
 
 import redis
 from redis.exceptions import ConnectionError
 
-from cmk.base.automation_helper._log import LOGGER
-
 LAST_DETECTED_CHANGE_TOPIC: Final = "last_change_detected"
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -45,7 +45,7 @@ class Cache:
         try:
             return last_reload < self.get_last_detected_change()
         except CacheError:
-            LOGGER.warning("[cache] Redis unavailable, assuming reload required")
+            LOGGER.warning("Redis unavailable, assuming reload required")
             return True
 
 
